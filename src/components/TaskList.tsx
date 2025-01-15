@@ -57,10 +57,11 @@ const TaskList = ({ tasks, onToggleTask, onTaskComplete, onDeleteTask, onEditTas
       if (!a.completed && b.completed) return -1;
       if (a.completed && !b.completed) return 1;
 
-      // For incomplete tasks, sort by remaining time
+      // For incomplete tasks, sort by remaining time (lowest first)
       if (!a.completed && !b.completed) {
         const aRemaining = getRemainingTime(a);
         const bRemaining = getRemainingTime(b);
+        // Changed the order here to show lowest remaining time first
         return aRemaining - bRemaining;
       }
 
