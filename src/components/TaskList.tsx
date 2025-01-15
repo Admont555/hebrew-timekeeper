@@ -7,6 +7,7 @@ import { Button } from "./ui/button";
 import { Pencil, Trash2 } from "lucide-react";
 import { useState } from "react";
 import TaskForm from "./TaskForm";
+import { useToast } from "@/hooks/use-toast";
 
 interface TaskListProps {
   tasks: TasksByDate;
@@ -18,6 +19,7 @@ interface TaskListProps {
 
 const TaskList = ({ tasks, onToggleTask, onTaskComplete, onDeleteTask, onEditTask }: TaskListProps) => {
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
+  const { toast } = useToast();
   const dates = Object.keys(tasks).sort((a, b) => new Date(b).getTime() - new Date(a).getTime());
 
   const formatDate = (dateStr: string) => {
@@ -51,6 +53,25 @@ const TaskList = ({ tasks, onToggleTask, onTaskComplete, onDeleteTask, onEditTas
     return task.duration * 60 - elapsedSeconds;
   };
 
+  const deleteCompletedTasks = () => {
+    let deletedCount = 0;
+    Object.values(tasks).forEach(tasksArray => {
+      tasksArray.forEach(task => {
+        if (task.completed) {
+          onDeleteTask(task.id);
+          deletedCount++;
+        }
+      });
+    });
+    
+    if (deletedCount > 0) {
+      toast({
+        title: "משימות הושלמו",
+        description: `${deletedCount} משימות שהושלמו נמחקו בהצלחה`,
+      });
+    }
+  };
+
   const sortTasks = (tasksArray: Task[]) => {
     return [...tasksArray].sort((a, b) => {
       // First, sort by completion status
@@ -79,8 +100,25 @@ const TaskList = ({ tasks, onToggleTask, onTaskComplete, onDeleteTask, onEditTas
     });
   };
 
+  const hasCompletedTasks = Object.values(tasks).some(tasksArray => 
+    tasksArray.some(task => task.completed)
+  );
+
   return (
     <ScrollArea className="h-[600px] w-full rounded-md border p-4">
+      {hasCompletedTasks && (
+        <div className="mb-4 flex justify-end">
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={deleteCompletedTasks}
+            className="flex items-center gap-2"
+          >
+            <Trash2 className="h-4 w-4" />
+            מחק משימות שהושלמו
+          </Button>
+        </div>
+      )}
       {dates.map((date) => (
         <div key={date} className="mb-6">
           <h2 className="text-xl font-bold mb-3 text-right">{formatDate(date)}</h2>
