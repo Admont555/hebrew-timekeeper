@@ -232,11 +232,19 @@ const Index = () => {
         transition={{ duration: 0.5 }}
         className="container mx-auto p-6 max-w-4xl"
       >
-        <h1 
-          className="text-center text-4xl md:text-5xl font-bold mb-8 bg-gradient-to-r from-purple-600 via-blue-500 to-purple-600 animate-gradient bg-clip-text text-transparent bg-[length:200%_auto] dark:from-purple-400 dark:via-blue-300 dark:to-purple-400"
-        >
-          מעקב משימות
-        </h1>
+        <div className="flex flex-col items-center mb-8">
+          <img 
+            src="https://beeu.co.il/wp-content/uploads/2024/03/אייקון-ביו-מקורי-1.svg" 
+            alt="BeEu Logo" 
+            className="w-24 h-24 mb-4"
+          />
+          <h1 
+            className="text-center text-4xl md:text-5xl font-bold bg-gradient-to-r from-purple-600 via-blue-500 to-purple-600 animate-gradient bg-clip-text text-transparent bg-[length:200%_auto] dark:from-purple-400 dark:via-blue-300 dark:to-purple-400"
+          >
+            מעקב משימות
+          </h1>
+        </div>
+
         <RandomQuote />
         
         <Tabs value={currentWorker} onValueChange={(value: 'worker1' | 'worker2') => setCurrentWorker(value)} className="w-full mb-6">
