@@ -1,6 +1,9 @@
 #root {
   margin: 0 auto;
   text-align: center;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
@@ -8,6 +11,7 @@ body {
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overscroll-behavior-y: none;
 }
 
 .card {
@@ -17,6 +21,10 @@ body {
 @media (max-width: 640px) {
   body {
     font-size: 14px;
+  }
+  
+  input, button {
+    font-size: 16px !important; /* Prevents iOS zoom on focus */
   }
 }
 
@@ -35,4 +43,15 @@ html {
 ::selection {
   background-color: #8B5CF6;
   color: white;
+}
+
+/* iOS-specific fixes */
+@supports (-webkit-touch-callout: none) {
+  .fixed {
+    position: sticky;
+  }
+  
+  input, textarea, select {
+    font-size: 16px !important;
+  }
 }

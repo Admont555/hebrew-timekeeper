@@ -20,14 +20,29 @@ const TaskItem = ({ task, onToggleTask, onTaskComplete, onDeleteTask, onEdit }: 
     });
   };
 
-  const getPriorityColor = (priority: string) => {
+  const getPriorityColor = (priority: 'low' | 'normal' | 'high') => {
     switch (priority) {
       case 'high':
-        return 'text-red-500';
+        return 'text-red-500 dark:text-red-400';
+      case 'normal':
+        return 'text-yellow-500 dark:text-yellow-400';
       case 'low':
-        return 'text-green-500';
+        return 'text-green-500 dark:text-green-400';
       default:
-        return 'text-yellow-500';
+        return 'text-gray-500 dark:text-gray-400';
+    }
+  };
+
+  const getPriorityBgColor = (priority: 'low' | 'normal' | 'high') => {
+    switch (priority) {
+      case 'high':
+        return 'bg-red-50 dark:bg-red-900/20';
+      case 'normal':
+        return 'bg-yellow-50 dark:bg-yellow-900/20';
+      case 'low':
+        return 'bg-green-50 dark:bg-green-900/20';
+      default:
+        return 'bg-gray-50 dark:bg-gray-800/50';
     }
   };
 
@@ -37,13 +52,13 @@ const TaskItem = ({ task, onToggleTask, onTaskComplete, onDeleteTask, onEdit }: 
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.2 }}
-      className={`flex items-center justify-between p-4 rounded-lg border ${
-        task.completed 
+      className={`flex flex-col md:flex-row md:items-center justify-between p-4 rounded-lg border 
+        ${task.completed 
           ? "bg-gray-50/50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-700" 
-          : "bg-white/50 dark:bg-gray-800/50 border-purple-100 dark:border-gray-700"
-      } hover:shadow-md transition-all duration-300`}
+          : `${getPriorityBgColor(task.priority)} border-purple-100 dark:border-gray-700`}
+        hover:shadow-md transition-all duration-300 gap-4 md:gap-0`}
     >
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-4 order-2 md:order-1">
         <div className="flex gap-2">
           <Button
             variant="ghost"
@@ -64,7 +79,12 @@ const TaskItem = ({ task, onToggleTask, onTaskComplete, onDeleteTask, onEdit }: 
             <Pencil className="h-4 w-4 text-blue-500" />
           </Button>
         </div>
-        <Flag className={`h-4 w-4 ${getPriorityColor(task.priority)}`} />
+        <div className="flex items-center gap-2">
+          <Flag className={`h-4 w-4 ${getPriorityColor(task.priority)}`} />
+          <span className={`text-sm ${getPriorityColor(task.priority)}`}>
+            {task.priority === 'high' ? 'דחוף' : task.priority === 'normal' ? 'רגיל' : 'נמוך'}
+          </span>
+        </div>
         <CountdownTimer
           duration={task.duration}
           startTime={task.startTime}
@@ -79,7 +99,7 @@ const TaskItem = ({ task, onToggleTask, onTaskComplete, onDeleteTask, onEdit }: 
           aria-label="Toggle task completion"
         />
       </div>
-      <div className="flex flex-col items-end gap-1">
+      <div className="flex flex-col items-end gap-1 order-1 md:order-2">
         <span className={`text-lg ${task.completed ? "line-through text-gray-400 dark:text-gray-500" : "text-gray-700 dark:text-gray-300"}`}>
           {task.title}
         </span>
