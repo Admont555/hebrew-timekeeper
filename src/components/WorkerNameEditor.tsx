@@ -34,7 +34,7 @@ const WorkerNameEditor = ({ currentName, workerId, onNameChange }: WorkerNameEdi
         <Button 
           variant="ghost" 
           size="icon" 
-          className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-accent hover:text-accent-foreground absolute -right-6 sm:-right-7 top-1/2 -translate-y-1/2"
+          className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-accent hover:text-accent-foreground ml-1"
         >
           <Edit2 className="h-3 w-3" />
         </Button>
