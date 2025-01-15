@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
 import { useToast } from "./ui/use-toast";
+import { playNotificationSound } from "@/utils/sound";
 
 interface CountdownTimerProps {
   duration: number; // in minutes
@@ -42,6 +43,7 @@ const CountdownTimer = ({ duration, startTime, isCompleted, onComplete }: Countd
               if (prevMinutes === 0) {
                 clearInterval(interval);
                 onComplete();
+                playNotificationSound();
                 toast({
                   title: "הזמן נגמר!",
                   description: "המשימה הסתיימה",
