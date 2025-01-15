@@ -11,7 +11,7 @@ interface CountdownTimerProps {
 }
 
 const CountdownTimer = ({ duration, startTime, isCompleted, onComplete }: CountdownTimerProps) => {
-  const [timeLeft, setTimeLeft] = useState<number>(duration);
+  const [timeLeft, setTimeLeft] = useState<number>(duration * 60); // Convert to seconds initially
   const [isRunning, setIsRunning] = useState<boolean>(!!startTime);
   const { toast } = useToast();
 
@@ -26,20 +26,18 @@ const CountdownTimer = ({ duration, startTime, isCompleted, onComplete }: Countd
     if (!isRunning || isCompleted) return;
 
     const calculateTimeLeft = () => {
-      if (!startTime) return duration * 60; // Convert minutes to seconds
+      if (!startTime) {
+        return timeLeft; // Use current timeLeft for manual start
+      }
 
       const start = new Date(startTime).getTime();
       const now = new Date().getTime();
       const elapsedSeconds = Math.floor((now - start) / 1000);
       const remainingSeconds = (duration * 60) - elapsedSeconds;
-      
       return Math.max(0, remainingSeconds);
     };
 
-    const currentTimeLeft = calculateTimeLeft();
-    setTimeLeft(currentTimeLeft);
-
-    if (currentTimeLeft <= 0) {
+    const handleComplete = () => {
       onComplete();
       playNotificationSound();
       setIsRunning(false);
@@ -47,23 +45,27 @@ const CountdownTimer = ({ duration, startTime, isCompleted, onComplete }: Countd
         title: "זמן המשימה הסתיים",
         description: "המשימה הושלמה באופן אוטומטי",
       });
+    };
+
+    // Initial calculation
+    const currentTimeLeft = calculateTimeLeft();
+    setTimeLeft(currentTimeLeft);
+
+    if (currentTimeLeft <= 0) {
+      handleComplete();
       return;
     }
 
     const timer = setInterval(() => {
-      const remaining = calculateTimeLeft();
-      setTimeLeft(remaining);
-
-      if (remaining <= 0) {
-        clearInterval(timer);
-        onComplete();
-        playNotificationSound();
-        setIsRunning(false);
-        toast({
-          title: "זמן המשימה הסתיים",
-          description: "המשימה הושלמה באופן אוטומטי",
-        });
-      }
+      setTimeLeft((prevTime) => {
+        const newTime = prevTime - 1;
+        if (newTime <= 0) {
+          clearInterval(timer);
+          handleComplete();
+          return 0;
+        }
+        return newTime;
+      });
     }, 1000);
 
     return () => clearInterval(timer);
@@ -71,6 +73,7 @@ const CountdownTimer = ({ duration, startTime, isCompleted, onComplete }: Countd
 
   const handleStart = () => {
     setIsRunning(true);
+    setTimeLeft(duration * 60); // Reset to full duration when manually started
   };
 
   const formatTime = (seconds: number) => {
