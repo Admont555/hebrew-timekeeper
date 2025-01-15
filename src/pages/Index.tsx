@@ -276,7 +276,7 @@ const Index = () => {
           className="w-full mb-6"
         >
           <TabsList className="grid w-full grid-cols-2 max-w-md mx-auto">
-            <TabsTrigger value="worker1" className="relative">
+            <TabsTrigger value="worker1" className="group relative">
               {workerNames.worker1}
               <WorkerNameEditor
                 currentName={workerNames.worker1}
@@ -284,7 +284,7 @@ const Index = () => {
                 onNameChange={handleWorkerNameChange}
               />
             </TabsTrigger>
-            <TabsTrigger value="worker2" className="relative">
+            <TabsTrigger value="worker2" className="group relative">
               {workerNames.worker2}
               <WorkerNameEditor
                 currentName={workerNames.worker2}
