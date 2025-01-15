@@ -4,12 +4,13 @@ import { useEffect, useState } from "react";
 import { Label } from "@/components/ui/label";
 import { motion } from "framer-motion";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { TaskPriority } from "@/types/task";
 
 interface TaskFormProps {
-  onAddTask: (title: string, duration: number, priority: 'low' | 'normal' | 'high') => void;
+  onAddTask: (title: string, duration: number, priority: TaskPriority) => void;
   initialTitle?: string;
   initialDuration?: number;
-  initialPriority?: 'low' | 'normal' | 'high';
+  initialPriority?: TaskPriority;
   submitLabel?: string;
   onCancel?: () => void;
 }
@@ -25,7 +26,7 @@ const TaskForm = ({
   const [title, setTitle] = useState(initialTitle);
   const [hours, setHours] = useState("0");
   const [minutes, setMinutes] = useState("0");
-  const [priority, setPriority] = useState<'low' | 'normal' | 'high'>(initialPriority);
+  const [priority, setPriority] = useState<TaskPriority>(initialPriority);
 
   useEffect(() => {
     if (initialDuration) {
@@ -83,7 +84,7 @@ const TaskForm = ({
       </div>
       <div className="flex gap-4 justify-end items-center">
         <div className="flex items-center gap-2">
-          <Select value={priority} onValueChange={(value: 'low' | 'normal' | 'high') => setPriority(value)}>
+          <Select value={priority} onValueChange={(value: TaskPriority) => setPriority(value)}>
             <SelectTrigger className="w-32">
               <SelectValue placeholder="עדיפות" />
             </SelectTrigger>

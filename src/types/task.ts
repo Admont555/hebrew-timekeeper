@@ -1,3 +1,5 @@
+export type TaskPriority = 'low' | 'normal' | 'high';
+
 export interface Task {
   id: string;
   title: string;
@@ -6,7 +8,7 @@ export interface Task {
   date: string;
   duration: number;
   startTime?: string;
-  priority: 'low' | 'normal' | 'high';
+  priority: TaskPriority;
 }
 
 export interface TasksByDate {

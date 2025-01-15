@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import TaskList from "@/components/TaskList";
 import TaskForm from "@/components/TaskForm";
 import RandomQuote from "@/components/RandomQuote";
-import { Task, TasksByDate } from "@/types/task";
+import { Task, TasksByDate, TaskPriority } from "@/types/task";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { motion } from "framer-motion";
@@ -39,7 +39,7 @@ const Index = () => {
       }
       tasksByDate[dateKey].push({
         ...task,
-        priority: task.priority || 'normal',
+        priority: (task.priority || 'normal') as TaskPriority,
         timestamp: task.timestamp || new Date().toISOString(),
         completed: task.completed || false,
         duration: task.duration || 0,
@@ -49,7 +49,7 @@ const Index = () => {
     setTasksByDate(tasksByDate);
   };
 
-  const addTask = async (title: string, duration: number, priority: 'low' | 'normal' | 'high') => {
+  const addTask = async (title: string, duration: number, priority: TaskPriority) => {
     if (!title.trim()) {
       toast({
         title: "שגיאה",
@@ -113,7 +113,7 @@ const Index = () => {
     });
   };
 
-  const editTask = async (taskId: string, newTitle: string, newDuration: number) => {
+  const editTask = async (taskId: string, newTitle: string, newDuration: number, newPriority: TaskPriority) => {
     if (!newTitle.trim()) {
       toast({
         title: "שגיאה",
@@ -125,7 +125,11 @@ const Index = () => {
 
     const { error } = await supabase
       .from("tasks")
-      .update({ title: newTitle, duration: newDuration })
+      .update({ 
+        title: newTitle, 
+        duration: newDuration,
+        priority: newPriority
+      })
       .eq("id", taskId);
 
     if (error) {

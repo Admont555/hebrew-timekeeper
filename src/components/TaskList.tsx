@@ -1,5 +1,5 @@
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Task, TasksByDate } from "@/types/task";
+import { Task, TasksByDate, TaskPriority } from "@/types/task";
 import { format } from "date-fns";
 import { he } from "date-fns/locale";
 import { useState, useMemo } from "react";
@@ -14,7 +14,7 @@ interface TaskListProps {
   onToggleTask: (taskId: string) => void;
   onTaskComplete: (taskId: string) => void;
   onDeleteTask: (taskId: string) => void;
-  onEditTask: (taskId: string, newTitle: string, newDuration: number) => void;
+  onEditTask: (taskId: string, newTitle: string, newDuration: number, newPriority: TaskPriority) => void;
 }
 
 const TaskList = ({
@@ -36,9 +36,9 @@ const TaskList = ({
     setEditingTaskId(task.id);
   };
 
-  const handleEditSubmit = (title: string, duration: number) => {
+  const handleEditSubmit = (title: string, duration: number, priority: TaskPriority) => {
     if (editingTaskId) {
-      onEditTask(editingTaskId, title, duration);
+      onEditTask(editingTaskId, title, duration, priority);
       setEditingTaskId(null);
     }
   };
@@ -131,6 +131,7 @@ const TaskList = ({
                         onAddTask={handleEditSubmit}
                         initialTitle={task.title}
                         initialDuration={task.duration}
+                        initialPriority={task.priority}
                         submitLabel="עדכן"
                         onCancel={() => setEditingTaskId(null)}
                       />
