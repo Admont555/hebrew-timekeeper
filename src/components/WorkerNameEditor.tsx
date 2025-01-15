@@ -31,13 +31,16 @@ const WorkerNameEditor = ({ currentName, workerId, onNameChange }: WorkerNameEdi
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          className="h-6 w-6 mr-1 hover:bg-accent hover:text-accent-foreground"
-        >
-          <Edit2 className="h-3 w-3" />
-        </Button>
+        <div className="group relative inline-flex items-center">
+          <span>{currentName}</span>
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="h-6 w-6 mr-1 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-accent hover:text-accent-foreground absolute -right-7"
+          >
+            <Edit2 className="h-3 w-3" />
+          </Button>
+        </div>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
