@@ -8,11 +8,25 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { motion } from "framer-motion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import WorkerNameEditor from "@/components/WorkerNameEditor";
+
+interface WorkerNames {
+  worker1: string;
+  worker2: string;
+}
 
 const Index = () => {
   const [tasksByDate, setTasksByDate] = useState<TasksByDate>({});
   const [currentWorker, setCurrentWorker] = useState<'worker1' | 'worker2'>('worker1');
+  const [workerNames, setWorkerNames] = useState<WorkerNames>(() => {
+    const saved = localStorage.getItem('workerNames');
+    return saved ? JSON.parse(saved) : { worker1: 'עובד 1', worker2: 'עובד 2' };
+  });
   const { toast } = useToast();
+
+  useEffect(() => {
+    localStorage.setItem('workerNames', JSON.stringify(workerNames));
+  }, [workerNames]);
 
   useEffect(() => {
     fetchTasks();
@@ -203,6 +217,13 @@ const Index = () => {
     fetchTasks();
   };
 
+  const handleWorkerNameChange = (workerId: 'worker1' | 'worker2', newName: string) => {
+    setWorkerNames(prev => ({
+      ...prev,
+      [workerId]: newName
+    }));
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <motion.div 
@@ -218,19 +239,23 @@ const Index = () => {
         </h1>
         <RandomQuote />
         
-        <Tabs defaultValue="worker1" className="w-full mb-6">
+        <Tabs value={currentWorker} onValueChange={(value: 'worker1' | 'worker2') => setCurrentWorker(value)} className="w-full mb-6">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger 
-              value="worker1"
-              onClick={() => setCurrentWorker('worker1')}
-            >
-              עובד 1
+            <TabsTrigger value="worker1" className="relative">
+              {workerNames.worker1}
+              <WorkerNameEditor
+                currentName={workerNames.worker1}
+                workerId="worker1"
+                onNameChange={handleWorkerNameChange}
+              />
             </TabsTrigger>
-            <TabsTrigger 
-              value="worker2"
-              onClick={() => setCurrentWorker('worker2')}
-            >
-              עובד 2
+            <TabsTrigger value="worker2" className="relative">
+              {workerNames.worker2}
+              <WorkerNameEditor
+                currentName={workerNames.worker2}
+                workerId="worker2"
+                onNameChange={handleWorkerNameChange}
+              />
             </TabsTrigger>
           </TabsList>
 

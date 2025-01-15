@@ -37,6 +37,7 @@ export type Database = {
           start_time: string | null
           timestamp: string | null
           title: string
+          worker: string
         }
         Insert: {
           completed?: boolean | null
@@ -47,6 +48,7 @@ export type Database = {
           start_time?: string | null
           timestamp?: string | null
           title: string
+          worker?: string
         }
         Update: {
           completed?: boolean | null
@@ -57,6 +59,7 @@ export type Database = {
           start_time?: string | null
           timestamp?: string | null
           title?: string
+          worker?: string
         }
         Relationships: []
       }
