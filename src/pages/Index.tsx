@@ -275,17 +275,17 @@ const Index = () => {
           onValueChange={(value: 'worker1' | 'worker2') => setCurrentWorker(value)} 
           className="w-full mb-6"
         >
-          <TabsList className="grid w-full grid-cols-2 max-w-md mx-auto">
-            <TabsTrigger value="worker1" className="group relative">
-              {workerNames.worker1}
+          <TabsList className="grid w-full grid-cols-2 max-w-md mx-auto px-2 sm:px-0">
+            <TabsTrigger value="worker1" className="group relative pr-8 sm:pr-10">
+              <span className="truncate">{workerNames.worker1}</span>
               <WorkerNameEditor
                 currentName={workerNames.worker1}
                 workerId="worker1"
                 onNameChange={handleWorkerNameChange}
               />
             </TabsTrigger>
-            <TabsTrigger value="worker2" className="group relative">
-              {workerNames.worker2}
+            <TabsTrigger value="worker2" className="group relative pr-8 sm:pr-10">
+              <span className="truncate">{workerNames.worker2}</span>
               <WorkerNameEditor
                 currentName={workerNames.worker2}
                 workerId="worker2"
@@ -294,32 +294,54 @@ const Index = () => {
             </TabsTrigger>
           </TabsList>
 
-          {['worker1', 'worker2'].map((worker) => (
-            <TabsContent key={worker} value={worker}>
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3, duration: 0.5 }}
-                className="bg-white/80 backdrop-blur-sm dark:bg-gray-800/80 rounded-xl shadow-lg p-4 sm:p-6 mb-6 hover:shadow-xl transition-shadow duration-300"
-              >
-                <TaskForm onAddTask={addTask} />
-              </motion.div>
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4, duration: 0.5 }}
-                className="bg-white/80 backdrop-blur-sm dark:bg-gray-800/80 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300"
-              >
-                <TaskList 
-                  tasks={tasksByDate} 
-                  onToggleTask={toggleTask}
-                  onTaskComplete={handleTaskComplete}
-                  onDeleteTask={deleteTask}
-                  onEditTask={editTask}
-                />
-              </motion.div>
-            </TabsContent>
-          ))}
+          <TabsContent value="worker1">
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3, duration: 0.5 }}
+              className="bg-white/80 backdrop-blur-sm dark:bg-gray-800/80 rounded-xl shadow-lg p-4 sm:p-6 mb-6 hover:shadow-xl transition-shadow duration-300"
+            >
+              <TaskForm onAddTask={addTask} />
+            </motion.div>
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4, duration: 0.5 }}
+              className="bg-white/80 backdrop-blur-sm dark:bg-gray-800/80 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300"
+            >
+              <TaskList 
+                tasks={tasksByDate} 
+                onToggleTask={toggleTask}
+                onTaskComplete={handleTaskComplete}
+                onDeleteTask={deleteTask}
+                onEditTask={editTask}
+              />
+            </motion.div>
+          </TabsContent>
+          <TabsContent value="worker2">
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3, duration: 0.5 }}
+              className="bg-white/80 backdrop-blur-sm dark:bg-gray-800/80 rounded-xl shadow-lg p-4 sm:p-6 mb-6 hover:shadow-xl transition-shadow duration-300"
+            >
+              <TaskForm onAddTask={addTask} />
+            </motion.div>
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4, duration: 0.5 }}
+              className="bg-white/80 backdrop-blur-sm dark:bg-gray-800/80 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300"
+            >
+              <TaskList 
+                tasks={tasksByDate} 
+                onToggleTask={toggleTask}
+                onTaskComplete={handleTaskComplete}
+                onDeleteTask={deleteTask}
+                onEditTask={editTask}
+              />
+            </motion.div>
+          </TabsContent>
         </Tabs>
       </motion.div>
       <Toaster />
