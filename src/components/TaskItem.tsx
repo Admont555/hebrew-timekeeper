@@ -1,6 +1,6 @@
 import { Task } from "@/types/task";
 import { Button } from "./ui/button";
-import { Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2, Flag } from "lucide-react";
 import CountdownTimer from "./CountdownTimer";
 import { motion } from "framer-motion";
 
@@ -18,6 +18,17 @@ const TaskItem = ({ task, onToggleTask, onTaskComplete, onDeleteTask, onEdit }: 
       hour: "2-digit",
       minute: "2-digit",
     });
+  };
+
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'high':
+        return 'text-red-500';
+      case 'low':
+        return 'text-green-500';
+      default:
+        return 'text-yellow-500';
+    }
   };
 
   return (
@@ -53,6 +64,7 @@ const TaskItem = ({ task, onToggleTask, onTaskComplete, onDeleteTask, onEdit }: 
             <Pencil className="h-4 w-4 text-blue-500" />
           </Button>
         </div>
+        <Flag className={`h-4 w-4 ${getPriorityColor(task.priority)}`} />
         <CountdownTimer
           duration={task.duration}
           startTime={task.startTime}

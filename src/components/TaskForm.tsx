@@ -3,19 +3,29 @@ import { Input } from "@/components/ui/input";
 import { useEffect, useState } from "react";
 import { Label } from "@/components/ui/label";
 import { motion } from "framer-motion";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface TaskFormProps {
-  onAddTask: (title: string, duration: number) => void;
+  onAddTask: (title: string, duration: number, priority: 'low' | 'normal' | 'high') => void;
   initialTitle?: string;
   initialDuration?: number;
+  initialPriority?: 'low' | 'normal' | 'high';
   submitLabel?: string;
   onCancel?: () => void;
 }
 
-const TaskForm = ({ onAddTask, initialTitle = "", initialDuration = 0, submitLabel = "הוסף", onCancel }: TaskFormProps) => {
+const TaskForm = ({ 
+  onAddTask, 
+  initialTitle = "", 
+  initialDuration = 0, 
+  initialPriority = "normal",
+  submitLabel = "הוסף", 
+  onCancel 
+}: TaskFormProps) => {
   const [title, setTitle] = useState(initialTitle);
   const [hours, setHours] = useState("0");
   const [minutes, setMinutes] = useState("0");
+  const [priority, setPriority] = useState<'low' | 'normal' | 'high'>(initialPriority);
 
   useEffect(() => {
     if (initialDuration) {
@@ -28,11 +38,12 @@ const TaskForm = ({ onAddTask, initialTitle = "", initialDuration = 0, submitLab
     e.preventDefault();
     if (title.trim()) {
       const totalMinutes = (parseInt(hours) * 60) + parseInt(minutes);
-      onAddTask(title.trim(), totalMinutes);
+      onAddTask(title.trim(), totalMinutes, priority);
       if (!initialTitle) {
         setTitle("");
         setHours("0");
         setMinutes("0");
+        setPriority("normal");
       }
     }
   };
@@ -70,7 +81,20 @@ const TaskForm = ({ onAddTask, initialTitle = "", initialDuration = 0, submitLab
           </Button>
         )}
       </div>
-      <div className="flex gap-4 justify-end">
+      <div className="flex gap-4 justify-end items-center">
+        <div className="flex items-center gap-2">
+          <Select value={priority} onValueChange={(value: 'low' | 'normal' | 'high') => setPriority(value)}>
+            <SelectTrigger className="w-32">
+              <SelectValue placeholder="עדיפות" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="low">נמוכה</SelectItem>
+              <SelectItem value="normal">רגילה</SelectItem>
+              <SelectItem value="high">גבוהה</SelectItem>
+            </SelectContent>
+          </Select>
+          <Label className="text-gray-600 dark:text-gray-400">עדיפות</Label>
+        </div>
         <div className="flex items-center gap-2">
           <Input
             type="number"

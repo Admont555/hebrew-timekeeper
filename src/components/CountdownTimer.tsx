@@ -12,9 +12,7 @@ interface CountdownTimerProps {
 
 const CountdownTimer = ({ duration, startTime, isCompleted, onComplete }: CountdownTimerProps) => {
   const [timeLeft, setTimeLeft] = useState<number>(0);
-  const [seconds, setSeconds] = useState<number>(0);
   const [isRunning, setIsRunning] = useState<boolean>(false);
-  const { toast } = useToast();
 
   useEffect(() => {
     // Request notification permissions when component mounts
@@ -25,57 +23,43 @@ const CountdownTimer = ({ duration, startTime, isCompleted, onComplete }: Countd
 
   useEffect(() => {
     if (startTime) {
-      const start = new Date(startTime).getTime();
-      const now = new Date().getTime();
-      const elapsedSeconds = Math.floor((now - start) / 1000);
-      const totalSeconds = duration * 60;
-      const remainingSeconds = Math.max(0, totalSeconds - elapsedSeconds);
-      setTimeLeft(Math.floor(remainingSeconds / 60));
-      setSeconds(remainingSeconds % 60);
+      const calculateTimeLeft = () => {
+        const start = new Date(startTime).getTime();
+        const now = new Date().getTime();
+        const elapsedMinutes = (now - start) / (1000 * 60);
+        const remainingMinutes = Math.max(0, duration - elapsedMinutes);
+        
+        if (remainingMinutes <= 0 && isRunning) {
+          onComplete();
+          playNotificationSound();
+          setIsRunning(false);
+        }
+        
+        return remainingMinutes;
+      };
+
+      setTimeLeft(calculateTimeLeft());
       setIsRunning(true);
+
+      const timer = setInterval(() => {
+        const remaining = calculateTimeLeft();
+        setTimeLeft(remaining);
+      }, 1000);
+
+      return () => clearInterval(timer);
     } else {
       setTimeLeft(duration);
-      setSeconds(0);
     }
-  }, [duration, startTime]);
-
-  useEffect(() => {
-    let interval: NodeJS.Timeout;
-
-    if (isRunning && !isCompleted && (timeLeft > 0 || seconds > 0)) {
-      interval = setInterval(() => {
-        setSeconds((prevSeconds) => {
-          if (prevSeconds === 0) {
-            setTimeLeft((prevMinutes) => {
-              if (prevMinutes === 0) {
-                clearInterval(interval);
-                onComplete();
-                playNotificationSound();
-                toast({
-                  title: "הזמן נגמר!",
-                  description: "המשימה הסתיימה",
-                });
-                return 0;
-              }
-              return prevMinutes - 1;
-            });
-            return 59;
-          }
-          return prevSeconds - 1;
-        });
-      }, 1000); // Update every second
-    }
-
-    return () => clearInterval(interval);
-  }, [isRunning, isCompleted, timeLeft, seconds, onComplete, toast]);
+  }, [duration, startTime, onComplete, isRunning]);
 
   const handleStart = () => {
     setIsRunning(true);
   };
 
-  const formatTime = (minutes: number, secs: number) => {
+  const formatTime = (minutes: number) => {
     const hours = Math.floor(minutes / 60);
-    const mins = minutes % 60;
+    const mins = Math.floor(minutes % 60);
+    const secs = Math.floor((minutes % 1) * 60);
     return `${hours}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
@@ -83,8 +67,8 @@ const CountdownTimer = ({ duration, startTime, isCompleted, onComplete }: Countd
 
   return (
     <div className="flex items-center gap-2">
-      <span className={`text-lg font-mono font-bold ${timeLeft === 0 && seconds < 60 ? 'text-red-500 animate-pulse' : 'text-primary'} bg-accent/30 px-3 py-1 rounded-md`}>
-        {formatTime(timeLeft, seconds)}
+      <span className={`text-lg font-mono font-bold ${timeLeft < 1 ? 'text-red-500 animate-pulse' : 'text-primary'} bg-accent/30 px-3 py-1 rounded-md`}>
+        {formatTime(timeLeft)}
       </span>
       {!isRunning && !startTime && (
         <Button variant="outline" size="sm" onClick={handleStart}>

@@ -6,6 +6,7 @@ export interface Task {
   date: string;
   duration: number; // Duration in minutes
   startTime?: string; // When the task was started
+  priority: 'low' | 'normal' | 'high';
 }
 
 export interface TasksByDate {
