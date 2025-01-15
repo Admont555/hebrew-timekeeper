@@ -195,14 +195,11 @@ const Index = () => {
         transition={{ duration: 0.5 }}
         className="container mx-auto p-6 max-w-4xl"
       >
-        <motion.h1 
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.2, duration: 0.5 }}
-          className="text-4xl font-bold text-right mb-8 bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600 dark:from-purple-400 dark:to-blue-400"
+        <h1 
+          className="text-center text-4xl md:text-5xl font-bold mb-8 animate-gradient bg-gradient-to-r from-purple-600 via-blue-500 to-purple-600 bg-clip-text text-transparent bg-300% dark:from-purple-400 dark:via-blue-300 dark:to-purple-400"
         >
           מעקב משימות
-        </motion.h1>
+        </h1>
         <RandomQuote />
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
