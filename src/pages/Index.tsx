@@ -128,16 +128,24 @@ const Index = () => {
   };
 
   return (
-    <div className="container mx-auto p-4 max-w-3xl">
-      <h1 className="text-3xl font-bold mb-6 text-right">מעקב משימות</h1>
-      <TaskForm onAddTask={addTask} />
-      <TaskList 
-        tasks={tasksByDate} 
-        onToggleTask={toggleTask}
-        onTaskComplete={handleTaskComplete}
-        onDeleteTask={deleteTask}
-        onEditTask={editTask}
-      />
+    <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white dark:from-gray-900 dark:to-gray-800">
+      <div className="container mx-auto p-6 max-w-4xl">
+        <h1 className="text-4xl font-bold mb-8 text-right bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600 dark:from-purple-400 dark:to-blue-400">
+          מעקב משימות
+        </h1>
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-6">
+          <TaskForm onAddTask={addTask} />
+        </div>
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg">
+          <TaskList 
+            tasks={tasksByDate} 
+            onToggleTask={toggleTask}
+            onTaskComplete={handleTaskComplete}
+            onDeleteTask={deleteTask}
+            onEditTask={editTask}
+          />
+        </div>
+      </div>
     </div>
   );
 };

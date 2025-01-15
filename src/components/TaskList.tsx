@@ -107,20 +107,26 @@ const TaskList = ({
   );
 
   return (
-    <ScrollArea className="h-[600px] w-full rounded-md border p-4">
+    <ScrollArea className="h-[600px] w-full rounded-lg p-6">
       <AnimatePresence>
-        {hasCompletedTasks && <DeleteCompletedButton onDelete={deleteCompletedTasks} />}
+        {hasCompletedTasks && (
+          <div className="mb-6">
+            <DeleteCompletedButton onDelete={deleteCompletedTasks} />
+          </div>
+        )}
       </AnimatePresence>
       
       {sortedDates.map((date) => (
-        <div key={date} className="mb-6">
-          <h2 className="text-xl font-bold mb-3 text-right">{formatDate(date)}</h2>
-          <div className="space-y-2">
+        <div key={date} className="mb-8 last:mb-0">
+          <h2 className="text-2xl font-bold mb-4 text-right text-gray-800 dark:text-gray-200">
+            {formatDate(date)}
+          </h2>
+          <div className="space-y-3">
             <AnimatePresence>
               {sortTasks(tasks[date]).map((task: Task) => (
                 <div key={task.id}>
                   {editingTaskId === task.id ? (
-                    <div className="mb-4">
+                    <div className="mb-4 bg-purple-50 dark:bg-gray-700 p-4 rounded-lg">
                       <TaskForm
                         onAddTask={handleEditSubmit}
                         initialTitle={task.title}
