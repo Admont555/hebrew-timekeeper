@@ -74,7 +74,9 @@ const CountdownTimer = ({ duration, startTime, isCompleted, onComplete }: Countd
 
   return (
     <div className="flex items-center gap-2">
-      <span className="text-sm font-mono">{formatTime(timeLeft, seconds)}</span>
+      <span className={`text-lg font-mono font-bold ${timeLeft === 0 && seconds < 60 ? 'text-red-500 animate-pulse' : 'text-primary'} bg-accent/30 px-3 py-1 rounded-md`}>
+        {formatTime(timeLeft, seconds)}
+      </span>
       {!isRunning && !startTime && (
         <Button variant="outline" size="sm" onClick={handleStart}>
           התחל
