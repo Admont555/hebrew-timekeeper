@@ -32,7 +32,6 @@ const WorkerNameEditor = ({ currentName, workerId, onNameChange }: WorkerNameEdi
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <div className="group relative inline-flex items-center">
-          <span>{currentName}</span>
           <Button 
             variant="ghost" 
             size="icon" 
