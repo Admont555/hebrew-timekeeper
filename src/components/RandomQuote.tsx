@@ -35,13 +35,13 @@ const RandomQuote = () => {
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="mb-8 text-center p-8 bg-gradient-to-r from-purple-50/80 to-blue-50/80 dark:from-gray-800/50 dark:to-gray-700/50 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 backdrop-blur-sm"
+      className="mb-6 mx-auto max-w-2xl text-center px-6 py-4 bg-gradient-to-r from-purple-50/60 to-blue-50/60 dark:from-gray-800/40 dark:to-gray-700/40 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 backdrop-blur-sm"
     >
       <motion.p 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.3, duration: 0.5 }}
-        className="text-2xl font-serif text-gray-800 dark:text-gray-200 leading-relaxed"
+        className="text-lg md:text-xl font-medium text-gray-800 dark:text-gray-200 leading-relaxed tracking-wide"
         style={{ direction: "rtl" }}
       >
         "{quote.content}"
@@ -51,7 +51,7 @@ const RandomQuote = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5, duration: 0.5 }}
-          className="mt-6 text-lg text-gray-600 dark:text-gray-400 font-medium"
+          className="mt-3 text-sm text-gray-600 dark:text-gray-400 font-normal"
           style={{ direction: "rtl" }}
         >
           - {quote.author}
