@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
+import { Edit2 } from "lucide-react";
 
 interface WorkerNameEditorProps {
   currentName: string;
@@ -30,8 +31,12 @@ const WorkerNameEditor = ({ currentName, workerId, onNameChange }: WorkerNameEdi
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="ml-2">
-          ערוך שם
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          className="h-6 w-6 mr-1 hover:bg-accent hover:text-accent-foreground"
+        >
+          <Edit2 className="h-3 w-3" />
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
