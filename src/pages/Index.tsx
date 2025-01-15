@@ -7,19 +7,22 @@ import { Task, TasksByDate, TaskPriority } from "@/types/task";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { motion } from "framer-motion";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Index = () => {
   const [tasksByDate, setTasksByDate] = useState<TasksByDate>({});
+  const [currentWorker, setCurrentWorker] = useState<'worker1' | 'worker2'>('worker1');
   const { toast } = useToast();
 
   useEffect(() => {
     fetchTasks();
-  }, []);
+  }, [currentWorker]);
 
   const fetchTasks = async () => {
     const { data, error } = await supabase
       .from("tasks")
       .select("*")
+      .eq('worker', currentWorker)
       .order("timestamp", { ascending: false });
 
     if (error) {
@@ -69,6 +72,7 @@ const Index = () => {
       date: dateStr,
       duration,
       priority,
+      worker: currentWorker,
     };
 
     const { error } = await supabase
@@ -130,7 +134,8 @@ const Index = () => {
         duration: newDuration,
         priority: newPriority
       })
-      .eq("id", taskId);
+      .eq("id", taskId)
+      .eq('worker', currentWorker);
 
     if (error) {
       toast({
@@ -164,7 +169,8 @@ const Index = () => {
         completed: !task.completed,
         start_time: !task.startTime && !task.completed ? new Date().toISOString() : task.startTime
       })
-      .eq("id", taskId);
+      .eq("id", taskId)
+      .eq('worker', currentWorker);
 
     if (error) {
       toast({
@@ -182,7 +188,8 @@ const Index = () => {
     const { error } = await supabase
       .from("tasks")
       .update({ completed: true })
-      .eq("id", taskId);
+      .eq("id", taskId)
+      .eq('worker', currentWorker);
 
     if (error) {
       toast({
@@ -210,28 +217,73 @@ const Index = () => {
           מעקב משימות
         </h1>
         <RandomQuote />
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3, duration: 0.5 }}
-          className="bg-white/80 backdrop-blur-sm dark:bg-gray-800/80 rounded-xl shadow-lg p-6 mb-6 hover:shadow-xl transition-shadow duration-300"
-        >
-          <TaskForm onAddTask={addTask} />
-        </motion.div>
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4, duration: 0.5 }}
-          className="bg-white/80 backdrop-blur-sm dark:bg-gray-800/80 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300"
-        >
-          <TaskList 
-            tasks={tasksByDate} 
-            onToggleTask={toggleTask}
-            onTaskComplete={handleTaskComplete}
-            onDeleteTask={deleteTask}
-            onEditTask={editTask}
-          />
-        </motion.div>
+        
+        <Tabs defaultValue="worker1" className="w-full mb-6">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger 
+              value="worker1"
+              onClick={() => setCurrentWorker('worker1')}
+            >
+              עובד 1
+            </TabsTrigger>
+            <TabsTrigger 
+              value="worker2"
+              onClick={() => setCurrentWorker('worker2')}
+            >
+              עובד 2
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="worker1">
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3, duration: 0.5 }}
+              className="bg-white/80 backdrop-blur-sm dark:bg-gray-800/80 rounded-xl shadow-lg p-6 mb-6 hover:shadow-xl transition-shadow duration-300"
+            >
+              <TaskForm onAddTask={addTask} />
+            </motion.div>
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4, duration: 0.5 }}
+              className="bg-white/80 backdrop-blur-sm dark:bg-gray-800/80 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300"
+            >
+              <TaskList 
+                tasks={tasksByDate} 
+                onToggleTask={toggleTask}
+                onTaskComplete={handleTaskComplete}
+                onDeleteTask={deleteTask}
+                onEditTask={editTask}
+              />
+            </motion.div>
+          </TabsContent>
+
+          <TabsContent value="worker2">
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3, duration: 0.5 }}
+              className="bg-white/80 backdrop-blur-sm dark:bg-gray-800/80 rounded-xl shadow-lg p-6 mb-6 hover:shadow-xl transition-shadow duration-300"
+            >
+              <TaskForm onAddTask={addTask} />
+            </motion.div>
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4, duration: 0.5 }}
+              className="bg-white/80 backdrop-blur-sm dark:bg-gray-800/80 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300"
+            >
+              <TaskList 
+                tasks={tasksByDate} 
+                onToggleTask={toggleTask}
+                onTaskComplete={handleTaskComplete}
+                onDeleteTask={deleteTask}
+                onEditTask={editTask}
+              />
+            </motion.div>
+          </TabsContent>
+        </Tabs>
       </motion.div>
       <Toaster />
     </div>
