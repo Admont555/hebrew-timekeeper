@@ -14,7 +14,7 @@ const RandomQuote = () => {
       .from("quotes")
       .select("content, author")
       .limit(1)
-      .order('random()');
+      .order('RANDOM()');
 
     if (!error && data.length > 0) {
       setQuote(data[0]);
