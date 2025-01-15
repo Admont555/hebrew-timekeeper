@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import TaskList from "@/components/TaskList";
 import TaskForm from "@/components/TaskForm";
 import { Task, TasksByDate } from "@/types/task";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 const Index = () => {
   const [tasksByDate, setTasksByDate] = useState<TasksByDate>({});
@@ -44,6 +44,48 @@ const Index = () => {
     toast({
       title: "משימה נוספה",
       description: "המשימה החדשה נוספה בהצלחה",
+    });
+  };
+
+  const deleteTask = (taskId: string) => {
+    setTasksByDate((prev) => {
+      const updatedTasks = { ...prev };
+      for (const date in updatedTasks) {
+        updatedTasks[date] = updatedTasks[date].filter((t) => t.id !== taskId);
+        if (updatedTasks[date].length === 0) {
+          delete updatedTasks[date];
+        }
+      }
+      return updatedTasks;
+    });
+
+    toast({
+      title: "משימה נמחקה",
+      description: "המשימה נמחקה בהצלחה",
+    });
+  };
+
+  const editTask = (taskId: string, newTitle: string, newDuration: number) => {
+    setTasksByDate((prev) => {
+      const updatedTasks = { ...prev };
+      for (const date in updatedTasks) {
+        const taskIndex = updatedTasks[date].findIndex((t) => t.id === taskId);
+        if (taskIndex !== -1) {
+          updatedTasks[date] = [...updatedTasks[date]];
+          updatedTasks[date][taskIndex] = {
+            ...updatedTasks[date][taskIndex],
+            title: newTitle,
+            duration: newDuration,
+          };
+          break;
+        }
+      }
+      return updatedTasks;
+    });
+
+    toast({
+      title: "משימה עודכנה",
+      description: "המשימה עודכנה בהצלחה",
     });
   };
 
@@ -93,6 +135,8 @@ const Index = () => {
         tasks={tasksByDate} 
         onToggleTask={toggleTask}
         onTaskComplete={handleTaskComplete}
+        onDeleteTask={deleteTask}
+        onEditTask={editTask}
       />
     </div>
   );
