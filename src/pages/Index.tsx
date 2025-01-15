@@ -19,7 +19,7 @@ const Index = () => {
     localStorage.setItem("tasks", JSON.stringify(tasksByDate));
   }, [tasksByDate]);
 
-  const addTask = (title: string) => {
+  const addTask = (title: string, duration: number) => {
     const now = new Date();
     const dateStr = now.toISOString().split("T")[0];
     
@@ -29,6 +29,7 @@ const Index = () => {
       timestamp: now.toISOString(),
       completed: false,
       date: dateStr,
+      duration,
     };
 
     setTasksByDate((prev) => {
@@ -53,9 +54,29 @@ const Index = () => {
         const taskIndex = updatedTasks[date].findIndex((t) => t.id === taskId);
         if (taskIndex !== -1) {
           updatedTasks[date] = [...updatedTasks[date]];
+          const task = updatedTasks[date][taskIndex];
+          updatedTasks[date][taskIndex] = {
+            ...task,
+            completed: !task.completed,
+            startTime: !task.startTime && !task.completed ? new Date().toISOString() : task.startTime,
+          };
+          break;
+        }
+      }
+      return updatedTasks;
+    });
+  };
+
+  const handleTaskComplete = (taskId: string) => {
+    setTasksByDate((prev) => {
+      const updatedTasks = { ...prev };
+      for (const date in updatedTasks) {
+        const taskIndex = updatedTasks[date].findIndex((t) => t.id === taskId);
+        if (taskIndex !== -1) {
+          updatedTasks[date] = [...updatedTasks[date]];
           updatedTasks[date][taskIndex] = {
             ...updatedTasks[date][taskIndex],
-            completed: !updatedTasks[date][taskIndex].completed,
+            completed: true,
           };
           break;
         }
@@ -68,7 +89,11 @@ const Index = () => {
     <div className="container mx-auto p-4 max-w-3xl">
       <h1 className="text-3xl font-bold mb-6 text-right">מעקב משימות</h1>
       <TaskForm onAddTask={addTask} />
-      <TaskList tasks={tasksByDate} onToggleTask={toggleTask} />
+      <TaskList 
+        tasks={tasksByDate} 
+        onToggleTask={toggleTask}
+        onTaskComplete={handleTaskComplete}
+      />
     </div>
   );
 };

@@ -2,13 +2,15 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Task, TasksByDate } from "@/types/task";
 import { format } from "date-fns";
 import { he } from "date-fns/locale";
+import CountdownTimer from "./CountdownTimer";
 
 interface TaskListProps {
   tasks: TasksByDate;
   onToggleTask: (taskId: string) => void;
+  onTaskComplete: (taskId: string) => void;
 }
 
-const TaskList = ({ tasks, onToggleTask }: TaskListProps) => {
+const TaskList = ({ tasks, onToggleTask, onTaskComplete }: TaskListProps) => {
   const dates = Object.keys(tasks).sort((a, b) => new Date(b).getTime() - new Date(a).getTime());
 
   const formatDate = (dateStr: string) => {
@@ -36,20 +38,28 @@ const TaskList = ({ tasks, onToggleTask }: TaskListProps) => {
                   task.completed ? "bg-muted" : "bg-card"
                 }`}
               >
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-4">
+                  <CountdownTimer
+                    duration={task.duration}
+                    startTime={task.startTime}
+                    isCompleted={task.completed}
+                    onComplete={() => onTaskComplete(task.id)}
+                  />
                   <input
                     type="checkbox"
                     checked={task.completed}
                     onChange={() => onToggleTask(task.id)}
                     className="h-5 w-5"
                   />
+                </div>
+                <div className="flex flex-col items-end gap-1">
                   <span className={task.completed ? "line-through text-muted-foreground" : ""}>
                     {task.title}
                   </span>
+                  <span className="text-sm text-muted-foreground">
+                    {formatTime(task.timestamp)}
+                  </span>
                 </div>
-                <span className="text-sm text-muted-foreground">
-                  {formatTime(task.timestamp)}
-                </span>
               </div>
             ))}
           </div>
