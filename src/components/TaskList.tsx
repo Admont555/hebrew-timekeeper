@@ -43,13 +43,39 @@ const TaskList = ({ tasks, onToggleTask, onTaskComplete, onDeleteTask, onEditTas
     }
   };
 
+  const getRemainingTime = (task: Task) => {
+    if (!task.startTime || task.completed) return Infinity;
+    const start = new Date(task.startTime).getTime();
+    const now = new Date().getTime();
+    const elapsedSeconds = Math.floor((now - start) / 1000);
+    return task.duration * 60 - elapsedSeconds;
+  };
+
+  const sortTasks = (tasksArray: Task[]) => {
+    return [...tasksArray].sort((a, b) => {
+      // First, sort by completion status
+      if (!a.completed && b.completed) return -1;
+      if (a.completed && !b.completed) return 1;
+
+      // For incomplete tasks, sort by remaining time
+      if (!a.completed && !b.completed) {
+        const aRemaining = getRemainingTime(a);
+        const bRemaining = getRemainingTime(b);
+        return aRemaining - bRemaining;
+      }
+
+      // For completed tasks, sort by timestamp (most recent first)
+      return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
+    });
+  };
+
   return (
     <ScrollArea className="h-[600px] w-full rounded-md border p-4">
       {dates.map((date) => (
         <div key={date} className="mb-6">
           <h2 className="text-xl font-bold mb-3 text-right">{formatDate(date)}</h2>
           <div className="space-y-2">
-            {tasks[date].map((task: Task) => (
+            {sortTasks(tasks[date]).map((task: Task) => (
               <div key={task.id}>
                 {editingTaskId === task.id ? (
                   <div className="mb-4">
