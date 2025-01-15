@@ -196,7 +196,7 @@ const Index = () => {
         className="container mx-auto p-6 max-w-4xl"
       >
         <h1 
-          className="text-center text-4xl md:text-5xl font-bold mb-8 animate-gradient bg-gradient-to-r from-purple-600 via-blue-500 to-purple-600 bg-clip-text text-transparent bg-300% dark:from-purple-400 dark:via-blue-300 dark:to-purple-400"
+          className="text-center text-4xl md:text-5xl font-bold mb-8 bg-gradient-to-r from-purple-600 via-blue-500 to-purple-600 animate-gradient bg-clip-text text-transparent bg-[length:200%_auto] dark:from-purple-400 dark:via-blue-300 dark:to-purple-400"
         >
           מעקב משימות
         </h1>
