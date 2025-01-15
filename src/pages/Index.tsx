@@ -30,6 +30,26 @@ const Index = () => {
 
   useEffect(() => {
     fetchTasks();
+
+    // Set up real-time subscription
+    const channel = supabase
+      .channel('tasks-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'tasks'
+        },
+        () => {
+          fetchTasks();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [currentWorker]);
 
   const fetchTasks = async () => {
@@ -230,25 +250,32 @@ const Index = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="container mx-auto p-6 max-w-4xl"
+        className="container mx-auto px-4 sm:px-6 py-6 max-w-4xl"
       >
         <div className="flex flex-col items-center mb-8">
           <img 
             src="https://beeu.co.il/wp-content/uploads/2024/03/אייקון-ביו-מקורי-1.svg" 
             alt="BeEu Logo" 
-            className="w-24 h-24 mb-4"
+            className="w-16 h-16 sm:w-24 sm:h-24 mb-4 object-contain"
+            loading="eager"
           />
           <h1 
-            className="text-center text-4xl md:text-5xl font-bold bg-gradient-to-r from-purple-600 via-blue-500 to-purple-600 animate-gradient bg-clip-text text-transparent bg-[length:200%_auto] dark:from-purple-400 dark:via-blue-300 dark:to-purple-400"
+            className="text-center text-3xl sm:text-4xl md:text-5xl font-bold bg-gradient-to-r from-purple-600 via-blue-500 to-purple-600 animate-gradient bg-clip-text text-transparent bg-[length:200%_auto] dark:from-purple-400 dark:via-blue-300 dark:to-purple-400"
           >
             מעקב משימות
           </h1>
         </div>
 
-        <RandomQuote />
+        <div className="mb-6 max-w-2xl mx-auto">
+          <RandomQuote />
+        </div>
         
-        <Tabs value={currentWorker} onValueChange={(value: 'worker1' | 'worker2') => setCurrentWorker(value)} className="w-full mb-6">
-          <TabsList className="grid w-full grid-cols-2">
+        <Tabs 
+          value={currentWorker} 
+          onValueChange={(value: 'worker1' | 'worker2') => setCurrentWorker(value)} 
+          className="w-full mb-6"
+        >
+          <TabsList className="grid w-full grid-cols-2 max-w-md mx-auto">
             <TabsTrigger value="worker1" className="relative">
               {workerNames.worker1}
               <WorkerNameEditor
@@ -267,55 +294,32 @@ const Index = () => {
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="worker1">
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3, duration: 0.5 }}
-              className="bg-white/80 backdrop-blur-sm dark:bg-gray-800/80 rounded-xl shadow-lg p-6 mb-6 hover:shadow-xl transition-shadow duration-300"
-            >
-              <TaskForm onAddTask={addTask} />
-            </motion.div>
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4, duration: 0.5 }}
-              className="bg-white/80 backdrop-blur-sm dark:bg-gray-800/80 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300"
-            >
-              <TaskList 
-                tasks={tasksByDate} 
-                onToggleTask={toggleTask}
-                onTaskComplete={handleTaskComplete}
-                onDeleteTask={deleteTask}
-                onEditTask={editTask}
-              />
-            </motion.div>
-          </TabsContent>
-
-          <TabsContent value="worker2">
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3, duration: 0.5 }}
-              className="bg-white/80 backdrop-blur-sm dark:bg-gray-800/80 rounded-xl shadow-lg p-6 mb-6 hover:shadow-xl transition-shadow duration-300"
-            >
-              <TaskForm onAddTask={addTask} />
-            </motion.div>
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4, duration: 0.5 }}
-              className="bg-white/80 backdrop-blur-sm dark:bg-gray-800/80 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300"
-            >
-              <TaskList 
-                tasks={tasksByDate} 
-                onToggleTask={toggleTask}
-                onTaskComplete={handleTaskComplete}
-                onDeleteTask={deleteTask}
-                onEditTask={editTask}
-              />
-            </motion.div>
-          </TabsContent>
+          {['worker1', 'worker2'].map((worker) => (
+            <TabsContent key={worker} value={worker}>
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3, duration: 0.5 }}
+                className="bg-white/80 backdrop-blur-sm dark:bg-gray-800/80 rounded-xl shadow-lg p-4 sm:p-6 mb-6 hover:shadow-xl transition-shadow duration-300"
+              >
+                <TaskForm onAddTask={addTask} />
+              </motion.div>
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4, duration: 0.5 }}
+                className="bg-white/80 backdrop-blur-sm dark:bg-gray-800/80 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300"
+              >
+                <TaskList 
+                  tasks={tasksByDate} 
+                  onToggleTask={toggleTask}
+                  onTaskComplete={handleTaskComplete}
+                  onDeleteTask={deleteTask}
+                  onEditTask={editTask}
+                />
+              </motion.div>
+            </TabsContent>
+          ))}
         </Tabs>
       </motion.div>
       <Toaster />
