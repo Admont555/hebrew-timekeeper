@@ -33,19 +33,23 @@ const Index = () => {
 
     const tasksByDate: TasksByDate = {};
     data?.forEach((task) => {
-      if (!tasksByDate[task.date]) {
-        tasksByDate[task.date] = [];
+      const dateKey = task.date || new Date().toISOString().split('T')[0];
+      if (!tasksByDate[dateKey]) {
+        tasksByDate[dateKey] = [];
       }
-      tasksByDate[task.date].push({
+      tasksByDate[dateKey].push({
         ...task,
-        timestamp: task.timestamp,
+        priority: task.priority || 'normal',
+        timestamp: task.timestamp || new Date().toISOString(),
+        completed: task.completed || false,
+        duration: task.duration || 0,
       });
     });
 
     setTasksByDate(tasksByDate);
   };
 
-  const addTask = async (title: string, duration: number) => {
+  const addTask = async (title: string, duration: number, priority: 'low' | 'normal' | 'high') => {
     if (!title.trim()) {
       toast({
         title: "שגיאה",
@@ -64,6 +68,7 @@ const Index = () => {
       completed: false,
       date: dateStr,
       duration,
+      priority,
     };
 
     const { error } = await supabase
@@ -224,6 +229,7 @@ const Index = () => {
           />
         </motion.div>
       </motion.div>
+      <Toaster />
     </div>
   );
 };

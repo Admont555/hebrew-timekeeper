@@ -4,8 +4,8 @@ export interface Task {
   timestamp: string;
   completed: boolean;
   date: string;
-  duration: number; // Duration in minutes
-  startTime?: string; // When the task was started
+  duration: number;
+  startTime?: string;
   priority: 'low' | 'normal' | 'high';
 }
 
