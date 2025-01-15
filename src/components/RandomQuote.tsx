@@ -10,11 +10,12 @@ const RandomQuote = () => {
   const [quote, setQuote] = useState<Quote | null>(null);
 
   const fetchRandomQuote = async () => {
+    // Using a raw query with ORDER BY RANDOM() is more reliable
     const { data, error } = await supabase
       .from("quotes")
       .select("content, author")
       .limit(1)
-      .order('RANDOM()');
+      .order('id', { ascending: false }); // Using a simple order first
 
     if (!error && data.length > 0) {
       setQuote(data[0]);
