@@ -33,6 +33,7 @@ export type Database = {
           date: string | null
           duration: number | null
           id: string
+          priority: string | null
           start_time: string | null
           timestamp: string | null
           title: string
@@ -42,6 +43,7 @@ export type Database = {
           date?: string | null
           duration?: number | null
           id?: string
+          priority?: string | null
           start_time?: string | null
           timestamp?: string | null
           title: string
@@ -51,6 +53,7 @@ export type Database = {
           date?: string | null
           duration?: number | null
           id?: string
+          priority?: string | null
           start_time?: string | null
           timestamp?: string | null
           title?: string
