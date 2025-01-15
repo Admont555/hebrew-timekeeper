@@ -57,11 +57,20 @@ const TaskList = ({ tasks, onToggleTask, onTaskComplete, onDeleteTask, onEditTas
       if (!a.completed && b.completed) return -1;
       if (a.completed && !b.completed) return 1;
 
-      // For incomplete tasks, sort by remaining time (lowest first)
+      // For incomplete tasks, sort by remaining time
       if (!a.completed && !b.completed) {
         const aRemaining = getRemainingTime(a);
         const bRemaining = getRemainingTime(b);
-        // Changed the order here to show lowest remaining time first
+        
+        // Prioritize tasks with 1 minute or less remaining
+        const aUnderOneMinute = aRemaining <= 60;
+        const bUnderOneMinute = bRemaining <= 60;
+        
+        if (aUnderOneMinute && !bUnderOneMinute) return -1;
+        if (!aUnderOneMinute && bUnderOneMinute) return 1;
+        
+        // If both are under one minute or both are over one minute,
+        // sort by remaining time
         return aRemaining - bRemaining;
       }
 
