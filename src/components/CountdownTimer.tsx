@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
-import { useToast } from "./ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { playNotificationSound } from "@/utils/sound";
 
 interface CountdownTimerProps {
@@ -15,6 +15,13 @@ const CountdownTimer = ({ duration, startTime, isCompleted, onComplete }: Countd
   const [seconds, setSeconds] = useState<number>(0);
   const [isRunning, setIsRunning] = useState<boolean>(false);
   const { toast } = useToast();
+
+  useEffect(() => {
+    // Request notification permissions when component mounts
+    if (Notification.permission === "default") {
+      Notification.requestPermission();
+    }
+  }, []);
 
   useEffect(() => {
     if (startTime) {
