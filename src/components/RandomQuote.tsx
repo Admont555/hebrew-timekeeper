@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { motion } from "framer-motion";
 
 interface Quote {
   content: string;
@@ -10,12 +11,11 @@ const RandomQuote = () => {
   const [quote, setQuote] = useState<Quote | null>(null);
 
   const fetchRandomQuote = async () => {
-    // Using a raw query with ORDER BY RANDOM() is more reliable
     const { data, error } = await supabase
       .from("quotes")
       .select("content, author")
       .limit(1)
-      .order('id', { ascending: false }); // Using a simple order first
+      .order('id', { ascending: false });
 
     if (!error && data.length > 0) {
       setQuote(data[0]);
@@ -24,19 +24,40 @@ const RandomQuote = () => {
 
   useEffect(() => {
     fetchRandomQuote();
-    const interval = setInterval(fetchRandomQuote, 60000); // Change quote every minute
+    const interval = setInterval(fetchRandomQuote, 60000);
     return () => clearInterval(interval);
   }, []);
 
   if (!quote) return null;
 
   return (
-    <div className="mb-8 text-center p-4 bg-purple-50 dark:bg-gray-800 rounded-lg">
-      <p className="text-lg italic text-gray-700 dark:text-gray-300">"{quote.content}"</p>
+    <motion.div
+      initial={{ opacity: 0, y: -20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="mb-8 text-center p-6 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-gray-800 dark:to-gray-700 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300"
+    >
+      <motion.p 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.3, duration: 0.5 }}
+        className="text-xl font-serif text-gray-700 dark:text-gray-300 leading-relaxed"
+        style={{ direction: "rtl" }}
+      >
+        "{quote.content}"
+      </motion.p>
       {quote.author && (
-        <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">- {quote.author}</p>
+        <motion.p 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5, duration: 0.5 }}
+          className="mt-4 text-sm text-gray-600 dark:text-gray-400 font-medium"
+          style={{ direction: "rtl" }}
+        >
+          - {quote.author}
+        </motion.p>
       )}
-    </div>
+    </motion.div>
   );
 };
 

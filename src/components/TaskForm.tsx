@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useEffect, useState } from "react";
 import { Label } from "@/components/ui/label";
+import { motion } from "framer-motion";
 
 interface TaskFormProps {
   onAddTask: (title: string, duration: number) => void;
@@ -37,18 +38,34 @@ const TaskForm = ({ onAddTask, initialTitle = "", initialDuration = 0, submitLab
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-4 mb-6">
+    <motion.form 
+      onSubmit={handleSubmit} 
+      className="flex flex-col gap-4 mb-6"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+    >
       <div className="flex gap-2">
         <Input
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="הוסף משימה חדשה..."
-          className="text-right"
+          className="text-right bg-white/50 dark:bg-gray-800/50 border-purple-100 dark:border-gray-700 focus:border-purple-500 transition-colors duration-200"
         />
-        <Button type="submit">{submitLabel}</Button>
+        <Button 
+          type="submit"
+          className="bg-purple-600 hover:bg-purple-700 transition-colors duration-200"
+        >
+          {submitLabel}
+        </Button>
         {onCancel && (
-          <Button type="button" variant="outline" onClick={onCancel}>
+          <Button 
+            type="button" 
+            variant="outline" 
+            onClick={onCancel}
+            className="border-purple-200 hover:bg-purple-50 dark:border-gray-600 dark:hover:bg-gray-700 transition-colors duration-200"
+          >
             ביטול
           </Button>
         )}
@@ -60,9 +77,9 @@ const TaskForm = ({ onAddTask, initialTitle = "", initialDuration = 0, submitLab
             min="0"
             value={minutes}
             onChange={(e) => setMinutes(e.target.value)}
-            className="w-20 text-right"
+            className="w-20 text-right bg-white/50 dark:bg-gray-800/50 border-purple-100 dark:border-gray-700"
           />
-          <Label>דקות</Label>
+          <Label className="text-gray-600 dark:text-gray-400">דקות</Label>
         </div>
         <div className="flex items-center gap-2">
           <Input
@@ -70,12 +87,12 @@ const TaskForm = ({ onAddTask, initialTitle = "", initialDuration = 0, submitLab
             min="0"
             value={hours}
             onChange={(e) => setHours(e.target.value)}
-            className="w-20 text-right"
+            className="w-20 text-right bg-white/50 dark:bg-gray-800/50 border-purple-100 dark:border-gray-700"
           />
-          <Label>שעות</Label>
+          <Label className="text-gray-600 dark:text-gray-400">שעות</Label>
         </div>
       </div>
-    </form>
+    </motion.form>
   );
 };
 

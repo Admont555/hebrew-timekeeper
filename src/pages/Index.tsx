@@ -1,3 +1,4 @@
+import { Toaster } from "@/components/ui/toaster";
 import { useEffect, useState } from "react";
 import TaskList from "@/components/TaskList";
 import TaskForm from "@/components/TaskForm";
@@ -5,6 +6,7 @@ import RandomQuote from "@/components/RandomQuote";
 import { Task, TasksByDate } from "@/types/task";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { motion } from "framer-motion";
 
 const Index = () => {
   const [tasksByDate, setTasksByDate] = useState<TasksByDate>({});
@@ -186,16 +188,36 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white dark:from-gray-900 dark:to-gray-800">
-      <div className="container mx-auto p-6 max-w-4xl">
-        <h1 className="text-4xl font-bold text-right mb-8 bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600 dark:from-purple-400 dark:to-blue-400">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="container mx-auto p-6 max-w-4xl"
+      >
+        <motion.h1 
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.2, duration: 0.5 }}
+          className="text-4xl font-bold text-right mb-8 bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600 dark:from-purple-400 dark:to-blue-400"
+        >
           מעקב משימות
-        </h1>
+        </motion.h1>
         <RandomQuote />
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-6">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3, duration: 0.5 }}
+          className="bg-white/80 backdrop-blur-sm dark:bg-gray-800/80 rounded-xl shadow-lg p-6 mb-6 hover:shadow-xl transition-shadow duration-300"
+        >
           <TaskForm onAddTask={addTask} />
-        </div>
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg">
+        </motion.div>
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4, duration: 0.5 }}
+          className="bg-white/80 backdrop-blur-sm dark:bg-gray-800/80 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300"
+        >
           <TaskList 
             tasks={tasksByDate} 
             onToggleTask={toggleTask}
@@ -203,8 +225,8 @@ const Index = () => {
             onDeleteTask={deleteTask}
             onEditTask={editTask}
           />
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
     </div>
   );
 };
