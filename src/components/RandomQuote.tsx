@@ -40,7 +40,7 @@ const RandomQuote = () => {
 
   useEffect(() => {
     fetchRandomQuote();
-    const interval = setInterval(fetchRandomQuote, 60000);
+    const interval = setInterval(fetchRandomQuote, 30000); // Changed to 30 seconds
     return () => clearInterval(interval);
   }, []);
 
@@ -49,7 +49,7 @@ const RandomQuote = () => {
   }
 
   return (
-    <AnimatePresence>
+    <AnimatePresence mode="wait">
       {!isLoading && quote && (
         <motion.div
           initial={{ opacity: 0, y: -20 }}
