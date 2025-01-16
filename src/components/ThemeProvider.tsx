@@ -10,10 +10,12 @@ type ThemeProviderProps = {
 
 type ThemeProviderState = {
   theme: Theme;
+  setTheme: (theme: Theme) => void;
 };
 
 const initialState: ThemeProviderState = {
   theme: "light",
+  setTheme: () => null,
 };
 
 const ThemeProviderContext = createContext<ThemeProviderState>(initialState);
@@ -39,8 +41,16 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     return () => mediaQuery.removeEventListener("change", handleChange);
   }, []);
 
+  const value = {
+    theme,
+    setTheme: (newTheme: Theme) => {
+      setTheme(newTheme);
+      document.documentElement.classList.toggle("dark", newTheme === "dark");
+    },
+  };
+
   return (
-    <ThemeProviderContext.Provider value={{ theme }}>
+    <ThemeProviderContext.Provider value={value}>
       {children}
     </ThemeProviderContext.Provider>
   );
