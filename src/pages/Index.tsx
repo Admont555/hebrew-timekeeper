@@ -276,16 +276,16 @@ const Index = () => {
           className="w-full mb-6"
         >
           <TabsList className="grid w-full grid-cols-2 max-w-md mx-auto px-2 sm:px-0">
-            <TabsTrigger value="worker1" className="group relative flex items-center justify-center">
-              <span className="truncate">{workerNames.worker1}</span>
+            <TabsTrigger value="worker1" className="group relative flex items-center justify-center gap-1">
+              {workerNames.worker1}
               <WorkerNameEditor
                 currentName={workerNames.worker1}
                 workerId="worker1"
                 onNameChange={handleWorkerNameChange}
               />
             </TabsTrigger>
-            <TabsTrigger value="worker2" className="group relative flex items-center justify-center">
-              <span className="truncate">{workerNames.worker2}</span>
+            <TabsTrigger value="worker2" className="group relative flex items-center justify-center gap-1">
+              {workerNames.worker2}
               <WorkerNameEditor
                 currentName={workerNames.worker2}
                 workerId="worker2"

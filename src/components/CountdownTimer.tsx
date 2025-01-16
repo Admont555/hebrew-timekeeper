@@ -11,8 +11,8 @@ interface CountdownTimerProps {
 }
 
 const CountdownTimer = ({ duration, startTime, isCompleted, onComplete }: CountdownTimerProps) => {
-  const [timeLeft, setTimeLeft] = useState<number>(duration * 60); // Convert to seconds initially
-  const [isRunning, setIsRunning] = useState<boolean>(!!startTime);
+  const [timeLeft, setTimeLeft] = useState<number>(0);
+  const [isRunning, setIsRunning] = useState<boolean>(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -23,19 +23,21 @@ const CountdownTimer = ({ duration, startTime, isCompleted, onComplete }: Countd
   }, []);
 
   useEffect(() => {
-    if (!isRunning || isCompleted) return;
-
-    const calculateTimeLeft = () => {
-      if (!startTime) {
-        return timeLeft; // Use current timeLeft for manual start
-      }
-
+    // Initialize timeLeft based on startTime or duration
+    if (startTime) {
       const start = new Date(startTime).getTime();
       const now = new Date().getTime();
       const elapsedSeconds = Math.floor((now - start) / 1000);
-      const remainingSeconds = (duration * 60) - elapsedSeconds;
-      return Math.max(0, remainingSeconds);
-    };
+      const remainingSeconds = Math.max(0, (duration * 60) - elapsedSeconds);
+      setTimeLeft(remainingSeconds);
+      setIsRunning(true);
+    } else {
+      setTimeLeft(duration * 60);
+    }
+  }, [duration, startTime]);
+
+  useEffect(() => {
+    if (!isRunning || isCompleted) return;
 
     const handleComplete = () => {
       onComplete();
@@ -47,33 +49,22 @@ const CountdownTimer = ({ duration, startTime, isCompleted, onComplete }: Countd
       });
     };
 
-    // Initial calculation
-    const currentTimeLeft = calculateTimeLeft();
-    setTimeLeft(currentTimeLeft);
-
-    if (currentTimeLeft <= 0) {
-      handleComplete();
-      return;
-    }
-
     const timer = setInterval(() => {
       setTimeLeft((prevTime) => {
-        const newTime = prevTime - 1;
-        if (newTime <= 0) {
+        if (prevTime <= 1) {
           clearInterval(timer);
           handleComplete();
           return 0;
         }
-        return newTime;
+        return prevTime - 1;
       });
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [duration, startTime, isRunning, isCompleted, onComplete, toast]);
+  }, [isRunning, isCompleted, onComplete, toast]);
 
   const handleStart = () => {
     setIsRunning(true);
-    setTimeLeft(duration * 60); // Reset to full duration when manually started
   };
 
   const formatTime = (seconds: number) => {
