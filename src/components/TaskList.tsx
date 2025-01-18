@@ -6,7 +6,6 @@ import { useState, useMemo } from "react";
 import TaskForm from "./TaskForm";
 import { useToast } from "@/hooks/use-toast";
 import TaskItem from "./TaskItem";
-import DeleteCompletedButton from "./DeleteCompletedButton";
 import { AnimatePresence } from "framer-motion";
 import { Button } from "./ui/button";
 import { Trash2 } from "lucide-react";
@@ -64,25 +63,6 @@ const TaskList = ({
     return task.duration * 60 - elapsedSeconds;
   };
 
-  const deleteCompletedTasks = () => {
-    let deletedCount = 0;
-    Object.values(tasks).forEach((tasksArray) => {
-      tasksArray.forEach((task) => {
-        if (task.completed) {
-          onDeleteTask(task.id);
-          deletedCount++;
-        }
-      });
-    });
-
-    if (deletedCount > 0) {
-      toast({
-        title: "משימות הושלמו",
-        description: `${deletedCount} משימות שהושלמו נמחקו בהצלחה`,
-      });
-    }
-  };
-
   const deleteDayTasks = (date: string) => {
     const tasksForDay = tasks[date];
     let deletedCount = 0;
@@ -131,21 +111,8 @@ const TaskList = ({
     []
   );
 
-  const hasCompletedTasks = useMemo(
-    () => Object.values(tasks).some((tasksArray) => tasksArray.some((task) => task.completed)),
-    [tasks]
-  );
-
   return (
     <ScrollArea className="h-[600px] w-full rounded-lg p-6">
-      <AnimatePresence>
-        {hasCompletedTasks && (
-          <div className="mb-6">
-            <DeleteCompletedButton onDelete={deleteCompletedTasks} />
-          </div>
-        )}
-      </AnimatePresence>
-      
       {sortedDates.map((date) => (
         <div key={date} className="mb-8 last:mb-0">
           <div className="flex items-center justify-between mb-4">
