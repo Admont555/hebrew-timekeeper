@@ -40,7 +40,7 @@ const RandomQuote = () => {
 
   useEffect(() => {
     fetchRandomQuote();
-    const interval = setInterval(fetchRandomQuote, 30000); // Changed to 30 seconds
+    const interval = setInterval(fetchRandomQuote, 30000);
     return () => clearInterval(interval);
   }, []);
 
@@ -62,7 +62,10 @@ const RandomQuote = () => {
             transform: "translate3d(0,0,0)",
             WebkitTransform: "translate3d(0,0,0)",
             perspective: "1000px",
-            WebkitPerspective: "1000px"
+            WebkitPerspective: "1000px",
+            willChange: "transform",
+            backfaceVisibility: "hidden",
+            WebkitBackfaceVisibility: "hidden"
           }}
         >
           <motion.p 
@@ -70,7 +73,12 @@ const RandomQuote = () => {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3, duration: 0.5 }}
             className="text-base sm:text-lg md:text-xl font-medium text-gray-800 dark:text-gray-200 leading-relaxed tracking-wide"
-            style={{ direction: "rtl", WebkitFontSmoothing: "antialiased" }}
+            style={{ 
+              direction: "rtl", 
+              WebkitFontSmoothing: "antialiased",
+              transform: "translateZ(0)",
+              WebkitTransform: "translateZ(0)"
+            }}
           >
             "{quote.content}"
           </motion.p>
@@ -80,7 +88,12 @@ const RandomQuote = () => {
               animate={{ opacity: 1 }}
               transition={{ delay: 0.5, duration: 0.5 }}
               className="mt-2 sm:mt-3 text-xs sm:text-sm text-gray-600 dark:text-gray-400 font-normal"
-              style={{ direction: "rtl", WebkitFontSmoothing: "antialiased" }}
+              style={{ 
+                direction: "rtl", 
+                WebkitFontSmoothing: "antialiased",
+                transform: "translateZ(0)",
+                WebkitTransform: "translateZ(0)"
+              }}
             >
               - {quote.author}
             </motion.p>
