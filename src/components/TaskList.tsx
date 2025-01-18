@@ -8,6 +8,19 @@ import { useToast } from "@/hooks/use-toast";
 import TaskItem from "./TaskItem";
 import DeleteCompletedButton from "./DeleteCompletedButton";
 import { AnimatePresence } from "framer-motion";
+import { Button } from "./ui/button";
+import { Trash2 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface TaskListProps {
   tasks: TasksByDate;
@@ -70,6 +83,23 @@ const TaskList = ({
     }
   };
 
+  const deleteDayTasks = (date: string) => {
+    const tasksForDay = tasks[date];
+    let deletedCount = 0;
+    
+    tasksForDay.forEach((task) => {
+      onDeleteTask(task.id);
+      deletedCount++;
+    });
+
+    if (deletedCount > 0) {
+      toast({
+        title: "משימות נמחקו",
+        description: `${deletedCount} משימות מתאריך ${formatDate(date)} נמחקו בהצלחה`,
+      });
+    }
+  };
+
   const sortedDates = useMemo(
     () =>
       Object.keys(tasks).sort((a, b) => new Date(b).getTime() - new Date(a).getTime()),
@@ -118,9 +148,37 @@ const TaskList = ({
       
       {sortedDates.map((date) => (
         <div key={date} className="mb-8 last:mb-0">
-          <h2 className="text-2xl font-bold mb-4 text-right text-gray-800 dark:text-gray-200">
-            {formatDate(date)}
-          </h2>
+          <div className="flex items-center justify-between mb-4">
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  className="flex items-center gap-2"
+                >
+                  <Trash2 className="h-4 w-4" />
+                  מחק את כל המשימות
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent className="text-right">
+                <AlertDialogHeader>
+                  <AlertDialogTitle>האם אתה בטוח?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    פעולה זו תמחק את כל המשימות מתאריך {formatDate(date)}. לא ניתן לבטל פעולה זו.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter className="flex-row-reverse sm:justify-start">
+                  <AlertDialogAction onClick={() => deleteDayTasks(date)}>
+                    כן, מחק הכל
+                  </AlertDialogAction>
+                  <AlertDialogCancel>ביטול</AlertDialogCancel>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+            <h2 className="text-2xl font-bold text-right text-gray-800 dark:text-gray-200">
+              {formatDate(date)}
+            </h2>
+          </div>
           <div className="space-y-3">
             <AnimatePresence>
               {sortTasks(tasks[date]).map((task: Task) => (
