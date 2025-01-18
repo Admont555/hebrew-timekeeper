@@ -1,1 +1,8 @@
 project_id = "yovaxhdwukpmuagoccwu"
+
+[api]
+enabled = true
+url = "https://yovaxhdwukpmuagoccwu.supabase.co"
+
+[functions.voice-to-text]
+verify_jwt = false

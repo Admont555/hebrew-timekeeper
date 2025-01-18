@@ -9,6 +9,41 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      notifications: {
+        Row: {
+          created_at: string | null
+          id: string
+          message: string
+          scheduled_time: string
+          sent: boolean | null
+          task_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          message: string
+          scheduled_time: string
+          sent?: boolean | null
+          task_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          message?: string
+          scheduled_time?: string
+          sent?: boolean | null
+          task_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       quotes: {
         Row: {
           author: string | null
@@ -33,10 +68,14 @@ export type Database = {
           date: string | null
           duration: number | null
           id: string
+          notification_time: string | null
+          offline_id: string | null
           priority: string | null
           start_time: string | null
+          sync_status: string | null
           timestamp: string | null
           title: string
+          voice_note: string | null
           worker: string
         }
         Insert: {
@@ -44,10 +83,14 @@ export type Database = {
           date?: string | null
           duration?: number | null
           id?: string
+          notification_time?: string | null
+          offline_id?: string | null
           priority?: string | null
           start_time?: string | null
+          sync_status?: string | null
           timestamp?: string | null
           title: string
+          voice_note?: string | null
           worker?: string
         }
         Update: {
@@ -55,10 +98,14 @@ export type Database = {
           date?: string | null
           duration?: number | null
           id?: string
+          notification_time?: string | null
+          offline_id?: string | null
           priority?: string | null
           start_time?: string | null
+          sync_status?: string | null
           timestamp?: string | null
           title?: string
+          voice_note?: string | null
           worker?: string
         }
         Relationships: []

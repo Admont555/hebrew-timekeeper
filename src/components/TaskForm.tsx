@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { motion } from "framer-motion";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { TaskPriority } from "@/types/task";
+import VoiceInput from "./VoiceInput";
 
 interface TaskFormProps {
   onAddTask: (title: string, duration: number, priority: TaskPriority) => void;
@@ -49,6 +50,10 @@ const TaskForm = ({
     }
   };
 
+  const handleVoiceInput = (text: string) => {
+    setTitle(text);
+  };
+
   return (
     <motion.form 
       onSubmit={handleSubmit} 
@@ -58,13 +63,16 @@ const TaskForm = ({
       transition={{ duration: 0.3 }}
     >
       <div className="flex flex-col sm:flex-row gap-2">
-        <Input
-          type="text"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          placeholder="הוסף משימה חדשה..."
-          className="text-right bg-white/50 dark:bg-gray-800/50 border-purple-100 dark:border-gray-700 focus:border-purple-500 transition-colors duration-200 flex-grow"
-        />
+        <div className="flex gap-2 flex-grow">
+          <Input
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="הוסף משימה חדשה..."
+            className="text-right bg-white/50 dark:bg-gray-800/50 border-purple-100 dark:border-gray-700 focus:border-purple-500 transition-colors duration-200 flex-grow"
+          />
+          <VoiceInput onTranscription={handleVoiceInput} />
+        </div>
         <div className="flex gap-2">
           <Button 
             type="submit"
