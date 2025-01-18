@@ -1,8 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { motion, AnimatePresence } from "framer-motion";
-import { RefreshCw } from "lucide-react";
-import { Button } from "./ui/button";
 import { Progress } from "./ui/progress";
 
 interface Quote {
@@ -15,19 +13,17 @@ const RandomQuote = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [progress, setProgress] = useState(0);
-  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const fetchRandomQuote = useCallback(async () => {
     try {
       setIsLoading(true);
       setError(null);
-      setIsRefreshing(true);
       
       const { data, error: supabaseError } = await supabase
         .from("quotes")
         .select("content, author")
-        .limit(1)
-        .order('id', { ascending: false });
+        .order('RANDOM()')
+        .limit(1);
 
       if (supabaseError) {
         throw supabaseError;
@@ -41,7 +37,6 @@ const RandomQuote = () => {
       console.error('Error fetching quote:', err);
     } finally {
       setIsLoading(false);
-      setIsRefreshing(false);
       setProgress(0);
     }
   }, []);
@@ -131,18 +126,6 @@ const RandomQuote = () => {
           </motion.div>
         )}
       </AnimatePresence>
-      
-      <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 flex items-center gap-2">
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={fetchRandomQuote}
-          disabled={isRefreshing}
-          className="rounded-full shadow-sm hover:shadow-md transition-all duration-300"
-        >
-          <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-        </Button>
-      </div>
       
       <div className="mt-8 max-w-xs mx-auto">
         <Progress value={progress} className="h-1" />
