@@ -40,7 +40,7 @@ const DateRangeSelector = ({ date, onDateChange }: DateRangeSelectorProps) => {
           onClick={handleNextDay}
           className="glass hover:glass-dark transition-all duration-300"
         >
-          <ArrowLeft className="h-4 w-4" />
+          <ArrowRight className="h-4 w-4" />
         </Button>
         
         <Popover>
@@ -83,7 +83,7 @@ const DateRangeSelector = ({ date, onDateChange }: DateRangeSelectorProps) => {
           onClick={handlePreviousDay}
           className="glass hover:glass-dark transition-all duration-300"
         >
-          <ArrowRight className="h-4 w-4" />
+          <ArrowLeft className="h-4 w-4" />
         </Button>
       </div>
     </div>
