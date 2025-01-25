@@ -8,9 +8,9 @@ import Header from "@/components/Header";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import TaskHeader from "@/components/task/TaskHeader";
 import TaskStats from "@/components/task/TaskStats";
-import TaskSearch from "@/components/task/TaskSearch";
 import TaskAnalytics from "@/components/task/TaskAnalytics";
 import TaskConfetti from "@/components/task/TaskConfetti";
+import DateRangeSelector from "@/components/task/DateRangeSelector";
 import { useQuery } from "@tanstack/react-query";
 import { useWorkerState } from "@/hooks/useWorkerState";
 import { useTaskMutations } from "@/hooks/useTaskMutations";
@@ -19,7 +19,7 @@ import { motion } from "framer-motion";
 const Index = () => {
   const [priorityFilter, setPriorityFilter] = useState<TaskPriority | 'all'>('all');
   const [sortBy, setSortBy] = useState<'date' | 'priority' | 'duration'>('date');
-  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedDate, setSelectedDate] = useState<Date>();
   const [showConfetti, setShowConfetti] = useState(false);
   const { toast } = useToast();
   
@@ -38,13 +38,19 @@ const Index = () => {
   } = useTaskMutations();
 
   const { data: tasksByDate = {}, isLoading } = useQuery({
-    queryKey: ['tasks', currentWorker],
+    queryKey: ['tasks', currentWorker, selectedDate],
     queryFn: async () => {
-      const { data, error } = await supabase
+      let query = supabase
         .from("tasks")
         .select("*")
         .eq('worker', currentWorker)
         .order("timestamp", { ascending: false });
+
+      if (selectedDate) {
+        query = query.eq('date', selectedDate.toISOString().split('T')[0]);
+      }
+
+      const { data, error } = await query;
 
       if (error) {
         toast({
@@ -80,18 +86,7 @@ const Index = () => {
     setTimeout(() => setShowConfetti(false), 3000);
   };
 
-  const filteredTasksByDate = Object.entries(tasksByDate || {}).reduce((acc, [date, tasks]) => {
-    const filtered = tasks.filter(task => {
-      const matchesSearch = task.title.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesPriority = priorityFilter === 'all' || task.priority === priorityFilter;
-      return matchesSearch && matchesPriority;
-    });
-    
-    if (filtered.length > 0) {
-      acc[date] = filtered;
-    }
-    return acc;
-  }, {} as TasksByDate);
+  const filteredTasksByDate = tasksByDate;
 
   return (
     <ErrorBoundary>
@@ -109,9 +104,9 @@ const Index = () => {
             <RandomQuote />
           </div>
 
-          <TaskSearch 
-            searchTerm={searchTerm}
-            onSearch={setSearchTerm}
+          <DateRangeSelector 
+            date={selectedDate}
+            onDateChange={setSelectedDate}
           />
           
           <TaskHeader
