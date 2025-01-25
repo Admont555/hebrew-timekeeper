@@ -10,7 +10,6 @@ import TaskHeader from "@/components/task/TaskHeader";
 import TaskStats from "@/components/task/TaskStats";
 import TaskAnalytics from "@/components/task/TaskAnalytics";
 import TaskConfetti from "@/components/task/TaskConfetti";
-import DateRangeSelector from "@/components/task/DateRangeSelector";
 import { useQuery } from "@tanstack/react-query";
 import { useWorkerState } from "@/hooks/useWorkerState";
 import { useTaskMutations } from "@/hooks/useTaskMutations";
@@ -103,11 +102,6 @@ const Index = () => {
           <div className="mb-6 max-w-2xl mx-auto">
             <RandomQuote />
           </div>
-
-          <DateRangeSelector 
-            date={selectedDate}
-            onDateChange={setSelectedDate}
-          />
           
           <TaskHeader
             currentWorker={currentWorker}
@@ -127,6 +121,8 @@ const Index = () => {
             onDeleteTask={(taskId) => deleteTaskMutation.mutate(taskId)}
             onEditTask={(taskId, newTitle, newDuration, newPriority) => 
               editTaskMutation.mutate({ taskId, newTitle, newDuration, newPriority, worker: currentWorker })}
+            selectedDate={selectedDate}
+            onDateChange={setSelectedDate}
           />
           
           <div className="grid gap-6 mt-6">
