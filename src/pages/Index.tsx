@@ -226,6 +226,11 @@ const Index = () => {
             onAddTask={(title, duration, priority) => addTaskMutation.mutate({ title, duration, priority })}
             tasksByDate={tasksByDate}
             isLoading={isLoading}
+            onToggleTask={(taskId) => toggleTaskMutation.mutate(taskId)}
+            onTaskComplete={(taskId) => toggleTaskMutation.mutate(taskId)}
+            onDeleteTask={(taskId) => deleteTaskMutation.mutate(taskId)}
+            onEditTask={(taskId, newTitle, newDuration, newPriority) => 
+              editTaskMutation.mutate({ taskId, newTitle, newDuration, newPriority })}
           />
           
           <TaskStats tasksByDate={tasksByDate} />
