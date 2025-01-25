@@ -1,5 +1,5 @@
 import { Toaster } from "@/components/ui/toaster";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import RandomQuote from "@/components/RandomQuote";
 import { TasksByDate, TaskPriority } from "@/types/task";
 import { useToast } from "@/hooks/use-toast";
@@ -8,28 +8,28 @@ import Header from "@/components/Header";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import TaskHeader from "@/components/task/TaskHeader";
 import TaskStats from "@/components/task/TaskStats";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-
-interface WorkerNames {
-  worker1: string;
-  worker2: string;
-}
+import { useQuery } from "@tanstack/react-query";
+import { useWorkerState } from "@/hooks/useWorkerState";
+import { useTaskMutations } from "@/hooks/useTaskMutations";
 
 const Index = () => {
-  const [currentWorker, setCurrentWorker] = useState<'worker1' | 'worker2'>('worker1');
   const [priorityFilter, setPriorityFilter] = useState<TaskPriority | 'all'>('all');
   const [sortBy, setSortBy] = useState<'date' | 'priority' | 'duration'>('date');
-  const [workerNames, setWorkerNames] = useState<WorkerNames>(() => {
-    const saved = localStorage.getItem('workerNames');
-    return saved ? JSON.parse(saved) : { worker1: 'עובד 1', worker2: 'עובד 2' };
-  });
-  
   const { toast } = useToast();
-  const queryClient = useQueryClient();
+  
+  const {
+    currentWorker,
+    setCurrentWorker,
+    workerNames,
+    handleWorkerNameChange,
+  } = useWorkerState();
 
-  useEffect(() => {
-    localStorage.setItem('workerNames', JSON.stringify(workerNames));
-  }, [workerNames]);
+  const {
+    addTaskMutation,
+    deleteTaskMutation,
+    editTaskMutation,
+    toggleTaskMutation,
+  } = useTaskMutations();
 
   const { data: tasksByDate = {}, isLoading } = useQuery({
     queryKey: ['tasks', currentWorker],
@@ -68,141 +68,6 @@ const Index = () => {
     },
   });
 
-  const addTaskMutation = useMutation({
-    mutationFn: async ({ title, duration, priority }: { title: string; duration: number; priority: TaskPriority }) => {
-      const now = new Date();
-      const dateStr = now.toISOString().split("T")[0];
-      
-      const newTask = {
-        title,
-        timestamp: now.toISOString(),
-        completed: false,
-        date: dateStr,
-        duration,
-        priority,
-        worker: currentWorker,
-      };
-
-      const { error } = await supabase
-        .from("tasks")
-        .insert(newTask);
-
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tasks'] });
-      toast({
-        title: "משימה נוספה",
-        description: "המשימה החדשה נוספה בהצלחה",
-      });
-    },
-    onError: (error) => {
-      toast({
-        title: "שגיאה בהוספת משימה",
-        description: error.message,
-        variant: "destructive",
-      });
-    },
-  });
-
-  const deleteTaskMutation = useMutation({
-    mutationFn: async (taskId: string) => {
-      const { error } = await supabase
-        .from("tasks")
-        .delete()
-        .eq("id", taskId);
-
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tasks'] });
-      toast({
-        title: "משימה נמחקה",
-        description: "המשימה נמחקה בהצלחה",
-      });
-    },
-    onError: (error) => {
-      toast({
-        title: "שגיאה במחיקת משימה",
-        description: error.message,
-        variant: "destructive",
-      });
-    },
-  });
-
-  const editTaskMutation = useMutation({
-    mutationFn: async ({ taskId, newTitle, newDuration, newPriority }: { 
-      taskId: string; 
-      newTitle: string; 
-      newDuration: number; 
-      newPriority: TaskPriority 
-    }) => {
-      const { error } = await supabase
-        .from("tasks")
-        .update({ 
-          title: newTitle, 
-          duration: newDuration,
-          priority: newPriority
-        })
-        .eq("id", taskId)
-        .eq('worker', currentWorker);
-
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tasks'] });
-      toast({
-        title: "משימה עודכנה",
-        description: "המשימה עודכנה בהצלחה",
-      });
-    },
-    onError: (error) => {
-      toast({
-        title: "שגיאה בעדכון משימה",
-        description: error.message,
-        variant: "destructive",
-      });
-    },
-  });
-
-  const toggleTaskMutation = useMutation({
-    mutationFn: async (taskId: string) => {
-      const task = Object.values(tasksByDate)
-        .flat()
-        .find(t => t.id === taskId);
-      
-      if (!task) throw new Error("Task not found");
-
-      const { error } = await supabase
-        .from("tasks")
-        .update({ 
-          completed: !task.completed,
-          start_time: !task.startTime && !task.completed ? new Date().toISOString() : task.startTime
-        })
-        .eq("id", taskId)
-        .eq('worker', currentWorker);
-
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tasks'] });
-    },
-    onError: (error) => {
-      toast({
-        title: "שגיאה בעדכון משימה",
-        description: error.message,
-        variant: "destructive",
-      });
-    },
-  });
-
-  const handleWorkerNameChange = (workerId: 'worker1' | 'worker2', newName: string) => {
-    setWorkerNames(prev => ({
-      ...prev,
-      [workerId]: newName
-    }));
-  };
-
   return (
     <ErrorBoundary>
       <div className="scroll-container safe-area-top safe-area-bottom min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
@@ -222,14 +87,15 @@ const Index = () => {
             onPriorityChange={setPriorityFilter}
             sortBy={sortBy}
             onSortChange={setSortBy}
-            onAddTask={(title, duration, priority) => addTaskMutation.mutate({ title, duration, priority })}
+            onAddTask={(title, duration, priority) => 
+              addTaskMutation.mutate({ title, duration, priority, worker: currentWorker })}
             tasksByDate={tasksByDate}
             isLoading={isLoading}
-            onToggleTask={(taskId) => toggleTaskMutation.mutate(taskId)}
-            onTaskComplete={(taskId) => toggleTaskMutation.mutate(taskId)}
+            onToggleTask={(taskId) => toggleTaskMutation.mutate({ taskId, worker: currentWorker })}
+            onTaskComplete={(taskId) => toggleTaskMutation.mutate({ taskId, worker: currentWorker })}
             onDeleteTask={(taskId) => deleteTaskMutation.mutate(taskId)}
             onEditTask={(taskId, newTitle, newDuration, newPriority) => 
-              editTaskMutation.mutate({ taskId, newTitle, newDuration, newPriority })}
+              editTaskMutation.mutate({ taskId, newTitle, newDuration, newPriority, worker: currentWorker })}
           />
           
           <TaskStats tasksByDate={tasksByDate} />
