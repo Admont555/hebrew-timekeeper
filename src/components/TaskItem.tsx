@@ -1,8 +1,10 @@
 import { Task } from "@/types/task";
 import { Button } from "./ui/button";
-import { Pencil, Trash2, Flag } from "lucide-react";
+import { Pencil, Trash2, Flag, MessageSquare } from "lucide-react";
 import CountdownTimer from "./CountdownTimer";
 import { motion } from "framer-motion";
+import { useState } from "react";
+import TaskComments from "./TaskComments";
 
 interface TaskItemProps {
   task: Task;
@@ -13,6 +15,8 @@ interface TaskItemProps {
 }
 
 const TaskItem = ({ task, onToggleTask, onTaskComplete, onDeleteTask, onEdit }: TaskItemProps) => {
+  const [showComments, setShowComments] = useState(false);
+
   const formatTime = (timestamp: string) => {
     return new Date(timestamp).toLocaleTimeString("he-IL", {
       hour: "2-digit",
@@ -44,6 +48,10 @@ const TaskItem = ({ task, onToggleTask, onTaskComplete, onDeleteTask, onEdit }: 
       default:
         return 'bg-gray-50 dark:bg-gray-800/50';
     }
+  };
+
+  const handleCommentsUpdate = (newComments: string[]) => {
+    task.comments = newComments;
   };
 
   return (
@@ -79,6 +87,20 @@ const TaskItem = ({ task, onToggleTask, onTaskComplete, onDeleteTask, onEdit }: 
             >
               <Pencil className="h-4 w-4 text-blue-500" />
             </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setShowComments(!showComments)}
+              className="h-8 w-8 hover:bg-purple-100 dark:hover:bg-purple-900/30 transition-colors duration-200"
+              aria-label="Toggle comments"
+            >
+              <MessageSquare className="h-4 w-4 text-purple-500" />
+              {task.comments && task.comments.length > 0 && (
+                <span className="absolute -top-1 -right-1 bg-purple-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
+                  {task.comments.length}
+                </span>
+              )}
+            </Button>
           </div>
           <div className="flex items-center gap-2">
             <Flag className={`h-4 w-4 ${getPriorityColor(task.priority)}`} />
@@ -111,6 +133,13 @@ const TaskItem = ({ task, onToggleTask, onTaskComplete, onDeleteTask, onEdit }: 
           aria-label="Toggle task completion"
         />
       </div>
+      {showComments && (
+        <TaskComments
+          taskId={task.id}
+          comments={task.comments || []}
+          onCommentsUpdate={handleCommentsUpdate}
+        />
+      )}
     </motion.div>
   );
 };

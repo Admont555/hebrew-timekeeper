@@ -64,6 +64,7 @@ export type Database = {
       }
       tasks: {
         Row: {
+          comments: string[] | null
           completed: boolean | null
           date: string | null
           duration: number | null
@@ -79,6 +80,7 @@ export type Database = {
           worker: string
         }
         Insert: {
+          comments?: string[] | null
           completed?: boolean | null
           date?: string | null
           duration?: number | null
@@ -94,6 +96,7 @@ export type Database = {
           worker?: string
         }
         Update: {
+          comments?: string[] | null
           completed?: boolean | null
           date?: string | null
           duration?: number | null

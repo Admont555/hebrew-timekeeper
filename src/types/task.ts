@@ -9,6 +9,7 @@ export interface Task {
   duration: number;
   startTime?: string;
   priority: TaskPriority;
+  comments?: string[];
 }
 
 export interface TasksByDate {
