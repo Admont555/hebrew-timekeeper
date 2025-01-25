@@ -8,7 +8,6 @@ import Header from "@/components/Header";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import TaskHeader from "@/components/task/TaskHeader";
 import TaskStats from "@/components/task/TaskStats";
-import TaskContainer from "@/components/task/TaskContainer";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 interface WorkerNames {
@@ -234,16 +233,6 @@ const Index = () => {
           />
           
           <TaskStats tasksByDate={tasksByDate} />
-          
-          <TaskContainer
-            tasksByDate={tasksByDate}
-            isLoading={isLoading}
-            onToggleTask={(taskId) => toggleTaskMutation.mutate(taskId)}
-            onTaskComplete={(taskId) => toggleTaskMutation.mutate(taskId)}
-            onDeleteTask={(taskId) => deleteTaskMutation.mutate(taskId)}
-            onEditTask={(taskId, newTitle, newDuration, newPriority) => 
-              editTaskMutation.mutate({ taskId, newTitle, newDuration, newPriority })}
-          />
         </div>
         <Toaster />
       </div>
