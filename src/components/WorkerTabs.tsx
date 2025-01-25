@@ -5,6 +5,7 @@ import TaskForm from "./TaskForm";
 import TaskList from "./TaskList";
 import { Task, TaskPriority } from "@/types/task";
 import { TasksByDate } from "@/types/task";
+import DateRangeSelector from "./task/DateRangeSelector";
 
 interface WorkerTabsProps {
   currentWorker: 'worker1' | 'worker2';
@@ -18,6 +19,8 @@ interface WorkerTabsProps {
   onTaskComplete: (taskId: string) => void;
   onDeleteTask: (taskId: string) => void;
   onEditTask: (taskId: string, newTitle: string, newDuration: number, newPriority: TaskPriority) => void;
+  selectedDate: Date | undefined;
+  onDateChange: (date: Date | undefined) => void;
 }
 
 const WorkerTabs = ({
@@ -31,7 +34,9 @@ const WorkerTabs = ({
   onToggleTask,
   onTaskComplete,
   onDeleteTask,
-  onEditTask
+  onEditTask,
+  selectedDate,
+  onDateChange
 }: WorkerTabsProps) => {
   return (
     <Tabs 
@@ -60,6 +65,8 @@ const WorkerTabs = ({
 
       {['worker1', 'worker2'].map((worker) => (
         <TabsContent key={worker} value={worker}>
+          <DateRangeSelector date={selectedDate} onDateChange={onDateChange} />
+          
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
