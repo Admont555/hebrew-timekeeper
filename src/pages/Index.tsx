@@ -6,6 +6,8 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 import WorkerTabs from "@/components/WorkerTabs";
+import TaskFilters from "@/components/task/TaskFilters";
+import ErrorBoundary from "@/components/ErrorBoundary";
 
 interface WorkerNames {
   worker1: string;
@@ -16,6 +18,8 @@ const Index = () => {
   const [tasksByDate, setTasksByDate] = useState<TasksByDate>({});
   const [currentWorker, setCurrentWorker] = useState<'worker1' | 'worker2'>('worker1');
   const [isLoading, setIsLoading] = useState(false);
+  const [priorityFilter, setPriorityFilter] = useState<TaskPriority | 'all'>('all');
+  const [sortBy, setSortBy] = useState<'date' | 'priority' | 'duration'>('date');
   const [workerNames, setWorkerNames] = useState<WorkerNames>(() => {
     const saved = localStorage.getItem('workerNames');
     return saved ? JSON.parse(saved) : { worker1: 'עובד 1', worker2: 'עובד 2' };
@@ -246,31 +250,65 @@ const Index = () => {
     }));
   };
 
+  const filteredAndSortedTasks = (tasks: Task[]) => {
+    let filtered = tasks;
+    
+    if (priorityFilter !== 'all') {
+      filtered = filtered.filter(task => task.priority === priorityFilter);
+    }
+
+    return filtered.sort((a, b) => {
+      switch (sortBy) {
+        case 'priority':
+          const priorityOrder = { high: 0, normal: 1, low: 2 };
+          return priorityOrder[a.priority] - priorityOrder[b.priority];
+        case 'duration':
+          return b.duration - a.duration;
+        default:
+          return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
+      }
+    });
+  };
+
   return (
-    <div className="scroll-container safe-area-top safe-area-bottom min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
-      <div className="container mx-auto px-4 py-6 max-w-4xl">
-        <Header />
-        
-        <div className="mb-6 max-w-2xl mx-auto">
-          <RandomQuote />
+    <ErrorBoundary>
+      <div className="scroll-container safe-area-top safe-area-bottom min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
+        <div className="container mx-auto px-4 py-6 max-w-4xl">
+          <Header />
+          
+          <div className="mb-6 max-w-2xl mx-auto">
+            <RandomQuote />
+          </div>
+          
+          <TaskFilters
+            priority={priorityFilter}
+            onPriorityChange={setPriorityFilter}
+            sortBy={sortBy}
+            onSortChange={setSortBy}
+          />
+          
+          <WorkerTabs 
+            currentWorker={currentWorker}
+            workerNames={workerNames}
+            onWorkerChange={(value: 'worker1' | 'worker2') => setCurrentWorker(value)}
+            onWorkerNameChange={handleWorkerNameChange}
+            onAddTask={addTask}
+            tasksByDate={Object.fromEntries(
+              Object.entries(tasksByDate).map(([date, tasks]) => [
+                date,
+                filteredAndSortedTasks(tasks)
+              ])
+            )}
+            isLoading={isLoading}
+            onToggleTask={toggleTask}
+            onTaskComplete={handleTaskComplete}
+            onDeleteTask={deleteTask}
+            onEditTask={editTask}
+          />
         </div>
-        
-        <WorkerTabs 
-          currentWorker={currentWorker}
-          workerNames={workerNames}
-          onWorkerChange={(value: 'worker1' | 'worker2') => setCurrentWorker(value)}
-          onWorkerNameChange={handleWorkerNameChange}
-          onAddTask={addTask}
-          tasksByDate={tasksByDate}
-          isLoading={isLoading}
-          onToggleTask={toggleTask}
-          onTaskComplete={handleTaskComplete}
-          onDeleteTask={deleteTask}
-          onEditTask={editTask}
-        />
+        <Toaster />
       </div>
-      <Toaster />
-    </div>
+    </ErrorBoundary>
   );
 };
 
