@@ -70,6 +70,7 @@ const TaskForm = ({
             onChange={(e) => setTitle(e.target.value)}
             placeholder="הוסף משימה חדשה..."
             className="text-right bg-white/50 dark:bg-gray-800/50 border-purple-100 dark:border-gray-700 focus:border-purple-500 transition-colors duration-200 flex-grow"
+            dir="rtl"
           />
           <VoiceInput onTranscription={handleVoiceInput} />
         </div>
@@ -95,7 +96,7 @@ const TaskForm = ({
       <div className="flex flex-col sm:flex-row gap-4 justify-end items-start sm:items-center">
         <div className="flex items-center gap-2 w-full sm:w-auto">
           <Select value={priority} onValueChange={(value: TaskPriority) => setPriority(value)}>
-            <SelectTrigger className="w-full sm:w-32">
+            <SelectTrigger className="w-full sm:w-32 text-right" dir="rtl">
               <SelectValue placeholder="עדיפות" />
             </SelectTrigger>
             <SelectContent>
@@ -113,6 +114,7 @@ const TaskForm = ({
             value={minutes}
             onChange={(e) => setMinutes(e.target.value)}
             className="w-full sm:w-20 text-right bg-white/50 dark:bg-gray-800/50 border-purple-100 dark:border-gray-700"
+            dir="rtl"
           />
           <Label className="text-gray-600 dark:text-gray-400 min-w-fit">דקות</Label>
         </div>
@@ -123,6 +125,7 @@ const TaskForm = ({
             value={hours}
             onChange={(e) => setHours(e.target.value)}
             className="w-full sm:w-20 text-right bg-white/50 dark:bg-gray-800/50 border-purple-100 dark:border-gray-700"
+            dir="rtl"
           />
           <Label className="text-gray-600 dark:text-gray-400 min-w-fit">שעות</Label>
         </div>

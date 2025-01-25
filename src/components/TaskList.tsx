@@ -112,7 +112,7 @@ const TaskList = ({
   );
 
   return (
-    <ScrollArea className="h-[600px] w-full rounded-lg p-6">
+    <ScrollArea className="min-h-[600px] max-h-[80vh] w-full rounded-lg p-6">
       {sortedDates.map((date) => (
         <div key={date} className="mb-8 last:mb-0">
           <div className="flex items-center justify-between mb-4">

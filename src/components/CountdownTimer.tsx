@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { Button } from "./ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { playNotificationSound } from "@/utils/sound";
+import { Pause, Play } from "lucide-react";
 
 interface CountdownTimerProps {
   duration: number; // in minutes
@@ -13,20 +14,19 @@ interface CountdownTimerProps {
 const CountdownTimer = ({ duration, startTime, isCompleted, onComplete }: CountdownTimerProps) => {
   const [timeLeft, setTimeLeft] = useState<number>(0);
   const [isRunning, setIsRunning] = useState<boolean>(false);
+  const [isPaused, setIsPaused] = useState<boolean>(false);
   const { toast } = useToast();
   
-  // Refs to store the animation frame and start time
   const animationFrameRef = useRef<number>();
   const startTimeRef = useRef<number>();
+  const pausedTimeRef = useRef<number>();
   const durationRef = useRef<number>(0);
 
   useEffect(() => {
-    // Request notification permissions when component mounts
     if (Notification.permission === "default") {
       Notification.requestPermission();
     }
 
-    // Cleanup function to cancel animation frame
     return () => {
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
@@ -35,7 +35,6 @@ const CountdownTimer = ({ duration, startTime, isCompleted, onComplete }: Countd
   }, []);
 
   useEffect(() => {
-    // Initialize timeLeft based on startTime or duration
     if (startTime) {
       const start = new Date(startTime).getTime();
       const now = new Date().getTime();
@@ -52,7 +51,7 @@ const CountdownTimer = ({ duration, startTime, isCompleted, onComplete }: Countd
   }, [duration, startTime]);
 
   useEffect(() => {
-    if (!isRunning || isCompleted) {
+    if (!isRunning || isCompleted || isPaused) {
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
       }
@@ -72,7 +71,6 @@ const CountdownTimer = ({ duration, startTime, isCompleted, onComplete }: Countd
       });
     };
 
-    // Start the timer using requestAnimationFrame
     if (!startTimeRef.current) {
       startTimeRef.current = Date.now();
     }
@@ -95,17 +93,34 @@ const CountdownTimer = ({ duration, startTime, isCompleted, onComplete }: Countd
 
     animationFrameRef.current = requestAnimationFrame(updateTimer);
 
-    // Cleanup
     return () => {
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [isRunning, isCompleted, onComplete, toast]);
+  }, [isRunning, isCompleted, isPaused, onComplete, toast]);
 
   const handleStart = () => {
     startTimeRef.current = Date.now();
     setIsRunning(true);
+  };
+
+  const handlePauseResume = () => {
+    if (isPaused) {
+      // Resume
+      if (pausedTimeRef.current) {
+        const pausedDuration = Date.now() - pausedTimeRef.current;
+        if (startTimeRef.current) {
+          startTimeRef.current += pausedDuration;
+        }
+      }
+      setIsPaused(false);
+      setIsRunning(true);
+    } else {
+      // Pause
+      pausedTimeRef.current = Date.now();
+      setIsPaused(true);
+    }
   };
 
   const formatTime = (seconds: number) => {
@@ -129,6 +144,16 @@ const CountdownTimer = ({ duration, startTime, isCompleted, onComplete }: Countd
       {!isRunning && !startTime && (
         <Button variant="outline" size="sm" onClick={handleStart}>
           התחל
+        </Button>
+      )}
+      {isRunning && (
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={handlePauseResume}
+          className="h-8 w-8"
+        >
+          {isPaused ? <Play className="h-4 w-4" /> : <Pause className="h-4 w-4" />}
         </Button>
       )}
     </div>
