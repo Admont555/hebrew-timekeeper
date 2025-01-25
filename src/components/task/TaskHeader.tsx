@@ -19,6 +19,8 @@ interface TaskHeaderProps {
   onTaskComplete: (taskId: string) => void;
   onDeleteTask: (taskId: string) => void;
   onEditTask: (taskId: string, newTitle: string, newDuration: number, newPriority: TaskPriority) => void;
+  selectedDate: Date | undefined;
+  onDateChange: (date: Date | undefined) => void;
 }
 
 const TaskHeader = ({
@@ -37,6 +39,8 @@ const TaskHeader = ({
   onTaskComplete,
   onDeleteTask,
   onEditTask,
+  selectedDate,
+  onDateChange,
 }: TaskHeaderProps) => {
   return (
     <div className="space-y-6">
@@ -52,6 +56,8 @@ const TaskHeader = ({
         onTaskComplete={onTaskComplete}
         onDeleteTask={onDeleteTask}
         onEditTask={onEditTask}
+        selectedDate={selectedDate}
+        onDateChange={onDateChange}
       />
       <TaskFilters
         priority={priorityFilter}
