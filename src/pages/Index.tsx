@@ -16,8 +16,6 @@ import { useTaskMutations } from "@/hooks/useTaskMutations";
 import { motion } from "framer-motion";
 
 const Index = () => {
-  const [priorityFilter, setPriorityFilter] = useState<TaskPriority | 'all'>('all');
-  const [sortBy, setSortBy] = useState<'date' | 'priority' | 'duration'>('date');
   const [selectedDate, setSelectedDate] = useState<Date>();
   const [showConfetti, setShowConfetti] = useState(false);
   const { toast } = useToast();
@@ -85,8 +83,6 @@ const Index = () => {
     setTimeout(() => setShowConfetti(false), 3000);
   };
 
-  const filteredTasksByDate = tasksByDate;
-
   return (
     <ErrorBoundary>
       <motion.div 
@@ -108,13 +104,9 @@ const Index = () => {
             workerNames={workerNames}
             onWorkerChange={setCurrentWorker}
             onWorkerNameChange={handleWorkerNameChange}
-            priorityFilter={priorityFilter}
-            onPriorityChange={setPriorityFilter}
-            sortBy={sortBy}
-            onSortChange={setSortBy}
             onAddTask={(title, duration, priority) => 
               addTaskMutation.mutate({ title, duration, priority, worker: currentWorker })}
-            tasksByDate={filteredTasksByDate}
+            tasksByDate={tasksByDate}
             isLoading={isLoading}
             onToggleTask={(taskId) => toggleTaskMutation.mutate({ taskId, worker: currentWorker })}
             onTaskComplete={handleTaskComplete}
@@ -126,8 +118,8 @@ const Index = () => {
           />
           
           <div className="grid gap-6 mt-6">
-            <TaskStats tasksByDate={filteredTasksByDate} />
-            <TaskAnalytics tasksByDate={filteredTasksByDate} />
+            <TaskStats tasksByDate={tasksByDate} />
+            <TaskAnalytics tasksByDate={tasksByDate} />
           </div>
         </div>
         <Toaster />

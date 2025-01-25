@@ -7,7 +7,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
-import { CalendarIcon, ChevronRight, ChevronLeft } from "lucide-react";
+import { CalendarIcon, ArrowLeft, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { addDays, subDays } from "date-fns";
 
@@ -31,14 +31,14 @@ const DateRangeSelector = ({ date, onDateChange }: DateRangeSelectorProps) => {
 
   return (
     <div className="w-full max-w-xl mx-auto mb-8 px-4 sm:px-0">
-      <div className="flex items-center justify-between gap-4 rtl">
+      <div className="flex items-center justify-between gap-4">
         <Button
           variant="outline"
           size="icon"
-          onClick={handlePreviousDay}
+          onClick={handleNextDay}
           className="glass hover:glass-dark transition-all duration-300"
         >
-          <ChevronRight className="h-4 w-4" />
+          <ArrowLeft className="h-4 w-4" />
         </Button>
         
         <Popover>
@@ -77,10 +77,10 @@ const DateRangeSelector = ({ date, onDateChange }: DateRangeSelectorProps) => {
         <Button
           variant="outline"
           size="icon"
-          onClick={handleNextDay}
+          onClick={handlePreviousDay}
           className="glass hover:glass-dark transition-all duration-300"
         >
-          <ChevronLeft className="h-4 w-4" />
+          <ArrowRight className="h-4 w-4" />
         </Button>
       </div>
     </div>
