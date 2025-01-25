@@ -15,6 +15,10 @@ interface TaskHeaderProps {
   onAddTask: (title: string, duration: number, priority: TaskPriority) => void;
   tasksByDate: TasksByDate;
   isLoading: boolean;
+  onToggleTask: (taskId: string) => void;
+  onTaskComplete: (taskId: string) => void;
+  onDeleteTask: (taskId: string) => void;
+  onEditTask: (taskId: string, newTitle: string, newDuration: number, newPriority: TaskPriority) => void;
 }
 
 const TaskHeader = ({
@@ -29,6 +33,10 @@ const TaskHeader = ({
   onAddTask,
   tasksByDate,
   isLoading,
+  onToggleTask,
+  onTaskComplete,
+  onDeleteTask,
+  onEditTask,
 }: TaskHeaderProps) => {
   return (
     <div className="space-y-6">
@@ -40,6 +48,10 @@ const TaskHeader = ({
         onAddTask={onAddTask}
         tasksByDate={tasksByDate}
         isLoading={isLoading}
+        onToggleTask={onToggleTask}
+        onTaskComplete={onTaskComplete}
+        onDeleteTask={onDeleteTask}
+        onEditTask={onEditTask}
       />
       <TaskFilters
         priority={priorityFilter}
