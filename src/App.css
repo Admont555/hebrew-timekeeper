@@ -27,9 +27,30 @@ html {
   overflow: hidden;
 }
 
+.glass {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+}
+
+.glass-dark {
+  background: rgba(17, 25, 40, 0.75);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.125);
+}
+
 .card {
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
 }
 
 @media (max-width: 768px) {
@@ -38,28 +59,24 @@ html {
   }
   
   input, button, select, textarea {
-    font-size: 16px !important; /* Prevents iOS zoom on focus */
+    font-size: 16px !important;
   }
 }
 
-/* Improve focus outline */
 :focus {
   outline: 2px solid #6b46c1;
   outline-offset: 2px;
 }
 
-/* Disable pull-to-refresh on mobile */
 @media (max-width: 768px) {
   body {
     overscroll-behavior-y: none;
   }
   
-  /* Prevent zoom on text input */
   input, textarea, select {
     font-size: 16px !important;
   }
 
-  /* Prevent elastic scrolling on iOS */
   .scroll-container {
     position: fixed;
     top: 0;
@@ -71,7 +88,6 @@ html {
   }
 }
 
-/* Fix for iOS safe areas */
 @supports (padding-top: env(safe-area-inset-top)) {
   .safe-area-top {
     padding-top: env(safe-area-inset-top);
@@ -82,7 +98,6 @@ html {
   }
 }
 
-/* Gradient animation */
 @keyframes gradient {
   0% {
     background-position: 0% 50%;
@@ -100,7 +115,6 @@ html {
   -webkit-animation: gradient 3s ease infinite;
 }
 
-/* Dark mode transitions */
 .dark body {
   background: linear-gradient(to bottom right, #1A1F2C, #221F26, #1A1F2C);
 }
@@ -108,4 +122,27 @@ html {
 * {
   transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
   -webkit-transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+}
+
+.hover-scale {
+  transition: transform 0.2s ease-in-out;
+}
+
+.hover-scale:hover {
+  transform: scale(1.02);
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

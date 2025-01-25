@@ -8,13 +8,19 @@ import Header from "@/components/Header";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import TaskHeader from "@/components/task/TaskHeader";
 import TaskStats from "@/components/task/TaskStats";
+import TaskSearch from "@/components/task/TaskSearch";
+import TaskAnalytics from "@/components/task/TaskAnalytics";
+import TaskConfetti from "@/components/task/TaskConfetti";
 import { useQuery } from "@tanstack/react-query";
 import { useWorkerState } from "@/hooks/useWorkerState";
 import { useTaskMutations } from "@/hooks/useTaskMutations";
+import { motion } from "framer-motion";
 
 const Index = () => {
   const [priorityFilter, setPriorityFilter] = useState<TaskPriority | 'all'>('all');
   const [sortBy, setSortBy] = useState<'date' | 'priority' | 'duration'>('date');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [showConfetti, setShowConfetti] = useState(false);
   const { toast } = useToast();
   
   const {
@@ -68,15 +74,45 @@ const Index = () => {
     },
   });
 
+  const handleTaskComplete = (taskId: string) => {
+    toggleTaskMutation.mutate({ taskId, worker: currentWorker });
+    setShowConfetti(true);
+    setTimeout(() => setShowConfetti(false), 3000);
+  };
+
+  const filteredTasksByDate = Object.entries(tasksByDate || {}).reduce((acc, [date, tasks]) => {
+    const filtered = tasks.filter(task => {
+      const matchesSearch = task.title.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesPriority = priorityFilter === 'all' || task.priority === priorityFilter;
+      return matchesSearch && matchesPriority;
+    });
+    
+    if (filtered.length > 0) {
+      acc[date] = filtered;
+    }
+    return acc;
+  }, {} as TasksByDate);
+
   return (
     <ErrorBoundary>
-      <div className="scroll-container safe-area-top safe-area-bottom min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="scroll-container safe-area-top safe-area-bottom min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300"
+      >
+        <TaskConfetti show={showConfetti} />
+        
         <div className="container mx-auto px-4 py-6 max-w-4xl">
           <Header />
           
           <div className="mb-6 max-w-2xl mx-auto">
             <RandomQuote />
           </div>
+
+          <TaskSearch 
+            searchTerm={searchTerm}
+            onSearch={setSearchTerm}
+          />
           
           <TaskHeader
             currentWorker={currentWorker}
@@ -89,19 +125,22 @@ const Index = () => {
             onSortChange={setSortBy}
             onAddTask={(title, duration, priority) => 
               addTaskMutation.mutate({ title, duration, priority, worker: currentWorker })}
-            tasksByDate={tasksByDate}
+            tasksByDate={filteredTasksByDate}
             isLoading={isLoading}
             onToggleTask={(taskId) => toggleTaskMutation.mutate({ taskId, worker: currentWorker })}
-            onTaskComplete={(taskId) => toggleTaskMutation.mutate({ taskId, worker: currentWorker })}
+            onTaskComplete={handleTaskComplete}
             onDeleteTask={(taskId) => deleteTaskMutation.mutate(taskId)}
             onEditTask={(taskId, newTitle, newDuration, newPriority) => 
               editTaskMutation.mutate({ taskId, newTitle, newDuration, newPriority, worker: currentWorker })}
           />
           
-          <TaskStats tasksByDate={tasksByDate} />
+          <div className="grid gap-6 mt-6">
+            <TaskStats tasksByDate={filteredTasksByDate} />
+            <TaskAnalytics tasksByDate={filteredTasksByDate} />
+          </div>
         </div>
         <Toaster />
-      </div>
+      </motion.div>
     </ErrorBoundary>
   );
 };
