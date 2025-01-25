@@ -29,8 +29,10 @@ const DateRangeSelector = ({ date, onDateChange }: DateRangeSelectorProps) => {
     }
   };
 
+  const today = new Date();
+
   return (
-    <div className="w-full max-w-xl mx-auto mb-8 px-4 sm:px-0">
+    <div className="w-full max-w-xl mx-auto mb-8 px-4 sm:px-0" dir="rtl">
       <div className="flex items-center justify-between gap-4">
         <Button
           variant="outline"
@@ -54,7 +56,7 @@ const DateRangeSelector = ({ date, onDateChange }: DateRangeSelectorProps) => {
             >
               <span className="flex items-center gap-3">
                 <CalendarIcon className="h-5 w-5" />
-                {date ? format(date, "EEEE, d בMMMM yyyy", { locale: he }) : "בחר תאריך"}
+                {date ? format(date, "EEEE, d בMMMM yyyy", { locale: he }) : format(today, "EEEE, d בMMMM yyyy", { locale: he })}
               </span>
               <span className="absolute inset-0 rounded-xl bg-gradient-to-r from-purple-500/10 via-transparent to-blue-500/10 opacity-0 hover:opacity-100 transition-opacity duration-300" />
             </Button>
@@ -62,6 +64,7 @@ const DateRangeSelector = ({ date, onDateChange }: DateRangeSelectorProps) => {
           <PopoverContent 
             className="w-auto p-0 border border-white/20 rounded-xl shadow-2xl backdrop-blur-lg bg-white/80 dark:bg-gray-900/80" 
             align="center"
+            dir="rtl"
           >
             <Calendar
               mode="single"
