@@ -30,20 +30,22 @@ const TaskActions = ({ task, onDelete, onEdit, onToggleComments }: TaskActionsPr
       >
         <Pencil className="h-4 w-4 text-blue-500" />
       </Button>
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={onToggleComments}
-        className="h-8 w-8 hover:bg-purple-100 dark:hover:bg-purple-900/30 transition-colors duration-200"
-        aria-label="הצג/הסתר תגובות"
-      >
-        <MessageSquare className="h-4 w-4 text-purple-500" />
+      <div className="relative">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onToggleComments}
+          className="h-8 w-8 hover:bg-purple-100 dark:hover:bg-purple-900/30 transition-colors duration-200"
+          aria-label="הצג/הסתר תגובות"
+        >
+          <MessageSquare className="h-4 w-4 text-purple-500" />
+        </Button>
         {task.comments && task.comments.length > 0 && (
-          <span className="absolute -top-1 -right-1 bg-purple-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
+          <span className="absolute -top-1 left-5 bg-purple-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
             {task.comments.length}
           </span>
         )}
-      </Button>
+      </div>
     </div>
   );
 };

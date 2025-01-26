@@ -19,13 +19,19 @@ interface DateRangeSelectorProps {
 const DateRangeSelector = ({ date, onDateChange }: DateRangeSelectorProps) => {
   const handlePreviousDay = () => {
     if (date) {
-      onDateChange(subDays(date, 1));
+      const newDate = subDays(date, 1);
+      onDateChange(newDate);
+    } else {
+      onDateChange(new Date()); // If no date is selected, start from today
     }
   };
 
   const handleNextDay = () => {
     if (date) {
-      onDateChange(addDays(date, 1));
+      const newDate = addDays(date, 1);
+      onDateChange(newDate);
+    } else {
+      onDateChange(new Date()); // If no date is selected, start from today
     }
   };
 
