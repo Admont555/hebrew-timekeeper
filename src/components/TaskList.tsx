@@ -9,7 +9,7 @@ import TaskItem from "./TaskItem";
 import { AnimatePresence, motion } from "framer-motion";
 import { Button } from "./ui/button";
 import { Trash2, Loader2 } from "lucide-react";
-import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import { DragDropContext, Droppable, Draggable, DropResult } from "react-beautiful-dnd";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -146,7 +146,7 @@ const TaskList = ({
     []
   );
 
-  const handleDragEnd = (result: any) => {
+  const handleDragEnd = (result: DropResult) => {
     if (!result.destination) return;
 
     const sourceDate = result.source.droppableId;
@@ -165,10 +165,8 @@ const TaskList = ({
         [sourceDate]: items,
       };
       
-      // Update the tasks state here if needed
       console.log('Tasks reordered:', updatedTasks);
     } else {
-      // Handle moving between dates
       const sourceItems = Array.from(organizeTasksByDate[sourceDate]);
       const destItems = Array.from(organizeTasksByDate[destinationDate] || []);
       
@@ -181,24 +179,23 @@ const TaskList = ({
         [destinationDate]: destItems,
       };
       
-      // Update the tasks state here if needed
       console.log('Task moved between dates:', updatedTasks);
     }
   };
 
   const getItemStyle = (isDragging: boolean, draggableStyle: any) => ({
-    userSelect: 'none',
+    ...draggableStyle,
+    userSelect: 'none' as const,
     background: isDragging ? 'rgba(147, 51, 234, 0.1)' : 'transparent',
     borderRadius: '8px',
-    transition: 'background-color 0.2s ease',
-    ...draggableStyle,
+    transition: isDragging ? 'none' : 'all 0.2s ease',
   });
 
   const getListStyle = (isDraggingOver: boolean) => ({
     background: isDraggingOver ? 'rgba(147, 51, 234, 0.05)' : 'transparent',
     borderRadius: '8px',
     padding: '8px',
-    transition: 'background-color 0.2s ease, transform 0.2s ease',
+    transition: 'all 0.2s ease',
     transform: isDraggingOver ? 'scale(1.01)' : 'scale(1)',
   });
 
@@ -252,66 +249,64 @@ const TaskList = ({
               </div>
               <Droppable droppableId={date}>
                 {(provided, snapshot) => (
-                  <motion.div
+                  <div
                     ref={provided.innerRef}
                     {...provided.droppableProps}
                     style={getListStyle(snapshot.isDraggingOver)}
                     className="space-y-3 rounded-lg"
-                    animate={{
-                      scale: snapshot.isDraggingOver ? 1.01 : 1,
-                      transition: { duration: 0.2 }
-                    }}
                   >
                     <AnimatePresence mode="popLayout">
                       {sortTasks(organizeTasksByDate[date]).map((task: Task, index: number) => (
                         <Draggable key={task.id} draggableId={task.id} index={index}>
                           {(provided, snapshot) => (
-                            <motion.div
+                            <div
                               ref={provided.innerRef}
                               {...provided.draggableProps}
                               {...provided.dragHandleProps}
                               style={getItemStyle(snapshot.isDragging, provided.draggableProps.style)}
-                              initial={{ opacity: 0, y: 20 }}
-                              animate={{ 
-                                opacity: 1, 
-                                y: 0,
-                                scale: snapshot.isDragging ? 1.02 : 1,
-                                boxShadow: snapshot.isDragging ? "0 5px 15px rgba(0,0,0,0.1)" : "none",
-                              }}
-                              exit={{ opacity: 0, y: -20 }}
-                              transition={{
-                                type: "spring",
-                                stiffness: 500,
-                                damping: 30
-                              }}
                             >
-                              {editingTaskId === task.id ? (
-                                <div className="mb-4 bg-purple-50 dark:bg-gray-700 p-4 rounded-lg">
-                                  <TaskForm
-                                    onAddTask={handleEditSubmit}
-                                    initialTitle={task.title}
-                                    initialDuration={task.duration}
-                                    initialPriority={task.priority}
-                                    submitLabel="עדכן"
-                                    onCancel={() => setEditingTaskId(null)}
+                              <motion.div
+                                initial={false}
+                                animate={{
+                                  scale: snapshot.isDragging ? 1.02 : 1,
+                                  boxShadow: snapshot.isDragging 
+                                    ? "0 5px 15px rgba(0,0,0,0.1)" 
+                                    : "none",
+                                }}
+                                transition={{
+                                  type: "spring",
+                                  stiffness: 300,
+                                  damping: 20
+                                }}
+                              >
+                                {editingTaskId === task.id ? (
+                                  <div className="mb-4 bg-purple-50 dark:bg-gray-700 p-4 rounded-lg">
+                                    <TaskForm
+                                      onAddTask={handleEditSubmit}
+                                      initialTitle={task.title}
+                                      initialDuration={task.duration}
+                                      initialPriority={task.priority}
+                                      submitLabel="עדכן"
+                                      onCancel={() => setEditingTaskId(null)}
+                                    />
+                                  </div>
+                                ) : (
+                                  <TaskItem
+                                    task={task}
+                                    onToggleTask={onToggleTask}
+                                    onTaskComplete={onTaskComplete}
+                                    onDeleteTask={onDeleteTask}
+                                    onEdit={handleEdit}
                                   />
-                                </div>
-                              ) : (
-                                <TaskItem
-                                  task={task}
-                                  onToggleTask={onToggleTask}
-                                  onTaskComplete={onTaskComplete}
-                                  onDeleteTask={onDeleteTask}
-                                  onEdit={handleEdit}
-                                />
-                              )}
-                            </motion.div>
+                                )}
+                              </motion.div>
+                            </div>
                           )}
                         </Draggable>
                       ))}
                     </AnimatePresence>
                     {provided.placeholder}
-                  </motion.div>
+                  </div>
                 )}
               </Droppable>
             </motion.div>
