@@ -1,13 +1,14 @@
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Task, TasksByDate, TaskPriority } from "@/types/task";
+import { format } from "date-fns";
+import { he } from "date-fns/locale";
 import TaskListHeader from "./TaskListHeader";
 import TaskListContent from "./TaskListContent";
 import { useTaskSorting } from "@/hooks/useTaskSorting";
 import { useTaskSearch } from "@/hooks/useTaskSearch";
-import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 
 interface TaskListContainerProps {
-  tasks: TasksByDate;
+  tasksByDate: TasksByDate;
   isLoading: boolean;
   onToggleTask: (taskId: string) => void;
   onTaskComplete: (taskId: string) => void;
@@ -16,32 +17,26 @@ interface TaskListContainerProps {
 }
 
 const TaskListContainer = ({
-  tasks,
+  tasksByDate,
   isLoading,
   onToggleTask,
   onTaskComplete,
   onDeleteTask,
   onEditTask,
 }: TaskListContainerProps) => {
-  const { sortedDates, sortTasks } = useTaskSorting(tasks);
-  const { searchTerm, setSearchTerm, filteredTasks } = useTaskSearch(tasks);
-  
-  // Initialize keyboard shortcuts
-  useKeyboardShortcuts({
-    'ctrl+f': () => document.getElementById('task-search')?.focus(),
-    'esc': () => setSearchTerm(''),
-  });
+  const { sortedTasks, sortBy, setSortBy } = useTaskSorting(tasksByDate);
+  const { searchQuery, setSearchQuery, filteredTasks } = useTaskSearch(sortedTasks);
 
   return (
-    <ScrollArea className="flex-1 w-full rounded-lg p-6">
+    <ScrollArea className="h-[600px] rounded-md border p-4">
       <TaskListHeader
-        searchTerm={searchTerm}
-        onSearchChange={setSearchTerm}
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        sortBy={sortBy}
+        setSortBy={setSortBy}
       />
       <TaskListContent
-        sortedDates={sortedDates}
-        tasks={filteredTasks}
-        sortTasks={sortTasks}
+        tasksByDate={filteredTasks}
         isLoading={isLoading}
         onToggleTask={onToggleTask}
         onTaskComplete={onTaskComplete}
