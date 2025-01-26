@@ -9,6 +9,7 @@ import TaskItem from "./TaskItem";
 import { AnimatePresence } from "framer-motion";
 import { Button } from "./ui/button";
 import { Trash2, Loader2 } from "lucide-react";
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -86,12 +87,10 @@ const TaskList = ({
     const today = new Date().toISOString().split('T')[0];
     const organizedTasks: TasksByDate = { ...tasks };
 
-    // Move unfinished tasks from past dates to today
     Object.entries(tasks).forEach(([date, dateTasks]) => {
       if (date < today) {
         dateTasks.forEach((task) => {
           if (!task.completed) {
-            // Remove task from old date
             if (organizedTasks[date]) {
               organizedTasks[date] = organizedTasks[date].filter(t => t.id !== task.id);
               if (organizedTasks[date].length === 0) {
@@ -99,7 +98,6 @@ const TaskList = ({
               }
             }
 
-            // Add task to today
             if (!organizedTasks[today]) {
               organizedTasks[today] = [];
             }
@@ -148,77 +146,142 @@ const TaskList = ({
     []
   );
 
+  const handleDragEnd = (result: any) => {
+    if (!result.destination) return;
+
+    const sourceDate = result.source.droppableId;
+    const destinationDate = result.destination.droppableId;
+    
+    const sourceIndex = result.source.index;
+    const destinationIndex = result.destination.index;
+
+    if (sourceDate === destinationDate) {
+      const items = Array.from(organizeTasksByDate[sourceDate]);
+      const [reorderedItem] = items.splice(sourceIndex, 1);
+      items.splice(destinationIndex, 0, reorderedItem);
+      
+      const updatedTasks = {
+        ...organizeTasksByDate,
+        [sourceDate]: items,
+      };
+      
+      // Update the tasks state here if needed
+      console.log('Tasks reordered:', updatedTasks);
+    } else {
+      // Handle moving between dates
+      const sourceItems = Array.from(organizeTasksByDate[sourceDate]);
+      const destItems = Array.from(organizeTasksByDate[destinationDate] || []);
+      
+      const [movedItem] = sourceItems.splice(sourceIndex, 1);
+      destItems.splice(destinationIndex, 0, { ...movedItem, date: destinationDate });
+      
+      const updatedTasks = {
+        ...organizeTasksByDate,
+        [sourceDate]: sourceItems,
+        [destinationDate]: destItems,
+      };
+      
+      // Update the tasks state here if needed
+      console.log('Task moved between dates:', updatedTasks);
+    }
+  };
+
+  const getListStyle = (isDraggingOver: boolean) => ({
+    background: isDraggingOver ? 'rgba(147, 51, 234, 0.05)' : 'transparent',
+    transition: 'background-color 0.2s ease',
+  });
+
   return (
-    <ScrollArea className="min-h-[600px] max-h-[80vh] w-full rounded-lg p-6">
-      {isLoading ? (
-        <div className="flex items-center justify-center h-[600px]">
-          <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
-        </div>
-      ) : (
-        sortedDates.map((date) => (
-          <div key={date} className="mb-8 last:mb-0">
-            <div className="flex items-center justify-between mb-4">
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    className="flex items-center gap-2"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                    מחק את כל המשימות
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent className="text-right">
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>האם אתה בטוח?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      פעולה זו תמחק את כל המשימות מתאריך {formatDate(date)}. לא ניתן לבטל פעולה זו.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter className="flex-row-reverse sm:justify-start">
-                    <AlertDialogAction onClick={() => deleteDayTasks(date)}>
-                      כן, מחק הכל
-                    </AlertDialogAction>
-                    <AlertDialogCancel>ביטול</AlertDialogCancel>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-              <h2 className="text-2xl font-bold text-right text-gray-800 dark:text-gray-200">
-                {formatDate(date)}
-              </h2>
-            </div>
-            <div className="space-y-3">
-              <AnimatePresence>
-                {sortTasks(organizeTasksByDate[date]).map((task: Task) => (
-                  <div key={task.id}>
-                    {editingTaskId === task.id ? (
-                      <div className="mb-4 bg-purple-50 dark:bg-gray-700 p-4 rounded-lg">
-                        <TaskForm
-                          onAddTask={handleEditSubmit}
-                          initialTitle={task.title}
-                          initialDuration={task.duration}
-                          initialPriority={task.priority}
-                          submitLabel="עדכן"
-                          onCancel={() => setEditingTaskId(null)}
-                        />
-                      </div>
-                    ) : (
-                      <TaskItem
-                        task={task}
-                        onToggleTask={onToggleTask}
-                        onTaskComplete={onTaskComplete}
-                        onDeleteTask={onDeleteTask}
-                        onEdit={handleEdit}
-                      />
-                    )}
-                  </div>
-                ))}
-              </AnimatePresence>
-            </div>
+    <ScrollArea className="flex-1 w-full rounded-lg p-6">
+      <DragDropContext onDragEnd={handleDragEnd}>
+        {isLoading ? (
+          <div className="flex items-center justify-center h-[600px]">
+            <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
           </div>
-        ))
-      )}
+        ) : (
+          sortedDates.map((date) => (
+            <div key={date} className="mb-8 last:mb-0">
+              <div className="flex items-center justify-between mb-4">
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      className="flex items-center gap-2"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      מחק את כל המשימות
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent className="text-right">
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>האם אתה בטוח?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        פעולה זו תמחק את כל המשימות מתאריך {formatDate(date)}. לא ניתן לבטל פעולה זו.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter className="flex-row-reverse sm:justify-start">
+                      <AlertDialogAction onClick={() => deleteDayTasks(date)}>
+                        כן, מחק הכל
+                      </AlertDialogAction>
+                      <AlertDialogCancel>ביטול</AlertDialogCancel>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+                <h2 className="text-2xl font-bold text-right text-gray-800 dark:text-gray-200">
+                  {formatDate(date)}
+                </h2>
+              </div>
+              <Droppable droppableId={date}>
+                {(provided, snapshot) => (
+                  <div
+                    ref={provided.innerRef}
+                    {...provided.droppableProps}
+                    style={getListStyle(snapshot.isDraggingOver)}
+                    className="space-y-3 rounded-lg transition-all duration-200"
+                  >
+                    <AnimatePresence>
+                      {sortTasks(organizeTasksByDate[date]).map((task: Task, index: number) => (
+                        <Draggable key={task.id} draggableId={task.id} index={index}>
+                          {(provided) => (
+                            <div
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              {...provided.dragHandleProps}
+                            >
+                              {editingTaskId === task.id ? (
+                                <div className="mb-4 bg-purple-50 dark:bg-gray-700 p-4 rounded-lg">
+                                  <TaskForm
+                                    onAddTask={handleEditSubmit}
+                                    initialTitle={task.title}
+                                    initialDuration={task.duration}
+                                    initialPriority={task.priority}
+                                    submitLabel="עדכן"
+                                    onCancel={() => setEditingTaskId(null)}
+                                  />
+                                </div>
+                              ) : (
+                                <TaskItem
+                                  task={task}
+                                  onToggleTask={onToggleTask}
+                                  onTaskComplete={onTaskComplete}
+                                  onDeleteTask={onDeleteTask}
+                                  onEdit={handleEdit}
+                                />
+                              )}
+                            </div>
+                          )}
+                        </Draggable>
+                      ))}
+                    </AnimatePresence>
+                    {provided.placeholder}
+                  </div>
+                )}
+              </Droppable>
+            </div>
+          ))
+        )}
+      </DragDropContext>
     </ScrollArea>
   );
 };
