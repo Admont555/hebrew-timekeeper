@@ -2,14 +2,13 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Task, TasksByDate, TaskPriority } from "@/types/task";
 import { format } from "date-fns";
 import { he } from "date-fns/locale";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import TaskForm from "./TaskForm";
 import { useToast } from "@/hooks/use-toast";
 import TaskItem from "./TaskItem";
 import { AnimatePresence, motion } from "framer-motion";
 import { Button } from "./ui/button";
 import { Trash2, Loader2 } from "lucide-react";
-import { DragDropContext, Droppable, Draggable, DropResult } from "react-beautiful-dnd";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -41,6 +40,8 @@ const TaskList = ({
 }: TaskListProps) => {
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
   const { toast } = useToast();
+  const activeTaskRef = useRef<HTMLDivElement>(null);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
@@ -146,173 +147,116 @@ const TaskList = ({
     []
   );
 
-  const handleDragEnd = (result: DropResult) => {
-    if (!result.destination) return;
-
-    const sourceDate = result.source.droppableId;
-    const destinationDate = result.destination.droppableId;
-    
-    const sourceIndex = result.source.index;
-    const destinationIndex = result.destination.index;
-
-    if (sourceDate === destinationDate) {
-      const items = Array.from(organizeTasksByDate[sourceDate]);
-      const [reorderedItem] = items.splice(sourceIndex, 1);
-      items.splice(destinationIndex, 0, reorderedItem);
-      
-      const updatedTasks = {
-        ...organizeTasksByDate,
-        [sourceDate]: items,
-      };
-      
-      console.log('Tasks reordered:', updatedTasks);
-    } else {
-      const sourceItems = Array.from(organizeTasksByDate[sourceDate]);
-      const destItems = Array.from(organizeTasksByDate[destinationDate] || []);
-      
-      const [movedItem] = sourceItems.splice(sourceIndex, 1);
-      destItems.splice(destinationIndex, 0, { ...movedItem, date: destinationDate });
-      
-      const updatedTasks = {
-        ...organizeTasksByDate,
-        [sourceDate]: sourceItems,
-        [destinationDate]: destItems,
-      };
-      
-      console.log('Task moved between dates:', updatedTasks);
+  // Function to find the active task
+  const findActiveTask = () => {
+    for (const date of sortedDates) {
+      const tasksForDate = organizeTasksByDate[date];
+      const activeTask = tasksForDate.find(
+        task => task.startTime && !task.completed
+      );
+      if (activeTask) return activeTask;
     }
+    return null;
   };
 
-  const getItemStyle = (isDragging: boolean, draggableStyle: any) => ({
-    ...draggableStyle,
-    userSelect: 'none' as const,
-    background: isDragging ? 'rgba(147, 51, 234, 0.1)' : 'transparent',
-    borderRadius: '8px',
-    transition: isDragging ? 'none' : 'all 0.2s ease',
-  });
-
-  const getListStyle = (isDraggingOver: boolean) => ({
-    background: isDraggingOver ? 'rgba(147, 51, 234, 0.05)' : 'transparent',
-    borderRadius: '8px',
-    padding: '8px',
-    transition: 'all 0.2s ease',
-    transform: isDraggingOver ? 'scale(1.01)' : 'scale(1)',
-  });
+  // Effect to scroll to active task
+  useEffect(() => {
+    const activeTask = findActiveTask();
+    if (activeTask && activeTaskRef.current && scrollAreaRef.current) {
+      activeTaskRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center'
+      });
+    }
+  }, [tasks]);
 
   return (
-    <ScrollArea className="flex-1 w-full rounded-lg p-6">
-      <DragDropContext onDragEnd={handleDragEnd}>
-        {isLoading ? (
-          <div className="flex items-center justify-center h-[600px]">
-            <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
-          </div>
-        ) : (
-          sortedDates.map((date) => (
-            <motion.div
-              key={date}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3 }}
-              className="mb-8 last:mb-0"
-            >
-              <div className="flex items-center justify-between mb-4">
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      className="flex items-center gap-2"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                      מחק את כל המשימות
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent className="text-right">
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>האם אתה בטוח?</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        פעולה זו תמחק את כל המשימות מתאריך {formatDate(date)}. לא ניתן לבטל פעולה זו.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter className="flex-row-reverse sm:justify-start">
-                      <AlertDialogAction onClick={() => deleteDayTasks(date)}>
-                        כן, מחק הכל
-                      </AlertDialogAction>
-                      <AlertDialogCancel>ביטול</AlertDialogCancel>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-                <h2 className="text-2xl font-bold text-right text-gray-800 dark:text-gray-200">
-                  {formatDate(date)}
-                </h2>
-              </div>
-              <Droppable droppableId={date}>
-                {(provided, snapshot) => (
-                  <div
-                    ref={provided.innerRef}
-                    {...provided.droppableProps}
-                    style={getListStyle(snapshot.isDraggingOver)}
-                    className="space-y-3 rounded-lg"
+    <ScrollArea ref={scrollAreaRef} className="flex-1 w-full rounded-lg p-6">
+      {isLoading ? (
+        <div className="flex items-center justify-center h-[600px]">
+          <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
+        </div>
+      ) : (
+        sortedDates.map((date) => (
+          <motion.div
+            key={date}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.3 }}
+            className="mb-8 last:mb-0"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    className="flex items-center gap-2"
                   >
-                    <AnimatePresence mode="popLayout">
-                      {sortTasks(organizeTasksByDate[date]).map((task: Task, index: number) => (
-                        <Draggable key={task.id} draggableId={task.id} index={index}>
-                          {(provided, snapshot) => (
-                            <div
-                              ref={provided.innerRef}
-                              {...provided.draggableProps}
-                              {...provided.dragHandleProps}
-                              style={getItemStyle(snapshot.isDragging, provided.draggableProps.style)}
-                            >
-                              <motion.div
-                                initial={false}
-                                animate={{
-                                  scale: snapshot.isDragging ? 1.02 : 1,
-                                  boxShadow: snapshot.isDragging 
-                                    ? "0 5px 15px rgba(0,0,0,0.1)" 
-                                    : "none",
-                                }}
-                                transition={{
-                                  type: "spring",
-                                  stiffness: 300,
-                                  damping: 20
-                                }}
-                              >
-                                {editingTaskId === task.id ? (
-                                  <div className="mb-4 bg-purple-50 dark:bg-gray-700 p-4 rounded-lg">
-                                    <TaskForm
-                                      onAddTask={handleEditSubmit}
-                                      initialTitle={task.title}
-                                      initialDuration={task.duration}
-                                      initialPriority={task.priority}
-                                      submitLabel="עדכן"
-                                      onCancel={() => setEditingTaskId(null)}
-                                    />
-                                  </div>
-                                ) : (
-                                  <TaskItem
-                                    task={task}
-                                    onToggleTask={onToggleTask}
-                                    onTaskComplete={onTaskComplete}
-                                    onDeleteTask={onDeleteTask}
-                                    onEdit={handleEdit}
-                                  />
-                                )}
-                              </motion.div>
-                            </div>
-                          )}
-                        </Draggable>
-                      ))}
-                    </AnimatePresence>
-                    {provided.placeholder}
-                  </div>
-                )}
-              </Droppable>
-            </motion.div>
-          ))
-        )}
-      </DragDropContext>
+                    <Trash2 className="h-4 w-4" />
+                    מחק את כל המשימות
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent className="text-right">
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>האם אתה בטוח?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      פעולה זו תמחק את כל המשימות מתאריך {formatDate(date)}. לא ניתן לבטל פעולה זו.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter className="flex-row-reverse sm:justify-start">
+                    <AlertDialogAction onClick={() => deleteDayTasks(date)}>
+                      כן, מחק הכל
+                    </AlertDialogAction>
+                    <AlertDialogCancel>ביטול</AlertDialogCancel>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+              <h2 className="text-2xl font-bold text-right text-gray-800 dark:text-gray-200">
+                {formatDate(date)}
+              </h2>
+            </div>
+            <div className="space-y-3 rounded-lg">
+              <AnimatePresence mode="popLayout">
+                {sortTasks(organizeTasksByDate[date]).map((task: Task) => {
+                  const isActiveTask = task.startTime && !task.completed;
+                  return (
+                    <div
+                      key={task.id}
+                      ref={isActiveTask ? activeTaskRef : null}
+                      className={`transition-all duration-300 ${
+                        isActiveTask ? 'scale-102 ring-2 ring-purple-500 ring-opacity-50' : ''
+                      }`}
+                    >
+                      {editingTaskId === task.id ? (
+                        <div className="mb-4 bg-purple-50 dark:bg-gray-700 p-4 rounded-lg">
+                          <TaskForm
+                            onAddTask={handleEditSubmit}
+                            initialTitle={task.title}
+                            initialDuration={task.duration}
+                            initialPriority={task.priority}
+                            submitLabel="עדכן"
+                            onCancel={() => setEditingTaskId(null)}
+                          />
+                        </div>
+                      ) : (
+                        <TaskItem
+                          task={task}
+                          onToggleTask={onToggleTask}
+                          onTaskComplete={onTaskComplete}
+                          onDeleteTask={onDeleteTask}
+                          onEdit={handleEdit}
+                        />
+                      )}
+                    </div>
+                  );
+                })}
+              </AnimatePresence>
+            </div>
+          </motion.div>
+        ))
+      )}
     </ScrollArea>
   );
 };
