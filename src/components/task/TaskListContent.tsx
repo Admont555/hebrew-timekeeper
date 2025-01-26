@@ -1,10 +1,9 @@
-import { Task, TasksByDate } from "@/types/task";
+import { Task, TasksByDate, TaskPriority } from "@/types/task";
 import { format } from "date-fns";
 import { he } from "date-fns/locale";
 import { AnimatePresence, motion } from "framer-motion";
 import { Loader2 } from "lucide-react";
 import TaskItem from "../TaskItem";
-import TaskForm from "../TaskForm";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "../ui/alert-dialog";
 import { Button } from "../ui/button";
 import { Trash2 } from "lucide-react";
@@ -33,6 +32,11 @@ const TaskListContent = ({
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
     return format(date, "EEEE, d בMMMM yyyy", { locale: he });
+  };
+
+  // Wrapper function to adapt the onEditTask signature to match TaskItem's expected prop type
+  const handleEditTask = (task: Task) => {
+    onEditTask(task.id, task.title, task.duration, task.priority);
   };
 
   if (isLoading) {
@@ -94,7 +98,7 @@ const TaskListContent = ({
                   onToggleTask={onToggleTask}
                   onTaskComplete={onTaskComplete}
                   onDeleteTask={onDeleteTask}
-                  onEdit={onEditTask}
+                  onEdit={handleEditTask}
                 />
               ))}
             </div>

@@ -1,7 +1,5 @@
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Task, TasksByDate } from "@/types/task";
-import { format } from "date-fns";
-import { he } from "date-fns/locale";
+import { Task, TasksByDate, TaskPriority } from "@/types/task";
 import TaskListHeader from "./TaskListHeader";
 import TaskListContent from "./TaskListContent";
 import { useTaskSorting } from "@/hooks/useTaskSorting";
