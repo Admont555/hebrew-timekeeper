@@ -6,7 +6,7 @@ import { useState, useMemo } from "react";
 import TaskForm from "./TaskForm";
 import { useToast } from "@/hooks/use-toast";
 import TaskItem from "./TaskItem";
-import { AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { Button } from "./ui/button";
 import { Trash2, Loader2 } from "lucide-react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
@@ -186,9 +186,20 @@ const TaskList = ({
     }
   };
 
+  const getItemStyle = (isDragging: boolean, draggableStyle: any) => ({
+    userSelect: 'none',
+    background: isDragging ? 'rgba(147, 51, 234, 0.1)' : 'transparent',
+    borderRadius: '8px',
+    transition: 'background-color 0.2s ease',
+    ...draggableStyle,
+  });
+
   const getListStyle = (isDraggingOver: boolean) => ({
     background: isDraggingOver ? 'rgba(147, 51, 234, 0.05)' : 'transparent',
-    transition: 'background-color 0.2s ease',
+    borderRadius: '8px',
+    padding: '8px',
+    transition: 'background-color 0.2s ease, transform 0.2s ease',
+    transform: isDraggingOver ? 'scale(1.01)' : 'scale(1)',
   });
 
   return (
@@ -200,7 +211,14 @@ const TaskList = ({
           </div>
         ) : (
           sortedDates.map((date) => (
-            <div key={date} className="mb-8 last:mb-0">
+            <motion.div
+              key={date}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+              className="mb-8 last:mb-0"
+            >
               <div className="flex items-center justify-between mb-4">
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
@@ -234,20 +252,38 @@ const TaskList = ({
               </div>
               <Droppable droppableId={date}>
                 {(provided, snapshot) => (
-                  <div
+                  <motion.div
                     ref={provided.innerRef}
                     {...provided.droppableProps}
                     style={getListStyle(snapshot.isDraggingOver)}
-                    className="space-y-3 rounded-lg transition-all duration-200"
+                    className="space-y-3 rounded-lg"
+                    animate={{
+                      scale: snapshot.isDraggingOver ? 1.01 : 1,
+                      transition: { duration: 0.2 }
+                    }}
                   >
-                    <AnimatePresence>
+                    <AnimatePresence mode="popLayout">
                       {sortTasks(organizeTasksByDate[date]).map((task: Task, index: number) => (
                         <Draggable key={task.id} draggableId={task.id} index={index}>
-                          {(provided) => (
-                            <div
+                          {(provided, snapshot) => (
+                            <motion.div
                               ref={provided.innerRef}
                               {...provided.draggableProps}
                               {...provided.dragHandleProps}
+                              style={getItemStyle(snapshot.isDragging, provided.draggableProps.style)}
+                              initial={{ opacity: 0, y: 20 }}
+                              animate={{ 
+                                opacity: 1, 
+                                y: 0,
+                                scale: snapshot.isDragging ? 1.02 : 1,
+                                boxShadow: snapshot.isDragging ? "0 5px 15px rgba(0,0,0,0.1)" : "none",
+                              }}
+                              exit={{ opacity: 0, y: -20 }}
+                              transition={{
+                                type: "spring",
+                                stiffness: 500,
+                                damping: 30
+                              }}
                             >
                               {editingTaskId === task.id ? (
                                 <div className="mb-4 bg-purple-50 dark:bg-gray-700 p-4 rounded-lg">
@@ -269,16 +305,16 @@ const TaskList = ({
                                   onEdit={handleEdit}
                                 />
                               )}
-                            </div>
+                            </motion.div>
                           )}
                         </Draggable>
                       ))}
                     </AnimatePresence>
                     {provided.placeholder}
-                  </div>
+                  </motion.div>
                 )}
               </Droppable>
-            </div>
+            </motion.div>
           ))
         )}
       </DragDropContext>
