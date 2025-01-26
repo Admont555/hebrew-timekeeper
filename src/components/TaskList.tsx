@@ -82,10 +82,45 @@ const TaskList = ({
     }
   };
 
+  const organizeTasksByDate = useMemo(() => {
+    const today = new Date().toISOString().split('T')[0];
+    const organizedTasks: TasksByDate = { ...tasks };
+
+    // Move unfinished tasks from past dates to today
+    Object.entries(tasks).forEach(([date, dateTasks]) => {
+      if (date < today) {
+        dateTasks.forEach((task) => {
+          if (!task.completed) {
+            // Remove task from old date
+            if (organizedTasks[date]) {
+              organizedTasks[date] = organizedTasks[date].filter(t => t.id !== task.id);
+              if (organizedTasks[date].length === 0) {
+                delete organizedTasks[date];
+              }
+            }
+
+            // Add task to today
+            if (!organizedTasks[today]) {
+              organizedTasks[today] = [];
+            }
+            if (!organizedTasks[today].some(t => t.id === task.id)) {
+              organizedTasks[today].push({
+                ...task,
+                date: today
+              });
+            }
+          }
+        });
+      }
+    });
+
+    return organizedTasks;
+  }, [tasks]);
+
   const sortedDates = useMemo(
     () =>
-      Object.keys(tasks).sort((a, b) => new Date(b).getTime() - new Date(a).getTime()),
-    [tasks]
+      Object.keys(organizeTasksByDate).sort((a, b) => new Date(b).getTime() - new Date(a).getTime()),
+    [organizeTasksByDate]
   );
 
   const sortTasks = useMemo(
@@ -155,7 +190,7 @@ const TaskList = ({
             </div>
             <div className="space-y-3">
               <AnimatePresence>
-                {sortTasks(tasks[date]).map((task: Task) => (
+                {sortTasks(organizeTasksByDate[date]).map((task: Task) => (
                   <div key={task.id}>
                     {editingTaskId === task.id ? (
                       <div className="mb-4 bg-purple-50 dark:bg-gray-700 p-4 rounded-lg">
