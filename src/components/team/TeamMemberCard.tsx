@@ -26,9 +26,17 @@ interface TeamMemberCardProps {
   avatarUrl?: string;
   isEditMode: boolean;
   onDelete: () => void;
+  workerId: string;
 }
 
-const TeamMemberCard = ({ id, name: initialName, avatarUrl: initialAvatarUrl, isEditMode, onDelete }: TeamMemberCardProps) => {
+const TeamMemberCard = ({ 
+  id, 
+  name: initialName, 
+  avatarUrl: initialAvatarUrl, 
+  isEditMode, 
+  onDelete,
+  workerId 
+}: TeamMemberCardProps) => {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [name, setName] = useState(initialName);
   const [avatarUrl, setAvatarUrl] = useState(initialAvatarUrl);
@@ -36,12 +44,12 @@ const TeamMemberCard = ({ id, name: initialName, avatarUrl: initialAvatarUrl, is
   const navigate = useNavigate();
 
   const { data: openTasksCount = 0 } = useQuery({
-    queryKey: ['open-tasks', id],
+    queryKey: ['open-tasks', workerId],
     queryFn: async () => {
       const { count, error } = await supabase
         .from('tasks')
         .select('*', { count: 'exact', head: true })
-        .eq('worker', id)
+        .eq('worker', workerId)
         .eq('completed', false);
 
       if (error) throw error;
@@ -75,7 +83,7 @@ const TeamMemberCard = ({ id, name: initialName, avatarUrl: initialAvatarUrl, is
       const { error } = await supabase
         .from('team_members')
         .delete()
-        .eq('worker_id', id);
+        .eq('worker_id', workerId);
 
       if (error) throw error;
       
@@ -98,7 +106,7 @@ const TeamMemberCard = ({ id, name: initialName, avatarUrl: initialAvatarUrl, is
         !e.target.closest('[data-prevent-navigation="true"]')) {
       e.preventDefault();
       e.stopPropagation();
-      navigate(`/member/${id}`);
+      navigate(`/member/${workerId}`);
     }
   };
 
@@ -184,7 +192,7 @@ const TeamMemberCard = ({ id, name: initialName, avatarUrl: initialAvatarUrl, is
             <WorkerNameEditor
               currentName={name}
               currentAvatarUrl={avatarUrl}
-              workerId={id}
+              workerId={workerId}
               onNameChange={handleNameChange}
             />
           </motion.div>
