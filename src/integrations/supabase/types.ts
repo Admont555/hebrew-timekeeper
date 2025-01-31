@@ -115,28 +115,28 @@ export type Database = {
       }
       team_members: {
         Row: {
+          avatar_url: string | null
+          created_at: string | null
           id: string
           name: string
-          avatar_url: string | null
-          worker_id: string
-          created_at: string | null
           password_hash: string
+          worker_id: string
         }
         Insert: {
+          avatar_url?: string | null
+          created_at?: string | null
           id?: string
           name: string
-          avatar_url?: string | null
-          worker_id: string
-          created_at?: string | null
           password_hash?: string
+          worker_id: string
         }
         Update: {
+          avatar_url?: string | null
+          created_at?: string | null
           id?: string
           name?: string
-          avatar_url?: string | null
-          worker_id?: string
-          created_at?: string | null
           password_hash?: string
+          worker_id?: string
         }
         Relationships: []
       }
@@ -145,13 +145,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      verify_password: {
-        Args: {
-          stored_hash: string
-          password_attempt: string
-        }
-        Returns: boolean
-      }
+      [_ in never]: never
     }
     Enums: {
       [_ in never]: never
@@ -258,4 +252,3 @@ export type CompositeTypes<
   : PublicCompositeTypeNameOrOptions extends keyof PublicSchema["CompositeTypes"]
     ? PublicSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never
-
