@@ -1,23 +1,27 @@
 import { Toaster } from "@/components/ui/toaster";
 import { useState } from "react";
-import { useParams, Navigate } from "react-router-dom";
+import { useParams, Navigate, useNavigate } from "react-router-dom";
 import RandomQuote from "@/components/RandomQuote";
 import { TasksByDate, TaskPriority } from "@/types/task";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 import ErrorBoundary from "@/components/ErrorBoundary";
-import TaskHeader from "@/components/task/TaskHeader";
 import TaskStats from "@/components/task/TaskStats";
 import TaskAnalytics from "@/components/task/TaskAnalytics";
-import TaskConfetti from "@/components/task/TaskConfetti";
 import { useQuery } from "@tanstack/react-query";
 import { useWorkerState } from "@/hooks/useWorkerState";
 import { useTaskMutations } from "@/hooks/useTaskMutations";
 import { motion } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft } from "lucide-react";
+import TaskForm from "@/components/TaskForm";
+import TaskList from "@/components/TaskList";
+import DateRangeSelector from "@/components/task/DateRangeSelector";
 
 const Index = () => {
   const { workerId } = useParams();
+  const navigate = useNavigate();
   const [selectedDate, setSelectedDate] = useState<Date>();
   const [showConfetti, setShowConfetti] = useState(false);
   const { toast } = useToast();
@@ -31,7 +35,6 @@ const Index = () => {
     currentWorker,
     setCurrentWorker,
     workerNames,
-    handleWorkerNameChange,
   } = useWorkerState();
 
   // Set the current worker based on the URL parameter
@@ -102,32 +105,54 @@ const Index = () => {
         animate={{ opacity: 1 }}
         className="scroll-container safe-area-top safe-area-bottom min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300"
       >
-        <TaskConfetti show={showConfetti} />
-        
         <div className="container mx-auto px-4 py-6 max-w-4xl">
+          <div className="flex items-center justify-between mb-6">
+            <Button 
+              variant="outline" 
+              onClick={() => navigate('/')}
+              className="flex items-center gap-2"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              חזרה לצוות
+            </Button>
+            <h1 className="text-2xl font-bold">{workerNames[workerId as 'worker1' | 'worker2']}</h1>
+          </div>
+
           <Header />
           
           <div className="mb-6 max-w-2xl mx-auto">
             <RandomQuote />
           </div>
+
+          <DateRangeSelector date={selectedDate} onDateChange={setSelectedDate} />
           
-          <TaskHeader
-            currentWorker={currentWorker}
-            workerNames={workerNames}
-            onWorkerChange={setCurrentWorker}
-            onWorkerNameChange={handleWorkerNameChange}
-            onAddTask={(title, duration, priority) => 
-              addTaskMutation.mutate({ title, duration, priority, worker: currentWorker })}
-            tasksByDate={tasksByDate}
-            isLoading={isLoading}
-            onToggleTask={(taskId) => toggleTaskMutation.mutate({ taskId, worker: currentWorker })}
-            onTaskComplete={handleTaskComplete}
-            onDeleteTask={(taskId) => deleteTaskMutation.mutate(taskId)}
-            onEditTask={(taskId, newTitle, newDuration, newPriority) => 
-              editTaskMutation.mutate({ taskId, newTitle, newDuration, newPriority, worker: currentWorker })}
-            selectedDate={selectedDate}
-            onDateChange={setSelectedDate}
-          />
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.5 }}
+            className="bg-white/80 backdrop-blur-sm dark:bg-gray-800/80 rounded-xl shadow-lg p-4 mb-6 hover:shadow-xl transition-shadow duration-300"
+          >
+            <TaskForm onAddTask={(title, duration, priority) => 
+              addTaskMutation.mutate({ title, duration, priority, worker: currentWorker })} 
+            />
+          </motion.div>
+
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4, duration: 0.5 }}
+            className="bg-white/80 backdrop-blur-sm dark:bg-gray-800/80 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300"
+          >
+            <TaskList 
+              tasks={tasksByDate}
+              isLoading={isLoading}
+              onToggleTask={(taskId) => toggleTaskMutation.mutate({ taskId, worker: currentWorker })}
+              onTaskComplete={handleTaskComplete}
+              onDeleteTask={(taskId) => deleteTaskMutation.mutate(taskId)}
+              onEditTask={(taskId, newTitle, newDuration, newPriority) => 
+                editTaskMutation.mutate({ taskId, newTitle, newDuration, newPriority, worker: currentWorker })}
+            />
+          </motion.div>
           
           <div className="grid gap-6 mt-6">
             <TaskStats tasksByDate={tasksByDate} />
