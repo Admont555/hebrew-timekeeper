@@ -13,7 +13,7 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 
 const loginSchema = z.object({
-  workerId: z.string().min(1, "מזהה עובד נדרש"),
+  email: z.string().email("כתובת אימייל לא תקינה"),
   password: z.string().min(1, "סיסמה נדרשת"),
 });
 
@@ -25,45 +25,56 @@ const Login = () => {
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      workerId: "",
+      email: "",
       password: "",
     },
   });
 
   const handleLogin = async (values: z.infer<typeof loginSchema>) => {
     setIsLoading(true);
-    console.log("Attempting login with:", values.workerId);
+    console.log("Attempting login with:", values.email);
 
     try {
-      // First, check if the worker exists and verify credentials
-      const { data: member, error: memberError } = await supabase
-        .from('team_members')
-        .select('worker_id, password_hash')
-        .eq('worker_id', values.workerId)
-        .maybeSingle();
-
-      if (memberError) {
-        console.error('Member lookup error:', memberError);
-        throw new Error('מזהה העובד לא נמצא');
-      }
-
-      if (!member) {
-        console.error('No member found with worker_id:', values.workerId);
-        throw new Error('מזהה העובד לא נמצא');
-      }
-
-      // Now attempt to sign in with Supabase auth
       const { data: { session }, error: signInError } = await supabase.auth.signInWithPassword({
-        email: `${values.workerId}@example.com`,
+        email: values.email,
         password: values.password,
       });
 
       if (signInError) {
         console.error('Sign in error:', signInError);
-        throw new Error('סיסמה שגויה');
+        throw new Error('שם משתמש או סיסמה שגויים');
       }
 
       if (session) {
+        // Check if user exists in team_members
+        const { data: member, error: memberError } = await supabase
+          .from('team_members')
+          .select('worker_id')
+          .eq('worker_id', values.email)
+          .maybeSingle();
+
+        if (memberError) {
+          console.error('Member lookup error:', memberError);
+          throw new Error('שגיאה בבדיקת פרטי משתמש');
+        }
+
+        if (!member) {
+          // If the user doesn't exist in team_members, create a new entry
+          const { error: createError } = await supabase
+            .from('team_members')
+            .insert([
+              { 
+                worker_id: values.email,
+                name: values.email.split('@')[0] // Default name from email
+              }
+            ]);
+
+          if (createError) {
+            console.error('Error creating team member:', createError);
+            throw new Error('שגיאה ביצירת פרופיל משתמש');
+          }
+        }
+
         toast({
           title: "התחברות בוצעה בהצלחה",
           description: "ברוך הבא!",
@@ -106,15 +117,15 @@ const Login = () => {
             <form onSubmit={form.handleSubmit(handleLogin)} className="space-y-4">
               <FormField
                 control={form.control}
-                name="workerId"
+                name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>מזהה עובד</FormLabel>
+                    <FormLabel>אימייל</FormLabel>
                     <FormControl>
                       <Input
                         {...field}
-                        type="text"
-                        placeholder="הכנס מזהה עובד"
+                        type="email"
+                        placeholder="הכנס כתובת אימייל"
                         className="text-right"
                         disabled={isLoading}
                       />
