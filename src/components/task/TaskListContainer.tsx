@@ -1,7 +1,5 @@
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Task, TasksByDate, TaskPriority } from "@/types/task";
-import { format } from "date-fns";
-import { he } from "date-fns/locale";
 import TaskListHeader from "./TaskListHeader";
 import TaskListContent from "./TaskListContent";
 import { useTaskSorting } from "@/hooks/useTaskSorting";
@@ -25,13 +23,13 @@ const TaskListContainer = ({
   onEditTask,
 }: TaskListContainerProps) => {
   const { sortedTasks, sortBy, setSortBy } = useTaskSorting(tasksByDate);
-  const { searchQuery, setSearchQuery, filteredTasks } = useTaskSearch(sortedTasks);
+  const { searchTerm, setSearchTerm, filteredTasks } = useTaskSearch(sortedTasks);
 
   return (
     <ScrollArea className="h-[600px] rounded-md border p-4">
       <TaskListHeader
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
+        searchTerm={searchTerm}
+        onSearchChange={setSearchTerm}
         sortBy={sortBy}
         setSortBy={setSortBy}
       />

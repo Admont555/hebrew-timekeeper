@@ -1,10 +1,13 @@
-import { useMemo } from 'react';
+import { useState } from 'react';
 import { Task, TasksByDate } from '@/types/task';
 
+type SortBy = 'date' | 'priority' | 'duration';
+
 export const useTaskSorting = (tasks: TasksByDate) => {
-  const sortedDates = useMemo(
-    () => Object.keys(tasks).sort((a, b) => new Date(b).getTime() - new Date(a).getTime()),
-    [tasks]
+  const [sortBy, setSortBy] = useState<SortBy>('date');
+
+  const sortedDates = Object.keys(tasks).sort((a, b) => 
+    new Date(b).getTime() - new Date(a).getTime()
   );
 
   const getRemainingTime = (task: Task) => {
@@ -17,6 +20,16 @@ export const useTaskSorting = (tasks: TasksByDate) => {
 
   const sortTasks = (tasksArray: Task[]) => {
     return [...tasksArray].sort((a, b) => {
+      if (sortBy === 'priority') {
+        const priorityOrder = { high: 0, normal: 1, low: 2 };
+        return (priorityOrder[a.priority] || 1) - (priorityOrder[b.priority] || 1);
+      }
+      
+      if (sortBy === 'duration') {
+        return b.duration - a.duration;
+      }
+
+      // Default date-based sorting
       if (!a.completed && b.completed) return -1;
       if (a.completed && !b.completed) return 1;
 
@@ -37,5 +50,12 @@ export const useTaskSorting = (tasks: TasksByDate) => {
     });
   };
 
-  return { sortedDates, sortTasks };
+  const sortedTasks = Object.fromEntries(
+    Object.entries(tasks).map(([date, dateTasks]) => [
+      date,
+      sortTasks(dateTasks)
+    ])
+  );
+
+  return { sortedDates, sortTasks, sortedTasks, sortBy, setSortBy };
 };
