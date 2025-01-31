@@ -41,7 +41,7 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "tasks"
             referencedColumns: ["id"]
-          }
+          },
         ]
       }
       quotes: {
@@ -145,13 +145,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      verify_password: {
-        Args: {
-          stored_hash: string
-          password_attempt: string
-        }
-        Returns: boolean
-      }
+      [_ in never]: never
     }
     Enums: {
       [_ in never]: never
