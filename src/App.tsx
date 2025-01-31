@@ -16,12 +16,14 @@ const queryClient = new QueryClient();
 const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [currentUser, setCurrentUser] = useState<string | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
     // Check current session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setIsAuthenticated(!!session);
+      setCurrentUser(session?.user?.email || null);
       setIsLoading(false);
     });
 
@@ -30,6 +32,7 @@ const App = () => {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setIsAuthenticated(!!session);
+      setCurrentUser(session?.user?.email || null);
       if (!session) {
         toast({
           title: "התנתקת מהמערכת",
@@ -59,7 +62,13 @@ const App = () => {
               />
               <Route 
                 path="/" 
-                element={isAuthenticated ? <TeamMembers /> : <Navigate to="/login" />} 
+                element={
+                  isAuthenticated 
+                    ? currentUser 
+                      ? <Navigate to={`/member/${currentUser}`} /> 
+                      : <TeamMembers />
+                    : <Navigate to="/login" />
+                } 
               />
               <Route 
                 path="/member/:workerId" 
