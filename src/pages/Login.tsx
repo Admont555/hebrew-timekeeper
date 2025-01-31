@@ -20,15 +20,15 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      const { data, error } = await supabase
+      const { data: member, error: memberError } = await supabase
         .from('team_members')
         .select('worker_id, password_hash')
         .eq('worker_id', workerId)
         .maybeSingle();
 
-      if (error) throw error;
+      if (memberError) throw memberError;
 
-      if (!data) {
+      if (!member) {
         toast({
           title: "שגיאת התחברות",
           description: "מזהה העובד לא נמצא",
@@ -39,7 +39,7 @@ const Login = () => {
 
       const { data: isValid, error: verifyError } = await supabase
         .rpc('verify_password', {
-          stored_hash: data.password_hash,
+          stored_hash: member.password_hash,
           password_attempt: password
         });
 
@@ -55,7 +55,7 @@ const Login = () => {
       }
 
       // Store session
-      localStorage.setItem('worker_session', JSON.stringify({ workerId: data.worker_id }));
+      localStorage.setItem('worker_session', JSON.stringify({ workerId: member.worker_id }));
       
       toast({
         title: "התחברות בוצעה בהצלחה",
