@@ -98,39 +98,70 @@ const TeamMemberCard = ({ id, name: initialName, avatarUrl: initialAvatarUrl, is
           whileTap={{ scale: 0.98 }}
           className="cursor-pointer"
         >
-          <Card className={`p-6 flex flex-col items-center gap-4 bg-white/90 backdrop-blur-sm dark:bg-gray-800/90 hover:shadow-xl transition-all duration-300 ${
-            isEditMode ? 'border-red-500/50 border-2 dark:border-red-500/30' : ''
+          <Card className={`p-6 flex flex-col items-center gap-4 bg-gradient-to-br from-white/90 to-white/70 dark:from-gray-800/90 dark:to-gray-800/70 backdrop-blur-sm hover:shadow-xl transition-all duration-300 ${
+            isEditMode ? 'border-red-500/50 border-2 dark:border-red-500/30' : 'border-transparent hover:border-primary/20'
           }`}>
             {isEditMode && (
-              <AlertOctagon className="absolute top-2 right-2 text-red-500/70 h-5 w-5 animate-pulse" />
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="absolute top-2 right-2"
+              >
+                <AlertOctagon className="text-red-500/70 h-5 w-5 animate-pulse" />
+              </motion.div>
             )}
             <div className="relative">
-              <Avatar className="h-24 w-24 ring-2 ring-offset-2 ring-offset-background transition-all duration-300 group-hover:ring-primary">
-                <AvatarImage src={avatarUrl} alt={name} className="object-cover" />
-                <AvatarFallback className="bg-muted">
-                  <UserRound className="h-12 w-12 text-muted-foreground" />
-                </AvatarFallback>
-              </Avatar>
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                transition={{ type: "spring", stiffness: 300, damping: 20 }}
+              >
+                <Avatar className="h-24 w-24 ring-2 ring-offset-2 ring-offset-background transition-all duration-300 group-hover:ring-primary shadow-lg">
+                  <AvatarImage src={avatarUrl} alt={name} className="object-cover" />
+                  <AvatarFallback className="bg-gradient-to-br from-primary/20 to-primary/10">
+                    <UserRound className="h-12 w-12 text-primary/70" />
+                  </AvatarFallback>
+                </Avatar>
+              </motion.div>
               {openTasksCount > 0 && (
-                <Badge 
-                  variant="destructive"
-                  className="absolute -top-2 -right-2 animate-bounce"
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: "spring", stiffness: 500, damping: 30 }}
                 >
-                  {openTasksCount}
-                </Badge>
+                  <Badge 
+                    variant="destructive"
+                    className="absolute -top-2 -right-2 animate-bounce shadow-lg"
+                  >
+                    {openTasksCount}
+                  </Badge>
+                </motion.div>
               )}
             </div>
-            <div className="flex items-center gap-2">
-              <h3 className="text-xl font-semibold text-center bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">{name}</h3>
-            </div>
+            <motion.div 
+              className="flex flex-col items-center gap-1"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+            >
+              <h3 className="text-xl font-semibold text-center bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+                {name}
+              </h3>
+              {openTasksCount > 0 && (
+                <span className="text-sm text-muted-foreground">
+                  {openTasksCount} משימות פתוחות
+                </span>
+              )}
+            </motion.div>
           </Card>
         </motion.div>
       </Link>
       
       {isEditMode && (
         <>
-          <div 
+          <motion.div 
             className="absolute top-6 right-6 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
@@ -142,17 +173,20 @@ const TeamMemberCard = ({ id, name: initialName, avatarUrl: initialAvatarUrl, is
               workerId={id}
               onNameChange={handleNameChange}
             />
-          </div>
-          <button
+          </motion.div>
+          <motion.button
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            whileHover={{ scale: 1.1 }}
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
               setShowDeleteDialog(true);
             }}
-            className="absolute top-6 left-6 p-2 rounded-full bg-white/90 hover:bg-white dark:bg-gray-800/90 dark:hover:bg-gray-800 border border-red-500/50 hover:border-red-700 transition-all duration-200 opacity-0 group-hover:opacity-100"
+            className="absolute top-6 left-6 p-2 rounded-full bg-white/90 hover:bg-white dark:bg-gray-800/90 dark:hover:bg-gray-800 border border-red-500/50 hover:border-red-700 transition-all duration-200 opacity-0 group-hover:opacity-100 shadow-lg"
           >
             <XOctagon className="h-4 w-4 text-red-500" />
-          </button>
+          </motion.button>
         </>
       )}
 
