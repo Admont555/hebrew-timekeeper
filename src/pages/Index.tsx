@@ -27,11 +27,6 @@ const Index = () => {
   const [showConfetti, setShowConfetti] = useState(false);
   const { toast } = useToast();
 
-  // Validate workerId
-  if (!workerId || !['worker1', 'worker2'].includes(workerId)) {
-    return <Navigate to="/" replace />;
-  }
-  
   const {
     currentWorker,
     setCurrentWorker,
@@ -39,8 +34,8 @@ const Index = () => {
   } = useWorkerState();
 
   // Set the current worker based on the URL parameter
-  if (currentWorker !== workerId) {
-    setCurrentWorker(workerId as 'worker1' | 'worker2');
+  if (currentWorker !== workerId && workerId) {
+    setCurrentWorker(workerId);
   }
 
   const {
@@ -49,6 +44,21 @@ const Index = () => {
     editTaskMutation,
     toggleTaskMutation,
   } = useTaskMutations();
+
+  // Query to get the team member's name
+  const { data: teamMember } = useQuery({
+    queryKey: ['team-member', workerId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('team_members')
+        .select('*')
+        .eq('worker_id', workerId)
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+  });
 
   const { data: tasksByDate = {}, isLoading } = useQuery({
     queryKey: ['tasks', workerId, selectedDate],
@@ -94,10 +104,14 @@ const Index = () => {
   });
 
   const handleTaskComplete = (taskId: string) => {
-    toggleTaskMutation.mutate({ taskId, worker: workerId });
+    toggleTaskMutation.mutate({ taskId, worker: workerId || '' });
     setShowConfetti(true);
     setTimeout(() => setShowConfetti(false), 3000);
   };
+
+  if (!workerId) {
+    return <Navigate to="/" />;
+  }
 
   return (
     <ErrorBoundary>
@@ -117,7 +131,7 @@ const Index = () => {
               <ArrowLeft className="h-4 w-4" />
               חזרה לצוות
             </Button>
-            <h1 className="text-2xl font-bold">{workerNames[workerId as 'worker1' | 'worker2']}</h1>
+            <h1 className="text-2xl font-bold">{teamMember?.name || 'Loading...'}</h1>
           </div>
 
           <Header />
@@ -135,7 +149,7 @@ const Index = () => {
             className="bg-white/80 backdrop-blur-sm dark:bg-gray-800/80 rounded-xl shadow-lg p-4 mb-6 hover:shadow-xl transition-shadow duration-300"
           >
             <TaskForm onAddTask={(title, duration, priority) => 
-              addTaskMutation.mutate({ title, duration, priority, worker: currentWorker })} 
+              addTaskMutation.mutate({ title, duration, priority, worker: workerId })} 
             />
           </motion.div>
 
@@ -148,11 +162,11 @@ const Index = () => {
             <TaskList 
               tasks={tasksByDate}
               isLoading={isLoading}
-              onToggleTask={(taskId) => toggleTaskMutation.mutate({ taskId, worker: currentWorker })}
+              onToggleTask={(taskId) => toggleTaskMutation.mutate({ taskId, worker: workerId })}
               onTaskComplete={handleTaskComplete}
               onDeleteTask={(taskId) => deleteTaskMutation.mutate(taskId)}
               onEditTask={(taskId, newTitle, newDuration, newPriority) => 
-                editTaskMutation.mutate({ taskId, newTitle, newDuration, newPriority, worker: currentWorker })}
+                editTaskMutation.mutate({ taskId, newTitle, newDuration, newPriority, worker: workerId })}
             />
           </motion.div>
           

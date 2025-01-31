@@ -104,8 +104,6 @@ const TeamMemberCard = ({
         e.target instanceof Element && 
         !e.target.closest('button') && 
         !e.target.closest('[data-prevent-navigation="true"]')) {
-      e.preventDefault();
-      e.stopPropagation();
       navigate(`/member/${workerId}`);
     }
   };
