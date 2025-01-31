@@ -2,7 +2,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card } from "@/components/ui/card";
 import { UserRound, XOctagon, AlertOctagon } from "lucide-react";
 import { motion } from "framer-motion";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import WorkerNameEditor from "@/components/WorkerNameEditor";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
@@ -91,7 +91,13 @@ const TeamMemberCard = ({ id, name: initialName, avatarUrl: initialAvatarUrl, is
   };
 
   const handleCardClick = (e: React.MouseEvent) => {
-    if (!isEditMode) {
+    // Only navigate if not in edit mode and if the click wasn't on a button or editor
+    if (!isEditMode && 
+        e.target instanceof Element && 
+        !e.target.closest('button') && 
+        !e.target.closest('[data-prevent-navigation="true"]')) {
+      e.preventDefault();
+      e.stopPropagation();
       navigate(`/member/${id}`);
     }
   };
@@ -173,6 +179,7 @@ const TeamMemberCard = ({ id, name: initialName, avatarUrl: initialAvatarUrl, is
               e.preventDefault();
               e.stopPropagation();
             }}
+            data-prevent-navigation="true"
           >
             <WorkerNameEditor
               currentName={name}
