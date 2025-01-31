@@ -11,6 +11,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
+import { NavMenu } from "@/components/NavMenu";
 
 const loginSchema = z.object({
   email: z.string().email("כתובת אימייל לא תקינה"),
@@ -46,7 +47,6 @@ const Login = () => {
       }
 
       if (session) {
-        // Check if user exists in team_members
         const { data: member, error: memberError } = await supabase
           .from('team_members')
           .select('worker_id')
@@ -59,13 +59,12 @@ const Login = () => {
         }
 
         if (!member) {
-          // If the user doesn't exist in team_members, create a new entry
           const { error: createError } = await supabase
             .from('team_members')
             .insert([
               { 
                 worker_id: values.email,
-                name: values.email.split('@')[0] // Default name from email
+                name: values.email.split('@')[0]
               }
             ]);
 
@@ -95,84 +94,87 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center p-4">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="w-full max-w-md"
-      >
-        <Card className="p-8 space-y-6">
-          <div className="text-center space-y-2">
-            <div className="flex justify-center mb-4">
-              <Users className="h-12 w-12 text-primary" />
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
+      <NavMenu />
+      <div className="flex items-center justify-center min-h-screen p-4">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="w-full max-w-md"
+        >
+          <Card className="p-8 space-y-6 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300">
+            <div className="text-center space-y-2">
+              <div className="flex justify-center mb-4">
+                <Users className="h-12 w-12 text-primary" />
+              </div>
+              <h1 className="text-2xl font-bold text-foreground">התחברות למערכת</h1>
+              <p className="text-muted-foreground">
+                הזן את פרטי ההתחברות שלך
+              </p>
             </div>
-            <h1 className="text-2xl font-bold">התחברות למערכת</h1>
-            <p className="text-muted-foreground">
-              הזן את פרטי ההתחברות שלך
-            </p>
-          </div>
 
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(handleLogin)} className="space-y-4">
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>אימייל</FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        type="email"
-                        placeholder="הכנס כתובת אימייל"
-                        className="text-right"
-                        disabled={isLoading}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(handleLogin)} className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>אימייל</FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          type="email"
+                          placeholder="הכנס כתובת אימייל"
+                          className="text-right bg-white/50 dark:bg-gray-900/50"
+                          disabled={isLoading}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>סיסמה</FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        type="password"
-                        placeholder="הכנס סיסמה"
-                        className="text-right"
-                        disabled={isLoading}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>סיסמה</FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          type="password"
+                          placeholder="הכנס סיסמה"
+                          className="text-right bg-white/50 dark:bg-gray-900/50"
+                          disabled={isLoading}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <Button
-                type="submit"
-                className="w-full"
-                disabled={isLoading}
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    מתחבר...
-                  </>
-                ) : (
-                  "התחבר"
-                )}
-              </Button>
-            </form>
-          </Form>
-        </Card>
-      </motion.div>
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      מתחבר...
+                    </>
+                  ) : (
+                    "התחבר"
+                  )}
+                </Button>
+              </form>
+            </Form>
+          </Card>
+        </motion.div>
+      </div>
     </div>
   );
 };
