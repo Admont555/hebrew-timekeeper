@@ -21,20 +21,38 @@ const initialState: ThemeProviderState = {
 const ThemeProviderContext = createContext<ThemeProviderState>(initialState);
 
 export function ThemeProvider({ children }: ThemeProviderProps) {
-  const [theme, setTheme] = useState<Theme>("light");
+  const [theme, setTheme] = useState<Theme>(() => {
+    // Check localStorage first
+    const savedTheme = localStorage.getItem("theme") as Theme;
+    if (savedTheme) {
+      return savedTheme;
+    }
+    // Then check system preference
+    return window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? "dark"
+      : "light";
+  });
 
   useEffect(() => {
-    // Check if the user's system prefers dark mode
+    // Update localStorage when theme changes
+    localStorage.setItem("theme", theme);
+    
+    // Update document class
+    if (theme === "dark") {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  }, [theme]);
+
+  // Listen for system theme changes
+  useEffect(() => {
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
     
-    // Set initial theme
-    setTheme(mediaQuery.matches ? "dark" : "light");
-    document.documentElement.classList.toggle("dark", mediaQuery.matches);
-
-    // Listen for changes in system theme
     const handleChange = (e: MediaQueryListEvent) => {
-      setTheme(e.matches ? "dark" : "light");
-      document.documentElement.classList.toggle("dark", e.matches);
+      if (!localStorage.getItem("theme")) {
+        setTheme(e.matches ? "dark" : "light");
+      }
     };
 
     mediaQuery.addEventListener("change", handleChange);
@@ -45,7 +63,6 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     theme,
     setTheme: (newTheme: Theme) => {
       setTheme(newTheme);
-      document.documentElement.classList.toggle("dark", newTheme === "dark");
     },
   };
 
