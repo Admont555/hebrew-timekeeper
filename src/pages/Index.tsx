@@ -1,5 +1,6 @@
 import { Toaster } from "@/components/ui/toaster";
 import { useState } from "react";
+import { useParams, Navigate } from "react-router-dom";
 import RandomQuote from "@/components/RandomQuote";
 import { TasksByDate, TaskPriority } from "@/types/task";
 import { useToast } from "@/hooks/use-toast";
@@ -16,9 +17,15 @@ import { useTaskMutations } from "@/hooks/useTaskMutations";
 import { motion } from "framer-motion";
 
 const Index = () => {
+  const { workerId } = useParams();
   const [selectedDate, setSelectedDate] = useState<Date>();
   const [showConfetti, setShowConfetti] = useState(false);
   const { toast } = useToast();
+
+  // Validate workerId
+  if (!workerId || !['worker1', 'worker2'].includes(workerId)) {
+    return <Navigate to="/" replace />;
+  }
   
   const {
     currentWorker,
@@ -26,6 +33,11 @@ const Index = () => {
     workerNames,
     handleWorkerNameChange,
   } = useWorkerState();
+
+  // Set the current worker based on the URL parameter
+  if (currentWorker !== workerId) {
+    setCurrentWorker(workerId as 'worker1' | 'worker2');
+  }
 
   const {
     addTaskMutation,
@@ -35,12 +47,12 @@ const Index = () => {
   } = useTaskMutations();
 
   const { data: tasksByDate = {}, isLoading } = useQuery({
-    queryKey: ['tasks', currentWorker, selectedDate],
+    queryKey: ['tasks', workerId, selectedDate],
     queryFn: async () => {
       let query = supabase
         .from("tasks")
         .select("*")
-        .eq('worker', currentWorker)
+        .eq('worker', workerId)
         .order("timestamp", { ascending: false });
 
       if (selectedDate) {
@@ -78,7 +90,7 @@ const Index = () => {
   });
 
   const handleTaskComplete = (taskId: string) => {
-    toggleTaskMutation.mutate({ taskId, worker: currentWorker });
+    toggleTaskMutation.mutate({ taskId, worker: workerId });
     setShowConfetti(true);
     setTimeout(() => setShowConfetti(false), 3000);
   };
