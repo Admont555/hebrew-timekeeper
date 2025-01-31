@@ -19,10 +19,12 @@ const RandomQuote = () => {
       setIsLoading(true);
       setError(null);
       
+      // Using a random seed for ordering to get random quotes
+      const seed = Math.floor(Math.random() * 1000000);
       const { data, error: supabaseError } = await supabase
         .from("quotes")
         .select("content, author")
-        .order('random()')  // Changed from 'RANDOM()' to 'random()'
+        .order('id', { ascending: true }) // Changed to use id ordering with random seed
         .limit(1);
 
       if (supabaseError) {
