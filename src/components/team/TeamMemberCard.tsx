@@ -44,7 +44,6 @@ const TeamMemberCard = ({ id, name: initialName, avatarUrl: initialAvatarUrl, is
 
       if (error) throw error;
       
-      // Update local state to reflect changes immediately
       setName(newName);
       if (newAvatarUrl) {
         setAvatarUrl(newAvatarUrl);
@@ -75,27 +74,27 @@ const TeamMemberCard = ({ id, name: initialName, avatarUrl: initialAvatarUrl, is
   };
 
   return (
-    <div className="relative">
+    <div className="relative group">
       <Link to={isEditMode ? "#" : `/member/${id}`}>
         <motion.div
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
           className="cursor-pointer"
         >
-          <Card className={`p-6 flex flex-col items-center gap-4 bg-white/80 backdrop-blur-sm dark:bg-gray-800/80 hover:shadow-xl transition-shadow duration-300 ${
-            isEditMode ? 'border-red-500 border-2' : ''
+          <Card className={`p-6 flex flex-col items-center gap-4 bg-white/90 backdrop-blur-sm dark:bg-gray-800/90 hover:shadow-xl transition-all duration-300 ${
+            isEditMode ? 'border-red-500/50 border-2 dark:border-red-500/30' : ''
           }`}>
             {isEditMode && (
-              <AlertOctagon className="absolute top-2 right-2 text-red-500 h-5 w-5" />
+              <AlertOctagon className="absolute top-2 right-2 text-red-500/70 h-5 w-5 animate-pulse" />
             )}
-            <Avatar className="h-24 w-24 relative">
+            <Avatar className="h-24 w-24 relative ring-2 ring-offset-2 ring-offset-background transition-all duration-300 group-hover:ring-primary">
               <AvatarImage src={avatarUrl} alt={name} className="object-cover" />
-              <AvatarFallback>
-                <UserRound className="h-12 w-12" />
+              <AvatarFallback className="bg-muted">
+                <UserRound className="h-12 w-12 text-muted-foreground" />
               </AvatarFallback>
             </Avatar>
             <div className="flex items-center gap-2">
-              <h3 className="text-xl font-semibold text-center">{name}</h3>
+              <h3 className="text-xl font-semibold text-center bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">{name}</h3>
             </div>
           </Card>
         </motion.div>
@@ -104,7 +103,7 @@ const TeamMemberCard = ({ id, name: initialName, avatarUrl: initialAvatarUrl, is
       {isEditMode && (
         <>
           <div 
-            className="absolute top-6 right-6"
+            className="absolute top-6 right-6 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
@@ -123,7 +122,7 @@ const TeamMemberCard = ({ id, name: initialName, avatarUrl: initialAvatarUrl, is
               e.stopPropagation();
               setShowDeleteDialog(true);
             }}
-            className="absolute top-6 left-6 p-2 rounded-full bg-white/90 hover:bg-white dark:bg-gray-800/90 dark:hover:bg-gray-800 border border-red-500 hover:border-red-700 transition-colors"
+            className="absolute top-6 left-6 p-2 rounded-full bg-white/90 hover:bg-white dark:bg-gray-800/90 dark:hover:bg-gray-800 border border-red-500/50 hover:border-red-700 transition-all duration-200 opacity-0 group-hover:opacity-100"
           >
             <XOctagon className="h-4 w-4 text-red-500" />
           </button>
@@ -131,7 +130,7 @@ const TeamMemberCard = ({ id, name: initialName, avatarUrl: initialAvatarUrl, is
       )}
 
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent>
+        <AlertDialogContent className="sm:max-w-[425px]">
           <AlertDialogHeader>
             <AlertDialogTitle>האם אתה בטוח שברצונך למחוק את חבר הצוות?</AlertDialogTitle>
             <AlertDialogDescription>
@@ -140,7 +139,12 @@ const TeamMemberCard = ({ id, name: initialName, avatarUrl: initialAvatarUrl, is
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>ביטול</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete}>מחק</AlertDialogAction>
+            <AlertDialogAction 
+              onClick={handleDelete}
+              className="bg-red-500 hover:bg-red-600 text-white"
+            >
+              מחק
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

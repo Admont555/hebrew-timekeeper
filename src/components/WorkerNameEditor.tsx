@@ -151,54 +151,72 @@ const WorkerNameEditor = ({ currentName, currentAvatarUrl, workerId, onNameChang
         <Button 
           variant="outline" 
           size="icon"
-          className="h-8 w-8 rounded-full bg-white/90 hover:bg-white dark:bg-gray-800/90 dark:hover:bg-gray-800"
+          className="h-8 w-8 rounded-full bg-white/90 hover:bg-white dark:bg-gray-800/90 dark:hover:bg-gray-800 shadow-lg hover:shadow-xl transition-all duration-300"
           onClick={handleButtonClick}
         >
-          <Edit2 className="h-4 w-4" />
+          <Edit2 className="h-4 w-4 text-primary" />
         </Button>
       </DialogTrigger>
       <DialogContent 
-        className="sm:max-w-[425px]"
+        className="sm:max-w-[425px] animate-in fade-in-0 zoom-in-95"
         onClick={(e) => e.stopPropagation()}
       >
         <DialogHeader>
-          <DialogTitle>עריכת פרטי עובד</DialogTitle>
+          <DialogTitle className="text-center text-xl font-semibold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+            עריכת פרטי עובד
+          </DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="flex flex-col items-center gap-4">
-            <Avatar className="h-24 w-24 relative">
-              <AvatarImage src={previewUrl} className="object-cover" />
-              <AvatarFallback>
-                <UserRound className="h-12 w-12" />
-              </AvatarFallback>
-            </Avatar>
-            <div className="flex items-center gap-2">
-              <Input
-                type="file"
-                accept="image/*"
-                onChange={handleFileChange}
-                className="hidden"
-                id="avatar-upload"
-              />
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => document.getElementById('avatar-upload')?.click()}
-              >
-                <Upload className="h-4 w-4 ml-2" />
-                העלה תמונה
-              </Button>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="flex flex-col items-center gap-6">
+            <div className="relative group">
+              <Avatar className="h-32 w-32 ring-2 ring-offset-2 ring-offset-background transition-all duration-300 group-hover:ring-primary">
+                <AvatarImage src={previewUrl} className="object-cover" />
+                <AvatarFallback className="bg-muted">
+                  <UserRound className="h-16 w-16 text-muted-foreground" />
+                </AvatarFallback>
+              </Avatar>
+              <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2">
+                <Input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  className="hidden"
+                  id="avatar-upload"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => document.getElementById('avatar-upload')?.click()}
+                  className="shadow-lg hover:shadow-xl transition-all duration-300"
+                >
+                  <Upload className="h-4 w-4 ml-2" />
+                  העלה תמונה
+                </Button>
+              </div>
             </div>
           </div>
-          <Input
-            value={newName}
-            onChange={(e) => setNewName(e.target.value)}
-            placeholder="הכנס שם עובד"
-            className="text-right"
-          />
+          <div className="space-y-2">
+            <Input
+              value={newName}
+              onChange={(e) => setNewName(e.target.value)}
+              placeholder="הכנס שם עובד"
+              className="text-right transition-all duration-300 focus:ring-2 focus:ring-primary"
+            />
+          </div>
           <div className="flex justify-end gap-2">
-            <Button type="submit">שמור</Button>
-            <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>
+            <Button 
+              type="submit"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-300"
+            >
+              שמור
+            </Button>
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={() => setIsOpen(false)}
+              className="hover:bg-secondary transition-all duration-300"
+            >
               ביטול
             </Button>
           </div>
