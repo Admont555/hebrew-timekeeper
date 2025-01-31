@@ -37,6 +37,7 @@ const Login = () => {
         return;
       }
 
+      // Note the parameter order matches the SQL function: (stored_hash, password_attempt)
       const { data: isValid, error: verifyError } = await supabase
         .rpc('verify_password', {
           stored_hash: member.password_hash,
