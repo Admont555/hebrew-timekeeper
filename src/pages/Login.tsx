@@ -40,7 +40,7 @@ const Login = () => {
         .from('team_members')
         .select('worker_id, password_hash')
         .eq('worker_id', values.workerId)
-        .single();
+        .maybeSingle();
 
       if (memberError) {
         console.error('Member lookup error:', memberError);
@@ -48,6 +48,7 @@ const Login = () => {
       }
 
       if (!member) {
+        console.error('No member found with worker_id:', values.workerId);
         throw new Error('מזהה העובד לא נמצא');
       }
 
