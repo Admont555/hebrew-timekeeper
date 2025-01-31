@@ -24,7 +24,7 @@ const Login = () => {
         .from('team_members')
         .select('worker_id, password_hash')
         .eq('worker_id', workerId)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
 
