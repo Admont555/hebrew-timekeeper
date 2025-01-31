@@ -28,6 +28,12 @@ const WorkerNameEditor = ({ currentName, workerId, onNameChange }: WorkerNameEdi
     }
   };
 
+  const handleButtonClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsOpen(true);
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
@@ -35,10 +41,7 @@ const WorkerNameEditor = ({ currentName, workerId, onNameChange }: WorkerNameEdi
           variant="outline" 
           size="icon"
           className="h-8 w-8 rounded-full bg-white/90 hover:bg-white dark:bg-gray-800/90 dark:hover:bg-gray-800"
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-          }}
+          onClick={handleButtonClick}
         >
           <Edit2 className="h-4 w-4" />
         </Button>

@@ -41,7 +41,7 @@ const TeamMemberCard = ({ id, name, avatarUrl }: TeamMemberCardProps) => {
                 <UserRound className="h-12 w-12" />
               </AvatarFallback>
             </Avatar>
-            <div className="flex items-center gap-2 group">
+            <div className="flex items-center gap-2">
               <h3 className="text-xl font-semibold text-center">{name}</h3>
             </div>
           </Card>
@@ -49,7 +49,10 @@ const TeamMemberCard = ({ id, name, avatarUrl }: TeamMemberCardProps) => {
       </Link>
       <div 
         className="absolute top-6 right-6"
-        onClick={(e) => e.stopPropagation()}
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+        }}
       >
         <WorkerNameEditor
           currentName={name}
