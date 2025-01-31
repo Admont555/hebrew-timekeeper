@@ -53,7 +53,7 @@ const Index = () => {
         .from('team_members')
         .select('*')
         .eq('worker_id', workerId)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
       return data;

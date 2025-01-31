@@ -1,12 +1,11 @@
 import { useState, useEffect } from 'react';
 
 interface WorkerNames {
-  worker1: string;
-  worker2: string;
+  [key: string]: string;
 }
 
 export const useWorkerState = () => {
-  const [currentWorker, setCurrentWorker] = useState<'worker1' | 'worker2'>('worker1');
+  const [currentWorker, setCurrentWorker] = useState<string>('worker1');
   const [workerNames, setWorkerNames] = useState<WorkerNames>(() => {
     const saved = localStorage.getItem('workerNames');
     return saved ? JSON.parse(saved) : { worker1: 'עובד 1', worker2: 'עובד 2' };
@@ -16,7 +15,7 @@ export const useWorkerState = () => {
     localStorage.setItem('workerNames', JSON.stringify(workerNames));
   }, [workerNames]);
 
-  const handleWorkerNameChange = (workerId: 'worker1' | 'worker2', newName: string) => {
+  const handleWorkerNameChange = (workerId: string, newName: string) => {
     setWorkerNames(prev => ({
       ...prev,
       [workerId]: newName
