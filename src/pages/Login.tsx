@@ -37,7 +37,6 @@ const Login = () => {
         return;
       }
 
-      // Verify password using Supabase's pgcrypto extension
       const { data: isValid, error: verifyError } = await supabase
         .rpc('verify_password', {
           stored_hash: data.password_hash,
