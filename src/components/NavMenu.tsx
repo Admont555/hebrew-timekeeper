@@ -3,6 +3,13 @@ import { Button } from "@/components/ui/button";
 import { useTheme } from "@/components/ThemeProvider";
 import { logout } from "@/utils/auth";
 import { useLocation } from "react-router-dom";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { motion } from "framer-motion";
 
 export function NavMenu() {
   const { theme, setTheme } = useTheme();
@@ -14,34 +21,61 @@ export function NavMenu() {
   };
 
   return (
-    <div className="fixed top-4 left-4 z-50 flex items-center gap-2">
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={toggleTheme}
-        className="hover:bg-accent/50 transition-colors"
-      >
-        {theme === "dark" ? (
-          <Moon className="h-5 w-5" />
-        ) : (
-          <Sun className="h-5 w-5" />
-        )}
-        <span className="sr-only">
-          {theme === "light" ? "מצב כהה" : "מצב בהיר"}
-        </span>
-      </Button>
+    <motion.div 
+      initial={{ opacity: 0, y: -20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+      className="fixed top-4 left-4 z-50 flex items-center gap-2"
+    >
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={toggleTheme}
+              className="hover:bg-accent hover:scale-105 active:scale-95 transition-all duration-200"
+              aria-label={theme === "light" ? "הפעל מצב כהה" : "הפעל מצב בהיר"}
+            >
+              <motion.div
+                initial={{ scale: 0.5, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 0.2 }}
+              >
+                {theme === "dark" ? (
+                  <Moon className="h-5 w-5" />
+                ) : (
+                  <Sun className="h-5 w-5" />
+                )}
+              </motion.div>
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="right">
+            <p>{theme === "light" ? "הפעל מצב כהה" : "הפעל מצב בהיר"}</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
       
       {!isLoginPage && (
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={logout}
-          className="hover:bg-destructive/10 transition-colors"
-        >
-          <LogOut className="h-5 w-5" />
-          <span className="sr-only">התנתק</span>
-        </Button>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={logout}
+                className="hover:bg-destructive/10 hover:scale-105 active:scale-95 transition-all duration-200"
+                aria-label="התנתק מהמערכת"
+              >
+                <LogOut className="h-5 w-5" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="right">
+              <p>התנתק מהמערכת</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       )}
-    </div>
+    </motion.div>
   );
 }
