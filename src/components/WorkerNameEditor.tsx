@@ -22,11 +22,58 @@ const WorkerNameEditor = ({ currentName, currentAvatarUrl, workerId, onNameChang
   const [previewUrl, setPreviewUrl] = useState(currentAvatarUrl);
   const { toast } = useToast();
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const compressImage = async (file: File): Promise<File> => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d')!;
+      
+      img.onload = () => {
+        // Calculate new dimensions while maintaining aspect ratio
+        let width = img.width;
+        let height = img.height;
+        const maxSize = 500;
+
+        if (width > height) {
+          if (width > maxSize) {
+            height = Math.round((height * maxSize) / width);
+            width = maxSize;
+          }
+        } else {
+          if (height > maxSize) {
+            width = Math.round((width * maxSize) / height);
+            height = maxSize;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+
+        // Draw and compress image
+        ctx.drawImage(img, 0, 0, width, height);
+        
+        // Convert to blob
+        canvas.toBlob((blob) => {
+          if (blob) {
+            const compressedFile = new File([blob], file.name, {
+              type: 'image/jpeg',
+              lastModified: Date.now(),
+            });
+            resolve(compressedFile);
+          }
+        }, 'image/jpeg', 0.8);
+      };
+
+      img.src = URL.createObjectURL(file);
+    });
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setAvatarFile(file);
-      const url = URL.createObjectURL(file);
+      const compressedFile = await compressImage(file);
+      setAvatarFile(compressedFile);
+      const url = URL.createObjectURL(compressedFile);
       setPreviewUrl(url);
     }
   };
@@ -64,18 +111,37 @@ const WorkerNameEditor = ({ currentName, currentAvatarUrl, workerId, onNameChang
         }
       }
 
-      onNameChange(workerId, newName.trim(), avatarUrl);
-      setIsOpen(false);
-      toast({
-        title: "פרטי עובד עודכנו",
-        description: "פרטי העובד עודכנו בהצלחה",
-      });
+      try {
+        const { error } = await supabase
+          .from('team_members')
+          .update({ 
+            name: newName.trim(),
+            ...(avatarUrl && { avatar_url: avatarUrl })
+          })
+          .eq('worker_id', workerId);
+
+        if (error) throw error;
+
+        onNameChange(workerId, newName.trim(), avatarUrl);
+        setIsOpen(false);
+        toast({
+          title: "פרטי עובד עודכנו",
+          description: "פרטי העובד עודכנו בהצלחה",
+        });
+      } catch (error) {
+        console.error('Error updating team member:', error);
+        toast({
+          title: "שגיאה בעדכון פרטי העובד",
+          description: "אנא נסה שנית",
+        });
+      }
     }
   };
 
   const handleButtonClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    setNewName(currentName); // Reset name to current name when opening dialog
     setIsOpen(true);
   };
 
