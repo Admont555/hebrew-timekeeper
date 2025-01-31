@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import WorkerNameEditor from "@/components/WorkerNameEditor";
 import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,6 +18,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { Badge } from "@/components/ui/badge";
 
 interface TeamMemberCardProps {
   id: string;
@@ -31,6 +33,21 @@ const TeamMemberCard = ({ id, name: initialName, avatarUrl: initialAvatarUrl, is
   const [name, setName] = useState(initialName);
   const [avatarUrl, setAvatarUrl] = useState(initialAvatarUrl);
   const { toast } = useToast();
+
+  // Fetch open tasks count
+  const { data: openTasksCount = 0 } = useQuery({
+    queryKey: ['open-tasks', id],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from('tasks')
+        .select('*', { count: 'exact', head: true })
+        .eq('worker', id)
+        .eq('completed', false);
+
+      if (error) throw error;
+      return count || 0;
+    },
+  });
 
   const handleNameChange = async (workerId: string, newName: string, newAvatarUrl?: string) => {
     try {
@@ -87,12 +104,22 @@ const TeamMemberCard = ({ id, name: initialName, avatarUrl: initialAvatarUrl, is
             {isEditMode && (
               <AlertOctagon className="absolute top-2 right-2 text-red-500/70 h-5 w-5 animate-pulse" />
             )}
-            <Avatar className="h-24 w-24 relative ring-2 ring-offset-2 ring-offset-background transition-all duration-300 group-hover:ring-primary">
-              <AvatarImage src={avatarUrl} alt={name} className="object-cover" />
-              <AvatarFallback className="bg-muted">
-                <UserRound className="h-12 w-12 text-muted-foreground" />
-              </AvatarFallback>
-            </Avatar>
+            <div className="relative">
+              <Avatar className="h-24 w-24 ring-2 ring-offset-2 ring-offset-background transition-all duration-300 group-hover:ring-primary">
+                <AvatarImage src={avatarUrl} alt={name} className="object-cover" />
+                <AvatarFallback className="bg-muted">
+                  <UserRound className="h-12 w-12 text-muted-foreground" />
+                </AvatarFallback>
+              </Avatar>
+              {openTasksCount > 0 && (
+                <Badge 
+                  variant="destructive"
+                  className="absolute -top-2 -right-2 animate-bounce"
+                >
+                  {openTasksCount}
+                </Badge>
+              )}
+            </div>
             <div className="flex items-center gap-2">
               <h3 className="text-xl font-semibold text-center bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">{name}</h3>
             </div>
