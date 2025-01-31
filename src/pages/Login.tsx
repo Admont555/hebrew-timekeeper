@@ -38,15 +38,15 @@ const Login = () => {
       }
 
       // Verify password using Supabase's pgcrypto extension
-      const { data: verifyData, error: verifyError } = await supabase
+      const { data: isValid, error: verifyError } = await supabase
         .rpc('verify_password', {
           stored_hash: data.password_hash,
           password_attempt: password
-        }) as { data: boolean | null; error: Error | null };
+        });
 
       if (verifyError) throw verifyError;
 
-      if (!verifyData) {
+      if (!isValid) {
         toast({
           title: "שגיאת התחברות",
           description: "סיסמה שגויה",
