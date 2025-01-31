@@ -32,51 +32,35 @@ const Login = () => {
 
   const handleLogin = async (values: z.infer<typeof loginSchema>) => {
     setIsLoading(true);
+    console.log("Attempting login with:", values.workerId);
 
     try {
-      // First, check if the worker exists
+      // First, check if the worker exists and verify credentials
       const { data: member, error: memberError } = await supabase
         .from('team_members')
         .select('worker_id, password_hash')
         .eq('worker_id', values.workerId)
-        .maybeSingle();
+        .single();
 
-      if (memberError) throw memberError;
+      if (memberError) {
+        console.error('Member lookup error:', memberError);
+        throw new Error('מזהה העובד לא נמצא');
+      }
 
       if (!member) {
-        toast({
-          title: "שגיאת התחברות",
-          description: "מזהה העובד לא נמצא",
-          variant: "destructive",
-        });
-        return;
+        throw new Error('מזהה העובד לא נמצא');
       }
 
-      // Verify the password
-      const { data: isValid, error: verifyError } = await supabase
-        .rpc('verify_password', {
-          stored_hash: member.password_hash,
-          password_attempt: values.password
-        });
-
-      if (verifyError) throw verifyError;
-
-      if (!isValid) {
-        toast({
-          title: "שגיאת התחברות",
-          description: "סיסמה שגויה",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      // Set the session
+      // Now attempt to sign in with Supabase auth
       const { data: { session }, error: signInError } = await supabase.auth.signInWithPassword({
         email: `${values.workerId}@example.com`,
         password: values.password,
       });
 
-      if (signInError) throw signInError;
+      if (signInError) {
+        console.error('Sign in error:', signInError);
+        throw new Error('סיסמה שגויה');
+      }
 
       if (session) {
         toast({
@@ -85,11 +69,12 @@ const Login = () => {
         });
         navigate('/');
       }
+
     } catch (error) {
       console.error('Login error:', error);
       toast({
         title: "שגיאת התחברות",
-        description: "אירעה שגיאה בתהליך ההתחברות",
+        description: error instanceof Error ? error.message : "אירעה שגיאה בתהליך ההתחברות",
         variant: "destructive",
       });
     } finally {
