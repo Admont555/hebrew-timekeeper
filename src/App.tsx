@@ -9,20 +9,36 @@ import Index from "./pages/Index";
 import Login from "./pages/Login";
 import { useEffect, useState } from "react";
 import { supabase } from "./integrations/supabase/client";
+import { useToast } from "./hooks/use-toast";
 
 const queryClient = new QueryClient();
 
 const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
 
   useEffect(() => {
-    // Check if there's an active session in localStorage
-    const session = localStorage.getItem('worker_session');
-    if (session) {
-      setIsAuthenticated(true);
-    }
-    setIsLoading(false);
+    // Check current session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setIsAuthenticated(!!session);
+      setIsLoading(false);
+    });
+
+    // Listen for auth changes
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setIsAuthenticated(!!session);
+      if (!session) {
+        toast({
+          title: "התנתקת מהמערכת",
+          description: "נא להתחבר מחדש",
+        });
+      }
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   if (isLoading) {

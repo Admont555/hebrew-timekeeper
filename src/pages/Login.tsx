@@ -6,8 +6,8 @@ import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
-import { Users } from "lucide-react";
-import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
+import { Users, Loader2 } from "lucide-react";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -49,7 +49,6 @@ const Login = () => {
           description: "מזהה העובד לא נמצא",
           variant: "destructive",
         });
-        setIsLoading(false);
         return;
       }
 
@@ -68,19 +67,24 @@ const Login = () => {
           description: "סיסמה שגויה",
           variant: "destructive",
         });
-        setIsLoading(false);
         return;
       }
 
-      // Store session
-      localStorage.setItem('worker_session', JSON.stringify({ workerId: member.worker_id }));
-      
-      toast({
-        title: "התחברות בוצעה בהצלחה",
-        description: "ברוך הבא!",
+      // Set the session
+      const { data: { session }, error: signInError } = await supabase.auth.signInWithPassword({
+        email: `${values.workerId}@example.com`,
+        password: values.password,
       });
 
-      navigate('/');
+      if (signInError) throw signInError;
+
+      if (session) {
+        toast({
+          title: "התחברות בוצעה בהצלחה",
+          description: "ברוך הבא!",
+        });
+        navigate('/');
+      }
     } catch (error) {
       console.error('Login error:', error);
       toast({
@@ -129,6 +133,7 @@ const Login = () => {
                         disabled={isLoading}
                       />
                     </FormControl>
+                    <FormMessage />
                   </FormItem>
                 )}
               />
@@ -148,6 +153,7 @@ const Login = () => {
                         disabled={isLoading}
                       />
                     </FormControl>
+                    <FormMessage />
                   </FormItem>
                 )}
               />
@@ -157,7 +163,14 @@ const Login = () => {
                 className="w-full"
                 disabled={isLoading}
               >
-                {isLoading ? "מתחבר..." : "התחבר"}
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    מתחבר...
+                  </>
+                ) : (
+                  "התחבר"
+                )}
               </Button>
             </form>
           </Form>
