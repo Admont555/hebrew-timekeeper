@@ -141,7 +141,7 @@ const WorkerNameEditor = ({ currentName, currentAvatarUrl, workerId, onNameChang
   const handleButtonClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setNewName(currentName); // Reset name to current name when opening dialog
+    setNewName(currentName);
     setIsOpen(true);
   };
 
@@ -166,8 +166,8 @@ const WorkerNameEditor = ({ currentName, currentAvatarUrl, workerId, onNameChang
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="flex flex-col items-center gap-4">
-            <Avatar className="h-24 w-24">
-              <AvatarImage src={previewUrl} />
+            <Avatar className="h-24 w-24 relative">
+              <AvatarImage src={previewUrl} className="object-cover" />
               <AvatarFallback>
                 <UserRound className="h-12 w-12" />
               </AvatarFallback>

@@ -88,8 +88,8 @@ const TeamMemberCard = ({ id, name: initialName, avatarUrl: initialAvatarUrl, is
             {isEditMode && (
               <AlertOctagon className="absolute top-2 right-2 text-red-500 h-5 w-5" />
             )}
-            <Avatar className="h-24 w-24">
-              <AvatarImage src={avatarUrl} alt={name} />
+            <Avatar className="h-24 w-24 relative">
+              <AvatarImage src={avatarUrl} alt={name} className="object-cover" />
               <AvatarFallback>
                 <UserRound className="h-12 w-12" />
               </AvatarFallback>
