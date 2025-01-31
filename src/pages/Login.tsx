@@ -7,23 +7,38 @@ import { useToast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { Users } from "lucide-react";
+import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
+
+const loginSchema = z.object({
+  workerId: z.string().min(1, "מזהה עובד נדרש"),
+  password: z.string().min(1, "סיסמה נדרשת"),
+});
 
 const Login = () => {
-  const [workerId, setWorkerId] = useState("");
-  const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const form = useForm<z.infer<typeof loginSchema>>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      workerId: "",
+      password: "",
+    },
+  });
+
+  const handleLogin = async (values: z.infer<typeof loginSchema>) => {
     setIsLoading(true);
 
     try {
+      // First, check if the worker exists
       const { data: member, error: memberError } = await supabase
         .from('team_members')
         .select('worker_id, password_hash')
-        .eq('worker_id', workerId)
+        .eq('worker_id', values.workerId)
         .maybeSingle();
 
       if (memberError) throw memberError;
@@ -38,10 +53,11 @@ const Login = () => {
         return;
       }
 
+      // Verify the password
       const { data: isValid, error: verifyError } = await supabase
         .rpc('verify_password', {
           stored_hash: member.password_hash,
-          password_attempt: password
+          password_attempt: values.password
         });
 
       if (verifyError) throw verifyError;
@@ -96,35 +112,55 @@ const Login = () => {
             </p>
           </div>
 
-          <form onSubmit={handleLogin} className="space-y-4">
-            <div className="space-y-2">
-              <Input
-                type="text"
-                placeholder="מזהה עובד"
-                value={workerId}
-                onChange={(e) => setWorkerId(e.target.value)}
-                className="text-right"
-                required
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(handleLogin)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="workerId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>מזהה עובד</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        type="text"
+                        placeholder="הכנס מזהה עובד"
+                        className="text-right"
+                        disabled={isLoading}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
               />
-            </div>
-            <div className="space-y-2">
-              <Input
-                type="password"
-                placeholder="סיסמה"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="text-right"
-                required
+
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>סיסמה</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        type="password"
+                        placeholder="הכנס סיסמה"
+                        className="text-right"
+                        disabled={isLoading}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
               />
-            </div>
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={isLoading}
-            >
-              {isLoading ? "מתחבר..." : "התחבר"}
-            </Button>
-          </form>
+
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={isLoading}
+              >
+                {isLoading ? "מתחבר..." : "התחבר"}
+              </Button>
+            </form>
+          </Form>
         </Card>
       </motion.div>
     </div>
