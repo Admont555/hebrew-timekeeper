@@ -39,7 +39,6 @@ const TeamMembers = () => {
           <div className="flex justify-center gap-4">
             <TeamMemberManager 
               onMemberAdded={refetch}
-              onMemberDeleted={refetch}
             />
             <Button
               variant={isEditMode ? "destructive" : "outline"}
