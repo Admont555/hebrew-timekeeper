@@ -42,7 +42,7 @@ const Login = () => {
         .rpc('verify_password', {
           stored_hash: data.password_hash,
           password_attempt: password
-        });
+        }) as { data: boolean | null; error: Error | null };
 
       if (verifyError) throw verifyError;
 
