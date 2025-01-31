@@ -31,9 +31,13 @@ const App = () => {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
-      setIsAuthenticated(!!session);
-      setCurrentUser(session?.user?.email || null);
-      if (!session) {
+      const isAuth = !!session;
+      const userEmail = session?.user?.email || null;
+      
+      setIsAuthenticated(isAuth);
+      setCurrentUser(userEmail);
+      
+      if (!isAuth) {
         toast({
           title: "התנתקת מהמערכת",
           description: "נא להתחבר מחדש",
@@ -63,11 +67,13 @@ const App = () => {
               <Route 
                 path="/" 
                 element={
-                  isAuthenticated 
-                    ? currentUser 
-                      ? <Navigate to={`/member/${currentUser}`} /> 
-                      : <TeamMembers />
-                    : <Navigate to="/login" />
+                  !isAuthenticated ? (
+                    <Navigate to="/login" />
+                  ) : currentUser ? (
+                    <Navigate to={`/member/${currentUser}`} replace />
+                  ) : (
+                    <TeamMembers />
+                  )
                 } 
               />
               <Route 
