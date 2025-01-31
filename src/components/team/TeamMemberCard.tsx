@@ -26,8 +26,10 @@ interface TeamMemberCardProps {
   onDelete: () => void;
 }
 
-const TeamMemberCard = ({ id, name, avatarUrl, isEditMode, onDelete }: TeamMemberCardProps) => {
+const TeamMemberCard = ({ id, name: initialName, avatarUrl: initialAvatarUrl, isEditMode, onDelete }: TeamMemberCardProps) => {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [name, setName] = useState(initialName);
+  const [avatarUrl, setAvatarUrl] = useState(initialAvatarUrl);
   const { toast } = useToast();
 
   const handleNameChange = async (workerId: string, newName: string, newAvatarUrl?: string) => {
@@ -41,6 +43,12 @@ const TeamMemberCard = ({ id, name, avatarUrl, isEditMode, onDelete }: TeamMembe
         .eq('worker_id', workerId);
 
       if (error) throw error;
+      
+      // Update local state to reflect changes immediately
+      setName(newName);
+      if (newAvatarUrl) {
+        setAvatarUrl(newAvatarUrl);
+      }
     } catch (error) {
       console.error('Error updating team member:', error);
     }
