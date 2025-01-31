@@ -30,16 +30,19 @@ const TeamMemberCard = ({ id, name, avatarUrl, isEditMode, onDelete }: TeamMembe
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const { toast } = useToast();
 
-  const handleNameChange = async (workerId: string, newName: string) => {
+  const handleNameChange = async (workerId: string, newName: string, newAvatarUrl?: string) => {
     try {
       const { error } = await supabase
         .from('team_members')
-        .update({ name: newName })
+        .update({ 
+          name: newName,
+          ...(newAvatarUrl && { avatar_url: newAvatarUrl })
+        })
         .eq('worker_id', workerId);
 
       if (error) throw error;
     } catch (error) {
-      console.error('Error updating team member name:', error);
+      console.error('Error updating team member:', error);
     }
   };
 
@@ -101,6 +104,7 @@ const TeamMemberCard = ({ id, name, avatarUrl, isEditMode, onDelete }: TeamMembe
           >
             <WorkerNameEditor
               currentName={name}
+              currentAvatarUrl={avatarUrl}
               workerId={id}
               onNameChange={handleNameChange}
             />
