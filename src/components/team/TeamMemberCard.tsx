@@ -34,7 +34,6 @@ const TeamMemberCard = ({ id, name: initialName, avatarUrl: initialAvatarUrl, is
   const [avatarUrl, setAvatarUrl] = useState(initialAvatarUrl);
   const { toast } = useToast();
 
-  // Fetch open tasks count
   const { data: openTasksCount = 0 } = useQuery({
     queryKey: ['open-tasks', id],
     queryFn: async () => {
@@ -98,8 +97,10 @@ const TeamMemberCard = ({ id, name: initialName, avatarUrl: initialAvatarUrl, is
           whileTap={{ scale: 0.98 }}
           className="cursor-pointer"
         >
-          <Card className={`p-6 flex flex-col items-center gap-4 bg-gradient-to-br from-white/90 to-white/70 dark:from-gray-800/90 dark:to-gray-800/70 backdrop-blur-sm hover:shadow-xl transition-all duration-300 ${
-            isEditMode ? 'border-red-500/50 border-2 dark:border-red-500/30' : 'border-transparent hover:border-primary/20'
+          <Card className={`p-6 flex flex-col items-center gap-4 bg-gradient-to-br from-white/90 via-white/80 to-white/70 dark:from-gray-800/90 dark:via-gray-800/80 dark:to-gray-800/70 backdrop-blur-sm border-2 transition-all duration-300 ${
+            isEditMode 
+              ? 'border-red-500/50 dark:border-red-500/30 shadow-lg shadow-red-500/10' 
+              : 'border-transparent hover:border-primary/20 hover:shadow-xl hover:shadow-primary/5'
           }`}>
             {isEditMode && (
               <motion.div
@@ -115,7 +116,7 @@ const TeamMemberCard = ({ id, name: initialName, avatarUrl: initialAvatarUrl, is
                 whileHover={{ scale: 1.05 }}
                 transition={{ type: "spring", stiffness: 300, damping: 20 }}
               >
-                <Avatar className="h-24 w-24 ring-2 ring-offset-2 ring-offset-background transition-all duration-300 group-hover:ring-primary shadow-lg">
+                <Avatar className="h-24 w-24 ring-2 ring-offset-2 ring-offset-background transition-all duration-300 group-hover:ring-primary shadow-lg group-hover:shadow-xl">
                   <AvatarImage src={avatarUrl} alt={name} className="object-cover" />
                   <AvatarFallback className="bg-gradient-to-br from-primary/20 to-primary/10">
                     <UserRound className="h-12 w-12 text-primary/70" />
@@ -147,7 +148,7 @@ const TeamMemberCard = ({ id, name: initialName, avatarUrl: initialAvatarUrl, is
                 {name}
               </h3>
               {openTasksCount > 0 && (
-                <span className="text-sm text-muted-foreground">
+                <span className="text-sm text-muted-foreground animate-pulse">
                   {openTasksCount} משימות פתוחות
                 </span>
               )}
@@ -183,7 +184,7 @@ const TeamMemberCard = ({ id, name: initialName, avatarUrl: initialAvatarUrl, is
               e.stopPropagation();
               setShowDeleteDialog(true);
             }}
-            className="absolute top-6 left-6 p-2 rounded-full bg-white/90 hover:bg-white dark:bg-gray-800/90 dark:hover:bg-gray-800 border border-red-500/50 hover:border-red-700 transition-all duration-200 opacity-0 group-hover:opacity-100 shadow-lg"
+            className="absolute top-6 left-6 p-2 rounded-full bg-white/90 hover:bg-white dark:bg-gray-800/90 dark:hover:bg-gray-800 border border-red-500/50 hover:border-red-700 transition-all duration-200 opacity-0 group-hover:opacity-100 shadow-lg hover:shadow-xl"
           >
             <XOctagon className="h-4 w-4 text-red-500" />
           </motion.button>

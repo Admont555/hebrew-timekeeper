@@ -7,6 +7,7 @@ import { Edit2, Upload } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { UserRound } from "lucide-react";
+import { motion } from "framer-motion";
 
 interface WorkerNameEditorProps {
   currentName: string;
@@ -29,30 +30,22 @@ const WorkerNameEditor = ({ currentName, currentAvatarUrl, workerId, onNameChang
       const ctx = canvas.getContext('2d')!;
       
       img.onload = () => {
-        // Calculate new dimensions while maintaining aspect ratio
         let width = img.width;
         let height = img.height;
         const maxSize = 500;
 
-        if (width > height) {
-          if (width > maxSize) {
-            height = Math.round((height * maxSize) / width);
-            width = maxSize;
-          }
-        } else {
-          if (height > maxSize) {
-            width = Math.round((width * maxSize) / height);
-            height = maxSize;
-          }
+        if (width > height && width > maxSize) {
+          height = Math.round((height * maxSize) / width);
+          width = maxSize;
+        } else if (height > maxSize) {
+          width = Math.round((width * maxSize) / height);
+          height = maxSize;
         }
 
         canvas.width = width;
         canvas.height = height;
-
-        // Draw and compress image
         ctx.drawImage(img, 0, 0, width, height);
         
-        // Convert to blob
         canvas.toBlob((blob) => {
           if (blob) {
             const compressedFile = new File([blob], file.name, {
@@ -73,8 +66,7 @@ const WorkerNameEditor = ({ currentName, currentAvatarUrl, workerId, onNameChang
     if (file) {
       const compressedFile = await compressImage(file);
       setAvatarFile(compressedFile);
-      const url = URL.createObjectURL(compressedFile);
-      setPreviewUrl(url);
+      setPreviewUrl(URL.createObjectURL(compressedFile));
     }
   };
 
@@ -90,9 +82,7 @@ const WorkerNameEditor = ({ currentName, currentAvatarUrl, workerId, onNameChang
         try {
           const { error: uploadError } = await supabase.storage
             .from('avatars')
-            .upload(filePath, avatarFile, {
-              upsert: true,
-            });
+            .upload(filePath, avatarFile, { upsert: true });
 
           if (uploadError) throw uploadError;
 
@@ -138,24 +128,22 @@ const WorkerNameEditor = ({ currentName, currentAvatarUrl, workerId, onNameChang
     }
   };
 
-  const handleButtonClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setNewName(currentName);
-    setIsOpen(true);
-  };
-
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button 
-          variant="outline" 
-          size="icon"
-          className="h-8 w-8 rounded-full bg-white/90 hover:bg-white dark:bg-gray-800/90 dark:hover:bg-gray-800 shadow-lg hover:shadow-xl transition-all duration-300"
-          onClick={handleButtonClick}
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          className="p-2 rounded-full bg-white/90 hover:bg-white dark:bg-gray-800/90 dark:hover:bg-gray-800 border border-primary/50 hover:border-primary transition-all duration-300 shadow-lg hover:shadow-xl"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            setNewName(currentName);
+            setIsOpen(true);
+          }}
         >
           <Edit2 className="h-4 w-4 text-primary" />
-        </Button>
+        </motion.button>
       </DialogTrigger>
       <DialogContent 
         className="sm:max-w-[425px] animate-in fade-in-0 zoom-in-95"
@@ -168,14 +156,22 @@ const WorkerNameEditor = ({ currentName, currentAvatarUrl, workerId, onNameChang
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="flex flex-col items-center gap-6">
-            <div className="relative group">
-              <Avatar className="h-32 w-32 ring-2 ring-offset-2 ring-offset-background transition-all duration-300 group-hover:ring-primary">
+            <motion.div 
+              className="relative group"
+              whileHover={{ scale: 1.02 }}
+            >
+              <Avatar className="h-32 w-32 ring-2 ring-offset-2 ring-offset-background transition-all duration-300 group-hover:ring-primary shadow-lg group-hover:shadow-xl">
                 <AvatarImage src={previewUrl} className="object-cover" />
-                <AvatarFallback className="bg-muted">
-                  <UserRound className="h-16 w-16 text-muted-foreground" />
+                <AvatarFallback className="bg-gradient-to-br from-primary/20 to-primary/10">
+                  <UserRound className="h-16 w-16 text-primary/70" />
                 </AvatarFallback>
               </Avatar>
-              <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2">
+              <motion.div 
+                className="absolute -bottom-2 left-1/2 transform -translate-x-1/2"
+                initial={{ y: 5, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.2 }}
+              >
                 <Input
                   type="file"
                   accept="image/*"
@@ -188,13 +184,13 @@ const WorkerNameEditor = ({ currentName, currentAvatarUrl, workerId, onNameChang
                   variant="outline"
                   size="sm"
                   onClick={() => document.getElementById('avatar-upload')?.click()}
-                  className="shadow-lg hover:shadow-xl transition-all duration-300"
+                  className="shadow-lg hover:shadow-xl transition-all duration-300 bg-white dark:bg-gray-800"
                 >
                   <Upload className="h-4 w-4 ml-2" />
                   העלה תמונה
                 </Button>
-              </div>
-            </div>
+              </motion.div>
+            </motion.div>
           </div>
           <div className="space-y-2">
             <Input
