@@ -34,6 +34,7 @@ const Login = () => {
           description: "מזהה העובד לא נמצא",
           variant: "destructive",
         });
+        setIsLoading(false);
         return;
       }
 
@@ -51,6 +52,7 @@ const Login = () => {
           description: "סיסמה שגויה",
           variant: "destructive",
         });
+        setIsLoading(false);
         return;
       }
 
