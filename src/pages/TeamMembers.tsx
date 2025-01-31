@@ -62,7 +62,8 @@ const TeamMembers = () => {
           {teamMembers.map((member) => (
             <TeamMemberCard
               key={member.id}
-              id={member.worker_id}
+              id={member.id}
+              workerId={member.worker_id}
               name={member.name}
               avatarUrl={member.avatar_url}
               isEditMode={isEditMode}
