@@ -18,6 +18,7 @@ import { ArrowLeft } from "lucide-react";
 import TaskForm from "@/components/TaskForm";
 import TaskList from "@/components/TaskList";
 import DateRangeSelector from "@/components/task/DateRangeSelector";
+import { NavMenu } from "@/components/NavMenu";
 
 const Index = () => {
   const { workerId } = useParams();
@@ -105,6 +106,7 @@ const Index = () => {
         animate={{ opacity: 1 }}
         className="scroll-container safe-area-top safe-area-bottom min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300"
       >
+        <NavMenu />
         <div className="container mx-auto px-4 py-6 max-w-4xl">
           <div className="flex items-center justify-between mb-6">
             <Button 
