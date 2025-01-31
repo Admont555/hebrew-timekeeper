@@ -22,7 +22,7 @@ const RandomQuote = () => {
       const { data, error: supabaseError } = await supabase
         .from("quotes")
         .select("content, author")
-        .order('RANDOM()')
+        .order('random()')  // Changed from 'RANDOM()' to 'random()'
         .limit(1);
 
       if (supabaseError) {
