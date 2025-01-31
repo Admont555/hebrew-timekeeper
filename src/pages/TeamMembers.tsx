@@ -1,11 +1,15 @@
 import { motion } from "framer-motion";
 import TeamMemberCard from "@/components/team/TeamMemberCard";
 import TeamMemberManager from "@/components/team/TeamMemberManager";
-import { Users } from "lucide-react";
+import { Users, Edit2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
 
 const TeamMembers = () => {
+  const [isEditMode, setIsEditMode] = useState(false);
+  
   const { data: teamMembers = [], refetch } = useQuery({
     queryKey: ['team-members'],
     queryFn: async () => {
@@ -32,10 +36,20 @@ const TeamMembers = () => {
             <h1 className="text-4xl font-bold">צוות העבודה שלנו</h1>
           </div>
           <p className="text-muted-foreground mb-6">בחר חבר צוות כדי לצפות במשימות שלו</p>
-          <TeamMemberManager 
-            onMemberAdded={refetch}
-            onMemberDeleted={refetch}
-          />
+          <div className="flex justify-center gap-4">
+            <TeamMemberManager 
+              onMemberAdded={refetch}
+              onMemberDeleted={refetch}
+            />
+            <Button
+              variant={isEditMode ? "destructive" : "outline"}
+              onClick={() => setIsEditMode(!isEditMode)}
+              className="gap-2"
+            >
+              <Edit2 className="h-4 w-4" />
+              {isEditMode ? "סיום עריכה" : "ערוך חברי צוות"}
+            </Button>
+          </div>
         </motion.div>
 
         <motion.div 
@@ -50,6 +64,8 @@ const TeamMembers = () => {
               id={member.worker_id}
               name={member.name}
               avatarUrl={member.avatar_url}
+              isEditMode={isEditMode}
+              onDelete={refetch}
             />
           ))}
         </motion.div>
