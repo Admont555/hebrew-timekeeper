@@ -1,12 +1,23 @@
 import { motion } from "framer-motion";
 import TeamMemberCard from "@/components/team/TeamMemberCard";
+import TeamMemberManager from "@/components/team/TeamMemberManager";
 import { Users } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
 
 const TeamMembers = () => {
-  const teamMembers = [
-    { id: "worker1", name: "עובד 1" },
-    { id: "worker2", name: "עובד 2" },
-  ];
+  const { data: teamMembers = [], refetch } = useQuery({
+    queryKey: ['team-members'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('team_members')
+        .select('*')
+        .order('created_at', { ascending: true });
+
+      if (error) throw error;
+      return data;
+    },
+  });
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
@@ -20,7 +31,11 @@ const TeamMembers = () => {
             <Users className="h-8 w-8 text-primary" />
             <h1 className="text-4xl font-bold">צוות העבודה שלנו</h1>
           </div>
-          <p className="text-muted-foreground">בחר חבר צוות כדי לצפות במשימות שלו</p>
+          <p className="text-muted-foreground mb-6">בחר חבר צוות כדי לצפות במשימות שלו</p>
+          <TeamMemberManager 
+            onMemberAdded={refetch}
+            onMemberDeleted={refetch}
+          />
         </motion.div>
 
         <motion.div 
@@ -32,8 +47,9 @@ const TeamMembers = () => {
           {teamMembers.map((member) => (
             <TeamMemberCard
               key={member.id}
-              id={member.id}
+              id={member.worker_id}
               name={member.name}
+              avatarUrl={member.avatar_url}
             />
           ))}
         </motion.div>
