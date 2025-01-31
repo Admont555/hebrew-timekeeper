@@ -21,11 +21,17 @@ const App = () => {
 
   useEffect(() => {
     // Check current session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setIsAuthenticated(!!session);
-      setCurrentUser(session?.user?.email || null);
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      const isAuth = !!session;
+      const userEmail = session?.user?.email || null;
+      
+      setIsAuthenticated(isAuth);
+      setCurrentUser(userEmail);
       setIsLoading(false);
-    });
+    };
+
+    checkSession();
 
     // Listen for auth changes
     const {
@@ -46,7 +52,7 @@ const App = () => {
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [toast]);
 
   if (isLoading) {
     return null; // or a loading spinner
@@ -62,13 +68,19 @@ const App = () => {
             <Routes>
               <Route 
                 path="/login" 
-                element={isAuthenticated ? <Navigate to="/" /> : <Login />} 
+                element={
+                  isAuthenticated ? (
+                    <Navigate to={`/member/${currentUser}`} replace />
+                  ) : (
+                    <Login />
+                  )
+                } 
               />
               <Route 
                 path="/" 
                 element={
                   !isAuthenticated ? (
-                    <Navigate to="/login" />
+                    <Navigate to="/login" replace />
                   ) : currentUser ? (
                     <Navigate to={`/member/${currentUser}`} replace />
                   ) : (
@@ -78,7 +90,13 @@ const App = () => {
               />
               <Route 
                 path="/member/:workerId" 
-                element={isAuthenticated ? <Index /> : <Navigate to="/login" />} 
+                element={
+                  !isAuthenticated ? (
+                    <Navigate to="/login" replace />
+                  ) : (
+                    <Index />
+                  )
+                } 
               />
             </Routes>
           </BrowserRouter>
