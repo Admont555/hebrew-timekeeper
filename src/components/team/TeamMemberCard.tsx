@@ -27,30 +27,37 @@ const TeamMemberCard = ({ id, name, avatarUrl }: TeamMemberCardProps) => {
   };
 
   return (
-    <Link to={`/member/${id}`}>
-      <motion.div
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        className="cursor-pointer"
+    <div className="relative">
+      <Link to={`/member/${id}`}>
+        <motion.div
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          className="cursor-pointer"
+        >
+          <Card className="p-6 flex flex-col items-center gap-4 bg-white/80 backdrop-blur-sm dark:bg-gray-800/80 hover:shadow-xl transition-shadow duration-300">
+            <Avatar className="h-24 w-24">
+              <AvatarImage src={avatarUrl} alt={name} />
+              <AvatarFallback>
+                <UserRound className="h-12 w-12" />
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex items-center gap-2 group">
+              <h3 className="text-xl font-semibold text-center">{name}</h3>
+            </div>
+          </Card>
+        </motion.div>
+      </Link>
+      <div 
+        className="absolute top-6 right-6"
+        onClick={(e) => e.stopPropagation()}
       >
-        <Card className="p-6 flex flex-col items-center gap-4 bg-white/80 backdrop-blur-sm dark:bg-gray-800/80 hover:shadow-xl transition-shadow duration-300">
-          <Avatar className="h-24 w-24">
-            <AvatarImage src={avatarUrl} alt={name} />
-            <AvatarFallback>
-              <UserRound className="h-12 w-12" />
-            </AvatarFallback>
-          </Avatar>
-          <div className="flex items-center gap-2 group">
-            <h3 className="text-xl font-semibold text-center">{name}</h3>
-            <WorkerNameEditor
-              currentName={name}
-              workerId={id}
-              onNameChange={handleNameChange}
-            />
-          </div>
-        </Card>
-      </motion.div>
-    </Link>
+        <WorkerNameEditor
+          currentName={name}
+          workerId={id}
+          onNameChange={handleNameChange}
+        />
+      </div>
+    </div>
   );
 };
 
