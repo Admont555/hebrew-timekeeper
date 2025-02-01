@@ -62,8 +62,41 @@ export type Database = {
         }
         Relationships: []
       }
+      task_templates: {
+        Row: {
+          created_at: string | null
+          created_by: string
+          duration: number | null
+          id: string
+          is_public: boolean | null
+          priority: string | null
+          title: string
+        }
+        Insert: {
+          created_at?: string | null
+          created_by: string
+          duration?: number | null
+          id?: string
+          is_public?: boolean | null
+          priority?: string | null
+          title: string
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string
+          duration?: number | null
+          id?: string
+          is_public?: boolean | null
+          priority?: string | null
+          title?: string
+        }
+        Relationships: []
+      }
       tasks: {
         Row: {
+          archived_at: string | null
+          archived_by: string | null
+          attachments: Json[] | null
           comments: string[] | null
           completed: boolean | null
           date: string | null
@@ -80,6 +113,9 @@ export type Database = {
           worker: string
         }
         Insert: {
+          archived_at?: string | null
+          archived_by?: string | null
+          attachments?: Json[] | null
           comments?: string[] | null
           completed?: boolean | null
           date?: string | null
@@ -96,6 +132,9 @@ export type Database = {
           worker?: string
         }
         Update: {
+          archived_at?: string | null
+          archived_by?: string | null
+          attachments?: Json[] | null
           comments?: string[] | null
           completed?: boolean | null
           date?: string | null
@@ -136,6 +175,44 @@ export type Database = {
           worker_id?: string
         }
         Relationships: []
+      }
+      time_logs: {
+        Row: {
+          created_at: string | null
+          duration: number | null
+          end_time: string | null
+          id: string
+          start_time: string
+          task_id: string
+          worker: string
+        }
+        Insert: {
+          created_at?: string | null
+          duration?: number | null
+          end_time?: string | null
+          id?: string
+          start_time: string
+          task_id: string
+          worker: string
+        }
+        Update: {
+          created_at?: string | null
+          duration?: number | null
+          end_time?: string | null
+          id?: string
+          start_time?: string
+          task_id?: string
+          worker?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "time_logs_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
