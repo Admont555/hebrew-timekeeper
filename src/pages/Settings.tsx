@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,12 +10,78 @@ import { supabase } from "@/integrations/supabase/client";
 import { motion } from "framer-motion";
 
 const colorSchemes = [
-  { name: 'סגול בהיר', value: '#9b87f5' },
-  { name: 'סגול כהה', value: '#7E69AB' },
-  { name: 'סגול רך', value: '#E5DEFF' },
-  { name: 'ירוק רך', value: '#F2FCE2' },
-  { name: 'כתום רך', value: '#FEC6A1' },
-  { name: 'ורוד רך', value: '#FFDEE2' },
+  { 
+    name: 'סגול בהיר',
+    value: '#9b87f5',
+    variables: {
+      '--primary': '255 100% 98%',
+      '--primary-foreground': '222.2 47.4% 11.2%',
+      '--secondary': '217.2 32.6% 17.5%',
+      '--accent': '217.2 32.6% 17.5%',
+      '--muted': '217.2 32.6% 17.5%',
+      '--border': '214.3 31.8% 91.4%',
+    }
+  },
+  { 
+    name: 'סגול כהה',
+    value: '#7E69AB',
+    variables: {
+      '--primary': '262 40% 55%',
+      '--primary-foreground': '0 0% 100%',
+      '--secondary': '262 30% 45%',
+      '--accent': '262 35% 50%',
+      '--muted': '262 20% 85%',
+      '--border': '262 30% 80%',
+    }
+  },
+  { 
+    name: 'סגול רך',
+    value: '#E5DEFF',
+    variables: {
+      '--primary': '252 100% 94%',
+      '--primary-foreground': '252 40% 30%',
+      '--secondary': '252 30% 85%',
+      '--accent': '252 35% 90%',
+      '--muted': '252 20% 95%',
+      '--border': '252 30% 90%',
+    }
+  },
+  { 
+    name: 'ירוק רך',
+    value: '#F2FCE2',
+    variables: {
+      '--primary': '90 80% 94%',
+      '--primary-foreground': '90 40% 30%',
+      '--secondary': '90 30% 85%',
+      '--accent': '90 35% 90%',
+      '--muted': '90 20% 95%',
+      '--border': '90 30% 90%',
+    }
+  },
+  { 
+    name: 'כתום רך',
+    value: '#FEC6A1',
+    variables: {
+      '--primary': '24 98% 82%',
+      '--primary-foreground': '24 40% 30%',
+      '--secondary': '24 30% 75%',
+      '--accent': '24 35% 80%',
+      '--muted': '24 20% 90%',
+      '--border': '24 30% 85%',
+    }
+  },
+  { 
+    name: 'ורוד רך',
+    value: '#FFDEE2',
+    variables: {
+      '--primary': '352 100% 94%',
+      '--primary-foreground': '352 40% 30%',
+      '--secondary': '352 30% 85%',
+      '--accent': '352 35% 90%',
+      '--muted': '352 20% 95%',
+      '--border': '352 30% 90%',
+    }
+  },
 ];
 
 export default function Settings() {
@@ -67,11 +133,27 @@ export default function Settings() {
 
   const handleColorSchemeChange = (color: string) => {
     setSelectedColor(color);
-    // Here you would implement the logic to apply the color scheme
-    toast({
-      title: "ערכת הצבעים עודכנה",
-    });
+    const scheme = colorSchemes.find(s => s.value === color);
+    if (scheme) {
+      Object.entries(scheme.variables).forEach(([key, value]) => {
+        document.documentElement.style.setProperty(key, value);
+      });
+      toast({
+        title: "ערכת הצבעים עודכנה",
+        description: `נבחרה ערכת הצבעים: ${scheme.name}`,
+      });
+    }
   };
+
+  // Apply initial color scheme
+  useEffect(() => {
+    const scheme = colorSchemes.find(s => s.value === selectedColor);
+    if (scheme) {
+      Object.entries(scheme.variables).forEach(([key, value]) => {
+        document.documentElement.style.setProperty(key, value);
+      });
+    }
+  }, []);
 
   return (
     <div className="container mx-auto p-6 min-h-screen bg-background">
@@ -124,10 +206,13 @@ export default function Settings() {
                 <button
                   key={scheme.value}
                   onClick={() => handleColorSchemeChange(scheme.value)}
-                  className={`h-20 rounded-lg transition-all ${
-                    selectedColor === scheme.value ? 'ring-2 ring-primary' : ''
+                  className={`h-20 rounded-lg transition-all hover:scale-105 ${
+                    selectedColor === scheme.value ? 'ring-4 ring-primary shadow-lg' : ''
                   }`}
-                  style={{ backgroundColor: scheme.value }}
+                  style={{ 
+                    background: scheme.value,
+                    boxShadow: selectedColor === scheme.value ? `0 0 15px ${scheme.value}80` : 'none'
+                  }}
                 >
                   <span className="sr-only">{scheme.name}</span>
                 </button>
