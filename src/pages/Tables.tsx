@@ -42,14 +42,14 @@ export default function Tables() {
       queryClient.invalidateQueries({ queryKey: ["tables"] });
       setNewTableName("");
       toast({
-        title: "Table created",
-        description: "New table has been created successfully.",
+        title: "הטבלה נוצרה",
+        description: "הטבלה החדשה נוצרה בהצלחה",
       });
     },
     onError: () => {
       toast({
-        title: "Error",
-        description: "Failed to create table.",
+        title: "שגיאה",
+        description: "לא הצלחנו ליצור את הטבלה",
         variant: "destructive",
       });
     },
@@ -68,22 +68,22 @@ export default function Tables() {
   };
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <div>טוען...</div>;
   }
 
   return (
     <div className="container mx-auto p-6">
-      <div className="flex items-center justify-between mb-8">
-        <h1 className="text-4xl font-bold">Tables</h1>
-        <form onSubmit={handleCreateTable} className="flex gap-4">
+      <div className="flex flex-col items-center mb-8 space-y-4">
+        <h1 className="text-4xl font-bold">טבלאות</h1>
+        <form onSubmit={handleCreateTable} className="flex gap-4 w-full max-w-md">
           <Input
-            placeholder="Enter table name"
+            placeholder="הכנס שם טבלה"
             value={newTableName}
             onChange={(e) => setNewTableName(e.target.value)}
-            className="w-64"
+            className="flex-1"
           />
           <Button type="submit" disabled={!newTableName.trim()}>
-            <Plus className="mr-2 h-4 w-4" /> Add Table
+            <Plus className="mr-2 h-4 w-4" /> הוסף טבלה
           </Button>
         </form>
       </div>
