@@ -1,6 +1,13 @@
 import { Button } from "@/components/ui/button";
-import { Pencil, Trash2, MessageSquare } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Task } from "@/types/task";
+import { MoreVertical, Pencil, Trash2, MessageSquare } from "lucide-react";
+import SaveAsTemplate from "./SaveAsTemplate";
 
 interface TaskActionsProps {
   task: Task;
@@ -11,42 +18,28 @@ interface TaskActionsProps {
 
 const TaskActions = ({ task, onDelete, onEdit, onToggleComments }: TaskActionsProps) => {
   return (
-    <div className="flex gap-2">
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={() => onDelete(task.id)}
-        className="h-8 w-8 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors duration-200"
-        aria-label="מחק משימה"
-      >
-        <Trash2 className="h-4 w-4 text-red-500" />
-      </Button>
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={() => onEdit(task)}
-        className="h-8 w-8 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors duration-200"
-        aria-label="ערוך משימה"
-      >
-        <Pencil className="h-4 w-4 text-blue-500" />
-      </Button>
-      <div className="relative">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={onToggleComments}
-          className="h-8 w-8 hover:bg-purple-100 dark:hover:bg-purple-900/30 transition-colors duration-200"
-          aria-label="הצג/הסתר תגובות"
-        >
-          <MessageSquare className="h-4 w-4 text-purple-500" />
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" className="h-8 w-8 p-0">
+          <MoreVertical className="h-4 w-4" />
         </Button>
-        {task.comments && task.comments.length > 0 && (
-          <span className="absolute -top-1 left-5 bg-purple-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
-            {task.comments.length}
-          </span>
-        )}
-      </div>
-    </div>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem onClick={() => onEdit(task)}>
+          <Pencil className="h-4 w-4 mr-2" />
+          ערוך
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => onDelete(task.id)}>
+          <Trash2 className="h-4 w-4 mr-2" />
+          מחק
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={onToggleComments}>
+          <MessageSquare className="h-4 w-4 mr-2" />
+          תגובות
+        </DropdownMenuItem>
+        <SaveAsTemplate task={task} />
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 };
 
