@@ -73,9 +73,9 @@ const App = () => {
                     <SidebarProvider defaultOpen={sidebarOpen} onOpenChange={setSidebarOpen}>
                       <div className="min-h-screen flex w-full flex-row-reverse bg-gradient-to-br from-purple-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
                         <Button
-                          variant="ghost"
+                          variant="outline"
                           size="icon"
-                          className="fixed top-4 right-4 z-50 hover:bg-purple-100 dark:hover:bg-purple-900/20"
+                          className="fixed top-4 right-4 z-50 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-md hover:bg-purple-100 dark:hover:bg-purple-900/20 border border-purple-200 dark:border-purple-800"
                           onClick={toggleSidebar}
                         >
                           <Menu className="h-5 w-5 text-purple-600 dark:text-purple-400" />
