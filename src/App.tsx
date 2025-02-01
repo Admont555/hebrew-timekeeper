@@ -5,9 +5,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import TeamMembers from "./pages/TeamMembers";
-import Reports from "./pages/Reports";
-import Templates from "./pages/Templates";
 import Settings from "./pages/Settings";
+import Tables from "./pages/Tables";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import { useEffect, useState } from "react";
@@ -95,12 +94,8 @@ const App = () => {
                 element={isAuthenticated ? <Index /> : <Navigate to="/login" />} 
               />
               <Route 
-                path="/reports" 
-                element={isAuthenticated ? <Reports /> : <Navigate to="/login" />} 
-              />
-              <Route 
-                path="/templates" 
-                element={isAuthenticated ? <Templates /> : <Navigate to="/login" />} 
+                path="/tables" 
+                element={isAuthenticated ? <Tables /> : <Navigate to="/login" />} 
               />
               <Route 
                 path="/settings" 
