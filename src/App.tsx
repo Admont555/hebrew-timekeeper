@@ -14,6 +14,7 @@ import { useToast } from "./hooks/use-toast";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { motion, AnimatePresence } from "framer-motion";
 
 const queryClient = new QueryClient();
 
@@ -72,15 +73,23 @@ const App = () => {
                   isAuthenticated ? (
                     <SidebarProvider defaultOpen={sidebarOpen} onOpenChange={setSidebarOpen}>
                       <div className="min-h-screen flex w-full flex-row-reverse bg-gradient-to-br from-purple-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          className="fixed top-4 right-4 z-50 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-md hover:bg-purple-100 dark:hover:bg-purple-900/20 border border-purple-200 dark:border-purple-800"
-                          onClick={toggleSidebar}
-                        >
-                          <Menu className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-                          <span className="sr-only">Toggle Sidebar</span>
-                        </Button>
+                        <AnimatePresence>
+                          <motion.div
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ duration: 0.2 }}
+                          >
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              className="fixed top-4 right-4 z-50 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg hover:shadow-purple-200/50 dark:hover:shadow-purple-900/50 hover:bg-purple-50 dark:hover:bg-purple-900/20 border border-purple-200 dark:border-purple-800 transition-all duration-200 hover:scale-110 active:scale-95"
+                              onClick={toggleSidebar}
+                            >
+                              <Menu className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                              <span className="sr-only">Toggle Sidebar</span>
+                            </Button>
+                          </motion.div>
+                        </AnimatePresence>
                         <TeamMembers />
                       </div>
                     </SidebarProvider>
