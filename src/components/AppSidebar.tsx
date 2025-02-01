@@ -1,10 +1,15 @@
-import { useSidebar } from "@/components/ui/sidebar";
-import { Menu } from "lucide-react";
 import { motion } from "framer-motion";
+import { Menu } from "lucide-react";
+import { useState } from "react";
+import { useLocation } from "react-router-dom";
 
 export function AppSidebar() {
-  const { state, toggleSidebar } = useSidebar();
-  const isOpen = state === "expanded";
+  const [isOpen, setIsOpen] = useState(false);
+  const location = useLocation();
+
+  const toggleSidebar = () => {
+    setIsOpen(!isOpen);
+  };
 
   return (
     <>
