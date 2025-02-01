@@ -41,6 +41,10 @@ const TaskItem = ({ task, onToggleTask, onTaskComplete, onDeleteTask, onEdit }: 
     task.comments = newComments;
   };
 
+  const handleAttachmentsUpdate = (newAttachments: { name: string; url: string }[]) => {
+    task.attachments = newAttachments;
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -92,6 +96,8 @@ const TaskItem = ({ task, onToggleTask, onTaskComplete, onDeleteTask, onEdit }: 
           taskId={task.id}
           comments={task.comments || []}
           onCommentsUpdate={handleCommentsUpdate}
+          attachments={task.attachments || []}
+          onAttachmentsUpdate={handleAttachmentsUpdate}
         />
       )}
     </motion.div>
