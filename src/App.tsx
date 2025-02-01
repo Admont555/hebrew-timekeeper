@@ -4,14 +4,12 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "@/components/ThemeProvider";
-import { SidebarProvider } from "@/components/ui/sidebar";
 import TeamMembers from "./pages/TeamMembers";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import { useEffect, useState } from "react";
 import { supabase } from "./integrations/supabase/client";
 import { useToast } from "./hooks/use-toast";
-import { AppSidebar } from "./components/AppSidebar";
 
 const queryClient = new QueryClient();
 
@@ -44,38 +42,31 @@ const App = () => {
   }, []);
 
   if (isLoading) {
-    return null;
+    return null; // or a loading spinner
   }
 
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <TooltipProvider>
-          <SidebarProvider>
-            <div className="min-h-screen flex w-full">
-              {isAuthenticated && <AppSidebar />}
-              <div className="flex-1">
-                <Toaster />
-                <Sonner />
-                <BrowserRouter>
-                  <Routes>
-                    <Route 
-                      path="/login" 
-                      element={isAuthenticated ? <Navigate to="/" /> : <Login />} 
-                    />
-                    <Route 
-                      path="/" 
-                      element={isAuthenticated ? <TeamMembers /> : <Navigate to="/login" />} 
-                    />
-                    <Route 
-                      path="/member/:workerId" 
-                      element={isAuthenticated ? <Index /> : <Navigate to="/login" />} 
-                    />
-                  </Routes>
-                </BrowserRouter>
-              </div>
-            </div>
-          </SidebarProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              <Route 
+                path="/login" 
+                element={isAuthenticated ? <Navigate to="/" /> : <Login />} 
+              />
+              <Route 
+                path="/" 
+                element={isAuthenticated ? <TeamMembers /> : <Navigate to="/login" />} 
+              />
+              <Route 
+                path="/member/:workerId" 
+                element={isAuthenticated ? <Index /> : <Navigate to="/login" />} 
+              />
+            </Routes>
+          </BrowserRouter>
         </TooltipProvider>
       </ThemeProvider>
     </QueryClientProvider>
