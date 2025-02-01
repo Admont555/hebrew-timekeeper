@@ -3,24 +3,73 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { useTheme } from "@/components/ThemeProvider";
-import { Settings2, Bell, Monitor, Users } from "lucide-react";
+import { Settings2, KeyRound, Palette } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { motion } from "framer-motion";
+
+const colorSchemes = [
+  { name: 'סגול בהיר', value: '#9b87f5' },
+  { name: 'סגול כהה', value: '#7E69AB' },
+  { name: 'סגול רך', value: '#E5DEFF' },
+  { name: 'ירוק רך', value: '#F2FCE2' },
+  { name: 'כתום רך', value: '#FEC6A1' },
+  { name: 'ורוד רך', value: '#FFDEE2' },
+];
 
 export default function Settings() {
   const { theme, setTheme } = useTheme();
   const { toast } = useToast();
-  const [emailNotifications, setEmailNotifications] = useState(true);
-  const [pushNotifications, setPushNotifications] = useState(true);
+  const [appTitle, setAppTitle] = useState("מעקב משימות");
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [selectedColor, setSelectedColor] = useState(colorSchemes[0].value);
 
-  const handleSaveSettings = () => {
+  const handleLogoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const { data, error } = await supabase.storage
+        .from('avatars')
+        .upload(`app-logo-${Date.now()}`, file);
+
+      if (error) {
+        toast({
+          title: "שגיאה בהעלאת הלוגו",
+          description: error.message,
+        });
+      } else {
+        toast({
+          title: "הלוגו הועלה בהצלחה",
+        });
+      }
+    }
+  };
+
+  const handlePasswordChange = async () => {
+    const { error } = await supabase.auth.updateUser({
+      password: newPassword
+    });
+
+    if (error) {
+      toast({
+        title: "שגיאה בעדכון הסיסמה",
+        description: error.message,
+      });
+    } else {
+      toast({
+        title: "הסיסמה עודכנה בהצלחה",
+      });
+      setCurrentPassword("");
+      setNewPassword("");
+    }
+  };
+
+  const handleColorSchemeChange = (color: string) => {
+    setSelectedColor(color);
+    // Here you would implement the logic to apply the color scheme
     toast({
-      title: "הגדרות נשמרו",
-      description: "השינויים שביצעת נשמרו בהצלחה",
+      title: "ערכת הצבעים עודכנה",
     });
   };
 
@@ -36,106 +85,85 @@ export default function Settings() {
           <h1 className="text-4xl font-bold">הגדרות</h1>
         </div>
 
-        <Tabs defaultValue="profile" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 lg:w-[400px]">
-            <TabsTrigger value="profile">פרופיל</TabsTrigger>
-            <TabsTrigger value="notifications">התראות</TabsTrigger>
-            <TabsTrigger value="display">תצוגה</TabsTrigger>
-            <TabsTrigger value="team">צוות</TabsTrigger>
-          </TabsList>
+        <div className="space-y-6">
+          {/* App Title and Logo Section */}
+          <Card className="p-6">
+            <h2 className="text-2xl font-semibold mb-4">הגדרות כלליות</h2>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="appTitle">כותרת האפליקציה</Label>
+                <Input
+                  id="appTitle"
+                  value={appTitle}
+                  onChange={(e) => setAppTitle(e.target.value)}
+                  className="max-w-md"
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="logo">לוגו</Label>
+                <Input
+                  id="logo"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleLogoUpload}
+                  className="max-w-md"
+                />
+              </div>
+            </div>
+          </Card>
 
-          <TabsContent value="profile">
-            <Card className="p-6">
-              <h2 className="text-2xl font-semibold mb-4">הגדרות פרופיל</h2>
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="name">שם</Label>
-                  <Input id="name" placeholder="השם שלך" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="email">אימייל</Label>
-                  <Input id="email" type="email" placeholder="האימייל שלך" />
-                </div>
-                <Button onClick={handleSaveSettings}>שמור שינויים</Button>
-              </div>
-            </Card>
-          </TabsContent>
+          {/* Color Scheme Section */}
+          <Card className="p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <Palette className="h-6 w-6" />
+              <h2 className="text-2xl font-semibold">ערכת צבעים</h2>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              {colorSchemes.map((scheme) => (
+                <button
+                  key={scheme.value}
+                  onClick={() => handleColorSchemeChange(scheme.value)}
+                  className={`h-20 rounded-lg transition-all ${
+                    selectedColor === scheme.value ? 'ring-2 ring-primary' : ''
+                  }`}
+                  style={{ backgroundColor: scheme.value }}
+                >
+                  <span className="sr-only">{scheme.name}</span>
+                </button>
+              ))}
+            </div>
+          </Card>
 
-          <TabsContent value="notifications">
-            <Card className="p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <Bell className="h-6 w-6" />
-                <h2 className="text-2xl font-semibold">הגדרות התראות</h2>
+          {/* Password Change Section */}
+          <Card className="p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <KeyRound className="h-6 w-6" />
+              <h2 className="text-2xl font-semibold">שינוי סיסמה</h2>
+            </div>
+            <div className="space-y-4 max-w-md">
+              <div className="space-y-2">
+                <Label htmlFor="currentPassword">סיסמה נוכחית</Label>
+                <Input
+                  id="currentPassword"
+                  type="password"
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                />
               </div>
-              <div className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label>התראות אימייל</Label>
-                    <p className="text-sm text-muted-foreground">
-                      קבל התראות על משימות חדשות באימייל
-                    </p>
-                  </div>
-                  <Switch
-                    checked={emailNotifications}
-                    onCheckedChange={setEmailNotifications}
-                  />
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label>התראות דחיפה</Label>
-                    <p className="text-sm text-muted-foreground">
-                      קבל התראות על משימות חדשות בדפדפן
-                    </p>
-                  </div>
-                  <Switch
-                    checked={pushNotifications}
-                    onCheckedChange={setPushNotifications}
-                  />
-                </div>
-                <Button onClick={handleSaveSettings}>שמור הגדרות התראות</Button>
+              <div className="space-y-2">
+                <Label htmlFor="newPassword">סיסמה חדשה</Label>
+                <Input
+                  id="newPassword"
+                  type="password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                />
               </div>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="display">
-            <Card className="p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <Monitor className="h-6 w-6" />
-                <h2 className="text-2xl font-semibold">הגדרות תצוגה</h2>
-              </div>
-              <div className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label>מצב כהה</Label>
-                    <p className="text-sm text-muted-foreground">
-                      החלף בין מצב בהיר לכהה
-                    </p>
-                  </div>
-                  <Switch
-                    checked={theme === "dark"}
-                    onCheckedChange={(checked) => setTheme(checked ? "dark" : "light")}
-                  />
-                </div>
-                <Button onClick={handleSaveSettings}>שמור הגדרות תצוגה</Button>
-              </div>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="team">
-            <Card className="p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <Users className="h-6 w-6" />
-                <h2 className="text-2xl font-semibold">הגדרות צוות</h2>
-              </div>
-              <div className="space-y-4">
-                <p className="text-muted-foreground">
-                  נהל את חברי הצוות והרשאות
-                </p>
-                <Button onClick={handleSaveSettings}>שמור הגדרות צוות</Button>
-              </div>
-            </Card>
-          </TabsContent>
-        </Tabs>
+              <Button onClick={handlePasswordChange}>עדכן סיסמה</Button>
+            </div>
+          </Card>
+        </div>
       </motion.div>
     </div>
   );
