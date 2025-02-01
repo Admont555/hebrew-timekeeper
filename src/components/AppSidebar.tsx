@@ -28,7 +28,7 @@ export function AppSidebar() {
   const location = useLocation();
 
   return (
-    <Sidebar>
+    <Sidebar side="right">
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel>ניווט</SidebarGroupLabel>
@@ -41,8 +41,8 @@ export function AppSidebar() {
                     isActive={location.pathname === item.url}
                     tooltip={item.title}
                   >
-                    <Link to={item.url}>
-                      <item.icon className="h-4 w-4" />
+                    <Link to={item.url} className="flex flex-row-reverse">
+                      <item.icon className="h-4 w-4 ml-2" />
                       <span>{item.title}</span>
                     </Link>
                   </SidebarMenuButton>

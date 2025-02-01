@@ -56,26 +56,28 @@ const App = () => {
           <Sonner />
           <BrowserRouter>
             <SidebarProvider>
-              <div className="min-h-screen flex w-full">
+              <div className="min-h-screen flex w-full flex-row-reverse">
                 {isAuthenticated && <AppSidebar />}
-                <Routes>
-                  <Route 
-                    path="/login" 
-                    element={isAuthenticated ? <Navigate to="/" /> : <Login />} 
-                  />
-                  <Route 
-                    path="/" 
-                    element={isAuthenticated ? <TeamMembers /> : <Navigate to="/login" />} 
-                  />
-                  <Route 
-                    path="/table-creation" 
-                    element={isAuthenticated ? <TableCreation /> : <Navigate to="/login" />} 
-                  />
-                  <Route 
-                    path="/member/:workerId" 
-                    element={isAuthenticated ? <Index /> : <Navigate to="/login" />} 
-                  />
-                </Routes>
+                <main className="flex-1">
+                  <Routes>
+                    <Route 
+                      path="/login" 
+                      element={isAuthenticated ? <Navigate to="/" /> : <Login />} 
+                    />
+                    <Route 
+                      path="/" 
+                      element={isAuthenticated ? <TeamMembers /> : <Navigate to="/login" />} 
+                    />
+                    <Route 
+                      path="/table-creation" 
+                      element={isAuthenticated ? <TableCreation /> : <Navigate to="/login" />} 
+                    />
+                    <Route 
+                      path="/member/:workerId" 
+                      element={isAuthenticated ? <Index /> : <Navigate to="/login" />} 
+                    />
+                  </Routes>
+                </main>
               </div>
             </SidebarProvider>
           </BrowserRouter>
