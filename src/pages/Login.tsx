@@ -96,10 +96,10 @@ const Login = () => {
 
   return (
     <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-purple-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
-      {/* Animated background shapes */}
+      {/* Animated background shapes with refined colors */}
       <div className="absolute inset-0 overflow-hidden">
         <motion.div
-          className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-400/20 rounded-full mix-blend-multiply filter blur-xl"
+          className="absolute top-1/4 left-1/4 w-96 h-96 bg-[#9b87f5]/20 rounded-full mix-blend-multiply filter blur-xl"
           animate={{
             x: [0, 100, 0],
             y: [0, -100, 0],
@@ -112,7 +112,7 @@ const Login = () => {
           }}
         />
         <motion.div
-          className="absolute top-1/3 right-1/4 w-96 h-96 bg-blue-400/20 rounded-full mix-blend-multiply filter blur-xl"
+          className="absolute top-1/3 right-1/4 w-96 h-96 bg-[#7E69AB]/20 rounded-full mix-blend-multiply filter blur-xl"
           animate={{
             x: [0, -100, 0],
             y: [0, 100, 0],
@@ -125,7 +125,7 @@ const Login = () => {
           }}
         />
         <motion.div
-          className="absolute bottom-1/4 left-1/3 w-96 h-96 bg-pink-400/20 rounded-full mix-blend-multiply filter blur-xl"
+          className="absolute bottom-1/4 left-1/3 w-96 h-96 bg-[#E5DEFF]/30 rounded-full mix-blend-multiply filter blur-xl"
           animate={{
             x: [0, 100, 0],
             y: [0, 100, 0],
@@ -154,9 +154,9 @@ const Login = () => {
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
               >
-                <Users className="h-12 w-12 text-primary animate-gradient bg-gradient-to-r from-purple-600 to-blue-500 rounded-xl p-2 text-white" />
+                <Users className="h-12 w-12 text-white bg-gradient-to-r from-[#9b87f5] to-[#8B5CF6] rounded-xl p-2" />
               </motion.div>
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-blue-500 bg-clip-text text-transparent">התחברות למערכת</h1>
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-[#9b87f5] to-[#8B5CF6] bg-clip-text text-transparent">התחברות למערכת</h1>
               <p className="text-muted-foreground">
                 הזן את פרטי ההתחברות שלך
               </p>
@@ -169,17 +169,17 @@ const Login = () => {
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-foreground/80">אימייל</FormLabel>
+                      <FormLabel className="text-foreground/80 font-medium">אימייל</FormLabel>
                       <FormControl>
                         <Input
                           {...field}
                           type="email"
                           placeholder="הכנס כתובת אימייל"
-                          className="text-right bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm border-0 shadow-sm"
+                          className="text-right bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm border-[#E5DEFF] dark:border-gray-700 shadow-sm hover:border-[#9b87f5] dark:hover:border-[#8B5CF6] transition-colors focus-visible:ring-[#9b87f5] dark:focus-visible:ring-[#8B5CF6]"
                           disabled={isLoading}
                         />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className="text-red-500" />
                     </FormItem>
                   )}
                 />
@@ -189,17 +189,17 @@ const Login = () => {
                   name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-foreground/80">סיסמה</FormLabel>
+                      <FormLabel className="text-foreground/80 font-medium">סיסמה</FormLabel>
                       <FormControl>
                         <Input
                           {...field}
                           type="password"
                           placeholder="הכנס סיסמה"
-                          className="text-right bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm border-0 shadow-sm"
+                          className="text-right bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm border-[#E5DEFF] dark:border-gray-700 shadow-sm hover:border-[#9b87f5] dark:hover:border-[#8B5CF6] transition-colors focus-visible:ring-[#9b87f5] dark:focus-visible:ring-[#8B5CF6]"
                           disabled={isLoading}
                         />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className="text-red-500" />
                     </FormItem>
                   )}
                 />
@@ -213,10 +213,10 @@ const Login = () => {
                         <Checkbox
                           checked={field.value}
                           onCheckedChange={field.onChange}
-                          className="data-[state=checked]:bg-purple-600"
+                          className="border-[#E5DEFF] data-[state=checked]:bg-[#9b87f5] data-[state=checked]:border-[#9b87f5]"
                         />
                       </FormControl>
-                      <FormLabel className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                      <FormLabel className="text-sm font-medium leading-none text-foreground/80">
                         זכור אותי
                       </FormLabel>
                     </FormItem>
@@ -225,7 +225,7 @@ const Login = () => {
 
                 <Button
                   type="submit"
-                  className="w-full bg-gradient-to-r from-purple-600 to-blue-500 hover:from-purple-700 hover:to-blue-600 transition-all duration-300 shadow-lg hover:shadow-xl"
+                  className="w-full bg-gradient-to-r from-[#9b87f5] to-[#8B5CF6] hover:from-[#8B5CF6] hover:to-[#7E69AB] transition-all duration-300 shadow-lg hover:shadow-xl text-white font-medium"
                   disabled={isLoading}
                 >
                   {isLoading ? (
