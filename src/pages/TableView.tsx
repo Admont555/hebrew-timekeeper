@@ -142,7 +142,7 @@ export default function TableView() {
   };
 
   return (
-    <div className="container mx-auto p-6 min-h-screen bg-background/50">
+    <div className="container mx-auto p-6 min-h-screen bg-background/50" dir="rtl">
       <div className="max-w-5xl mx-auto space-y-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -155,7 +155,6 @@ export default function TableView() {
           <p className="text-muted-foreground">נהל את הטבלה שלך</p>
         </motion.div>
 
-        {/* Add Column Form */}
         <Card className="p-6 shadow-sm">
           <form onSubmit={handleAddColumn} className="flex flex-col items-center gap-4">
             <div className="flex w-full max-w-sm gap-4">
@@ -163,22 +162,21 @@ export default function TableView() {
                 placeholder="שם העמודה החדשה"
                 value={newColumnName}
                 onChange={(e) => setNewColumnName(e.target.value)}
-                className="flex-1"
+                className="flex-1 text-right"
+                dir="rtl"
               />
               <Button type="submit" disabled={!newColumnName.trim()}>
-                <Plus className="mr-2 h-4 w-4" /> הוסף עמודה
+                <Plus className="ml-2 h-4 w-4" /> הוסף עמודה
               </Button>
             </div>
           </form>
         </Card>
 
-        {/* Table Content */}
         <Card className="overflow-hidden">
           <ScrollArea className="h-[500px]">
             <div className="p-4">
               {columns.length > 0 ? (
                 <div className="space-y-4">
-                  {/* Column Headers */}
                   <div 
                     className="grid gap-4" 
                     style={{ gridTemplateColumns: `repeat(${columns.length + 1}, minmax(150px, 1fr))` }}
@@ -189,7 +187,6 @@ export default function TableView() {
                         layout
                         className="flex items-center justify-between bg-primary/5 p-3 rounded-md transition-colors hover:bg-primary/10"
                       >
-                        <span className="font-medium">{column.name}</span>
                         <Button
                           variant="ghost"
                           size="icon"
@@ -198,6 +195,7 @@ export default function TableView() {
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
+                        <span className="font-medium text-right">{column.name}</span>
                       </motion.div>
                     ))}
                     <div className="bg-primary/5 p-3 rounded-md text-center font-medium">
@@ -205,7 +203,6 @@ export default function TableView() {
                     </div>
                   </div>
 
-                  {/* Rows */}
                   <AnimatePresence>
                     {rows.map((row, index) => (
                       <motion.div
@@ -219,7 +216,8 @@ export default function TableView() {
                         {columns.map((column) => (
                           <div
                             key={column.id}
-                            className="bg-card p-3 rounded-md shadow-sm transition-all hover:shadow-md"
+                            className="bg-card p-3 rounded-md shadow-sm transition-all hover:shadow-md text-right"
+                            dir="rtl"
                           >
                             {row.data[column.id] || "-"}
                           </div>
@@ -237,7 +235,6 @@ export default function TableView() {
                     ))}
                   </AnimatePresence>
 
-                  {/* Add Row Form */}
                   <motion.form
                     initial={false}
                     animate={{ height: "auto" }}
@@ -258,11 +255,12 @@ export default function TableView() {
                               [column.id]: e.target.value,
                             }))
                           }
-                          className="transition-all hover:ring-1 hover:ring-primary/20"
+                          className="transition-all hover:ring-1 hover:ring-primary/20 text-right"
+                          dir="rtl"
                         />
                       ))}
                       <Button type="submit" variant="outline">
-                        <Plus className="mr-2 h-4 w-4" /> הוסף שורה
+                        <Plus className="ml-2 h-4 w-4" /> הוסף שורה
                       </Button>
                     </div>
                   </motion.form>
