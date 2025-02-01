@@ -42,9 +42,6 @@ const Login = () => {
       const { data: { session }, error: signInError } = await supabase.auth.signInWithPassword({
         email: values.email,
         password: values.password,
-        options: {
-          persistSession: true // Always persist the session
-        }
       });
 
       if (signInError) {
