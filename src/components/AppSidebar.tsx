@@ -26,9 +26,7 @@ export function AppSidebar() {
 
   const menuItems = [
     { name: "משימות", path: "/" },
-    { name: "צוות", path: "/team" },
-    { name: "דוחות", path: "/reports" },
-    { name: "תבניות", path: "/templates" },
+    { name: "טבלאות", path: "/tables" },
     { name: "הגדרות", path: "/settings" },
   ];
 
