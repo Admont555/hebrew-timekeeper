@@ -56,9 +56,9 @@ const App = () => {
           <Sonner />
           <BrowserRouter>
             <SidebarProvider>
-              <div className="min-h-screen flex w-full flex-row-reverse">
+              <div className="min-h-screen flex w-full flex-row-reverse bg-gradient-to-br from-purple-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
                 {isAuthenticated && <AppSidebar />}
-                <main className="flex-1">
+                <main className="flex-1 p-6">
                   <Routes>
                     <Route 
                       path="/login" 

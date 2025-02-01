@@ -28,10 +28,16 @@ export function AppSidebar() {
   const location = useLocation();
 
   return (
-    <Sidebar side="right">
+    <Sidebar 
+      side="right" 
+      variant="floating"
+      className="border-l border-sidebar-border bg-white/50 dark:bg-gray-900/50 backdrop-blur-lg"
+    >
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>ניווט</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-purple-600 dark:text-purple-400 font-semibold">
+            ניווט
+          </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => (
@@ -40,10 +46,11 @@ export function AppSidebar() {
                     asChild
                     isActive={location.pathname === item.url}
                     tooltip={item.title}
+                    className="hover:bg-purple-50 dark:hover:bg-purple-900/20 data-[active=true]:bg-purple-100 dark:data-[active=true]:bg-purple-900/30"
                   >
                     <Link to={item.url} className="flex flex-row-reverse">
-                      <item.icon className="h-4 w-4 ml-2" />
-                      <span>{item.title}</span>
+                      <item.icon className="h-4 w-4 ml-2 text-purple-600 dark:text-purple-400" />
+                      <span className="text-gray-700 dark:text-gray-200">{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
