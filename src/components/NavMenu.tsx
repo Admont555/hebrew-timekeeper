@@ -21,8 +21,8 @@ export function NavMenu() {
   };
 
   const handleToggleMenu = () => {
-    const customEvent = new Event('toggleSidebar');
-    window.dispatchEvent(customEvent);
+    const event = new CustomEvent('toggleSidebar');
+    window.dispatchEvent(event);
   };
 
   return (

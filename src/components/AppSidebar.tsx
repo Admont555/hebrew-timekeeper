@@ -10,7 +10,7 @@ export function AppSidebar() {
 
   useEffect(() => {
     const handleToggle = () => {
-      setIsOpen(prev => !prev);
+      setIsOpen(prevState => !prevState);
     };
 
     window.addEventListener('toggleSidebar', handleToggle);
