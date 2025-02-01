@@ -11,10 +11,14 @@ import {
   TableHead,
   TableHeader,
   TableRow,
+  TableCell,
 } from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
 import { TableHeader as CustomTableHeader } from "@/components/table/TableHeader";
 import { TableRow as CustomTableRow } from "@/components/table/TableRow";
-import { AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
+import type { Json } from "@/integrations/supabase/types";
 
 export default function TableView() {
   const { tableId } = useParams();
@@ -26,6 +30,7 @@ export default function TableView() {
     column?: string;
     direction: 'asc' | 'desc';
   }>({ direction: 'asc' });
+  const [newRowData, setNewRowData] = useState<Record<string, string>>({});
 
   const { data: table } = useQuery({
     queryKey: ["tables", tableId],
@@ -40,7 +45,6 @@ export default function TableView() {
     },
   });
 
-  // Fetch columns
   const { data: columns = [] } = useQuery({
     queryKey: ["table-columns", tableId],
     queryFn: async () => {
@@ -54,7 +58,6 @@ export default function TableView() {
     },
   });
 
-  // Fetch rows
   const { data: rows = [] } = useQuery({
     queryKey: ["table-rows", tableId],
     queryFn: async () => {
@@ -67,7 +70,6 @@ export default function TableView() {
     },
   });
 
-  // Add column mutation
   const addColumnMutation = useMutation({
     mutationFn: async (name: string) => {
       const { data, error } = await supabase
@@ -93,7 +95,6 @@ export default function TableView() {
     },
   });
 
-  // Add row mutation
   const addRowMutation = useMutation({
     mutationFn: async (data: Record<string, string>) => {
       const { data: newRow, error } = await supabase
@@ -119,7 +120,6 @@ export default function TableView() {
     },
   });
 
-  // Delete column mutation
   const deleteColumnMutation = useMutation({
     mutationFn: async (columnId: string) => {
       const { error } = await supabase
@@ -164,6 +164,23 @@ export default function TableView() {
       return aValue.localeCompare(bValue);
     }
     return bValue.localeCompare(aValue);
+  });
+
+  const deleteRowMutation = useMutation({
+    mutationFn: async (rowId: string) => {
+      const { error } = await supabase
+        .from("table_rows")
+        .delete()
+        .eq("id", rowId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["table-rows", tableId] });
+      toast({
+        title: "השורה נמחקה",
+        description: "השורה נמחקה בהצלחה",
+      });
+    },
   });
 
   return (

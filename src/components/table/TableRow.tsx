@@ -1,8 +1,10 @@
+import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { TableCell, TableRow as UITableRow } from "@/components/ui/table";
 import { Trash2 } from "lucide-react";
 import { motion } from "framer-motion";
+import { toast } from "@/hooks/use-toast";
 
 interface TableRowProps {
   columns: Array<{ id: string; name: string }>;
