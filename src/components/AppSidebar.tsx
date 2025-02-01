@@ -31,7 +31,7 @@ export function AppSidebar() {
     <Sidebar 
       side="right" 
       variant="floating"
-      className="border-l border-sidebar-border bg-white/50 dark:bg-gray-900/50 backdrop-blur-lg"
+      className="border-l border-sidebar-border bg-white/50 dark:bg-gray-900/50 backdrop-blur-lg transition-all duration-300 ease-in-out"
     >
       <SidebarContent>
         <SidebarGroup>
