@@ -7,6 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { NavMenu } from "@/components/NavMenu";
+import { AppSidebar } from "@/components/AppSidebar";
 
 const TeamMembers = () => {
   const [isEditMode, setIsEditMode] = useState(false);
@@ -25,54 +26,70 @@ const TeamMembers = () => {
   });
 
   return (
-    <div className="flex-1 bg-gradient-to-br from-purple-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-      <NavMenu />
-      <div className="container mx-auto px-4 py-12">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-12"
-        >
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <Users className="h-8 w-8 text-primary" />
-            <h1 className="text-4xl font-bold">צוות העבודה שלנו</h1>
-          </div>
-          <p className="text-muted-foreground mb-6">בחר חבר צוות כדי לצפות במשימות שלו</p>
-          <div className="flex justify-center gap-4">
-            <TeamMemberManager 
-              onMemberAdded={refetch}
-            />
-            <Button
-              variant={isEditMode ? "destructive" : "outline"}
-              onClick={() => setIsEditMode(!isEditMode)}
-              className="gap-2"
+    <>
+      <AppSidebar />
+      <main className="flex-1 p-8">
+        <NavMenu />
+        <div className="max-w-7xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center mb-16"
+          >
+            <motion.div 
+              initial={{ scale: 0.9 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.2 }}
+              className="inline-flex items-center justify-center p-2 mb-6 rounded-full bg-purple-100 dark:bg-purple-900/30"
             >
-              <Edit2 className="h-4 w-4" />
-              {isEditMode ? "סיום עריכה" : "ערוך חברי צוות"}
-            </Button>
-          </div>
-        </motion.div>
+              <Users className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+            </motion.div>
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-purple-400 bg-clip-text text-transparent mb-4">
+              צוות העבודה שלנו
+            </h1>
+            <p className="text-muted-foreground mb-8 text-lg">
+              בחר חבר צוות כדי לצפות במשימות שלו
+            </p>
+            <div className="flex justify-center gap-4">
+              <TeamMemberManager onMemberAdded={refetch} />
+              <Button
+                variant={isEditMode ? "destructive" : "outline"}
+                onClick={() => setIsEditMode(!isEditMode)}
+                className="gap-2 hover:scale-105 transition-transform"
+              >
+                <Edit2 className="h-4 w-4" />
+                {isEditMode ? "סיום עריכה" : "ערוך חברי צוות"}
+              </Button>
+            </div>
+          </motion.div>
 
-        <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.2 }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto"
-        >
-          {teamMembers.map((member) => (
-            <TeamMemberCard
-              key={member.id}
-              id={member.id}
-              workerId={member.worker_id}
-              name={member.name}
-              avatarUrl={member.avatar_url}
-              isEditMode={isEditMode}
-              onDelete={refetch}
-            />
-          ))}
-        </motion.div>
-      </div>
-    </div>
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 px-4"
+          >
+            {teamMembers.map((member, index) => (
+              <motion.div
+                key={member.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 + 0.4 }}
+              >
+                <TeamMemberCard
+                  id={member.id}
+                  workerId={member.worker_id}
+                  name={member.name}
+                  avatarUrl={member.avatar_url}
+                  isEditMode={isEditMode}
+                  onDelete={refetch}
+                />
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
+      </main>
+    </>
   );
 };
 

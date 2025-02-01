@@ -12,7 +12,6 @@ import { useEffect, useState } from "react";
 import { supabase } from "./integrations/supabase/client";
 import { useToast } from "./hooks/use-toast";
 import { SidebarProvider } from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/AppSidebar";
 
 const queryClient = new QueryClient();
 
@@ -55,31 +54,50 @@ const App = () => {
           <Toaster />
           <Sonner />
           <BrowserRouter>
-            <SidebarProvider>
-              <div className="min-h-screen flex w-full flex-row-reverse bg-gradient-to-br from-purple-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
-                {isAuthenticated && <AppSidebar />}
-                <main className="flex-1 p-6">
-                  <Routes>
-                    <Route 
-                      path="/login" 
-                      element={isAuthenticated ? <Navigate to="/" /> : <Login />} 
-                    />
-                    <Route 
-                      path="/" 
-                      element={isAuthenticated ? <TeamMembers /> : <Navigate to="/login" />} 
-                    />
-                    <Route 
-                      path="/table-creation" 
-                      element={isAuthenticated ? <TableCreation /> : <Navigate to="/login" />} 
-                    />
-                    <Route 
-                      path="/member/:workerId" 
-                      element={isAuthenticated ? <Index /> : <Navigate to="/login" />} 
-                    />
-                  </Routes>
-                </main>
-              </div>
-            </SidebarProvider>
+            <Routes>
+              <Route 
+                path="/login" 
+                element={isAuthenticated ? <Navigate to="/" /> : <Login />} 
+              />
+              <Route 
+                path="/" 
+                element={
+                  isAuthenticated ? (
+                    <SidebarProvider>
+                      <div className="min-h-screen flex w-full flex-row-reverse bg-gradient-to-br from-purple-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
+                        <TeamMembers />
+                      </div>
+                    </SidebarProvider>
+                  ) : (
+                    <Navigate to="/login" />
+                  )
+                } 
+              />
+              <Route 
+                path="/table-creation" 
+                element={
+                  isAuthenticated ? (
+                    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+                      <TableCreation />
+                    </div>
+                  ) : (
+                    <Navigate to="/login" />
+                  )
+                } 
+              />
+              <Route 
+                path="/member/:workerId" 
+                element={
+                  isAuthenticated ? (
+                    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+                      <Index />
+                    </div>
+                  ) : (
+                    <Navigate to="/login" />
+                  )
+                } 
+              />
+            </Routes>
           </BrowserRouter>
         </TooltipProvider>
       </ThemeProvider>
