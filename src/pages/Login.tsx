@@ -12,10 +12,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { NavMenu } from "@/components/NavMenu";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const loginSchema = z.object({
   email: z.string().email("כתובת אימייל לא תקינה"),
   password: z.string().min(1, "סיסמה נדרשת"),
+  rememberMe: z.boolean().default(true),
 });
 
 const Login = () => {
@@ -28,6 +30,7 @@ const Login = () => {
     defaultValues: {
       email: "",
       password: "",
+      rememberMe: true,
     },
   });
 
@@ -39,6 +42,9 @@ const Login = () => {
       const { data: { session }, error: signInError } = await supabase.auth.signInWithPassword({
         email: values.email,
         password: values.password,
+        options: {
+          persistSession: true // Always persist the session
+        }
       });
 
       if (signInError) {
@@ -152,6 +158,24 @@ const Login = () => {
                         />
                       </FormControl>
                       <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="rememberMe"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center space-x-2 space-y-0 rtl:space-x-reverse">
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <FormLabel className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                        זכור אותי
+                      </FormLabel>
                     </FormItem>
                   )}
                 />
