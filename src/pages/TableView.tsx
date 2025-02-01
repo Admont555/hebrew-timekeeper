@@ -146,13 +146,13 @@ export default function TableView() {
   const handleAddRow = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Check if we have values for all columns
-    const hasEmptyValues = columns.some(column => !newRowData[column.id]?.trim());
+    // Check if at least one column has a value
+    const hasAtLeastOneValue = columns.some(column => newRowData[column.id]?.trim());
     
-    if (hasEmptyValues) {
+    if (!hasAtLeastOneValue) {
       toast({
         title: "שגיאה",
-        description: "יש למלא את כל השדות לפני שמירה",
+        description: "יש למלא לפחות שדה אחד",
         variant: "destructive",
       });
       return;
