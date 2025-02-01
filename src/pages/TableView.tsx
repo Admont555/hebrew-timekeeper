@@ -175,7 +175,7 @@ export default function TableView() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["table-rows", tableId] });
-      setNewRowData({});
+      setIsAddingRow(false);
       toast({
         title: "השורה נוספה",
         description: "השורה החדשה נוספה בהצלחה",

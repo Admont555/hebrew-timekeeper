@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { TableCell, TableRow as UITableRow } from "@/components/ui/table";
@@ -27,6 +27,20 @@ export function TableRow({
 }: TableRowProps) {
   const [rowData, setRowData] = useState<Record<string, string>>(data);
   const [isHovered, setIsHovered] = useState(false);
+  const rowRef = useRef<HTMLTableRowElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (rowRef.current && !rowRef.current.contains(event.target as Node) && isEditing) {
+        onCancel?.();
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isEditing, onCancel]);
 
   const handleSave = () => {
     const hasAtLeastOneValue = columns.some(column => rowData[column.id]?.trim());
@@ -43,6 +57,7 @@ export function TableRow({
 
   return (
     <motion.tr
+      ref={rowRef}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
@@ -54,7 +69,7 @@ export function TableRow({
       {columns.map((column) => (
         <TableCell 
           key={column.id} 
-          className="min-w-[200px] cursor-pointer"
+          className="min-w-[200px] cursor-pointer text-right"
           onClick={() => !isEditing && onEdit?.()}
         >
           {isEditing ? (
