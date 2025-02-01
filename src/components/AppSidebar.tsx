@@ -14,7 +14,10 @@ export function AppSidebar() {
     };
 
     window.addEventListener('toggleSidebar', handleToggle);
-    return () => window.removeEventListener('toggleSidebar', handleToggle);
+    
+    return () => {
+      window.removeEventListener('toggleSidebar', handleToggle);
+    };
   }, []);
 
   const toggleSidebar = () => {
