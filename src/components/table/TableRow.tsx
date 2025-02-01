@@ -13,6 +13,7 @@ interface TableRowProps {
   onSave?: (data: Record<string, string>) => void;
   onCancel?: () => void;
   onDelete?: () => void;
+  onEdit?: () => void;
 }
 
 export function TableRow({
@@ -22,8 +23,10 @@ export function TableRow({
   onSave,
   onCancel,
   onDelete,
+  onEdit,
 }: TableRowProps) {
   const [rowData, setRowData] = useState<Record<string, string>>(data);
+  const [isHovered, setIsHovered] = useState(false);
 
   const handleSave = () => {
     const hasAtLeastOneValue = columns.some(column => rowData[column.id]?.trim());
@@ -45,9 +48,15 @@ export function TableRow({
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.2 }}
       className="group hover:bg-muted/50"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
       {columns.map((column) => (
-        <TableCell key={column.id} className="min-w-[200px]">
+        <TableCell 
+          key={column.id} 
+          className="min-w-[200px] cursor-pointer"
+          onClick={() => !isEditing && onEdit?.()}
+        >
           {isEditing ? (
             <Input
               placeholder={`ערך ל${column.name}`}
@@ -62,7 +71,9 @@ export function TableRow({
               dir="rtl"
             />
           ) : (
-            <span>{data[column.id] || "-"}</span>
+            <span className="block w-full hover:bg-muted/50 p-2 rounded transition-colors">
+              {data[column.id] || "-"}
+            </span>
           )}
         </TableCell>
       ))}

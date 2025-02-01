@@ -27,12 +27,12 @@ export default function TableView() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [isAddingRow, setIsAddingRow] = useState(false);
+  const [editingRowId, setEditingRowId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortConfig, setSortConfig] = useState<{
     column?: string;
     direction: 'asc' | 'desc';
   }>({ direction: 'asc' });
-  const [newRowData, setNewRowData] = useState<Record<string, string>>({});
 
   const { data: table } = useQuery({
     queryKey: ["tables", tableId],
@@ -200,6 +200,31 @@ export default function TableView() {
     },
   });
 
+  const editRowMutation = useMutation({
+    mutationFn: async ({ rowId, data }: { rowId: string; data: Record<string, string> }) => {
+      const { error } = await supabase
+        .from("table_rows")
+        .update({ data })
+        .eq("id", rowId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["table-rows", tableId] });
+      setEditingRowId(null);
+      toast({
+        title: "השורה עודכנה",
+        description: "השורה עודכנה בהצלחה",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "שגיאה בעדכון השורה",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   const handleSort = (columnId: string) => {
     setSortConfig(current => ({
       column: columnId,
@@ -303,7 +328,13 @@ export default function TableView() {
                         <CustomTableRow
                           key={row.id}
                           columns={columns}
-                          data={row.data}
+                          data={Object.fromEntries(
+                            Object.entries(row.data as Record<string, string>)
+                          )}
+                          isEditing={editingRowId === row.id}
+                          onEdit={() => setEditingRowId(row.id)}
+                          onSave={(data) => editRowMutation.mutate({ rowId: row.id, data })}
+                          onCancel={() => setEditingRowId(null)}
                           onDelete={() => deleteRowMutation.mutate(row.id)}
                         />
                       ))}
