@@ -12,12 +12,15 @@ import { useEffect, useState } from "react";
 import { supabase } from "./integrations/supabase/client";
 import { useToast } from "./hooks/use-toast";
 import { SidebarProvider } from "@/components/ui/sidebar";
+import { Menu } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const queryClient = new QueryClient();
 
 const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -43,6 +46,10 @@ const App = () => {
     return () => subscription.unsubscribe();
   }, []);
 
+  const toggleSidebar = () => {
+    setSidebarOpen(!sidebarOpen);
+  };
+
   if (isLoading) {
     return null;
   }
@@ -63,8 +70,17 @@ const App = () => {
                 path="/" 
                 element={
                   isAuthenticated ? (
-                    <SidebarProvider>
+                    <SidebarProvider defaultOpen={sidebarOpen} onOpenChange={setSidebarOpen}>
                       <div className="min-h-screen flex w-full flex-row-reverse bg-gradient-to-br from-purple-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="fixed top-4 right-4 z-50 hover:bg-purple-100 dark:hover:bg-purple-900/20"
+                          onClick={toggleSidebar}
+                        >
+                          <Menu className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                          <span className="sr-only">Toggle Sidebar</span>
+                        </Button>
                         <TeamMembers />
                       </div>
                     </SidebarProvider>
