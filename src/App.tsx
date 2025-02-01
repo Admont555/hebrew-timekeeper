@@ -10,6 +10,7 @@ import Login from "./pages/Login";
 import { useEffect, useState } from "react";
 import { supabase } from "./integrations/supabase/client";
 import { useToast } from "./hooks/use-toast";
+import { AppSidebar } from "./components/AppSidebar";
 
 const queryClient = new QueryClient();
 
@@ -52,6 +53,7 @@ const App = () => {
           <Toaster />
           <Sonner />
           <BrowserRouter>
+            {isAuthenticated && <AppSidebar />}
             <Routes>
               <Route 
                 path="/login" 
