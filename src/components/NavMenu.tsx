@@ -20,6 +20,12 @@ export function NavMenu() {
     setTheme(theme === "light" ? "dark" : "light");
   };
 
+  const handleToggleMenu = () => {
+    // Create and dispatch a custom event
+    const event = new CustomEvent('toggleSidebar', { detail: {} });
+    window.dispatchEvent(event);
+  };
+
   return (
     <>
       {/* Menu Icon - Positioned on the right */}
@@ -35,10 +41,7 @@ export function NavMenu() {
               <Button
                 variant="outline"
                 size="icon"
-                onClick={() => {
-                  const event = new CustomEvent('toggleSidebar');
-                  window.dispatchEvent(event);
-                }}
+                onClick={handleToggleMenu}
                 className="hover:bg-accent hover:scale-105 active:scale-95 transition-all duration-200"
                 aria-label="פתח תפריט"
               >

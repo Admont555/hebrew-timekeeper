@@ -4,17 +4,23 @@ import { useState, useEffect } from "react";
 import { useLocation, Link } from "react-router-dom";
 import { Button } from "./ui/button";
 
+// Define the custom event type
+interface CustomEvent extends Event {
+  detail?: any;
+}
+
 export function AppSidebar() {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
 
   useEffect(() => {
-    const handleToggle = () => {
+    const handleToggle = (event: CustomEvent) => {
       setIsOpen(prev => !prev);
     };
 
-    window.addEventListener('toggleSidebar', handleToggle);
-    return () => window.removeEventListener('toggleSidebar', handleToggle);
+    // Add event listener with correct type
+    window.addEventListener('toggleSidebar', handleToggle as EventListener);
+    return () => window.removeEventListener('toggleSidebar', handleToggle as EventListener);
   }, []);
 
   const toggleSidebar = () => {
