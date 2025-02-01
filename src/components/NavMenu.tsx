@@ -21,8 +21,8 @@ export function NavMenu() {
   };
 
   const handleToggleMenu = () => {
-    // Dispatch a custom event that will be caught by the AppSidebar
-    const event = new CustomEvent('toggleSidebar', { detail: { force: true } });
+    // Create and dispatch a custom event to toggle the sidebar
+    const event = new Event('toggleSidebar');
     window.dispatchEvent(event);
   };
 
