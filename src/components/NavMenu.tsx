@@ -23,43 +23,15 @@ export function NavMenu() {
   };
 
   return (
-    <motion.div 
-      initial={{ opacity: 0, y: -20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
-      className="fixed top-4 left-4 z-50 flex items-center gap-2"
-    >
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={toggleTheme}
-              className="hover:bg-accent hover:scale-105 active:scale-95 transition-all duration-200"
-              aria-label={theme === "light" ? "הפעל מצב כהה" : "הפעל מצב בהיר"}
-            >
-              <motion.div
-                initial={{ scale: 0.5, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ duration: 0.2 }}
-              >
-                {theme === "dark" ? (
-                  <Moon className="h-5 w-5" />
-                ) : (
-                  <Sun className="h-5 w-5" />
-                )}
-              </motion.div>
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent side="right">
-            <p>{theme === "light" ? "הפעל מצב כהה" : "הפעל מצב בהיר"}</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
-      
+    <>
+      {/* Menu Icon - Positioned on the right */}
       {!isLoginPage && (
-        <>
+        <motion.div 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+          className="fixed top-4 right-4 z-50"
+        >
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -73,12 +45,51 @@ export function NavMenu() {
                   <Menu className="h-5 w-5" />
                 </Button>
               </TooltipTrigger>
-              <TooltipContent side="right">
+              <TooltipContent side="left">
                 <p>פתח תפריט</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
+        </motion.div>
+      )}
 
+      {/* Other Icons - Positioned on the left */}
+      <motion.div 
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        className="fixed top-4 left-4 z-50 flex items-center gap-2"
+      >
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={toggleTheme}
+                className="hover:bg-accent hover:scale-105 active:scale-95 transition-all duration-200"
+                aria-label={theme === "light" ? "הפעל מצב כהה" : "הפעל מצב בהיר"}
+              >
+                <motion.div
+                  initial={{ scale: 0.5, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  {theme === "dark" ? (
+                    <Moon className="h-5 w-5" />
+                  ) : (
+                    <Sun className="h-5 w-5" />
+                  )}
+                </motion.div>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="right">
+              <p>{theme === "light" ? "הפעל מצב כהה" : "הפעל מצב בהיר"}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+        
+        {!isLoginPage && (
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -97,8 +108,8 @@ export function NavMenu() {
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
-        </>
-      )}
-    </motion.div>
+        )}
+      </motion.div>
+    </>
   );
 }
