@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { SidebarProvider } from "@/components/ui/sidebar";
 import TeamMembers from "./pages/TeamMembers";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
@@ -49,24 +50,28 @@ const App = () => {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
-              <Route 
-                path="/login" 
-                element={isAuthenticated ? <Navigate to="/" /> : <Login />} 
-              />
-              <Route 
-                path="/" 
-                element={isAuthenticated ? <TeamMembers /> : <Navigate to="/login" />} 
-              />
-              <Route 
-                path="/member/:workerId" 
-                element={isAuthenticated ? <Index /> : <Navigate to="/login" />} 
-              />
-            </Routes>
-          </BrowserRouter>
+          <SidebarProvider>
+            <div className="min-h-screen flex w-full">
+              <Toaster />
+              <Sonner />
+              <BrowserRouter>
+                <Routes>
+                  <Route 
+                    path="/login" 
+                    element={isAuthenticated ? <Navigate to="/" /> : <Login />} 
+                  />
+                  <Route 
+                    path="/" 
+                    element={isAuthenticated ? <TeamMembers /> : <Navigate to="/login" />} 
+                  />
+                  <Route 
+                    path="/member/:workerId" 
+                    element={isAuthenticated ? <Index /> : <Navigate to="/login" />} 
+                  />
+                </Routes>
+              </BrowserRouter>
+            </div>
+          </SidebarProvider>
         </TooltipProvider>
       </ThemeProvider>
     </QueryClientProvider>

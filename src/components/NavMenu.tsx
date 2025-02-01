@@ -1,4 +1,4 @@
-import { LogOut, Moon, Sun } from "lucide-react";
+import { LogOut, Moon, Sun, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "@/components/ThemeProvider";
 import { logout } from "@/utils/auth";
@@ -10,11 +10,13 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { motion } from "framer-motion";
+import { useSidebar } from "@/components/ui/sidebar";
 
 export function NavMenu() {
   const { theme, setTheme } = useTheme();
   const location = useLocation();
   const isLoginPage = location.pathname === "/login";
+  const { toggleSidebar } = useSidebar();
 
   const toggleTheme = () => {
     setTheme(theme === "light" ? "dark" : "light");
@@ -27,6 +29,33 @@ export function NavMenu() {
       transition={{ duration: 0.3 }}
       className="fixed top-4 left-4 z-50 flex items-center gap-2"
     >
+      {!isLoginPage && (
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={toggleSidebar}
+                className="hover:bg-accent hover:scale-105 active:scale-95 transition-all duration-200"
+                aria-label="פתח תפריט"
+              >
+                <motion.div
+                  initial={{ scale: 0.5, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <Menu className="h-5 w-5" />
+                </motion.div>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="right">
+              <p>פתח תפריט</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      )}
+
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
