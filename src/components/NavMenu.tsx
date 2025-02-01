@@ -23,36 +23,34 @@ export function NavMenu() {
   return (
     <>
       {/* Menu Icon - Positioned on the right */}
-      {!isLoginPage && (
-        <motion.div 
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-          className="fixed top-4 right-4 z-50"
-        >
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => {
-                    const event = new CustomEvent('toggleSidebar');
-                    window.dispatchEvent(event);
-                  }}
-                  className="hover:bg-accent hover:scale-105 active:scale-95 transition-all duration-200"
-                  aria-label="פתח תפריט"
-                >
-                  <Menu className="h-5 w-5" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent side="left">
-                <p>פתח תפריט</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        </motion.div>
-      )}
+      <motion.div 
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        className="fixed top-4 right-4 z-50"
+      >
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => {
+                  const event = new CustomEvent('toggleSidebar');
+                  window.dispatchEvent(event);
+                }}
+                className="hover:bg-accent hover:scale-105 active:scale-95 transition-all duration-200"
+                aria-label="פתח תפריט"
+              >
+                <Menu className="h-5 w-5" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="left">
+              <p>פתח תפריט</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      </motion.div>
 
       {/* Other Icons - Positioned on the left */}
       <motion.div 
