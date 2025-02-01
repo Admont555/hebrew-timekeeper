@@ -6,7 +6,6 @@ import { motion } from "framer-motion";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { TaskPriority } from "@/types/task";
 import VoiceInput from "./VoiceInput";
-import TaskTemplateSelector from "./task/TaskTemplateSelector";
 
 interface TaskFormProps {
   onAddTask: (title: string, duration: number, priority: TaskPriority) => void;
@@ -55,13 +54,6 @@ const TaskForm = ({
     setTitle(text);
   };
 
-  const handleTemplateSelect = (template: { title: string; duration: number; priority: TaskPriority }) => {
-    setTitle(template.title);
-    setHours(Math.floor(template.duration / 60).toString());
-    setMinutes((template.duration % 60).toString());
-    setPriority(template.priority);
-  };
-
   return (
     <motion.form 
       onSubmit={handleSubmit} 
@@ -102,10 +94,6 @@ const TaskForm = ({
         </div>
       </div>
       <div className="flex flex-col sm:flex-row gap-4 justify-end items-start sm:items-center">
-        <div className="flex items-center gap-2 w-full sm:w-auto">
-          <TaskTemplateSelector onSelect={handleTemplateSelect} />
-          <Label className="text-gray-600 dark:text-gray-400 min-w-fit">תבנית</Label>
-        </div>
         <div className="flex items-center gap-2 w-full sm:w-auto">
           <Select value={priority} onValueChange={(value: TaskPriority) => setPriority(value)}>
             <SelectTrigger className="w-full sm:w-32 text-right" dir="rtl">

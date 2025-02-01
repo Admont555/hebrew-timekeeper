@@ -10,7 +10,6 @@ export interface Task {
   startTime?: string;
   priority: TaskPriority;
   comments?: string[];
-  worker: string;  // Added this line
 }
 
 export interface TasksByDate {
