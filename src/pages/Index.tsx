@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { useState } from "react";
 import { useParams, Navigate, useNavigate } from "react-router-dom";
 import RandomQuote from "@/components/RandomQuote";
-import { TasksByDate, TaskPriority } from "@/types/task";
+import { TasksByDate, TaskPriority, Task } from "@/types/task";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
@@ -90,12 +90,25 @@ const Index = () => {
         if (!tasksByDate[dateKey]) {
           tasksByDate[dateKey] = [];
         }
+
+        // Transform the attachments from Json[] to the expected format
+        const transformedAttachments = task.attachments?.map((attachment: any) => ({
+          name: attachment.name || '',
+          url: attachment.url || ''
+        })) || [];
+
         tasksByDate[dateKey].push({
-          ...task,
-          priority: (task.priority || 'normal') as TaskPriority,
+          id: task.id,
+          title: task.title,
           timestamp: task.timestamp || new Date().toISOString(),
           completed: task.completed || false,
+          date: dateKey,
           duration: task.duration || 0,
+          startTime: task.start_time,
+          priority: (task.priority || 'normal') as TaskPriority,
+          comments: task.comments || [],
+          attachments: transformedAttachments,
+          worker: task.worker
         });
       });
 
