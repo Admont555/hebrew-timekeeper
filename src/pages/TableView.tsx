@@ -8,6 +8,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Plus, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
+import { Card } from "@/components/ui/card";
 
 export default function TableView() {
   const { tableId } = useParams();
@@ -141,120 +142,139 @@ export default function TableView() {
   };
 
   return (
-    <div className="container mx-auto p-6 bg-gradient-to-br from-[#F2FCE2] to-[#E5DEFF]">
-      <div className="max-w-4xl mx-auto space-y-8">
-        <div className="text-center">
-          <h1 className="text-4xl font-bold text-[#403E43] mb-2">
+    <div className="container mx-auto p-6 min-h-screen bg-background/50">
+      <div className="max-w-5xl mx-auto space-y-8">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center"
+        >
+          <h1 className="text-3xl font-bold text-primary mb-2">
             {table?.name}
           </h1>
-          <p className="text-[#8E9196]">נהל את הטבלה שלך</p>
-        </div>
+          <p className="text-muted-foreground">נהל את הטבלה שלך</p>
+        </motion.div>
 
         {/* Add Column Form */}
-        <form onSubmit={handleAddColumn} className="flex justify-center gap-4 mb-8">
-          <Input
-            placeholder="שם העמודה החדשה"
-            value={newColumnName}
-            onChange={(e) => setNewColumnName(e.target.value)}
-            className="max-w-xs"
-          />
-          <Button type="submit" disabled={!newColumnName.trim()}>
-            <Plus className="mr-2 h-4 w-4" /> הוסף עמודה
-          </Button>
-        </form>
+        <Card className="p-6 shadow-sm">
+          <form onSubmit={handleAddColumn} className="flex flex-col items-center gap-4">
+            <div className="flex w-full max-w-sm gap-4">
+              <Input
+                placeholder="שם העמודה החדשה"
+                value={newColumnName}
+                onChange={(e) => setNewColumnName(e.target.value)}
+                className="flex-1"
+              />
+              <Button type="submit" disabled={!newColumnName.trim()}>
+                <Plus className="mr-2 h-4 w-4" /> הוסף עמודה
+              </Button>
+            </div>
+          </form>
+        </Card>
 
-        {/* Table */}
-        <ScrollArea className="h-[500px] rounded-md border border-[#8E9196]/20">
-          <div className="p-4">
-            {columns.length > 0 ? (
-              <div className="space-y-4">
-                {/* Column Headers */}
-                <div className="grid gap-4" style={{ gridTemplateColumns: `repeat(${columns.length + 1}, minmax(150px, 1fr))` }}>
-                  {columns.map((column) => (
-                    <div
-                      key={column.id}
-                      className="flex items-center justify-between bg-[#0EA5E9] text-white p-2 rounded"
-                    >
-                      <span>{column.name}</span>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => deleteColumnMutation.mutate(column.id)}
-                        className="hover:bg-red-500/20"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  ))}
-                  <div className="bg-[#0EA5E9] text-white p-2 rounded text-center">
-                    פעולות
-                  </div>
-                </div>
-
-                {/* Rows */}
-                <AnimatePresence>
-                  {rows.map((row, index) => (
-                    <motion.div
-                      key={row.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -20 }}
-                      className="grid gap-4"
-                      style={{ gridTemplateColumns: `repeat(${columns.length + 1}, minmax(150px, 1fr))` }}
-                    >
-                      {columns.map((column) => (
-                        <div
-                          key={column.id}
-                          className="bg-white p-2 rounded shadow-sm"
-                        >
-                          {row.data[column.id] || "-"}
-                        </div>
-                      ))}
-                      <div className="flex justify-center items-center">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="hover:bg-red-500/20"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </motion.div>
-                  ))}
-                </AnimatePresence>
-
-                {/* Add Row Form */}
-                <form onSubmit={handleAddRow}>
-                  <div
-                    className="grid gap-4 mb-4"
+        {/* Table Content */}
+        <Card className="overflow-hidden">
+          <ScrollArea className="h-[500px]">
+            <div className="p-4">
+              {columns.length > 0 ? (
+                <div className="space-y-4">
+                  {/* Column Headers */}
+                  <div 
+                    className="grid gap-4" 
                     style={{ gridTemplateColumns: `repeat(${columns.length + 1}, minmax(150px, 1fr))` }}
                   >
                     {columns.map((column) => (
-                      <Input
+                      <motion.div
                         key={column.id}
-                        placeholder={`ערך ל${column.name}`}
-                        value={newRowData[column.id] || ""}
-                        onChange={(e) =>
-                          setNewRowData((prev) => ({
-                            ...prev,
-                            [column.id]: e.target.value,
-                          }))
-                        }
-                      />
+                        layout
+                        className="flex items-center justify-between bg-primary/5 p-3 rounded-md transition-colors hover:bg-primary/10"
+                      >
+                        <span className="font-medium">{column.name}</span>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => deleteColumnMutation.mutate(column.id)}
+                          className="opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive/10 hover:text-destructive"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </motion.div>
                     ))}
-                    <Button type="submit">
-                      <Plus className="mr-2 h-4 w-4" /> הוסף שורה
-                    </Button>
+                    <div className="bg-primary/5 p-3 rounded-md text-center font-medium">
+                      פעולות
+                    </div>
                   </div>
-                </form>
-              </div>
-            ) : (
-              <div className="text-center text-[#8E9196] py-8">
-                אין עמודות עדיין. הוסף עמודה חדשה כדי להתחיל.
-              </div>
-            )}
-          </div>
-        </ScrollArea>
+
+                  {/* Rows */}
+                  <AnimatePresence>
+                    {rows.map((row, index) => (
+                      <motion.div
+                        key={row.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                        className="grid gap-4 group"
+                        style={{ gridTemplateColumns: `repeat(${columns.length + 1}, minmax(150px, 1fr))` }}
+                      >
+                        {columns.map((column) => (
+                          <div
+                            key={column.id}
+                            className="bg-card p-3 rounded-md shadow-sm transition-all hover:shadow-md"
+                          >
+                            {row.data[column.id] || "-"}
+                          </div>
+                        ))}
+                        <div className="flex justify-center items-center">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive/10 hover:text-destructive"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
+
+                  {/* Add Row Form */}
+                  <motion.form
+                    initial={false}
+                    animate={{ height: "auto" }}
+                    onSubmit={handleAddRow}
+                  >
+                    <div
+                      className="grid gap-4 mb-4"
+                      style={{ gridTemplateColumns: `repeat(${columns.length + 1}, minmax(150px, 1fr))` }}
+                    >
+                      {columns.map((column) => (
+                        <Input
+                          key={column.id}
+                          placeholder={`ערך ל${column.name}`}
+                          value={newRowData[column.id] || ""}
+                          onChange={(e) =>
+                            setNewRowData((prev) => ({
+                              ...prev,
+                              [column.id]: e.target.value,
+                            }))
+                          }
+                          className="transition-all hover:ring-1 hover:ring-primary/20"
+                        />
+                      ))}
+                      <Button type="submit" variant="outline">
+                        <Plus className="mr-2 h-4 w-4" /> הוסף שורה
+                      </Button>
+                    </div>
+                  </motion.form>
+                </div>
+              ) : (
+                <div className="text-center text-muted-foreground py-8">
+                  אין עמודות עדיין. הוסף עמודה חדשה כדי להתחיל.
+                </div>
+              )}
+            </div>
+          </ScrollArea>
+        </Card>
       </div>
     </div>
   );
