@@ -5,6 +5,7 @@ import { useState } from "react";
 import TaskComments from "./TaskComments";
 import TaskActions from "./task/TaskActions";
 import TaskPriority from "./task/TaskPriority";
+import TaskAttachments from "./task/TaskAttachments";
 
 interface TaskItemProps {
   task: Task;
@@ -76,6 +77,7 @@ const TaskItem = ({ task, onToggleTask, onTaskComplete, onDeleteTask, onEdit }: 
           </span>
         </div>
       </div>
+
       <div className="flex items-center justify-between gap-4">
         <CountdownTimer
           duration={task.duration}
@@ -91,6 +93,13 @@ const TaskItem = ({ task, onToggleTask, onTaskComplete, onDeleteTask, onEdit }: 
           aria-label="סמן משימה כהושלמה"
         />
       </div>
+
+      <TaskAttachments
+        taskId={task.id}
+        attachments={task.attachments || []}
+        onAttachmentsUpdate={handleAttachmentsUpdate}
+      />
+      
       {showComments && (
         <TaskComments
           taskId={task.id}
