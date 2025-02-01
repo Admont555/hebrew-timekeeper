@@ -20,7 +20,9 @@ import { TableRow as CustomTableRow } from "@/components/table/TableRow";
 import { AnimatePresence, motion } from "framer-motion";
 import type { Json } from "@/integrations/supabase/types";
 import jsPDF from 'jspdf';
-import * as XLSX from 'xlsx';
+import html2canvas from 'html2canvas';
+import { format } from 'date-fns';
+import { he } from 'date-fns/locale';
 
 export default function TableView() {
   const { tableId } = useParams();
@@ -72,39 +74,67 @@ export default function TableView() {
     },
   });
 
-  const handleExportPDF = () => {
-    const doc = new jsPDF();
-    
-    // Add table name as title
-    doc.setFontSize(16);
-    doc.text(table?.name || 'Table Export', 20, 20);
-    
-    // Add column headers
-    const headers = columns.map(col => col.name);
-    let yPos = 40;
-    const xPos = 20;
-    
-    doc.setFontSize(12);
-    doc.text(headers, xPos, yPos);
-    
-    // Add rows
-    rows.forEach((row, index) => {
-      yPos += 10;
-      if (yPos >= 280) { // Check if we need a new page
-        doc.addPage();
-        yPos = 20;
-      }
-      const rowData = columns.map(col => String(row.data[col.id] || ''));
-      doc.text(rowData, xPos, yPos);
-    });
-    
-    // Save the PDF
-    doc.save(`${table?.name || 'table'}-export.pdf`);
-    
-    toast({
-      title: "PDF יוצא בהצלחה",
-      description: "הקובץ נשמר במחשב שלך",
-    });
+  const handleExportPDF = async () => {
+    const tableElement = document.getElementById('table-to-export');
+    if (!tableElement) return;
+
+    try {
+      const canvas = await html2canvas(tableElement, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        direction: 'rtl'
+      });
+
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      });
+
+      // Add title with RTL support
+      pdf.setR2L(true);
+      pdf.setFont("helvetica", "normal");
+      pdf.setFontSize(16);
+      
+      const title = table?.name || 'טבלה';
+      const currentDate = format(new Date(), 'PP', { locale: he });
+      
+      // Calculate text width to position from right
+      const titleWidth = pdf.getStringUnitWidth(title) * 16 / pdf.internal.scaleFactor;
+      const dateWidth = pdf.getStringUnitWidth(currentDate) * 12 / pdf.internal.scaleFactor;
+      
+      // Add title and date
+      pdf.text(title, pdf.internal.pageSize.width - 20 - titleWidth, 20);
+      pdf.setFontSize(12);
+      pdf.text(currentDate, pdf.internal.pageSize.width - 20 - dateWidth, 30);
+
+      // Add the table image
+      const imgWidth = 170;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      pdf.addImage(
+        canvas.toDataURL('image/png'),
+        'PNG',
+        20,
+        40,
+        imgWidth,
+        imgHeight
+      );
+
+      pdf.save(`${table?.name || 'table'}-${currentDate}.pdf`);
+
+      toast({
+        title: "PDF יוצא בהצלחה",
+        description: "הקובץ נשמר במחשב שלך",
+      });
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      toast({
+        title: "שגיאה ביצירת ה-PDF",
+        description: "אנא נסה שוב מאוחר יותר",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleExportExcel = () => {
@@ -297,7 +327,7 @@ export default function TableView() {
         <Card className="overflow-hidden">
           <ScrollArea className="h-[700px] w-full rounded-md border">
             <div className="relative">
-              <div className="overflow-x-auto">
+              <div className="overflow-x-auto" id="table-to-export">
                 <Table>
                   <TableHeader>
                     <TableRow>
