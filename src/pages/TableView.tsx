@@ -146,9 +146,16 @@ export default function TableView() {
   const handleAddRow = (e: React.FormEvent) => {
     e.preventDefault();
     if (Object.keys(newRowData).length === 0) return;
-    addRowMutation.mutate(newRowData);
-    setIsAddingRow(false);
-    setNewRowData({});
+    addRowMutation.mutate(newRowData, {
+      onSuccess: () => {
+        // Clear only the row data but keep isAddingRow true
+        setNewRowData({});
+        toast({
+          title: "השורה נוספה",
+          description: "השורה החדשה נוספה בהצלחה",
+        });
+      },
+    });
   };
 
   return (
