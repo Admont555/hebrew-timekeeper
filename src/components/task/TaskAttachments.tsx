@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Paperclip, X } from "lucide-react";
+import { Paperclip, X, FileUp } from "lucide-react";
 
 interface TaskAttachmentsProps {
   taskId: string;
@@ -95,8 +95,8 @@ const TaskAttachments = ({ taskId, attachments, onAttachmentsUpdate }: TaskAttac
       <div className="flex items-center gap-2">
         <Button
           variant="outline"
-          size="sm"
-          className="relative"
+          size="lg"
+          className="relative w-full flex items-center justify-center gap-2 bg-purple-50 hover:bg-purple-100 dark:bg-purple-900/20 dark:hover:bg-purple-900/30 border-purple-200 dark:border-purple-800"
           disabled={isUploading}
         >
           <input
@@ -105,8 +105,17 @@ const TaskAttachments = ({ taskId, attachments, onAttachmentsUpdate }: TaskAttac
             onChange={handleFileUpload}
             accept="image/*,.pdf,.doc,.docx,.txt"
           />
-          <Paperclip className="h-4 w-4 mr-2" />
-          {isUploading ? 'מעלה...' : 'צרף קובץ'}
+          {isUploading ? (
+            <>
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-purple-700" />
+              מעלה...
+            </>
+          ) : (
+            <>
+              <FileUp className="h-4 w-4" />
+              צרף קובץ
+            </>
+          )}
         </Button>
       </div>
       {attachments.length > 0 && (
@@ -114,20 +123,22 @@ const TaskAttachments = ({ taskId, attachments, onAttachmentsUpdate }: TaskAttac
           {attachments.map((attachment, index) => (
             <div
               key={index}
-              className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-800 rounded-md"
+              className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-800 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
             >
               <a
                 href={attachment.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-blue-500 hover:underline truncate max-w-[200px]"
+                className="text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300 hover:underline truncate max-w-[200px] flex items-center gap-2"
               >
+                <Paperclip className="h-4 w-4" />
                 {attachment.name}
               </a>
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => handleRemoveAttachment(index)}
+                className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
               >
                 <X className="h-4 w-4" />
               </Button>
