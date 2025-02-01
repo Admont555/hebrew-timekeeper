@@ -96,6 +96,7 @@ const TaskForm = ({
       </div>
       <div className="flex flex-col-reverse sm:flex-row-reverse gap-4 items-start sm:items-center justify-end">
         <div className="flex items-center gap-2 w-full sm:w-auto">
+          <Label className="text-gray-600 dark:text-gray-400 min-w-fit">עדיפות</Label>
           <Select value={priority} onValueChange={(value: TaskPriority) => setPriority(value)}>
             <SelectTrigger className="w-full sm:w-32 text-right" dir="rtl">
               <SelectValue placeholder="עדיפות" />
@@ -106,9 +107,9 @@ const TaskForm = ({
               <SelectItem value="high">גבוהה</SelectItem>
             </SelectContent>
           </Select>
-          <Label className="text-gray-600 dark:text-gray-400 min-w-fit">עדיפות</Label>
         </div>
         <div className="flex items-center gap-2 w-full sm:w-auto">
+          <Label className="text-gray-600 dark:text-gray-400 min-w-fit">דקות</Label>
           <Input
             type="number"
             min="0"
@@ -117,9 +118,9 @@ const TaskForm = ({
             className="w-full sm:w-20 text-right bg-white/50 dark:bg-gray-800/50 border-purple-100 dark:border-gray-700"
             dir="rtl"
           />
-          <Label className="text-gray-600 dark:text-gray-400 min-w-fit">דקות</Label>
         </div>
         <div className="flex items-center gap-2 w-full sm:w-auto">
+          <Label className="text-gray-600 dark:text-gray-400 min-w-fit">שעות</Label>
           <Input
             type="number"
             min="0"
@@ -128,7 +129,6 @@ const TaskForm = ({
             className="w-full sm:w-20 text-right bg-white/50 dark:bg-gray-800/50 border-purple-100 dark:border-gray-700"
             dir="rtl"
           />
-          <Label className="text-gray-600 dark:text-gray-400 min-w-fit">שעות</Label>
         </div>
       </div>
     </motion.form>
