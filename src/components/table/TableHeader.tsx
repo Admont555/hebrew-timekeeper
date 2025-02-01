@@ -30,7 +30,7 @@ export function TableHeader({
   };
 
   return (
-    <div className="space-y-4 p-4">
+    <div className="space-y-4 p-4" dir="rtl">
       <div className="flex items-center gap-4">
         <form onSubmit={handleAddColumn} className="flex gap-4 flex-1">
           <Input
@@ -48,7 +48,7 @@ export function TableHeader({
           <Input
             placeholder="חיפוש..."
             onChange={(e) => onSearch(e.target.value)}
-            className="max-w-[200px]"
+            className="max-w-[200px] text-right"
             dir="rtl"
           />
           <Search className="h-4 w-4 text-gray-500" />
