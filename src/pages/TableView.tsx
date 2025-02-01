@@ -14,11 +14,13 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus, FileText, Download } from "lucide-react";
 import { TableHeader as CustomTableHeader } from "@/components/table/TableHeader";
 import { TableRow as CustomTableRow } from "@/components/table/TableRow";
 import { AnimatePresence, motion } from "framer-motion";
 import type { Json } from "@/integrations/supabase/types";
+import jsPDF from 'jspdf';
+import * as XLSX from 'xlsx';
 
 export default function TableView() {
   const { tableId } = useParams();
@@ -69,6 +71,67 @@ export default function TableView() {
       return data;
     },
   });
+
+  const handleExportPDF = () => {
+    const doc = new jsPDF();
+    
+    // Add table name as title
+    doc.setFontSize(16);
+    doc.text(table?.name || 'Table Export', 20, 20);
+    
+    // Add column headers
+    const headers = columns.map(col => col.name);
+    let yPos = 40;
+    const xPos = 20;
+    
+    doc.setFontSize(12);
+    doc.text(headers, xPos, yPos);
+    
+    // Add rows
+    rows.forEach((row, index) => {
+      yPos += 10;
+      if (yPos >= 280) { // Check if we need a new page
+        doc.addPage();
+        yPos = 20;
+      }
+      const rowData = columns.map(col => String(row.data[col.id] || ''));
+      doc.text(rowData, xPos, yPos);
+    });
+    
+    // Save the PDF
+    doc.save(`${table?.name || 'table'}-export.pdf`);
+    
+    toast({
+      title: "PDF יוצא בהצלחה",
+      description: "הקובץ נשמר במחשב שלך",
+    });
+  };
+
+  const handleExportExcel = () => {
+    // Prepare the data for Excel
+    const excelData = rows.map(row => {
+      const rowData: Record<string, string> = {};
+      columns.forEach(col => {
+        rowData[col.name] = String(row.data[col.id] || '');
+      });
+      return rowData;
+    });
+    
+    // Create a new workbook
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.json_to_sheet(excelData);
+    
+    // Add the worksheet to the workbook
+    XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+    
+    // Save the file
+    XLSX.writeFile(wb, `${table?.name || 'table'}-export.xlsx`);
+    
+    toast({
+      title: "Excel יוצא בהצלחה",
+      description: "הקובץ נשמר במחשב שלך",
+    });
+  };
 
   const addColumnMutation = useMutation({
     mutationFn: async (name: string) => {
@@ -276,6 +339,25 @@ export default function TableView() {
             <ScrollBar orientation="horizontal" />
           </ScrollArea>
         </Card>
+
+        <div className="flex justify-end gap-4 mt-4">
+          <Button
+            variant="outline"
+            onClick={handleExportPDF}
+            className="flex items-center gap-2"
+          >
+            <FileText className="h-4 w-4" />
+            ייצא ל-PDF
+          </Button>
+          <Button
+            variant="outline"
+            onClick={handleExportExcel}
+            className="flex items-center gap-2"
+          >
+            <Download className="h-4 w-4" />
+            ייצא ל-Excel
+          </Button>
+        </div>
       </div>
     </div>
   );
