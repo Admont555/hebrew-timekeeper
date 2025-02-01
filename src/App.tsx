@@ -5,12 +5,16 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import TeamMembers from "./pages/TeamMembers";
+import Reports from "./pages/Reports";
+import Templates from "./pages/Templates";
+import Settings from "./pages/Settings";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import { useEffect, useState } from "react";
 import { supabase } from "./integrations/supabase/client";
 import { useToast } from "./hooks/use-toast";
 import { AppSidebar } from "./components/AppSidebar";
+import { NavMenu } from "./components/NavMenu";
 
 const queryClient = new QueryClient();
 
@@ -53,6 +57,7 @@ const App = () => {
           <Toaster />
           <Sonner />
           <BrowserRouter>
+            <NavMenu />
             {isAuthenticated && <AppSidebar />}
             <Routes>
               <Route 
@@ -66,6 +71,18 @@ const App = () => {
               <Route 
                 path="/member/:workerId" 
                 element={isAuthenticated ? <Index /> : <Navigate to="/login" />} 
+              />
+              <Route 
+                path="/reports" 
+                element={isAuthenticated ? <Reports /> : <Navigate to="/login" />} 
+              />
+              <Route 
+                path="/templates" 
+                element={isAuthenticated ? <Templates /> : <Navigate to="/login" />} 
+              />
+              <Route 
+                path="/settings" 
+                element={isAuthenticated ? <Settings /> : <Navigate to="/login" />} 
               />
             </Routes>
           </BrowserRouter>

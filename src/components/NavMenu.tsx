@@ -10,13 +10,11 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { motion } from "framer-motion";
-import { useState } from "react";
 
 export function NavMenu() {
   const { theme, setTheme } = useTheme();
   const location = useLocation();
   const isLoginPage = location.pathname === "/login";
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const toggleTheme = () => {
     setTheme(theme === "light" ? "dark" : "light");
@@ -38,7 +36,10 @@ export function NavMenu() {
                 <Button
                   variant="outline"
                   size="icon"
-                  onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                  onClick={() => {
+                    const event = new CustomEvent('toggleSidebar');
+                    window.dispatchEvent(event);
+                  }}
                   className="hover:bg-accent hover:scale-105 active:scale-95 transition-all duration-200"
                   aria-label="פתח תפריט"
                 >

@@ -1,7 +1,8 @@
 import { motion } from "framer-motion";
 import { Menu } from "lucide-react";
 import { useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
+import { Button } from "./ui/button";
 
 export function AppSidebar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -10,6 +11,14 @@ export function AppSidebar() {
   const toggleSidebar = () => {
     setIsOpen(!isOpen);
   };
+
+  const menuItems = [
+    { name: "משימות", path: "/" },
+    { name: "צוות", path: "/team" },
+    { name: "דוחות", path: "/reports" },
+    { name: "תבניות", path: "/templates" },
+    { name: "הגדרות", path: "/settings" },
+  ];
 
   return (
     <>
@@ -34,20 +43,32 @@ export function AppSidebar() {
         <div className="flex flex-col h-full p-4">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-lg font-semibold">תפריט</h2>
-            <button
+            <Button
               onClick={toggleSidebar}
-              className="p-2 rounded-lg hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
-              aria-label="Close Sidebar"
+              variant="ghost"
+              size="icon"
+              className="hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+              aria-label="סגור תפריט"
             >
               <Menu className="h-5 w-5" />
-            </button>
+            </Button>
           </div>
 
-          <nav className="space-y-2">
-            {/* Placeholder for future navigation items */}
-            <div className="p-4 text-center text-muted-foreground">
-              <p>תפריט הניווט יתווסף בקרוב</p>
-            </div>
+          <nav className="space-y-1">
+            {menuItems.map((item) => (
+              <Link
+                key={item.path}
+                to={item.path}
+                className={`block px-4 py-2 rounded-lg transition-colors ${
+                  location.pathname === item.path
+                    ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                    : "hover:bg-sidebar-accent/50"
+                }`}
+                onClick={toggleSidebar}
+              >
+                {item.name}
+              </Link>
+            ))}
           </nav>
         </div>
       </motion.div>
