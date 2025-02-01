@@ -62,6 +62,67 @@ export type Database = {
         }
         Relationships: []
       }
+      table_columns: {
+        Row: {
+          created_at: string | null
+          id: string
+          name: string
+          order_index: number
+          table_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          name: string
+          order_index: number
+          table_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          name?: string
+          order_index?: number
+          table_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "table_columns_table_id_fkey"
+            columns: ["table_id"]
+            isOneToOne: false
+            referencedRelation: "tables"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      table_rows: {
+        Row: {
+          created_at: string | null
+          data: Json
+          id: string
+          table_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          data?: Json
+          id?: string
+          table_id: string
+        }
+        Update: {
+          created_at?: string | null
+          data?: Json
+          id?: string
+          table_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "table_rows_table_id_fkey"
+            columns: ["table_id"]
+            isOneToOne: false
+            referencedRelation: "tables"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tables: {
         Row: {
           created_at: string | null

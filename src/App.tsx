@@ -7,6 +7,7 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import TeamMembers from "./pages/TeamMembers";
 import Settings from "./pages/Settings";
 import Tables from "./pages/Tables";
+import TableView from "./pages/TableView";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import { useEffect, useState } from "react";
@@ -96,6 +97,10 @@ const App = () => {
               <Route 
                 path="/tables" 
                 element={isAuthenticated ? <Tables /> : <Navigate to="/login" />} 
+              />
+              <Route 
+                path="/tables/:tableId" 
+                element={isAuthenticated ? <TableView /> : <Navigate to="/login" />} 
               />
               <Route 
                 path="/settings" 

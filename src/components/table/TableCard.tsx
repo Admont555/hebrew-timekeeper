@@ -2,88 +2,103 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { TableCardProps } from "@/types/table";
-import { Pencil, Trash2, Table as TableIcon } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
+import { Pencil, Trash2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useToast } from "@/hooks/use-toast";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 export function TableCard({ table, onDelete }: TableCardProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState(table.name);
+  const navigate = useNavigate();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
-  const handleUpdate = async () => {
-    try {
-      const { error } = await supabase
-        .from("tables")
-        .update({ name })
-        .eq("id", table.id);
-
-      if (error) throw error;
-
-      toast({
-        title: "Table updated",
-        description: "The table name has been updated successfully.",
-      });
-      setIsEditing(false);
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to update table name.",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleDelete = async () => {
-    try {
+  const deleteMutation = useMutation({
+    mutationFn: async () => {
       const { error } = await supabase
         .from("tables")
         .delete()
         .eq("id", table.id);
-
       if (error) throw error;
-
+    },
+    onSuccess: () => {
       onDelete(table.id);
       toast({
-        title: "Table deleted",
-        description: "The table has been deleted successfully.",
+        title: "הטבלה נמחקה",
+        description: "הטבלה נמחקה בהצלחה",
       });
-    } catch (error) {
+    },
+    onError: () => {
       toast({
-        title: "Error",
-        description: "Failed to delete table.",
+        title: "שגיאה",
+        description: "לא הצלחנו למחוק את הטבלה",
         variant: "destructive",
       });
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: async (newName: string) => {
+      const { error } = await supabase
+        .from("tables")
+        .update({ name: newName })
+        .eq("id", table.id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["tables"] });
+      setIsEditing(false);
+      toast({
+        title: "הטבלה עודכנה",
+        description: "שם הטבלה עודכן בהצלחה",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "שגיאה",
+        description: "לא הצלחנו לעדכן את שם הטבלה",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleUpdate = () => {
+    if (name.trim() && name !== table.name) {
+      updateMutation.mutate(name);
+    } else {
+      setIsEditing(false);
+      setName(table.name);
     }
   };
 
   return (
     <motion.div
+      layout
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
-      className="w-full"
+      className="hover-scale"
     >
-      <Card className="p-6 hover:shadow-lg transition-shadow">
+      <Card className="p-6 space-y-4 cursor-pointer" onClick={() => !isEditing && navigate(`/tables/${table.id}`)}>
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <TableIcon className="h-8 w-8 text-primary" />
-            {isEditing ? (
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="border rounded px-2 py-1"
-                autoFocus
-                onBlur={handleUpdate}
-                onKeyPress={(e) => e.key === "Enter" && handleUpdate()}
-              />
-            ) : (
-              <h3 className="text-xl font-semibold">{table.name}</h3>
-            )}
-          </div>
-          <div className="flex gap-2">
+          {isEditing ? (
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              onBlur={handleUpdate}
+              onKeyPress={(e) => e.key === "Enter" && handleUpdate()}
+              className="border p-1 rounded"
+              onClick={(e) => e.stopPropagation()}
+              autoFocus
+            />
+          ) : (
+            <h3 className="text-lg font-semibold">{table.name}</h3>
+          )}
+          <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
             <Button
               variant="ghost"
               size="icon"
@@ -91,13 +106,14 @@ export function TableCard({ table, onDelete }: TableCardProps) {
             >
               <Pencil className="h-4 w-4" />
             </Button>
-            <Button variant="ghost" size="icon" onClick={handleDelete}>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => deleteMutation.mutate()}
+            >
               <Trash2 className="h-4 w-4" />
             </Button>
           </div>
-        </div>
-        <div className="mt-4 text-sm text-muted-foreground">
-          Created on {new Date(table.created_at || "").toLocaleDateString()}
         </div>
       </Card>
     </motion.div>
