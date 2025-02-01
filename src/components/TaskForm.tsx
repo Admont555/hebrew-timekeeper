@@ -94,7 +94,7 @@ const TaskForm = ({
           )}
         </div>
       </div>
-      <div className="flex flex-col sm:flex-row gap-4 justify-end items-start sm:items-center">
+      <div className="flex flex-col-reverse sm:flex-row-reverse gap-4 items-start sm:items-center">
         <div className="flex items-center gap-2 w-full sm:w-auto">
           <Select value={priority} onValueChange={(value: TaskPriority) => setPriority(value)}>
             <SelectTrigger className="w-full sm:w-32 text-right" dir="rtl">
