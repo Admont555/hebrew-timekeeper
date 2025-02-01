@@ -3,7 +3,7 @@ import { Menu } from "lucide-react";
 import { useSidebar } from "@/components/ui/sidebar";
 
 export function AppSidebar() {
-  const { isOpen, toggleSidebar } = useSidebar();
+  const { state: { isOpen }, toggleSidebar } = useSidebar();
 
   return (
     <>
