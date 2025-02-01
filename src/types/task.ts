@@ -10,6 +10,7 @@ export interface Task {
   startTime?: string;
   priority: TaskPriority;
   comments?: string[];
+  attachments?: { name: string; url: string }[];
 }
 
 export interface TasksByDate {
