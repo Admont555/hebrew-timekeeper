@@ -13,15 +13,6 @@ export function AppSidebar() {
 
   return (
     <>
-      {/* Sidebar Toggle Button */}
-      <button
-        onClick={toggleSidebar}
-        className="fixed top-20 right-4 z-50 p-2 rounded-lg bg-background/80 backdrop-blur-sm border border-border hover:bg-accent hover:text-accent-foreground transition-colors"
-        aria-label="Toggle Sidebar"
-      >
-        <Menu className="h-5 w-5" />
-      </button>
-
       {/* Overlay */}
       {isOpen && (
         <motion.div
