@@ -61,6 +61,7 @@ const TaskForm = ({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
+      dir="rtl"
     >
       <div className="flex flex-col sm:flex-row gap-2">
         <div className="flex gap-2 flex-grow">
@@ -99,7 +100,7 @@ const TaskForm = ({
             <SelectTrigger className="w-full sm:w-32 text-right" dir="rtl">
               <SelectValue placeholder="עדיפות" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent dir="rtl">
               <SelectItem value="low">נמוכה</SelectItem>
               <SelectItem value="normal">רגילה</SelectItem>
               <SelectItem value="high">גבוהה</SelectItem>
