@@ -11,8 +11,6 @@ import { useEffect, useState } from "react";
 import { supabase } from "./integrations/supabase/client";
 import { useToast } from "./hooks/use-toast";
 import { AppSidebar } from "./components/AppSidebar";
-import { NavMenu } from "./components/NavMenu";
-import { SidebarProvider } from "@/components/ui/sidebar";
 
 const queryClient = new QueryClient();
 
@@ -52,28 +50,25 @@ const App = () => {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <TooltipProvider>
-          <SidebarProvider>
-            <Toaster />
-            <Sonner />
-            <BrowserRouter>
-              {isAuthenticated && <NavMenu />}
-              {isAuthenticated && <AppSidebar />}
-              <Routes>
-                <Route 
-                  path="/login" 
-                  element={isAuthenticated ? <Navigate to="/" /> : <Login />} 
-                />
-                <Route 
-                  path="/" 
-                  element={isAuthenticated ? <TeamMembers /> : <Navigate to="/login" />} 
-                />
-                <Route 
-                  path="/member/:workerId" 
-                  element={isAuthenticated ? <Index /> : <Navigate to="/login" />} 
-                />
-              </Routes>
-            </BrowserRouter>
-          </SidebarProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            {isAuthenticated && <AppSidebar />}
+            <Routes>
+              <Route 
+                path="/login" 
+                element={isAuthenticated ? <Navigate to="/" /> : <Login />} 
+              />
+              <Route 
+                path="/" 
+                element={isAuthenticated ? <TeamMembers /> : <Navigate to="/login" />} 
+              />
+              <Route 
+                path="/member/:workerId" 
+                element={isAuthenticated ? <Index /> : <Navigate to="/login" />} 
+              />
+            </Routes>
+          </BrowserRouter>
         </TooltipProvider>
       </ThemeProvider>
     </QueryClientProvider>
