@@ -11,6 +11,7 @@ import Login from "./pages/Login";
 import { useEffect, useState } from "react";
 import { supabase } from "./integrations/supabase/client";
 import { useToast } from "./hooks/use-toast";
+import { AppSidebar } from "./components/AppSidebar";
 
 const queryClient = new QueryClient();
 
@@ -43,7 +44,7 @@ const App = () => {
   }, []);
 
   if (isLoading) {
-    return null; // or a loading spinner
+    return null;
   }
 
   return (
@@ -52,24 +53,27 @@ const App = () => {
         <TooltipProvider>
           <SidebarProvider>
             <div className="min-h-screen flex w-full">
-              <Toaster />
-              <Sonner />
-              <BrowserRouter>
-                <Routes>
-                  <Route 
-                    path="/login" 
-                    element={isAuthenticated ? <Navigate to="/" /> : <Login />} 
-                  />
-                  <Route 
-                    path="/" 
-                    element={isAuthenticated ? <TeamMembers /> : <Navigate to="/login" />} 
-                  />
-                  <Route 
-                    path="/member/:workerId" 
-                    element={isAuthenticated ? <Index /> : <Navigate to="/login" />} 
-                  />
-                </Routes>
-              </BrowserRouter>
+              {isAuthenticated && <AppSidebar />}
+              <div className="flex-1">
+                <Toaster />
+                <Sonner />
+                <BrowserRouter>
+                  <Routes>
+                    <Route 
+                      path="/login" 
+                      element={isAuthenticated ? <Navigate to="/" /> : <Login />} 
+                    />
+                    <Route 
+                      path="/" 
+                      element={isAuthenticated ? <TeamMembers /> : <Navigate to="/login" />} 
+                    />
+                    <Route 
+                      path="/member/:workerId" 
+                      element={isAuthenticated ? <Index /> : <Navigate to="/login" />} 
+                    />
+                  </Routes>
+                </BrowserRouter>
+              </div>
             </div>
           </SidebarProvider>
         </TooltipProvider>
