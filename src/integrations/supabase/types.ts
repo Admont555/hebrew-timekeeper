@@ -41,8 +41,32 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "tasks"
             referencedColumns: ["id"]
-          },
+          }
         ]
+      }
+      tables: {
+        Row: {
+          id: string
+          name: string
+          created_at: string | null
+          created_by: string
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          name: string
+          created_at?: string | null
+          created_by?: string
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          name?: string
+          created_at?: string | null
+          created_by?: string
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       quotes: {
         Row: {
@@ -59,30 +83,6 @@ export type Database = {
           author?: string | null
           content?: string
           id?: string
-        }
-        Relationships: []
-      }
-      tables: {
-        Row: {
-          created_at: string | null
-          created_by: string
-          id: string
-          name: string
-          updated_at: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          created_by?: string
-          id?: string
-          name: string
-          updated_at?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          created_by?: string
-          id?: string
-          name?: string
-          updated_at?: string | null
         }
         Relationships: []
       }
@@ -235,7 +235,7 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "tasks"
             referencedColumns: ["id"]
-          },
+          }
         ]
       }
     }
