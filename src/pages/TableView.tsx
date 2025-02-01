@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -23,6 +23,7 @@ import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { format } from 'date-fns';
 import { he } from 'date-fns/locale';
+import * as XLSX from 'xlsx';
 
 export default function TableView() {
   const { tableId } = useParams();
@@ -79,11 +80,26 @@ export default function TableView() {
     if (!tableElement) return;
 
     try {
-      const canvas = await html2canvas(tableElement, {
+      // Create a clone of the table for export styling
+      const exportTable = tableElement.cloneNode(true) as HTMLElement;
+      exportTable.style.direction = 'rtl';
+      exportTable.style.width = '100%';
+      
+      // Add export-specific styles
+      const styleSheet = document.createElement('style');
+      styleSheet.textContent = `
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: right; }
+        th { background-color: #f8f9fa; font-weight: bold; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+      `;
+      exportTable.appendChild(styleSheet);
+
+      const canvas = await html2canvas(exportTable, {
         scale: 2,
         useCORS: true,
         logging: false,
-        direction: 'rtl'
+        backgroundColor: '#ffffff',
       });
 
       const pdf = new jsPDF({
@@ -104,22 +120,41 @@ export default function TableView() {
       const titleWidth = pdf.getStringUnitWidth(title) * 16 / pdf.internal.scaleFactor;
       const dateWidth = pdf.getStringUnitWidth(currentDate) * 12 / pdf.internal.scaleFactor;
       
-      // Add title and date
+      // Add title and date with improved positioning
       pdf.text(title, pdf.internal.pageSize.width - 20 - titleWidth, 20);
       pdf.setFontSize(12);
       pdf.text(currentDate, pdf.internal.pageSize.width - 20 - dateWidth, 30);
 
-      // Add the table image
-      const imgWidth = 170;
+      // Add the table image with better positioning and scaling
+      const pageWidth = pdf.internal.pageSize.width;
+      const pageHeight = pdf.internal.pageSize.height;
+      const margin = 20;
+      
+      const imgWidth = pageWidth - (margin * 2);
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      pdf.addImage(
-        canvas.toDataURL('image/png'),
-        'PNG',
-        20,
-        40,
-        imgWidth,
-        imgHeight
-      );
+      
+      // Check if the image needs to be split across multiple pages
+      if (imgHeight > (pageHeight - 50)) {
+        const scale = (pageHeight - 50) / imgHeight;
+        const scaledWidth = imgWidth * scale;
+        pdf.addImage(
+          canvas.toDataURL('image/png'),
+          'PNG',
+          margin,
+          40,
+          scaledWidth,
+          pageHeight - 50
+        );
+      } else {
+        pdf.addImage(
+          canvas.toDataURL('image/png'),
+          'PNG',
+          margin,
+          40,
+          imgWidth,
+          imgHeight
+        );
+      }
 
       pdf.save(`${table?.name || 'table'}-${currentDate}.pdf`);
 
