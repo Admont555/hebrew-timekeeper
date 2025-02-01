@@ -10,6 +10,14 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import TableCard from "@/components/table/TableCard";
 
+interface Table {
+  id: string;
+  name: string;
+  created_at: string | null;
+  created_by: string;
+  updated_at: string | null;
+}
+
 export default function Tables() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [newTableName, setNewTableName] = useState("");
@@ -24,7 +32,7 @@ export default function Tables() {
         .order('created_at', { ascending: true });
 
       if (error) throw error;
-      return data || [];
+      return (data || []) as Table[];
     },
   });
 
