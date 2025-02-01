@@ -145,7 +145,21 @@ export default function TableView() {
 
   const handleAddRow = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Check if we have values for all columns
+    const hasEmptyValues = columns.some(column => !newRowData[column.id]?.trim());
+    
+    if (hasEmptyValues) {
+      toast({
+        title: "שגיאה",
+        description: "יש למלא את כל השדות לפני שמירה",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (Object.keys(newRowData).length === 0) return;
+    
     addRowMutation.mutate(newRowData, {
       onSuccess: () => {
         // Clear only the row data but keep isAddingRow true
