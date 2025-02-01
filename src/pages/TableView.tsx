@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Plus, Trash2, Edit2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
@@ -181,99 +181,102 @@ export default function TableView() {
         <Card className="overflow-hidden">
           <ScrollArea className="h-[600px]">
             <div className="p-4">
-              <ScrollArea className="w-full" orientation="horizontal">
+              <ScrollArea className="w-full">
                 {columns.length > 0 ? (
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        {columns.map((column) => (
-                          <TableHead key={column.id} className="text-right whitespace-nowrap">
-                            <div className="flex items-center justify-between min-w-[150px]">
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => deleteColumnMutation.mutate(column.id)}
-                                className="opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive/10 hover:text-destructive"
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                              <span>{column.name}</span>
-                            </div>
-                          </TableHead>
-                        ))}
-                        <TableHead className="text-center sticky right-0 bg-background">פעולות</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      <AnimatePresence>
-                        {rows.map((row) => (
-                          <TableRow key={row.id} className="group hover:bg-muted/50">
+                  <div className="relative">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          {columns.map((column) => (
+                            <TableHead key={column.id} className="text-right whitespace-nowrap">
+                              <div className="flex items-center justify-between min-w-[150px]">
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => deleteColumnMutation.mutate(column.id)}
+                                  className="opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive/10 hover:text-destructive"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                                <span>{column.name}</span>
+                              </div>
+                            </TableHead>
+                          ))}
+                          <TableHead className="text-center sticky right-0 bg-background">פעולות</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        <AnimatePresence>
+                          {rows.map((row) => (
+                            <TableRow key={row.id} className="group hover:bg-muted/50">
+                              {columns.map((column) => (
+                                <TableCell key={column.id} className="text-right whitespace-nowrap min-w-[150px]">
+                                  {row.data[column.id] || "-"}
+                                </TableCell>
+                              ))}
+                              <TableCell className="text-center sticky right-0 bg-background">
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive/10 hover:text-destructive"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </AnimatePresence>
+                        {isAddingRow ? (
+                          <TableRow>
                             {columns.map((column) => (
-                              <TableCell key={column.id} className="text-right whitespace-nowrap min-w-[150px]">
-                                {row.data[column.id] || "-"}
+                              <TableCell key={column.id} className="min-w-[150px]">
+                                <Input
+                                  placeholder={`ערך ל${column.name}`}
+                                  value={newRowData[column.id] || ""}
+                                  onChange={(e) =>
+                                    setNewRowData((prev) => ({
+                                      ...prev,
+                                      [column.id]: e.target.value,
+                                    }))
+                                  }
+                                  className="text-right"
+                                  dir="rtl"
+                                />
                               </TableCell>
                             ))}
-                            <TableCell className="text-center sticky right-0 bg-background">
+                            <TableCell className="space-x-2 text-center sticky right-0 bg-background">
+                              <Button onClick={handleAddRow} size="sm" variant="outline">
+                                שמור
+                              </Button>
                               <Button
+                                onClick={() => {
+                                  setIsAddingRow(false);
+                                  setNewRowData({});
+                                }}
+                                size="sm"
                                 variant="ghost"
-                                size="icon"
-                                className="opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive/10 hover:text-destructive"
                               >
-                                <Trash2 className="h-4 w-4" />
+                                ביטול
                               </Button>
                             </TableCell>
                           </TableRow>
-                        ))}
-                      </AnimatePresence>
-                      {isAddingRow ? (
-                        <TableRow>
-                          {columns.map((column) => (
-                            <TableCell key={column.id} className="min-w-[150px]">
-                              <Input
-                                placeholder={`ערך ל${column.name}`}
-                                value={newRowData[column.id] || ""}
-                                onChange={(e) =>
-                                  setNewRowData((prev) => ({
-                                    ...prev,
-                                    [column.id]: e.target.value,
-                                  }))
-                                }
-                                className="text-right"
-                                dir="rtl"
-                              />
+                        ) : (
+                          <TableRow>
+                            <TableCell colSpan={columns.length + 1} className="text-center">
+                              <Button
+                                onClick={() => setIsAddingRow(true)}
+                                variant="outline"
+                                size="sm"
+                              >
+                                <Plus className="ml-2 h-4 w-4" /> הוסף שורה
+                              </Button>
                             </TableCell>
-                          ))}
-                          <TableCell className="space-x-2 text-center sticky right-0 bg-background">
-                            <Button onClick={handleAddRow} size="sm" variant="outline">
-                              שמור
-                            </Button>
-                            <Button
-                              onClick={() => {
-                                setIsAddingRow(false);
-                                setNewRowData({});
-                              }}
-                              size="sm"
-                              variant="ghost"
-                            >
-                              ביטול
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      ) : (
-                        <TableRow>
-                          <TableCell colSpan={columns.length + 1} className="text-center">
-                            <Button
-                              onClick={() => setIsAddingRow(true)}
-                              variant="outline"
-                              size="sm"
-                            >
-                              <Plus className="ml-2 h-4 w-4" /> הוסף שורה
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      )}
-                    </TableBody>
-                  </Table>
+                          </TableRow>
+                        )}
+                      </TableBody>
+                    </Table>
+                    <ScrollBar orientation="horizontal" />
+                  </div>
                 ) : (
                   <div className="text-center text-muted-foreground py-8">
                     אין עמודות עדיין. הוסף עמודה חדשה כדי להתחיל.
