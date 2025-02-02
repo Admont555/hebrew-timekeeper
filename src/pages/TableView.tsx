@@ -76,144 +76,138 @@ export default function TableView() {
   });
 
   const handleExportPDF = async () => {
-    const tableElement = document.getElementById('table-to-export');
-    if (!tableElement) return;
+    const element = document.getElementById('table-to-export');
+    if (!element) {
+      toast({
+        title: "שגיאה",
+        description: "לא נמצא תוכן לייצוא",
+        variant: "destructive",
+      });
+      return;
+    }
 
     try {
-      // Create a clone of the table for export styling
-      const exportTable = tableElement.cloneNode(true) as HTMLElement;
-      
-      // Set up container styles
+      // Create container for export
       const container = document.createElement('div');
-      container.style.direction = 'rtl';
+      container.style.width = '100%';
       container.style.padding = '20px';
+      container.style.direction = 'rtl';
       container.style.backgroundColor = '#ffffff';
       
-      // Add header section
+      // Add header with title and date
       const header = document.createElement('div');
       header.style.marginBottom = '20px';
-      header.style.textAlign = 'right';
-      header.style.fontFamily = 'Arial, sans-serif';
+      header.style.textAlign = 'center';
       
-      const titleElement = document.createElement('h1');
-      titleElement.textContent = table?.name || 'טבלה';
-      titleElement.style.fontSize = '24px';
-      titleElement.style.marginBottom = '8px';
-      titleElement.style.color = '#333';
+      const title = document.createElement('h1');
+      title.textContent = table?.name || 'טבלה';
+      title.style.fontSize = '24px';
+      title.style.marginBottom = '8px';
+      title.style.fontFamily = 'Arial, sans-serif';
+      title.style.color = '#333';
       
-      const dateElement = document.createElement('div');
-      dateElement.textContent = format(new Date(), 'PP', { locale: he });
-      dateElement.style.fontSize = '14px';
-      dateElement.style.color = '#666';
+      const date = document.createElement('div');
+      date.textContent = format(new Date(), 'PP', { locale: he });
+      date.style.fontSize = '14px';
+      date.style.color = '#666';
+      date.style.fontFamily = 'Arial, sans-serif';
       
-      header.appendChild(titleElement);
-      header.appendChild(dateElement);
+      header.appendChild(title);
+      header.appendChild(date);
       container.appendChild(header);
 
-      // Style the table
-      exportTable.style.width = '100%';
-      exportTable.style.borderCollapse = 'collapse';
-      exportTable.style.fontFamily = 'Arial, sans-serif';
-      
-      // Add custom styles
-      const styleSheet = document.createElement('style');
-      styleSheet.textContent = `
+      // Clone and style the table
+      const tableClone = element.cloneNode(true) as HTMLElement;
+      tableClone.style.width = '100%';
+      tableClone.style.borderCollapse = 'collapse';
+      tableClone.style.fontFamily = 'Arial, sans-serif';
+
+      // Add styles for table elements
+      const style = document.createElement('style');
+      style.textContent = `
         table {
           width: 100%;
           border-collapse: collapse;
-          margin-top: 12px;
+          margin-top: 20px;
           font-family: Arial, sans-serif;
         }
         th {
-          background-color: #f3f4f6;
-          color: #1f2937;
-          font-weight: 600;
+          background-color: #f8f9fa;
+          color: #1a202c;
+          font-weight: bold;
+          padding: 12px;
+          border: 1px solid #e2e8f0;
           text-align: right;
-          padding: 12px 16px;
-          border: 1px solid #e5e7eb;
-          font-size: 14px;
         }
         td {
-          padding: 12px 16px;
-          border: 1px solid #e5e7eb;
+          padding: 12px;
+          border: 1px solid #e2e8f0;
           text-align: right;
-          font-size: 14px;
-          color: #374151;
         }
         tr:nth-child(even) {
-          background-color: #f9fafb;
-        }
-        tr:hover {
-          background-color: #f3f4f6;
+          background-color: #f7fafc;
         }
       `;
       
-      container.appendChild(styleSheet);
-      container.appendChild(exportTable);
+      container.appendChild(style);
+      container.appendChild(tableClone);
 
       // Generate PDF with improved quality
       const canvas = await html2canvas(container, {
-        scale: 2,
+        scale: 2, // Higher scale for better quality
         useCORS: true,
         logging: false,
         backgroundColor: '#ffffff',
-        windowWidth: container.scrollWidth,
-        windowHeight: container.scrollHeight,
+        onclone: (clonedDoc) => {
+          const clonedElement = clonedDoc.getElementById('table-to-export');
+          if (clonedElement) {
+            clonedElement.style.width = '100%';
+          }
+        },
       });
 
+      const imgData = canvas.toDataURL('image/png');
+
+      // Create PDF with proper dimensions
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
-        format: 'a4'
+        format: 'a4',
       });
 
-      // Configure PDF settings
-      pdf.setR2L(true);
-      pdf.setFont("helvetica", "normal");
-      
-      // Calculate dimensions
-      const pageWidth = pdf.internal.pageSize.width;
-      const pageHeight = pdf.internal.pageSize.height;
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
       const margin = 10;
-      
-      // Calculate image dimensions while maintaining aspect ratio
-      const maxWidth = pageWidth - (margin * 2);
-      const maxHeight = pageHeight - (margin * 2);
-      
-      let imgWidth = maxWidth;
-      let imgHeight = (canvas.height * maxWidth) / canvas.width;
-      
-      // If the height exceeds the page, scale down proportionally
-      if (imgHeight > maxHeight) {
-        imgHeight = maxHeight;
-        imgWidth = (canvas.width * maxHeight) / canvas.height;
-      }
-      
-      // Center the image horizontally
-      const xOffset = (pageWidth - imgWidth) / 2;
-      
+
+      // Calculate dimensions while maintaining aspect ratio
+      const imgWidth = pdfWidth - (2 * margin);
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+      // Add image to PDF
       pdf.addImage(
-        canvas.toDataURL('image/png'),
+        imgData,
         'PNG',
-        xOffset,
+        margin,
         margin,
         imgWidth,
-        imgHeight
+        imgHeight,
+        undefined,
+        'FAST'
       );
 
-      // Save with formatted filename
-      const currentDate = format(new Date(), 'yyyy-MM-dd', { locale: he });
-      pdf.save(`${table?.name || 'table'}-${currentDate}.pdf`);
+      // Save the PDF
+      const fileName = `${table?.name || 'table'}-${format(new Date(), 'yyyy-MM-dd')}.pdf`;
+      pdf.save(fileName);
 
       toast({
-        title: "PDF יוצא בהצלחה",
+        title: "הייצוא הושלם בהצלחה",
         description: "הקובץ נשמר במחשב שלך",
       });
     } catch (error) {
       console.error('Error generating PDF:', error);
       toast({
-        title: "שגיאה ביצירת ה-PDF",
-        description: "אנא נסה שוב מאוחר יותר",
+        title: "שגיאה בייצוא הקובץ",
+        description: "אירעה שגיאה בעת ייצוא הקובץ. אנא נסה שוב",
         variant: "destructive",
       });
     }
