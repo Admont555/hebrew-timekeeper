@@ -102,11 +102,12 @@ export default function TableView() {
       title.style.fontSize = '24px';
       title.style.marginBottom = '8px';
       title.style.fontFamily = 'Arial, sans-serif';
+      title.style.color = '#000000';
       
       const date = document.createElement('div');
       date.textContent = format(new Date(), 'PP', { locale: he });
       date.style.fontSize = '14px';
-      date.style.color = '#666';
+      date.style.color = '#000000';
       
       header.appendChild(title);
       header.appendChild(date);
@@ -120,6 +121,10 @@ export default function TableView() {
       
       const tableClone = tableElement.cloneNode(true) as HTMLElement;
       
+      // Remove action column from the cloned table
+      const actionCells = tableClone.querySelectorAll('th:last-child, td:last-child');
+      actionCells.forEach(cell => cell.remove());
+      
       // Apply styles to the cloned table
       const styles = document.createElement('style');
       styles.textContent = `
@@ -128,19 +133,23 @@ export default function TableView() {
           border-collapse: collapse;
           margin-top: 20px;
           font-family: Arial, sans-serif;
+          color: #000000;
         }
         th, td {
-          border: 1px solid #e2e8f0;
+          border: 1px solid #000000;
           padding: 12px;
           text-align: right;
+          color: #000000;
         }
         th {
           background-color: #f8f9fa;
-          color: #1a202c;
           font-weight: bold;
         }
         tr:nth-child(even) {
-          background-color: #f7fafc;
+          background-color: #ffffff;
+        }
+        tr:nth-child(odd) {
+          background-color: #f8f9fa;
         }
       `;
       
