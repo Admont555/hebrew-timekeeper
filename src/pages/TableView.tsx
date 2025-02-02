@@ -82,24 +82,83 @@ export default function TableView() {
     try {
       // Create a clone of the table for export styling
       const exportTable = tableElement.cloneNode(true) as HTMLElement;
-      exportTable.style.direction = 'rtl';
-      exportTable.style.width = '100%';
       
-      // Add export-specific styles
+      // Set up container styles
+      const container = document.createElement('div');
+      container.style.direction = 'rtl';
+      container.style.padding = '20px';
+      container.style.backgroundColor = '#ffffff';
+      
+      // Add header section
+      const header = document.createElement('div');
+      header.style.marginBottom = '20px';
+      header.style.textAlign = 'right';
+      header.style.fontFamily = 'Arial, sans-serif';
+      
+      const titleElement = document.createElement('h1');
+      titleElement.textContent = table?.name || 'טבלה';
+      titleElement.style.fontSize = '24px';
+      titleElement.style.marginBottom = '8px';
+      titleElement.style.color = '#333';
+      
+      const dateElement = document.createElement('div');
+      dateElement.textContent = format(new Date(), 'PP', { locale: he });
+      dateElement.style.fontSize = '14px';
+      dateElement.style.color = '#666';
+      
+      header.appendChild(titleElement);
+      header.appendChild(dateElement);
+      container.appendChild(header);
+
+      // Style the table
+      exportTable.style.width = '100%';
+      exportTable.style.borderCollapse = 'collapse';
+      exportTable.style.fontFamily = 'Arial, sans-serif';
+      
+      // Add custom styles
       const styleSheet = document.createElement('style');
       styleSheet.textContent = `
-        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-        th, td { border: 1px solid #ddd; padding: 12px; text-align: right; }
-        th { background-color: #f8f9fa; font-weight: bold; }
-        tr:nth-child(even) { background-color: #f9f9f9; }
+        table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-top: 12px;
+          font-family: Arial, sans-serif;
+        }
+        th {
+          background-color: #f3f4f6;
+          color: #1f2937;
+          font-weight: 600;
+          text-align: right;
+          padding: 12px 16px;
+          border: 1px solid #e5e7eb;
+          font-size: 14px;
+        }
+        td {
+          padding: 12px 16px;
+          border: 1px solid #e5e7eb;
+          text-align: right;
+          font-size: 14px;
+          color: #374151;
+        }
+        tr:nth-child(even) {
+          background-color: #f9fafb;
+        }
+        tr:hover {
+          background-color: #f3f4f6;
+        }
       `;
-      exportTable.appendChild(styleSheet);
+      
+      container.appendChild(styleSheet);
+      container.appendChild(exportTable);
 
-      const canvas = await html2canvas(exportTable, {
+      // Generate PDF with improved quality
+      const canvas = await html2canvas(container, {
         scale: 2,
         useCORS: true,
         logging: false,
         backgroundColor: '#ffffff',
+        windowWidth: container.scrollWidth,
+        windowHeight: container.scrollHeight,
       });
 
       const pdf = new jsPDF({
@@ -108,54 +167,42 @@ export default function TableView() {
         format: 'a4'
       });
 
-      // Add title with RTL support
+      // Configure PDF settings
       pdf.setR2L(true);
       pdf.setFont("helvetica", "normal");
-      pdf.setFontSize(16);
       
-      const title = table?.name || 'טבלה';
-      const currentDate = format(new Date(), 'PP', { locale: he });
-      
-      // Calculate text width to position from right
-      const titleWidth = pdf.getStringUnitWidth(title) * 16 / pdf.internal.scaleFactor;
-      const dateWidth = pdf.getStringUnitWidth(currentDate) * 12 / pdf.internal.scaleFactor;
-      
-      // Add title and date with improved positioning
-      pdf.text(title, pdf.internal.pageSize.width - 20 - titleWidth, 20);
-      pdf.setFontSize(12);
-      pdf.text(currentDate, pdf.internal.pageSize.width - 20 - dateWidth, 30);
-
-      // Add the table image with better positioning and scaling
+      // Calculate dimensions
       const pageWidth = pdf.internal.pageSize.width;
       const pageHeight = pdf.internal.pageSize.height;
-      const margin = 20;
+      const margin = 10;
       
-      const imgWidth = pageWidth - (margin * 2);
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      // Calculate image dimensions while maintaining aspect ratio
+      const maxWidth = pageWidth - (margin * 2);
+      const maxHeight = pageHeight - (margin * 2);
       
-      // Check if the image needs to be split across multiple pages
-      if (imgHeight > (pageHeight - 50)) {
-        const scale = (pageHeight - 50) / imgHeight;
-        const scaledWidth = imgWidth * scale;
-        pdf.addImage(
-          canvas.toDataURL('image/png'),
-          'PNG',
-          margin,
-          40,
-          scaledWidth,
-          pageHeight - 50
-        );
-      } else {
-        pdf.addImage(
-          canvas.toDataURL('image/png'),
-          'PNG',
-          margin,
-          40,
-          imgWidth,
-          imgHeight
-        );
+      let imgWidth = maxWidth;
+      let imgHeight = (canvas.height * maxWidth) / canvas.width;
+      
+      // If the height exceeds the page, scale down proportionally
+      if (imgHeight > maxHeight) {
+        imgHeight = maxHeight;
+        imgWidth = (canvas.width * maxHeight) / canvas.height;
       }
+      
+      // Center the image horizontally
+      const xOffset = (pageWidth - imgWidth) / 2;
+      
+      pdf.addImage(
+        canvas.toDataURL('image/png'),
+        'PNG',
+        xOffset,
+        margin,
+        imgWidth,
+        imgHeight
+      );
 
+      // Save with formatted filename
+      const currentDate = format(new Date(), 'yyyy-MM-dd', { locale: he });
       pdf.save(`${table?.name || 'table'}-${currentDate}.pdf`);
 
       toast({
