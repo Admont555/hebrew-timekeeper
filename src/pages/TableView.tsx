@@ -76,25 +76,23 @@ export default function TableView() {
   });
 
   const handleExportPDF = async () => {
-    const element = document.getElementById('table-to-export');
-    if (!element) {
-      toast({
-        title: "שגיאה",
-        description: "לא נמצא תוכן לייצוא",
-        variant: "destructive",
-      });
-      return;
-    }
+    // Create a temporary container
+    const container = document.createElement('div');
+    container.style.position = 'absolute';
+    container.style.left = '-9999px';
+    container.style.top = '-9999px';
+    document.body.appendChild(container);
 
     try {
-      // Create container for export
-      const container = document.createElement('div');
-      container.style.width = '100%';
-      container.style.padding = '20px';
-      container.style.direction = 'rtl';
-      container.style.backgroundColor = '#ffffff';
+      // Create and style the content container
+      const contentContainer = document.createElement('div');
+      contentContainer.style.width = '100%';
+      contentContainer.style.padding = '20px';
+      contentContainer.style.direction = 'rtl';
+      contentContainer.style.backgroundColor = '#ffffff';
+      container.appendChild(contentContainer);
       
-      // Add header with title and date
+      // Add header
       const header = document.createElement('div');
       header.style.marginBottom = '20px';
       header.style.textAlign = 'center';
@@ -104,70 +102,61 @@ export default function TableView() {
       title.style.fontSize = '24px';
       title.style.marginBottom = '8px';
       title.style.fontFamily = 'Arial, sans-serif';
-      title.style.color = '#333';
       
       const date = document.createElement('div');
       date.textContent = format(new Date(), 'PP', { locale: he });
       date.style.fontSize = '14px';
       date.style.color = '#666';
-      date.style.fontFamily = 'Arial, sans-serif';
       
       header.appendChild(title);
       header.appendChild(date);
-      container.appendChild(header);
+      contentContainer.appendChild(header);
 
-      // Clone and style the table
-      const tableClone = element.cloneNode(true) as HTMLElement;
-      tableClone.style.width = '100%';
-      tableClone.style.borderCollapse = 'collapse';
-      tableClone.style.fontFamily = 'Arial, sans-serif';
-
-      // Add styles for table elements
-      const style = document.createElement('style');
-      style.textContent = `
+      // Clone and prepare the table
+      const tableElement = document.querySelector('table');
+      if (!tableElement) {
+        throw new Error('Table element not found');
+      }
+      
+      const tableClone = tableElement.cloneNode(true) as HTMLElement;
+      
+      // Apply styles to the cloned table
+      const styles = document.createElement('style');
+      styles.textContent = `
         table {
           width: 100%;
           border-collapse: collapse;
           margin-top: 20px;
           font-family: Arial, sans-serif;
         }
+        th, td {
+          border: 1px solid #e2e8f0;
+          padding: 12px;
+          text-align: right;
+        }
         th {
           background-color: #f8f9fa;
           color: #1a202c;
           font-weight: bold;
-          padding: 12px;
-          border: 1px solid #e2e8f0;
-          text-align: right;
-        }
-        td {
-          padding: 12px;
-          border: 1px solid #e2e8f0;
-          text-align: right;
         }
         tr:nth-child(even) {
           background-color: #f7fafc;
         }
       `;
       
-      container.appendChild(style);
-      container.appendChild(tableClone);
+      contentContainer.appendChild(styles);
+      contentContainer.appendChild(tableClone);
 
       // Generate PDF with improved quality
-      const canvas = await html2canvas(container, {
-        scale: 2, // Higher scale for better quality
+      const canvas = await html2canvas(contentContainer, {
+        scale: 2,
         useCORS: true,
         logging: false,
         backgroundColor: '#ffffff',
-        onclone: (clonedDoc) => {
-          const clonedElement = clonedDoc.getElementById('table-to-export');
-          if (clonedElement) {
-            clonedElement.style.width = '100%';
-          }
-        },
       });
 
       const imgData = canvas.toDataURL('image/png');
-
+      
       // Create PDF with proper dimensions
       const pdf = new jsPDF({
         orientation: 'portrait',
@@ -190,7 +179,7 @@ export default function TableView() {
         margin,
         margin,
         imgWidth,
-        imgHeight,
+        Math.min(imgHeight, pdfHeight - (2 * margin)),
         undefined,
         'FAST'
       );
@@ -210,6 +199,11 @@ export default function TableView() {
         description: "אירעה שגיאה בעת ייצוא הקובץ. אנא נסה שוב",
         variant: "destructive",
       });
+    } finally {
+      // Clean up
+      if (container && container.parentNode) {
+        container.parentNode.removeChild(container);
+      }
     }
   };
 
