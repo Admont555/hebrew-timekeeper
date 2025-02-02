@@ -16,7 +16,14 @@ import { useToast } from "./hooks/use-toast";
 import { AppSidebar } from "./components/AppSidebar";
 import { NavMenu } from "./components/NavMenu";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: false,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
@@ -24,13 +31,34 @@ const App = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Initialize auth state
     const initAuth = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error('Session error:', error);
+          throw error;
+        }
+
         setIsAuthenticated(!!session);
+
+        // Attempt to refresh the session if it exists
+        if (session) {
+          const { error: refreshError } = await supabase.auth.refreshSession();
+          if (refreshError) {
+            console.error('Session refresh error:', refreshError);
+            // If refresh fails, sign out the user
+            await supabase.auth.signOut();
+            setIsAuthenticated(false);
+            toast({
+              title: "פג תוקף החיבור",
+              description: "נא להתחבר מחדש",
+              variant: "destructive",
+            });
+          }
+        }
       } catch (error) {
-        console.error('Error getting session:', error);
+        console.error('Auth initialization error:', error);
         setIsAuthenticated(false);
       } finally {
         setIsLoading(false);
@@ -39,16 +67,18 @@ const App = () => {
 
     initAuth();
 
-    // Listen for auth changes
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('Auth state changed:', event, !!session);
       
+      if (event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED') {
+        // Clear any cached data on sign out or token refresh
+        queryClient.clear();
+      }
+
       if (event === 'SIGNED_OUT') {
         setIsAuthenticated(false);
-        // Clear any cached data
-        queryClient.clear();
         toast({
           title: "התנתקת מהמערכת",
           description: "נא להתחבר מחדש",
@@ -58,7 +88,6 @@ const App = () => {
       }
     });
 
-    // Cleanup subscription
     return () => {
       subscription.unsubscribe();
     };
