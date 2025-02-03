@@ -20,6 +20,7 @@ export const useTaskMutations = () => {
       const dateStr = now.toISOString().split("T")[0];
       
       const newTask = {
+        id: crypto.randomUUID(), // Generate a temporary ID for offline tasks
         title,
         timestamp: now.toISOString(),
         completed: false,
