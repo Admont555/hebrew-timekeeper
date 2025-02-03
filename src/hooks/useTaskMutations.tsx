@@ -2,10 +2,12 @@ import { useQueryClient, useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { TaskPriority } from "@/types/task";
 import { useToast } from "@/hooks/use-toast";
+import { useOfflineSync } from "./useOfflineSync";
 
 export const useTaskMutations = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { isOnline, saveTask } = useOfflineSync();
 
   const addTaskMutation = useMutation({
     mutationFn: async ({ title, duration, priority, worker }: { 
@@ -27,6 +29,10 @@ export const useTaskMutations = () => {
         worker,
       };
 
+      if (!isOnline) {
+        return saveTask(newTask);
+      }
+
       const { error } = await supabase
         .from("tasks")
         .insert(newTask);
@@ -37,7 +43,7 @@ export const useTaskMutations = () => {
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
       toast({
         title: "משימה נוספה",
-        description: "המשימה החדשה נוספה בהצלחה",
+        description: isOnline ? "המשימה החדשה נוספה בהצלחה" : "המשימה נשמרה במצב לא מקוון",
       });
     },
     onError: (error) => {
@@ -51,6 +57,10 @@ export const useTaskMutations = () => {
 
   const deleteTaskMutation = useMutation({
     mutationFn: async (taskId: string) => {
+      if (!isOnline) {
+        throw new Error("לא ניתן למחוק משימות במצב לא מקוון");
+      }
+
       const { error } = await supabase
         .from("tasks")
         .delete()
@@ -82,6 +92,10 @@ export const useTaskMutations = () => {
       newPriority: TaskPriority;
       worker: string;
     }) => {
+      if (!isOnline) {
+        throw new Error("לא ניתן לערוך משימות במצב לא מקוון");
+      }
+
       const { error } = await supabase
         .from("tasks")
         .update({ 
@@ -112,6 +126,10 @@ export const useTaskMutations = () => {
 
   const toggleTaskMutation = useMutation({
     mutationFn: async ({ taskId, worker }: { taskId: string; worker: string }) => {
+      if (!isOnline) {
+        throw new Error("לא ניתן לשנות סטטוס משימה במצב לא מקוון");
+      }
+
       const { data: tasks } = await supabase
         .from("tasks")
         .select("*")
