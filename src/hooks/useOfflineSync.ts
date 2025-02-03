@@ -3,6 +3,11 @@ import { saveTaskOffline, getOfflineTasks, deleteOfflineTask } from '@/utils/ind
 import { useToast } from '@/hooks/use-toast';
 import { Task } from '@/types/task';
 
+interface OfflineTask extends Task {
+  sync_status: 'pending' | 'synced';
+  offline_id: string;
+}
+
 export function useOfflineSync() {
   const { toast } = useToast();
   const isOnline = navigator.onLine;
@@ -11,10 +16,10 @@ export function useOfflineSync() {
     if (!isOnline) return;
 
     try {
-      const offlineTasks = await getOfflineTasks();
+      const offlineTasks = await getOfflineTasks() as OfflineTask[];
       if (offlineTasks.length > 0) {
         // Request sync
-        if ('serviceWorker' in navigator && 'sync' in registration) {
+        if ('serviceWorker' in navigator && 'sync' in ServiceWorkerRegistration.prototype) {
           const registration = await navigator.serviceWorker.ready;
           await registration.sync.register('sync-tasks');
         }
@@ -31,11 +36,12 @@ export function useOfflineSync() {
 
   const saveTask = useCallback(async (task: Task) => {
     if (!isOnline) {
-      await saveTaskOffline({
+      const offlineTask: OfflineTask = {
         ...task,
         sync_status: 'pending',
         offline_id: crypto.randomUUID(),
-      });
+      };
+      await saveTaskOffline(offlineTask);
       toast({
         title: "משימה נשמרה במצב לא מקוון",
         description: "המשימה תסונכרן כאשר יהיה חיבור לאינטרנט.",
