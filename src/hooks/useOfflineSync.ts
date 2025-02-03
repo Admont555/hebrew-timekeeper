@@ -3,6 +3,15 @@ import { saveTaskOffline, getOfflineTasks, deleteOfflineTask } from '@/utils/ind
 import { useToast } from '@/hooks/use-toast';
 import { Task } from '@/types/task';
 
+// Extend ServiceWorkerRegistration to include sync
+declare global {
+  interface ServiceWorkerRegistration {
+    sync: {
+      register(tag: string): Promise<void>;
+    };
+  }
+}
+
 interface OfflineTask extends Task {
   sync_status: 'pending' | 'synced';
   offline_id: string;
