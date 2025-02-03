@@ -4,22 +4,17 @@ import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import TaskAttachments from "./task/TaskAttachments";
 
 interface TaskCommentsProps {
   taskId: string;
   comments: string[];
   onCommentsUpdate: (newComments: string[]) => void;
-  attachments: { name: string; url: string }[];
-  onAttachmentsUpdate: (newAttachments: { name: string; url: string }[]) => void;
 }
 
 const TaskComments = ({ 
   taskId, 
   comments, 
   onCommentsUpdate,
-  attachments = [],
-  onAttachmentsUpdate 
 }: TaskCommentsProps) => {
   const [newComment, setNewComment] = useState("");
   const { toast } = useToast();
@@ -55,11 +50,6 @@ const TaskComments = ({
 
   return (
     <div className="space-y-4">
-      <TaskAttachments
-        taskId={taskId}
-        attachments={attachments}
-        onAttachmentsUpdate={onAttachmentsUpdate}
-      />
       <ScrollArea className="h-32 rounded-md border p-4">
         {comments.length === 0 ? (
           <p className="text-gray-500 dark:text-gray-400 text-right">אין תגובות עדיין</p>
