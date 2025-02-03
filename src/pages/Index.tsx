@@ -1,5 +1,5 @@
 import { Toaster } from "@/components/ui/toaster";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useParams, Navigate, useNavigate } from "react-router-dom";
 import RandomQuote from "@/components/RandomQuote";
 import { TasksByDate, TaskPriority, Task } from "@/types/task";
@@ -19,13 +19,20 @@ import TaskForm from "@/components/TaskForm";
 import TaskList from "@/components/TaskList";
 import DateRangeSelector from "@/components/task/DateRangeSelector";
 import { NavMenu } from "@/components/NavMenu";
+import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
+import { KEYBOARD_SHORTCUTS } from "@/config/keyboardShortcuts";
+import ShortcutsHelp from "@/components/ShortcutsHelp";
+import { useTheme } from "@/components/ThemeProvider";
 
 const Index = () => {
   const { workerId } = useParams();
   const navigate = useNavigate();
   const [selectedDate, setSelectedDate] = useState<Date>();
   const [showConfetti, setShowConfetti] = useState(false);
+  const [showShortcutsHelp, setShowShortcutsHelp] = useState(false);
+  const [isAddingTask, setIsAddingTask] = useState(false);
   const { toast } = useToast();
+  const { setTheme, theme } = useTheme();
 
   const {
     currentWorker,
@@ -122,6 +129,18 @@ const Index = () => {
     setTimeout(() => setShowConfetti(false), 3000);
   };
 
+  const shortcuts = {
+    [KEYBOARD_SHORTCUTS.ADD_TASK]: () => setIsAddingTask(true),
+    [KEYBOARD_SHORTCUTS.TOGGLE_THEME]: () => setTheme(theme === 'dark' ? 'light' : 'dark'),
+    [KEYBOARD_SHORTCUTS.HELP]: () => setShowShortcutsHelp(true),
+    [KEYBOARD_SHORTCUTS.ESCAPE_MODAL]: () => {
+      setShowShortcutsHelp(false);
+      setIsAddingTask(false);
+    },
+  };
+
+  useKeyboardShortcuts(shortcuts);
+
   if (!workerId) {
     return <Navigate to="/" />;
   }
@@ -134,6 +153,11 @@ const Index = () => {
         className="scroll-container safe-area-top safe-area-bottom min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300"
       >
         <NavMenu />
+        <ShortcutsHelp 
+          open={showShortcutsHelp} 
+          onOpenChange={setShowShortcutsHelp} 
+        />
+        
         <div className="container mx-auto px-4 py-6 max-w-4xl">
           <div className="flex items-center justify-between mb-6">
             <Button 
@@ -161,11 +185,24 @@ const Index = () => {
             transition={{ delay: 0.3, duration: 0.5 }}
             className="bg-white/80 backdrop-blur-sm dark:bg-gray-800/80 rounded-xl shadow-lg p-4 mb-6 hover:shadow-xl transition-shadow duration-300"
           >
-            <TaskForm onAddTask={(title, duration, priority) => 
-              addTaskMutation.mutate({ title, duration, priority, worker: workerId })} 
-            />
+            {isAddingTask ? (
+              <TaskForm 
+                onAddTask={(title, duration, priority) => {
+                  addTaskMutation.mutate({ title, duration, priority, worker: workerId });
+                  setIsAddingTask(false);
+                }}
+                onCancel={() => setIsAddingTask(false)}
+              />
+            ) : (
+              <Button 
+                onClick={() => setIsAddingTask(true)}
+                className="w-full"
+              >
+                הוסף משימה חדשה (Ctrl+N)
+              </Button>
+            )}
           </motion.div>
-
+          
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
