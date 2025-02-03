@@ -105,8 +105,6 @@ const TaskItem = ({ task, onToggleTask, onTaskComplete, onDeleteTask, onEdit }: 
           taskId={task.id}
           comments={task.comments || []}
           onCommentsUpdate={handleCommentsUpdate}
-          attachments={task.attachments || []}
-          onAttachmentsUpdate={handleAttachmentsUpdate}
         />
       )}
     </motion.div>
