@@ -9,12 +9,16 @@ interface TaskCommentsProps {
   taskId: string;
   comments: string[];
   onCommentsUpdate: (newComments: string[]) => void;
+  attachments?: { name: string; url: string; }[];
+  onAttachmentsUpdate?: (newAttachments: { name: string; url: string; }[]) => void;
 }
 
 const TaskComments = ({ 
   taskId, 
   comments, 
   onCommentsUpdate,
+  attachments = [],
+  onAttachmentsUpdate
 }: TaskCommentsProps) => {
   const [newComment, setNewComment] = useState("");
   const { toast } = useToast();
