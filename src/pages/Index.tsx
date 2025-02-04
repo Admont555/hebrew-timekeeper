@@ -85,14 +85,7 @@ const Index = () => {
       <div className="flex flex-col gap-8">
         <div className="flex flex-col gap-4">
           <div className="flex items-center justify-between">
-            <WorkerNameEditor 
-              currentName={worker.name}
-              currentAvatarUrl={worker.avatar_url}
-              workerId={worker.worker_id}
-              onNameChange={(id, newName, avatarUrl) => {
-                // Handle name change
-              }}
-            />
+            <WorkerNameEditor worker={worker} />
             <Sheet open={isFormOpen} onOpenChange={setIsFormOpen}>
               <SheetTrigger asChild>
                 <Button>
@@ -102,32 +95,27 @@ const Index = () => {
               </SheetTrigger>
               <SheetContent>
                 <TaskForm
-                  onAddTask={(title, duration, priority) => {
-                    // Handle task addition
-                    setIsFormOpen(false);
-                  }}
+                  onSuccess={() => setIsFormOpen(false)}
+                  workerId={workerId}
                 />
               </SheetContent>
             </Sheet>
           </div>
-          <TaskStats tasksByDate={{}} />
-          <TaskAnalytics tasksByDate={{}} />
+          <TaskStats workerId={workerId} selectedDate={selectedDate} />
+          <TaskAnalytics workerId={workerId} />
         </div>
 
         <TaskFilters
-          priority="all"
-          onPriorityChange={() => {}}
-          sortBy="date"
-          onSortChange={() => {}}
+          selectedDate={selectedDate}
+          onDateChange={setSelectedDate}
+          showArchived={showArchived}
+          onShowArchivedChange={setShowArchived}
         />
 
         <TaskListContainer
-          tasksByDate={{}}
-          isLoading={false}
-          onToggleTask={() => {}}
-          onTaskComplete={() => {}}
-          onDeleteTask={() => {}}
-          onEditTask={() => {}}
+          workerId={workerId}
+          selectedDate={selectedDate}
+          showArchived={showArchived}
         />
       </div>
     </div>
