@@ -1,5 +1,4 @@
 export const KEYBOARD_SHORTCUTS = {
-  ADD_TASK: 'ctrl+n',
   TOGGLE_THEME: 'ctrl+t',
   SEARCH: 'ctrl+f',
   HELP: '?',
@@ -7,7 +6,6 @@ export const KEYBOARD_SHORTCUTS = {
 } as const;
 
 export const SHORTCUT_DESCRIPTIONS = {
-  [KEYBOARD_SHORTCUTS.ADD_TASK]: 'הוסף משימה חדשה',
   [KEYBOARD_SHORTCUTS.TOGGLE_THEME]: 'החלף מצב תצוגה',
   [KEYBOARD_SHORTCUTS.SEARCH]: 'חיפוש',
   [KEYBOARD_SHORTCUTS.HELP]: 'הצג עזרה',
