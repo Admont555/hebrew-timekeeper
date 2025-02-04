@@ -26,13 +26,20 @@ export default function Profile() {
     async function loadProfile() {
       try {
         const { data: { session } } = await supabase.auth.getSession();
-        if (!session?.user) return;
+        if (!session?.user) {
+          toast({
+            title: "לא מחובר",
+            description: "נא להתחבר כדי לצפות בפרופיל",
+            variant: "destructive",
+          });
+          return;
+        }
 
         const { data: profile, error } = await supabase
           .from('profiles')
           .select('*')
           .eq('id', session.user.id)
-          .single();
+          .maybeSingle();
 
         if (error) throw error;
 
@@ -40,7 +47,25 @@ export default function Profile() {
           setUsername(profile.username || "");
           setThemePreference(profile.theme_preference || "system");
           setLanguagePreference(profile.language_preference || "he");
-          setNotificationEnabled(profile.notification_enabled);
+          setNotificationEnabled(profile.notification_enabled ?? true);
+        } else {
+          // If no profile exists, we'll create one with default values
+          const { error: insertError } = await supabase
+            .from('profiles')
+            .insert([{
+              id: session.user.id,
+              username: "",
+              theme_preference: "system",
+              language_preference: "he",
+              notification_enabled: true
+            }]);
+
+          if (insertError) throw insertError;
+
+          toast({
+            title: "פרופיל חדש נוצר",
+            description: "הפרופיל שלך נוצר בהצלחה",
+          });
         }
       } catch (error) {
         console.error('Error loading profile:', error);
