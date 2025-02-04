@@ -6,7 +6,7 @@ import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
-import { Users, Loader2, Mail, Lock } from "lucide-react";
+import { Users, Loader2, Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -22,6 +22,7 @@ const loginSchema = z.object({
 
 const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -196,11 +197,26 @@ const Login = () => {
                               </div>
                               <Input
                                 {...field}
-                                type={fieldName === "password" ? "password" : "email"}
+                                type={fieldName === "password" ? (showPassword ? "text" : "password") : "email"}
                                 placeholder={placeholder}
                                 className="text-right pl-10 bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm border-[#E5DEFF] dark:border-gray-700 shadow-sm hover:border-[#9b87f5] dark:hover:border-[#8B5CF6] transition-all duration-300 focus-visible:ring-[#9b87f5] dark:focus-visible:ring-[#8B5CF6] focus-visible:ring-opacity-50"
                                 disabled={isLoading}
                               />
+                              {fieldName === "password" && (
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="sm"
+                                  className="absolute left-10 top-1/2 -translate-y-1/2 hover:bg-transparent"
+                                  onClick={() => setShowPassword(!showPassword)}
+                                >
+                                  {showPassword ? (
+                                    <EyeOff className="h-4 w-4 text-muted-foreground" />
+                                  ) : (
+                                    <Eye className="h-4 w-4 text-muted-foreground" />
+                                  )}
+                                </Button>
+                              )}
                             </div>
                           </FormControl>
                         </motion.div>
