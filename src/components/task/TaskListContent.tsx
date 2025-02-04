@@ -4,6 +4,9 @@ import { he } from "date-fns/locale";
 import { AnimatePresence, motion } from "framer-motion";
 import { Loader2 } from "lucide-react";
 import TaskItem from "../TaskItem";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "../ui/alert-dialog";
+import { Button } from "../ui/button";
+import { Trash2 } from "lucide-react";
 
 interface TaskListContentProps {
   tasksByDate: TasksByDate;
@@ -25,6 +28,10 @@ const TaskListContent = ({
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
     return format(date, "EEEE, d בMMMM yyyy", { locale: he });
+  };
+
+  const handleEditTask = (task: Task) => {
+    onEditTask(task.id, task.title, task.duration, task.priority);
   };
 
   if (isLoading) {
@@ -65,7 +72,7 @@ const TaskListContent = ({
                   onToggleTask={onToggleTask}
                   onTaskComplete={onTaskComplete}
                   onDeleteTask={onDeleteTask}
-                  onEdit={onEditTask}
+                  onEdit={handleEditTask}
                 />
               ))}
             </div>

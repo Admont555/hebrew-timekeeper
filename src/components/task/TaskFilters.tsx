@@ -1,49 +1,49 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Button } from "@/components/ui/button";
-import { CalendarIcon } from "lucide-react";
-import { format } from "date-fns";
-import { he } from "date-fns/locale";
+import { TaskPriority } from "@/types/task";
 
 interface TaskFiltersProps {
-  selectedDate: Date;
-  onDateChange: (date: Date) => void;
-  showArchived: boolean;
-  onShowArchivedChange: (show: boolean) => void;
+  priority: TaskPriority | 'all';
+  onPriorityChange: (value: TaskPriority | 'all') => void;
+  sortBy: 'date' | 'priority' | 'duration';
+  onSortChange: (value: 'date' | 'priority' | 'duration') => void;
 }
 
-const TaskFilters = ({ selectedDate, onDateChange, showArchived, onShowArchivedChange }: TaskFiltersProps) => {
+const TaskFilters = ({ priority, onPriorityChange, sortBy, onSortChange }: TaskFiltersProps) => {
   return (
-    <div className="flex flex-col sm:flex-row gap-4 mb-6 items-center">
+    <div className="flex flex-col sm:flex-row gap-4 mb-6">
       <div className="flex items-center gap-2">
-        <Label htmlFor="date-picker" className="min-w-24">תאריך:</Label>
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button variant="outline" className="w-[200px] justify-start text-right">
-              <CalendarIcon className="ml-2 h-4 w-4" />
-              {format(selectedDate, "P", { locale: he })}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="start">
-            <Calendar
-              mode="single"
-              selected={selectedDate}
-              onSelect={(date) => date && onDateChange(date)}
-              initialFocus
-            />
-          </PopoverContent>
-        </Popover>
+        <Label htmlFor="priority-filter" className="min-w-24">סנן לפי עדיפות:</Label>
+        <Select
+          value={priority}
+          onValueChange={(value: TaskPriority | 'all') => onPriorityChange(value)}
+        >
+          <SelectTrigger id="priority-filter" className="w-[180px]">
+            <SelectValue placeholder="כל העדיפויות" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">הכל</SelectItem>
+            <SelectItem value="high">דחוף</SelectItem>
+            <SelectItem value="normal">רגיל</SelectItem>
+            <SelectItem value="low">נמוך</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
       <div className="flex items-center gap-2">
-        <Label htmlFor="show-archived" className="min-w-24">הצג משימות שהושלמו:</Label>
-        <Switch
-          id="show-archived"
-          checked={showArchived}
-          onCheckedChange={onShowArchivedChange}
-        />
+        <Label htmlFor="sort-by" className="min-w-24">מיין לפי:</Label>
+        <Select
+          value={sortBy}
+          onValueChange={(value: 'date' | 'priority' | 'duration') => onSortChange(value)}
+        >
+          <SelectTrigger id="sort-by" className="w-[180px]">
+            <SelectValue placeholder="מיין לפי" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="date">תאריך</SelectItem>
+            <SelectItem value="priority">עדיפות</SelectItem>
+            <SelectItem value="duration">משך זמן</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
     </div>
   );

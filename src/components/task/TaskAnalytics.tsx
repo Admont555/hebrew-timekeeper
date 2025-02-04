@@ -1,35 +1,14 @@
 import { ResponsiveLine } from "@nivo/line";
 import { ResponsiveBar } from "@nivo/bar";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { TasksByDate } from "@/types/task";
 import { motion } from "framer-motion";
 
 interface TaskAnalyticsProps {
-  workerId: string;
+  tasksByDate: TasksByDate;
 }
 
-const TaskAnalytics = ({ workerId }: TaskAnalyticsProps) => {
-  const { data: tasks = [] } = useQuery({
-    queryKey: ['tasks', workerId],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('tasks')
-        .select('*')
-        .eq('worker', workerId);
-
-      if (error) throw error;
-      return data || [];
-    },
-  });
-
+const TaskAnalytics = ({ tasksByDate }: TaskAnalyticsProps) => {
   const getCompletionData = () => {
-    const tasksByDate = tasks.reduce((acc: { [key: string]: any[] }, task) => {
-      const date = task.date;
-      if (!acc[date]) acc[date] = [];
-      acc[date].push(task);
-      return acc;
-    }, {});
-
     const data = Object.entries(tasksByDate).map(([date, tasks]) => ({
       x: date,
       y: tasks.filter(task => task.completed).length,
@@ -46,8 +25,8 @@ const TaskAnalytics = ({ workerId }: TaskAnalyticsProps) => {
 
   const getPriorityData = () => {
     const priorities = { high: 0, normal: 0, low: 0 };
-    tasks.forEach(task => {
-      priorities[task.priority as keyof typeof priorities]++;
+    Object.values(tasksByDate).flat().forEach(task => {
+      priorities[task.priority]++;
     });
     
     return Object.entries(priorities).map(([priority, count]) => ({

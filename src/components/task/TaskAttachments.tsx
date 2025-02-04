@@ -15,63 +15,48 @@ const TaskAttachments = ({ taskId, attachments, onAttachmentsUpdate }: TaskAttac
   const { toast } = useToast();
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (!files || files.length === 0) return;
+    const file = event.target.files?.[0];
+    if (!file) return;
 
     setIsUploading(true);
-    const uploadedAttachments = [...attachments];
-    const failedUploads: string[] = [];
-
     try {
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        const fileExt = file.name.split('.').pop();
-        const filePath = `${taskId}/${crypto.randomUUID()}.${fileExt}`;
+      const fileExt = file.name.split('.').pop();
+      const filePath = `${taskId}/${crypto.randomUUID()}.${fileExt}`;
 
-        const { error: uploadError, data } = await supabase.storage
-          .from('task-attachments')
-          .upload(filePath, file);
+      const { error: uploadError, data } = await supabase.storage
+        .from('task-attachments')
+        .upload(filePath, file);
 
-        if (uploadError) {
-          failedUploads.push(file.name);
-          continue;
-        }
+      if (uploadError) throw uploadError;
 
-        const { data: { publicUrl } } = supabase.storage
-          .from('task-attachments')
-          .getPublicUrl(filePath);
+      const { data: { publicUrl } } = supabase.storage
+        .from('task-attachments')
+        .getPublicUrl(filePath);
 
-        uploadedAttachments.push({
-          name: file.name,
-          url: publicUrl
-        });
-      }
+      const newAttachment = {
+        name: file.name,
+        url: publicUrl
+      };
 
+      const updatedAttachments = [...attachments, newAttachment];
+      
       const { error: updateError } = await supabase
         .from('tasks')
-        .update({ attachments: uploadedAttachments })
+        .update({ attachments: updatedAttachments })
         .eq('id', taskId);
 
       if (updateError) throw updateError;
 
-      onAttachmentsUpdate(uploadedAttachments);
+      onAttachmentsUpdate(updatedAttachments);
       
-      if (failedUploads.length === 0) {
-        toast({
-          title: "קבצים הועלו",
-          description: "כל הקבצים הועלו בהצלחה",
-        });
-      } else {
-        toast({
-          title: "חלק מהקבצים לא הועלו",
-          description: `הקבצים הבאים נכשלו: ${failedUploads.join(', ')}`,
-          variant: "destructive",
-        });
-      }
+      toast({
+        title: "קובץ הועלה",
+        description: "הקובץ הועלה בהצלחה",
+      });
     } catch (error) {
       toast({
-        title: "שגיאה בהעלאת קבצים",
-        description: "אירעה שגיאה בעת העלאת הקבצים",
+        title: "שגיאה בהעלאת קובץ",
+        description: "אירעה שגיאה בעת העלאת הקובץ",
         variant: "destructive",
       });
     } finally {
@@ -119,7 +104,6 @@ const TaskAttachments = ({ taskId, attachments, onAttachmentsUpdate }: TaskAttac
             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
             onChange={handleFileUpload}
             accept="image/*,.pdf,.doc,.docx,.txt"
-            multiple
           />
           {isUploading ? (
             <>
@@ -129,7 +113,7 @@ const TaskAttachments = ({ taskId, attachments, onAttachmentsUpdate }: TaskAttac
           ) : (
             <>
               <FileUp className="h-4 w-4" />
-              צרף קבצים
+              צרף קובץ
             </>
           )}
         </Button>

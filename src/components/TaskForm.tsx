@@ -6,12 +6,9 @@ import { motion } from "framer-motion";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { TaskPriority } from "@/types/task";
 import VoiceInput from "./VoiceInput";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
 
 interface TaskFormProps {
-  workerId: string;
-  onSuccess: () => void;
+  onAddTask: (title: string, duration: number, priority: TaskPriority) => void;
   initialTitle?: string;
   initialDuration?: number;
   initialPriority?: TaskPriority;
@@ -20,8 +17,7 @@ interface TaskFormProps {
 }
 
 const TaskForm = ({ 
-  workerId,
-  onSuccess,
+  onAddTask, 
   initialTitle = "", 
   initialDuration = 0, 
   initialPriority = "normal",
@@ -32,7 +28,6 @@ const TaskForm = ({
   const [hours, setHours] = useState("0");
   const [minutes, setMinutes] = useState("0");
   const [priority, setPriority] = useState<TaskPriority>(initialPriority);
-  const { toast } = useToast();
 
   useEffect(() => {
     if (initialDuration) {
@@ -41,44 +36,16 @@ const TaskForm = ({
     }
   }, [initialDuration]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (title.trim()) {
       const totalMinutes = (parseInt(hours) * 60) + parseInt(minutes);
-      
-      try {
-        const { error } = await supabase
-          .from('tasks')
-          .insert([{
-            title: title.trim(),
-            duration: totalMinutes,
-            priority,
-            worker: workerId,
-            date: new Date().toISOString().split('T')[0]
-          }]);
-
-        if (error) throw error;
-
-        toast({
-          title: "משימה נוספה בהצלחה",
-          description: "המשימה נוספה למערכת",
-        });
-
-        if (!initialTitle) {
-          setTitle("");
-          setHours("0");
-          setMinutes("0");
-          setPriority("normal");
-        }
-
-        onSuccess();
-      } catch (error) {
-        console.error('Error adding task:', error);
-        toast({
-          title: "שגיאה בהוספת משימה",
-          description: "אנא נסה שנית",
-          variant: "destructive",
-        });
+      onAddTask(title.trim(), totalMinutes, priority);
+      if (!initialTitle) {
+        setTitle("");
+        setHours("0");
+        setMinutes("0");
+        setPriority("normal");
       }
     }
   };

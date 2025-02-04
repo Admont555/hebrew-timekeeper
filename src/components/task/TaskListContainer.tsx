@@ -1,178 +1,87 @@
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { Task, TasksByDate, TaskPriority } from "@/types/task";
 import TaskListHeader from "./TaskListHeader";
 import TaskListContent from "./TaskListContent";
 import { useTaskSorting } from "@/hooks/useTaskSorting";
 import { useTaskSearch } from "@/hooks/useTaskSearch";
-import { TaskPriority } from "@/types/task";
-import { useToast } from "@/hooks/use-toast";
+import { useParams } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { User } from "lucide-react";
 
 interface TaskListContainerProps {
-  workerId: string;
-  selectedDate: Date;
-  showArchived: boolean;
+  tasksByDate: TasksByDate;
+  isLoading: boolean;
+  onToggleTask: (taskId: string) => void;
+  onTaskComplete: (taskId: string) => void;
+  onDeleteTask: (taskId: string) => void;
+  onEditTask: (taskId: string, newTitle: string, newDuration: number, newPriority: TaskPriority) => void;
 }
 
 const TaskListContainer = ({
-  workerId,
-  selectedDate,
-  showArchived,
+  tasksByDate,
+  isLoading,
+  onToggleTask,
+  onTaskComplete,
+  onDeleteTask,
+  onEditTask,
 }: TaskListContainerProps) => {
-  const { toast } = useToast();
+  const { sortedTasks, sortBy, setSortBy } = useTaskSorting(tasksByDate);
+  const { searchTerm, setSearchTerm, filteredTasks } = useTaskSearch(sortedTasks);
+  const { workerId } = useParams();
 
-  const { data: tasks = [], isLoading } = useQuery({
-    queryKey: ['tasks', workerId, selectedDate, showArchived],
+  const { data: teamMember } = useQuery({
+    queryKey: ['team-member', workerId],
     queryFn: async () => {
-      const query = supabase
-        .from('tasks')
+      const { data, error } = await supabase
+        .from('team_members')
         .select('*')
-        .eq('worker', workerId)
-        .eq('date', selectedDate.toISOString().split('T')[0]);
+        .eq('worker_id', workerId)
+        .single();
 
-      if (!showArchived) {
-        query.is('archived_at', null);
-      }
-
-      const { data, error } = await query;
       if (error) throw error;
-      
-      // Transform the priority field to match TaskPriority type
-      return data?.map(task => ({
-        ...task,
-        priority: (task.priority || 'normal') as TaskPriority
-      })) || [];
+      return data;
     },
   });
 
-  const tasksByDate = {
-    [selectedDate.toISOString().split('T')[0]]: tasks
-  };
-
-  const { sortedTasks, sortBy, setSortBy } = useTaskSorting(tasksByDate);
-  const { searchTerm, setSearchTerm, filteredTasks } = useTaskSearch(sortedTasks);
-
-  const handleToggleTask = async (taskId: string) => {
-    try {
-      const task = tasks.find(t => t.id === taskId);
-      if (!task) return;
-
-      const { error } = await supabase
-        .from('tasks')
-        .update({
-          start_time: task.startTime ? null : new Date().toISOString()
-        })
-        .eq('id', taskId);
-
-      if (error) throw error;
-
-      toast({
-        title: task.startTime ? "משימה הופסקה" : "משימה התחילה",
-        description: task.startTime ? "המשימה הופסקה בהצלחה" : "המשימה התחילה בהצלחה",
-      });
-    } catch (error) {
-      console.error('Error toggling task:', error);
-      toast({
-        title: "שגיאה בעדכון משימה",
-        description: "אנא נסה שנית",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleTaskComplete = async (taskId: string) => {
-    try {
-      const { error } = await supabase
-        .from('tasks')
-        .update({
-          completed: true,
-          start_time: null
-        })
-        .eq('id', taskId);
-
-      if (error) throw error;
-
-      toast({
-        title: "משימה הושלמה",
-        description: "המשימה הושלמה בהצלחה",
-      });
-    } catch (error) {
-      console.error('Error completing task:', error);
-      toast({
-        title: "שגיאה בהשלמת משימה",
-        description: "אנא נסה שנית",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleDeleteTask = async (taskId: string) => {
-    try {
-      const { error } = await supabase
-        .from('tasks')
-        .delete()
-        .eq('id', taskId);
-
-      if (error) throw error;
-
-      toast({
-        title: "משימה נמחקה",
-        description: "המשימה נמחקה בהצלחה",
-      });
-    } catch (error) {
-      console.error('Error deleting task:', error);
-      toast({
-        title: "שגיאה במחיקת משימה",
-        description: "אנא נסה שנית",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleEditTask = async (taskId: string, newTitle: string, newDuration: number, newPriority: TaskPriority) => {
-    try {
-      const { error } = await supabase
-        .from('tasks')
-        .update({
-          title: newTitle,
-          duration: newDuration,
-          priority: newPriority
-        })
-        .eq('id', taskId);
-
-      if (error) throw error;
-
-      toast({
-        title: "משימה עודכנה",
-        description: "המשימה עודכנה בהצלחה",
-      });
-    } catch (error) {
-      console.error('Error updating task:', error);
-      toast({
-        title: "שגיאה בעדכון משימה",
-        description: "אנא נסה שנית",
-        variant: "destructive",
-      });
-    }
-  };
-
   return (
-    <ScrollArea className="h-[600px] p-4">
-      <TaskListHeader
-        searchTerm={searchTerm}
-        onSearchChange={setSearchTerm}
-        sortBy={sortBy}
-        setSortBy={setSortBy}
-      />
-      <TaskListContent
-        tasksByDate={filteredTasks}
-        isLoading={isLoading}
-        onToggleTask={handleToggleTask}
-        onTaskComplete={handleTaskComplete}
-        onDeleteTask={handleDeleteTask}
-        onEditTask={handleEditTask}
-      />
-    </ScrollArea>
+    <div className="bg-white/80 dark:bg-gray-800/80 rounded-xl shadow-lg">
+      <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Avatar className="h-12 w-12 border-2 border-purple-200 dark:border-purple-800">
+            <AvatarImage src={teamMember?.avatar_url} alt={teamMember?.name} />
+            <AvatarFallback>
+              <User className="h-6 w-6 text-gray-400" />
+            </AvatarFallback>
+          </Avatar>
+          <div>
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+              {teamMember?.name || 'Team Member'}
+            </h2>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              {workerId}
+            </p>
+          </div>
+        </div>
+      </div>
+      <ScrollArea className="h-[600px] p-4">
+        <TaskListHeader
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+          sortBy={sortBy}
+          setSortBy={setSortBy}
+        />
+        <TaskListContent
+          tasksByDate={filteredTasks}
+          isLoading={isLoading}
+          onToggleTask={onToggleTask}
+          onTaskComplete={onTaskComplete}
+          onDeleteTask={onDeleteTask}
+          onEditTask={onEditTask}
+        />
+      </ScrollArea>
+    </div>
   );
 };
 

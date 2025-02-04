@@ -15,7 +15,6 @@ import { supabase } from "./integrations/supabase/client";
 import { useToast } from "./hooks/use-toast";
 import { AppSidebar } from "./components/AppSidebar";
 import { NavMenu } from "./components/NavMenu";
-import { registerServiceWorker } from "./utils/indexedDB";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -32,16 +31,6 @@ const App = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Register service worker for offline functionality
-    registerServiceWorker().catch(error => {
-      console.error('Failed to register service worker:', error);
-      toast({
-        title: "שגיאה בהגדרת מצב לא מקוון",
-        description: "ייתכן שחלק מהתכונות לא יעבדו במצב לא מקוון",
-        variant: "destructive",
-      });
-    });
-
     const initAuth = async () => {
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
@@ -53,10 +42,12 @@ const App = () => {
 
         setIsAuthenticated(!!session);
 
+        // Attempt to refresh the session if it exists
         if (session) {
           const { error: refreshError } = await supabase.auth.refreshSession();
           if (refreshError) {
             console.error('Session refresh error:', refreshError);
+            // If refresh fails, sign out the user
             await supabase.auth.signOut();
             setIsAuthenticated(false);
             toast({
@@ -82,6 +73,7 @@ const App = () => {
       console.log('Auth state changed:', event, !!session);
       
       if (event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED') {
+        // Clear any cached data on sign out or token refresh
         queryClient.clear();
       }
 
