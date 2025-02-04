@@ -8,7 +8,7 @@ import { TaskPriority } from "@/types/task";
 import VoiceInput from "./VoiceInput";
 
 interface TaskFormProps {
-  onAddTask: (title: string, duration: number, priority: TaskPriority) => void;
+  onSubmit: (title: string, duration: number, priority: TaskPriority) => void;
   initialTitle?: string;
   initialDuration?: number;
   initialPriority?: TaskPriority;
@@ -17,7 +17,7 @@ interface TaskFormProps {
 }
 
 const TaskForm = ({ 
-  onAddTask, 
+  onSubmit, 
   initialTitle = "", 
   initialDuration = 0, 
   initialPriority = "normal",
@@ -40,7 +40,7 @@ const TaskForm = ({
     e.preventDefault();
     if (title.trim()) {
       const totalMinutes = (parseInt(hours) * 60) + parseInt(minutes);
-      onAddTask(title.trim(), totalMinutes, priority);
+      onSubmit(title.trim(), totalMinutes, priority);
       if (!initialTitle) {
         setTitle("");
         setHours("0");
