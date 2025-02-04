@@ -9,18 +9,23 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { UserRound } from "lucide-react";
 import { motion } from "framer-motion";
 
-interface WorkerNameEditorProps {
-  currentName: string;
-  currentAvatarUrl?: string;
-  workerId: string;
-  onNameChange: (id: string, newName: string, avatarUrl?: string) => void;
+interface Worker {
+  id: string;
+  name: string;
+  avatar_url?: string;
+  worker_id: string;
+  created_at: string;
 }
 
-const WorkerNameEditor = ({ currentName, currentAvatarUrl, workerId, onNameChange }: WorkerNameEditorProps) => {
+interface WorkerNameEditorProps {
+  worker: Worker;
+}
+
+const WorkerNameEditor = ({ worker }: WorkerNameEditorProps) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [newName, setNewName] = useState(currentName);
+  const [newName, setNewName] = useState(worker.name);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState(currentAvatarUrl);
+  const [previewUrl, setPreviewUrl] = useState(worker.avatar_url);
   const { toast } = useToast();
 
   const compressImage = async (file: File): Promise<File> => {
@@ -73,11 +78,11 @@ const WorkerNameEditor = ({ currentName, currentAvatarUrl, workerId, onNameChang
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (newName.trim()) {
-      let avatarUrl = currentAvatarUrl;
+      let avatarUrl = worker.avatar_url;
 
       if (avatarFile) {
         const fileExt = avatarFile.name.split('.').pop();
-        const filePath = `${workerId}.${fileExt}`;
+        const filePath = `${worker.worker_id}.${fileExt}`;
 
         try {
           const { error: uploadError } = await supabase.storage
@@ -108,11 +113,10 @@ const WorkerNameEditor = ({ currentName, currentAvatarUrl, workerId, onNameChang
             name: newName.trim(),
             ...(avatarUrl && { avatar_url: avatarUrl })
           })
-          .eq('worker_id', workerId);
+          .eq('worker_id', worker.worker_id);
 
         if (error) throw error;
 
-        onNameChange(workerId, newName.trim(), avatarUrl);
         setIsOpen(false);
         toast({
           title: "פרטי עובד עודכנו",
@@ -138,7 +142,7 @@ const WorkerNameEditor = ({ currentName, currentAvatarUrl, workerId, onNameChang
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
-            setNewName(currentName);
+            setNewName(worker.name);
             setIsOpen(true);
           }}
         >

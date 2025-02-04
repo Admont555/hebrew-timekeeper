@@ -1,35 +1,42 @@
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Task, TasksByDate, TaskPriority } from "@/types/task";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import TaskListHeader from "./TaskListHeader";
 import TaskListContent from "./TaskListContent";
 import { useTaskSorting } from "@/hooks/useTaskSorting";
 import { useTaskSearch } from "@/hooks/useTaskSearch";
-import { useParams } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { User } from "lucide-react";
 
 interface TaskListContainerProps {
-  tasksByDate: TasksByDate;
-  isLoading: boolean;
-  onToggleTask: (taskId: string) => void;
-  onTaskComplete: (taskId: string) => void;
-  onDeleteTask: (taskId: string) => void;
-  onEditTask: (taskId: string, newTitle: string, newDuration: number, newPriority: TaskPriority) => void;
+  workerId: string;
+  selectedDate: Date;
+  showArchived: boolean;
 }
 
 const TaskListContainer = ({
-  tasksByDate,
-  isLoading,
-  onToggleTask,
-  onTaskComplete,
-  onDeleteTask,
-  onEditTask,
+  workerId,
+  selectedDate,
+  showArchived,
 }: TaskListContainerProps) => {
-  const { sortedTasks, sortBy, setSortBy } = useTaskSorting(tasksByDate);
-  const { searchTerm, setSearchTerm, filteredTasks } = useTaskSearch(sortedTasks);
-  const { workerId } = useParams();
+  const { data: tasks = [], isLoading } = useQuery({
+    queryKey: ['tasks', workerId, selectedDate, showArchived],
+    queryFn: async () => {
+      const query = supabase
+        .from('tasks')
+        .select('*')
+        .eq('worker', workerId)
+        .eq('date', selectedDate.toISOString().split('T')[0]);
+
+      if (!showArchived) {
+        query.is('archived_at', null);
+      }
+
+      const { data, error } = await query;
+      if (error) throw error;
+      return data || [];
+    },
+  });
 
   const { data: teamMember } = useQuery({
     queryKey: ['team-member', workerId],
@@ -44,6 +51,13 @@ const TaskListContainer = ({
       return data;
     },
   });
+
+  const tasksByDate = {
+    [selectedDate.toISOString().split('T')[0]]: tasks
+  };
+
+  const { sortedTasks, sortBy, setSortBy } = useTaskSorting(tasksByDate);
+  const { searchTerm, setSearchTerm, filteredTasks } = useTaskSearch(sortedTasks);
 
   return (
     <div className="bg-white/80 dark:bg-gray-800/80 rounded-xl shadow-lg">
@@ -75,10 +89,6 @@ const TaskListContainer = ({
         <TaskListContent
           tasksByDate={filteredTasks}
           isLoading={isLoading}
-          onToggleTask={onToggleTask}
-          onTaskComplete={onTaskComplete}
-          onDeleteTask={onDeleteTask}
-          onEditTask={onEditTask}
         />
       </ScrollArea>
     </div>

@@ -1,20 +1,30 @@
-import { TasksByDate } from "@/types/task";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { Progress } from "@/components/ui/progress";
 
 interface TaskStatsProps {
-  tasksByDate: TasksByDate;
+  workerId: string;
+  selectedDate: Date;
 }
 
-const TaskStats = ({ tasksByDate }: TaskStatsProps) => {
+const TaskStats = ({ workerId, selectedDate }: TaskStatsProps) => {
+  const { data: tasks = [] } = useQuery({
+    queryKey: ['tasks', workerId, selectedDate],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('tasks')
+        .select('*')
+        .eq('worker', workerId)
+        .eq('date', selectedDate.toISOString().split('T')[0]);
+
+      if (error) throw error;
+      return data || [];
+    },
+  });
+
   const calculateStats = () => {
-    let totalTasks = 0;
-    let completedTasks = 0;
-
-    Object.values(tasksByDate).forEach(tasks => {
-      totalTasks += tasks.length;
-      completedTasks += tasks.filter(task => task.completed).length;
-    });
-
+    const totalTasks = tasks.length;
+    const completedTasks = tasks.filter(task => task.completed).length;
     return {
       total: totalTasks,
       completed: completedTasks,
