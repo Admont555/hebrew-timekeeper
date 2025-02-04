@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { useState } from "react";
 import { useParams, Navigate, useNavigate } from "react-router-dom";
 import RandomQuote from "@/components/RandomQuote";
-import { TasksByDate, TaskPriority, Task } from "@/types/task";
+import { TasksByDate, TaskPriority } from "@/types/task";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
@@ -19,6 +19,8 @@ import TaskForm from "@/components/TaskForm";
 import TaskList from "@/components/TaskList";
 import DateRangeSelector from "@/components/task/DateRangeSelector";
 import { NavMenu } from "@/components/NavMenu";
+import { RoleBasedAccess } from "@/components/RoleBasedAccess";
+import { useUserRole } from "@/hooks/useUserRole";
 
 const Index = () => {
   const { workerId } = useParams();
@@ -122,6 +124,8 @@ const Index = () => {
     setTimeout(() => setShowConfetti(false), 3000);
   };
 
+  const { isAdmin } = useUserRole();
+
   if (!workerId) {
     return <Navigate to="/" />;
   }
@@ -135,6 +139,15 @@ const Index = () => {
       >
         <NavMenu />
         <div className="container mx-auto px-4 py-6 max-w-4xl">
+          <RoleBasedAccess allowedRoles={['admin']}>
+            <div className="mb-6 bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+              <h2 className="text-lg font-semibold text-blue-700 dark:text-blue-300">מנהל מערכת</h2>
+              <p className="text-sm text-blue-600 dark:text-blue-400">
+                ברוך הבא! יש לך גישה מלאה למערכת.
+              </p>
+            </div>
+          </RoleBasedAccess>
+
           <div className="flex items-center justify-between mb-6">
             <Button 
               variant="outline" 
@@ -161,9 +174,11 @@ const Index = () => {
             transition={{ delay: 0.3, duration: 0.5 }}
             className="bg-white/80 backdrop-blur-sm dark:bg-gray-800/80 rounded-xl shadow-lg p-4 mb-6 hover:shadow-xl transition-shadow duration-300"
           >
-            <TaskForm onAddTask={(title, duration, priority) => 
-              addTaskMutation.mutate({ title, duration, priority, worker: workerId })} 
-            />
+            <RoleBasedAccess allowedRoles={['admin', 'editor']}>
+              <TaskForm onAddTask={(title, duration, priority) => 
+                addTaskMutation.mutate({ title, duration, priority, worker: workerId })} 
+              />
+            </RoleBasedAccess>
           </motion.div>
 
           <motion.div 
@@ -177,7 +192,17 @@ const Index = () => {
               isLoading={isLoading}
               onToggleTask={(taskId) => toggleTaskMutation.mutate({ taskId, worker: workerId })}
               onTaskComplete={handleTaskComplete}
-              onDeleteTask={(taskId) => deleteTaskMutation.mutate(taskId)}
+              onDeleteTask={(taskId) => {
+                if (isAdmin) {
+                  deleteTaskMutation.mutate(taskId);
+                } else {
+                  toast({
+                    title: "אין הרשאה",
+                    description: "רק מנהל מערכת יכול למחוק משימות",
+                    variant: "destructive",
+                  });
+                }
+              }}
               onEditTask={(taskId, newTitle, newDuration, newPriority) => 
                 editTaskMutation.mutate({ taskId, newTitle, newDuration, newPriority, worker: workerId })}
             />
