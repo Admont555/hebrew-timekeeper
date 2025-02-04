@@ -13,7 +13,6 @@ interface TaskItemProps {
   onTaskComplete: (taskId: string) => void;
   onDeleteTask: (taskId: string) => void;
   onEdit: (task: Task) => void;
-  isActive?: boolean;
 }
 
 const TaskItem = ({ task, onToggleTask, onTaskComplete, onDeleteTask, onEdit }: TaskItemProps) => {
@@ -82,7 +81,7 @@ const TaskItem = ({ task, onToggleTask, onTaskComplete, onDeleteTask, onEdit }: 
       <div className="flex items-center justify-between gap-4">
         <CountdownTimer
           duration={task.duration}
-          startTime={task.start_time}
+          startTime={task.startTime}
           isCompleted={task.completed}
           onComplete={() => onTaskComplete(task.id)}
         />
@@ -106,6 +105,8 @@ const TaskItem = ({ task, onToggleTask, onTaskComplete, onDeleteTask, onEdit }: 
           taskId={task.id}
           comments={task.comments || []}
           onCommentsUpdate={handleCommentsUpdate}
+          attachments={task.attachments || []}
+          onAttachmentsUpdate={handleAttachmentsUpdate}
         />
       )}
     </motion.div>

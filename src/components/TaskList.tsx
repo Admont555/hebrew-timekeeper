@@ -60,8 +60,8 @@ const TaskList = ({
   };
 
   const getRemainingTime = (task: Task) => {
-    if (!task.start_time || task.completed) return Infinity;
-    const start = new Date(task.start_time).getTime();
+    if (!task.startTime || task.completed) return Infinity;
+    const start = new Date(task.startTime).getTime();
     const now = new Date().getTime();
     const elapsedSeconds = Math.floor((now - start) / 1000);
     return task.duration * 60 - elapsedSeconds;
@@ -152,7 +152,7 @@ const TaskList = ({
     for (const date of sortedDates) {
       const tasksForDate = organizeTasksByDate[date];
       const activeTask = tasksForDate.find(
-        task => task.start_time && !task.completed
+        task => task.startTime && !task.completed
       );
       if (activeTask) return activeTask;
     }
@@ -220,7 +220,7 @@ const TaskList = ({
             <div className="space-y-3 rounded-lg">
               <AnimatePresence mode="popLayout">
                 {sortTasks(organizeTasksByDate[date]).map((task: Task) => {
-                  const isActiveTask = task.start_time && !task.completed;
+                  const isActiveTask = task.startTime && !task.completed;
                   return (
                     <div
                       key={task.id}
@@ -232,7 +232,7 @@ const TaskList = ({
                       {editingTaskId === task.id ? (
                         <div className="mb-4 bg-purple-50 dark:bg-gray-700 p-4 rounded-lg">
                           <TaskForm
-                            onSubmit={handleEditSubmit}
+                            onAddTask={handleEditSubmit}
                             initialTitle={task.title}
                             initialDuration={task.duration}
                             initialPriority={task.priority}
@@ -247,7 +247,6 @@ const TaskList = ({
                           onTaskComplete={onTaskComplete}
                           onDeleteTask={onDeleteTask}
                           onEdit={handleEdit}
-                          isActive={isActiveTask}
                         />
                       )}
                     </div>

@@ -44,36 +44,6 @@ export type Database = {
           },
         ]
       }
-      profiles: {
-        Row: {
-          created_at: string | null
-          id: string
-          language_preference: string | null
-          notification_enabled: boolean | null
-          theme_preference: string | null
-          updated_at: string | null
-          username: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          id: string
-          language_preference?: string | null
-          notification_enabled?: boolean | null
-          theme_preference?: string | null
-          updated_at?: string | null
-          username?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          id?: string
-          language_preference?: string | null
-          notification_enabled?: boolean | null
-          theme_preference?: string | null
-          updated_at?: string | null
-          username?: string | null
-        }
-        Relationships: []
-      }
       quotes: {
         Row: {
           author: string | null

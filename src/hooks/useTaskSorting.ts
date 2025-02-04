@@ -11,8 +11,8 @@ export const useTaskSorting = (tasks: TasksByDate) => {
   );
 
   const getRemainingTime = (task: Task) => {
-    if (!task.start_time || task.completed) return Infinity;
-    const start = new Date(task.start_time).getTime();
+    if (!task.startTime || task.completed) return Infinity;
+    const start = new Date(task.startTime).getTime();
     const now = new Date().getTime();
     const elapsedSeconds = Math.floor((now - start) / 1000);
     return task.duration * 60 - elapsedSeconds;

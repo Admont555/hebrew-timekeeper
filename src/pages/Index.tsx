@@ -104,7 +104,7 @@ const Index = () => {
           completed: task.completed || false,
           date: dateKey,
           duration: task.duration || 0,
-          start_time: task.start_time,
+          startTime: task.start_time,
           priority: (task.priority || 'normal') as TaskPriority,
           comments: task.comments || [],
           attachments: transformedAttachments,
@@ -161,7 +161,7 @@ const Index = () => {
             transition={{ delay: 0.3, duration: 0.5 }}
             className="bg-white/80 backdrop-blur-sm dark:bg-gray-800/80 rounded-xl shadow-lg p-4 mb-6 hover:shadow-xl transition-shadow duration-300"
           >
-            <TaskForm onSubmit={(title, duration, priority) => 
+            <TaskForm onAddTask={(title, duration, priority) => 
               addTaskMutation.mutate({ title, duration, priority, worker: workerId })} 
             />
           </motion.div>

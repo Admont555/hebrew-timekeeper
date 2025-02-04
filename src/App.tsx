@@ -10,7 +10,6 @@ import Tables from "./pages/Tables";
 import TableView from "./pages/TableView";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
-import Profile from "./pages/Profile";
 import { useEffect, useState } from "react";
 import { supabase } from "./integrations/supabase/client";
 import { useToast } from "./hooks/use-toast";
@@ -135,10 +134,6 @@ const App = () => {
               <Route 
                 path="/settings" 
                 element={isAuthenticated ? <Settings /> : <Navigate to="/login" />} 
-              />
-              <Route 
-                path="/profile" 
-                element={isAuthenticated ? <Profile /> : <Navigate to="/login" />} 
               />
             </Routes>
           </BrowserRouter>

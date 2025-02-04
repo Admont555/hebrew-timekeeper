@@ -1,69 +1,87 @@
+import { motion } from "framer-motion";
+import { Menu } from "lucide-react";
 import { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Sheet, SheetContent } from "@/components/ui/sheet";
-import { Users, TableProperties, Settings, UserCircle2 } from "lucide-react";
+import { useLocation, Link } from "react-router-dom";
+import { Button } from "./ui/button";
 
 export function AppSidebar() {
-  const [open, setOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
 
   useEffect(() => {
-    const handleToggle = () => setOpen(!open);
+    const handleToggle = () => {
+      setIsOpen(true);
+    };
+
     window.addEventListener('toggleSidebar', handleToggle);
-    return () => window.removeEventListener('toggleSidebar', handleToggle);
-  }, [open]);
+    
+    return () => {
+      window.removeEventListener('toggleSidebar', handleToggle);
+    };
+  }, []);
+
+  const toggleSidebar = () => {
+    setIsOpen(!isOpen);
+  };
+
+  const menuItems = [
+    { name: "משימות", path: "/" },
+    { name: "טבלאות", path: "/tables" },
+    { name: "הגדרות", path: "/settings" },
+  ];
 
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
-      <SheetContent side="right" className="p-0">
-        <ScrollArea className="h-full py-6">
-          <div className="space-y-4">
-            <div className="px-3 py-2">
-              <div className="space-y-1">
-                <Link to="/" onClick={() => setOpen(false)}>
-                  <Button
-                    variant={location.pathname === "/" ? "secondary" : "ghost"}
-                    className="w-full justify-start"
-                  >
-                    <Users className="ml-2 h-5 w-5" />
-                    חברי צוות
-                  </Button>
-                </Link>
-                <Link to="/tables" onClick={() => setOpen(false)}>
-                  <Button
-                    variant={location.pathname === "/tables" ? "secondary" : "ghost"}
-                    className="w-full justify-start"
-                  >
-                    <TableProperties className="ml-2 h-5 w-5" />
-                    טבלאות
-                  </Button>
-                </Link>
-                <Link to="/profile" onClick={() => setOpen(false)}>
-                  <Button
-                    variant={location.pathname === "/profile" ? "secondary" : "ghost"}
-                    className="w-full justify-start"
-                  >
-                    <UserCircle2 className="ml-2 h-5 w-5" />
-                    הפרופיל שלי
-                  </Button>
-                </Link>
-                <Link to="/settings" onClick={() => setOpen(false)}>
-                  <Button
-                    variant={location.pathname === "/settings" ? "secondary" : "ghost"}
-                    className="w-full justify-start"
-                  >
-                    <Settings className="ml-2 h-5 w-5" />
-                    הגדרות
-                  </Button>
-                </Link>
-              </div>
-            </div>
+    <>
+      {/* Overlay */}
+      {isOpen && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          onClick={toggleSidebar}
+          className="fixed inset-0 bg-background/80 backdrop-blur-sm z-40"
+        />
+      )}
+
+      {/* Sidebar */}
+      <motion.div
+        initial={{ x: "100%" }}
+        animate={{ x: isOpen ? "0%" : "100%" }}
+        transition={{ type: "spring", bounce: 0, duration: 0.4 }}
+        className="fixed top-0 right-0 h-full w-[280px] bg-sidebar text-sidebar-foreground border-l border-sidebar-border shadow-lg z-50 overflow-hidden"
+      >
+        <div className="flex flex-col h-full p-4">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-lg font-semibold">תפריט</h2>
+            <Button
+              onClick={toggleSidebar}
+              variant="ghost"
+              size="icon"
+              className="hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+              aria-label="סגור תפריט"
+            >
+              <Menu className="h-5 w-5" />
+            </Button>
           </div>
-        </ScrollArea>
-      </SheetContent>
-    </Sheet>
+
+          <nav className="space-y-1">
+            {menuItems.map((item) => (
+              <Link
+                key={item.path}
+                to={item.path}
+                className={`block px-4 py-2 rounded-lg transition-colors ${
+                  location.pathname === item.path
+                    ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                    : "hover:bg-sidebar-accent/50"
+                }`}
+                onClick={toggleSidebar}
+              >
+                {item.name}
+              </Link>
+            ))}
+          </nav>
+        </div>
+      </motion.div>
+    </>
   );
 }
