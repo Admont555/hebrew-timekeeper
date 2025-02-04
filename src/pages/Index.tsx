@@ -1,233 +1,124 @@
-import { Toaster } from "@/components/ui/toaster";
-import { useState, useCallback } from "react";
-import { useParams, Navigate, useNavigate } from "react-router-dom";
-import RandomQuote from "@/components/RandomQuote";
-import { TasksByDate, TaskPriority, Task } from "@/types/task";
-import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
-import Header from "@/components/Header";
-import ErrorBoundary from "@/components/ErrorBoundary";
-import TaskStats from "@/components/task/TaskStats";
-import TaskAnalytics from "@/components/task/TaskAnalytics";
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { useWorkerState } from "@/hooks/useWorkerState";
-import { useTaskMutations } from "@/hooks/useTaskMutations";
-import { motion } from "framer-motion";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
-import TaskForm from "@/components/TaskForm";
+import { supabase } from "@/integrations/supabase/client";
 import TaskList from "@/components/TaskList";
-import DateRangeSelector from "@/components/task/DateRangeSelector";
-import { NavMenu } from "@/components/NavMenu";
-import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
+import { TaskForm } from "@/components/TaskForm";
+import { useToast } from "@/hooks/use-toast";
 import { KEYBOARD_SHORTCUTS } from "@/config/keyboardShortcuts";
-import ShortcutsHelp from "@/components/ShortcutsHelp";
-import { useTheme } from "@/components/ThemeProvider";
+import useKeyboardShortcuts from "@/hooks/useKeyboardShortcuts";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
+import { WorkerNameEditor } from "@/components/WorkerNameEditor";
+import { TaskStats } from "@/components/task/TaskStats";
+import { TaskAnalytics } from "@/components/task/TaskAnalytics";
+import { TaskFilters } from "@/components/task/TaskFilters";
+import { TaskListContainer } from "@/components/task/TaskListContainer";
 
 const Index = () => {
   const { workerId } = useParams();
-  const navigate = useNavigate();
-  const [selectedDate, setSelectedDate] = useState<Date>();
-  const [showConfetti, setShowConfetti] = useState(false);
-  const [showShortcutsHelp, setShowShortcutsHelp] = useState(false);
-  const [isAddingTask, setIsAddingTask] = useState(false);
+  const [isFormOpen, setIsFormOpen] = useState(false);
   const { toast } = useToast();
-  const { setTheme, theme } = useTheme();
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
+  const [showArchived, setShowArchived] = useState(false);
 
-  const {
-    currentWorker,
-    setCurrentWorker,
-    workerNames,
-  } = useWorkerState();
-
-  // Set the current worker based on the URL parameter
-  if (currentWorker !== workerId && workerId) {
-    setCurrentWorker(workerId);
-  }
-
-  const {
-    addTaskMutation,
-    deleteTaskMutation,
-    editTaskMutation,
-    toggleTaskMutation,
-  } = useTaskMutations();
-
-  // Query to get the team member's name
-  const { data: teamMember } = useQuery({
-    queryKey: ['team-member', workerId],
+  const { data: worker, isLoading: isWorkerLoading } = useQuery({
+    queryKey: ["worker", workerId],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('team_members')
-        .select('*')
-        .eq('worker_id', workerId)
-        .maybeSingle();
+        .from("team_members")
+        .select("*")
+        .eq("worker_id", workerId)
+        .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching worker:", error);
+        throw error;
+      }
+
       return data;
     },
   });
 
-  const { data: tasksByDate = {}, isLoading } = useQuery({
-    queryKey: ['tasks', workerId, selectedDate],
-    queryFn: async () => {
-      let query = supabase
-        .from("tasks")
-        .select("*")
-        .eq('worker', workerId)
-        .order("timestamp", { ascending: false });
-
-      if (selectedDate) {
-        query = query.eq('date', selectedDate.toISOString().split('T')[0]);
-      }
-
-      const { data, error } = await query;
-
-      if (error) {
-        toast({
-          title: "שגיאה בטעינת משימות",
-          description: error.message,
-          variant: "destructive",
-        });
-        throw error;
-      }
-
-      const tasksByDate: TasksByDate = {};
-      data?.forEach((task) => {
-        const dateKey = task.date || new Date().toISOString().split('T')[0];
-        if (!tasksByDate[dateKey]) {
-          tasksByDate[dateKey] = [];
-        }
-
-        // Transform the attachments from Json[] to the expected format
-        const transformedAttachments = task.attachments?.map((attachment: any) => ({
-          name: attachment.name || '',
-          url: attachment.url || ''
-        })) || [];
-
-        tasksByDate[dateKey].push({
-          id: task.id,
-          title: task.title,
-          timestamp: task.timestamp || new Date().toISOString(),
-          completed: task.completed || false,
-          date: dateKey,
-          duration: task.duration || 0,
-          startTime: task.start_time,
-          priority: (task.priority || 'normal') as TaskPriority,
-          comments: task.comments || [],
-          attachments: transformedAttachments,
-          worker: task.worker
-        });
+  useEffect(() => {
+    if (!isWorkerLoading && !worker) {
+      toast({
+        title: "שגיאה",
+        description: "לא נמצא עובד",
+        variant: "destructive",
       });
-
-      return tasksByDate;
-    },
-  });
-
-  const handleTaskComplete = (taskId: string) => {
-    toggleTaskMutation.mutate({ taskId, worker: workerId || '' });
-    setShowConfetti(true);
-    setTimeout(() => setShowConfetti(false), 3000);
-  };
+    }
+  }, [isWorkerLoading, worker, toast]);
 
   const shortcuts = {
-    [KEYBOARD_SHORTCUTS.ADD_TASK]: () => setIsAddingTask(true),
-    [KEYBOARD_SHORTCUTS.TOGGLE_THEME]: () => setTheme(theme === 'dark' ? 'light' : 'dark'),
-    [KEYBOARD_SHORTCUTS.HELP]: () => setShowShortcutsHelp(true),
+    [KEYBOARD_SHORTCUTS.TOGGLE_THEME]: () => {
+      // Theme toggle handled by ThemeSwitcher component
+    },
+    [KEYBOARD_SHORTCUTS.SEARCH]: () => {
+      // Search handled elsewhere
+    },
+    [KEYBOARD_SHORTCUTS.HELP]: () => {
+      // Help handled elsewhere
+    },
     [KEYBOARD_SHORTCUTS.ESCAPE_MODAL]: () => {
-      setShowShortcutsHelp(false);
-      setIsAddingTask(false);
+      setIsFormOpen(false);
     },
   };
 
   useKeyboardShortcuts(shortcuts);
 
-  if (!workerId) {
-    return <Navigate to="/" />;
+  if (isWorkerLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 dark:border-white" />
+      </div>
+    );
+  }
+
+  if (!worker) {
+    return null;
   }
 
   return (
-    <ErrorBoundary>
-      <motion.div 
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="scroll-container safe-area-top safe-area-bottom min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300"
-      >
-        <NavMenu />
-        <ShortcutsHelp 
-          open={showShortcutsHelp} 
-          onOpenChange={setShowShortcutsHelp} 
-        />
-        
-        <div className="container mx-auto px-4 py-6 max-w-4xl">
-          <div className="flex items-center justify-between mb-6">
-            <Button 
-              variant="outline" 
-              onClick={() => navigate('/')}
-              className="flex items-center gap-2"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              חזרה לצוות
-            </Button>
-            <h1 className="text-2xl font-bold">{teamMember?.name || 'Loading...'}</h1>
+    <div className="container mx-auto px-4 py-8 max-w-7xl">
+      <div className="flex flex-col gap-8">
+        <div className="flex flex-col gap-4">
+          <div className="flex items-center justify-between">
+            <WorkerNameEditor worker={worker} />
+            <Sheet open={isFormOpen} onOpenChange={setIsFormOpen}>
+              <SheetTrigger asChild>
+                <Button>
+                  <Plus className="h-4 w-4 ml-2" />
+                  הוסף משימה
+                </Button>
+              </SheetTrigger>
+              <SheetContent>
+                <TaskForm
+                  onSuccess={() => setIsFormOpen(false)}
+                  workerId={workerId}
+                />
+              </SheetContent>
+            </Sheet>
           </div>
-
-          <Header />
-          
-          <div className="mb-6 max-w-2xl mx-auto">
-            <RandomQuote />
-          </div>
-
-          <DateRangeSelector date={selectedDate} onDateChange={setSelectedDate} />
-          
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3, duration: 0.5 }}
-            className="bg-white/80 backdrop-blur-sm dark:bg-gray-800/80 rounded-xl shadow-lg p-4 mb-6 hover:shadow-xl transition-shadow duration-300"
-          >
-            {isAddingTask ? (
-              <TaskForm 
-                onAddTask={(title, duration, priority) => {
-                  addTaskMutation.mutate({ title, duration, priority, worker: workerId });
-                  setIsAddingTask(false);
-                }}
-                onCancel={() => setIsAddingTask(false)}
-              />
-            ) : (
-              <Button 
-                onClick={() => setIsAddingTask(true)}
-                className="w-full"
-              >
-                הוסף משימה חדשה (Ctrl+N)
-              </Button>
-            )}
-          </motion.div>
-          
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4, duration: 0.5 }}
-            className="bg-white/80 backdrop-blur-sm dark:bg-gray-800/80 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300"
-          >
-            <TaskList 
-              tasks={tasksByDate}
-              isLoading={isLoading}
-              onToggleTask={(taskId) => toggleTaskMutation.mutate({ taskId, worker: workerId })}
-              onTaskComplete={handleTaskComplete}
-              onDeleteTask={(taskId) => deleteTaskMutation.mutate(taskId)}
-              onEditTask={(taskId, newTitle, newDuration, newPriority) => 
-                editTaskMutation.mutate({ taskId, newTitle, newDuration, newPriority, worker: workerId })}
-            />
-          </motion.div>
-          
-          <div className="grid gap-6 mt-6">
-            <TaskStats tasksByDate={tasksByDate} />
-            <TaskAnalytics tasksByDate={tasksByDate} />
-          </div>
+          <TaskStats workerId={workerId} selectedDate={selectedDate} />
+          <TaskAnalytics workerId={workerId} />
         </div>
-        <Toaster />
-      </motion.div>
-    </ErrorBoundary>
+
+        <TaskFilters
+          selectedDate={selectedDate}
+          onDateChange={setSelectedDate}
+          showArchived={showArchived}
+          onShowArchivedChange={setShowArchived}
+        />
+
+        <TaskListContainer
+          workerId={workerId}
+          selectedDate={selectedDate}
+          showArchived={showArchived}
+        />
+      </div>
+    </div>
   );
 };
 
