@@ -25,7 +25,9 @@ export default function Profile() {
   useEffect(() => {
     async function loadProfile() {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        
+        if (sessionError) throw sessionError;
         if (!session?.user) {
           toast({
             title: "לא מחובר",
@@ -35,13 +37,13 @@ export default function Profile() {
           return;
         }
 
-        const { data: profile, error } = await supabase
+        const { data: profile, error: profileError } = await supabase
           .from('profiles')
           .select('*')
           .eq('id', session.user.id)
           .maybeSingle();
 
-        if (error) throw error;
+        if (profileError) throw profileError;
 
         if (profile) {
           setUsername(profile.username || "");
@@ -49,7 +51,7 @@ export default function Profile() {
           setLanguagePreference(profile.language_preference || "he");
           setNotificationEnabled(profile.notification_enabled ?? true);
         } else {
-          // If no profile exists, we'll create one with default values
+          // Create a new profile with the user's ID
           const { error: insertError } = await supabase
             .from('profiles')
             .insert([{
@@ -60,12 +62,19 @@ export default function Profile() {
               notification_enabled: true
             }]);
 
-          if (insertError) throw insertError;
-
-          toast({
-            title: "פרופיל חדש נוצר",
-            description: "הפרופיל שלך נוצר בהצלחה",
-          });
+          if (insertError) {
+            console.error('Error creating profile:', insertError);
+            toast({
+              title: "שגיאה ביצירת פרופיל",
+              description: "אנא נסה שוב מאוחר יותר",
+              variant: "destructive",
+            });
+          } else {
+            toast({
+              title: "פרופיל חדש נוצר",
+              description: "הפרופיל שלך נוצר בהצלחה",
+            });
+          }
         }
       } catch (error) {
         console.error('Error loading profile:', error);
@@ -88,7 +97,14 @@ export default function Profile() {
 
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.user) throw new Error('No user session found');
+      if (!session?.user) {
+        toast({
+          title: "לא מחובר",
+          description: "נא להתחבר כדי לעדכן את הפרופיל",
+          variant: "destructive",
+        });
+        return;
+      }
 
       const { error } = await supabase
         .from('profiles')
