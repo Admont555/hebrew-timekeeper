@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { useState } from "react";
 import { useParams, Navigate, useNavigate } from "react-router-dom";
 import RandomQuote from "@/components/RandomQuote";
-import { TasksByDate, TaskPriority, Task } from "@/types/task";
+import { TasksByDate, TaskPriority } from "@/types/task";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
@@ -173,7 +173,7 @@ const Index = () => {
             className="bg-white/80 backdrop-blur-sm dark:bg-gray-800/80 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300"
           >
             <TaskListContainer 
-              tasks={tasksByDate}
+              tasksByDate={tasksByDate}
               isLoading={isLoading}
               onToggleTask={(taskId) => toggleTaskMutation.mutate({ taskId, worker: workerId })}
               onTaskComplete={handleTaskComplete}
