@@ -16,7 +16,7 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import TaskForm from "@/components/TaskForm";
-import TaskList from "@/components/TaskList";
+import TaskListContainer from "@/components/task/TaskListContainer";
 import DateRangeSelector from "@/components/task/DateRangeSelector";
 import { NavMenu } from "@/components/NavMenu";
 
@@ -172,7 +172,7 @@ const Index = () => {
             transition={{ delay: 0.4, duration: 0.5 }}
             className="bg-white/80 backdrop-blur-sm dark:bg-gray-800/80 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300"
           >
-            <TaskList 
+            <TaskListContainer 
               tasks={tasksByDate}
               isLoading={isLoading}
               onToggleTask={(taskId) => toggleTaskMutation.mutate({ taskId, worker: workerId })}
