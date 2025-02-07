@@ -1,0 +1,5 @@
+
+project_id = "yovaxhdwukpmuagoccwu"
+
+[functions.task-notifications]
+verify_jwt = true
