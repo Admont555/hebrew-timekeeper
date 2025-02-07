@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { useState } from "react";
 import { useParams, Navigate, useNavigate } from "react-router-dom";
 import RandomQuote from "@/components/RandomQuote";
-import { TasksByDate, TaskPriority } from "@/types/task";
+import { TasksByDate, TaskPriority, Tag } from "@/types/task";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
@@ -45,6 +45,19 @@ const Index = () => {
     editTaskMutation,
     toggleTaskMutation,
   } = useTaskMutations();
+
+  // Query to get tags
+  const { data: tagsData } = useQuery({
+    queryKey: ['tags'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('tags')
+        .select('*');
+      
+      if (error) throw error;
+      return data || [];
+    },
+  });
 
   // Query to get the team member's name
   const { data: teamMember } = useQuery({
@@ -98,6 +111,20 @@ const Index = () => {
           url: attachment.url || ''
         })) || [];
 
+        // Transform tag IDs to Tag objects
+        const transformedTags: Tag[] = (task.tags || []).map((tagId: string) => {
+          const tag = tagsData?.find(t => t.id === tagId);
+          return tag ? {
+            id: tag.id,
+            name: tag.name,
+            color: tag.color || undefined
+          } : {
+            id: tagId,
+            name: 'Unknown Tag',
+            color: undefined
+          };
+        });
+
         tasksByDate[dateKey].push({
           id: task.id,
           title: task.title,
@@ -115,7 +142,7 @@ const Index = () => {
           assignedTo: task.assigned_to || [],
           dueDate: task.due_date,
           reminderTime: task.reminder_time,
-          tags: task.tags || [] // Include tags with default empty array
+          tags: transformedTags
         });
       });
 
