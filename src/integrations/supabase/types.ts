@@ -346,6 +346,7 @@ export type Database = {
           reminder_time: string | null
           start_time: string | null
           sync_status: string | null
+          tags: string[] | null
           timestamp: string | null
           title: string
           voice_note: string | null
@@ -370,6 +371,7 @@ export type Database = {
           reminder_time?: string | null
           start_time?: string | null
           sync_status?: string | null
+          tags?: string[] | null
           timestamp?: string | null
           title: string
           voice_note?: string | null
@@ -394,6 +396,7 @@ export type Database = {
           reminder_time?: string | null
           start_time?: string | null
           sync_status?: string | null
+          tags?: string[] | null
           timestamp?: string | null
           title?: string
           voice_note?: string | null

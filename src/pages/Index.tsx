@@ -110,12 +110,12 @@ const Index = () => {
           comments: task.comments || [],
           attachments: transformedAttachments,
           worker: task.worker,
-          orderIndex: task.order_index || 0,  // Add the required orderIndex
-          categoryId: task.category_id,        // Add optional fields from our Task type
+          orderIndex: task.order_index || 0,
+          categoryId: task.category_id,
           assignedTo: task.assigned_to || [],
           dueDate: task.due_date,
           reminderTime: task.reminder_time,
-          tags: []  // Initialize tags as an empty array since it's not in the database yet
+          tags: task.tags || [] // Include tags with default empty array
         });
       });
 
