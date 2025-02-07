@@ -115,7 +115,7 @@ const Index = () => {
           assignedTo: task.assigned_to || [],
           dueDate: task.due_date,
           reminderTime: task.reminder_time,
-          tags: task.tags || []
+          tags: []  // Initialize tags as an empty array since it's not in the database yet
         });
       });
 
