@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { useState } from "react";
 import { useParams, Navigate, useNavigate } from "react-router-dom";
@@ -108,7 +109,13 @@ const Index = () => {
           priority: (task.priority || 'normal') as TaskPriority,
           comments: task.comments || [],
           attachments: transformedAttachments,
-          worker: task.worker
+          worker: task.worker,
+          orderIndex: task.order_index || 0,  // Add the required orderIndex
+          categoryId: task.category_id,        // Add optional fields from our Task type
+          assignedTo: task.assigned_to || [],
+          dueDate: task.due_date,
+          reminderTime: task.reminder_time,
+          tags: task.tags || []
         });
       });
 
