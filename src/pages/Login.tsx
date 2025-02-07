@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -51,10 +52,11 @@ const Login = () => {
       }
 
       if (session) {
-        const { data: member, error: memberError } = await supabase
+        // Check if user exists either by worker_id or email
+        const { data: existingMember, error: memberError } = await supabase
           .from('team_members')
           .select('worker_id')
-          .eq('worker_id', values.email)
+          .or(`worker_id.eq.${values.email},worker_id.eq.${session.user.email}`)
           .maybeSingle();
 
         if (memberError) {
@@ -62,7 +64,8 @@ const Login = () => {
           throw new Error('שגיאה בבדיקת פרטי משתמש');
         }
 
-        if (!member) {
+        // Only create a new team member if they don't exist
+        if (!existingMember) {
           const { error: createError } = await supabase
             .from('team_members')
             .insert([{ 
@@ -281,3 +284,4 @@ const Login = () => {
 };
 
 export default Login;
+
