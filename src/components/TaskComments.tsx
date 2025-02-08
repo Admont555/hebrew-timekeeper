@@ -5,6 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { Trash2 } from "lucide-react";
 
 interface TaskCommentsProps {
   taskId: string;
@@ -53,6 +54,32 @@ const TaskComments = ({
     }
   };
 
+  const handleDeleteComment = async (indexToDelete: number) => {
+    try {
+      const updatedComments = comments.filter((_, index) => index !== indexToDelete);
+      
+      const { error } = await supabase
+        .from("tasks")
+        .update({ comments: updatedComments })
+        .eq("id", taskId);
+
+      if (error) throw error;
+
+      onCommentsUpdate(updatedComments);
+      
+      toast({
+        title: "תגובה נמחקה",
+        description: "התגובה נמחקה בהצלחה",
+      });
+    } catch (error) {
+      toast({
+        title: "שגיאה במחיקת תגובה",
+        description: "אירעה שגיאה בעת מחיקת התגובה",
+        variant: "destructive",
+      });
+    }
+  };
+
   const formatComment = (comment: string) => {
     // Split the comment by newlines
     return comment.split('\n').map((line, index) => {
@@ -96,8 +123,18 @@ const TaskComments = ({
             {comments.map((comment, index) => (
               <div
                 key={index}
-                className="bg-purple-50 dark:bg-gray-800 p-2 rounded-lg text-right"
+                className="bg-purple-50 dark:bg-gray-800 p-2 rounded-lg text-right group relative"
               >
+                <div className="absolute left-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleDeleteComment(index)}
+                    className="h-6 w-6 text-red-500 hover:text-red-700 hover:bg-red-100 dark:hover:bg-red-900"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
                 {formatComment(comment)}
               </div>
             ))}
