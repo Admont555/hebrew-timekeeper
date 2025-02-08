@@ -67,7 +67,7 @@ const Index = () => {
       let query = supabase
         .from("tasks")
         .select("*")
-        .eq('worker', workerId)
+        .or(`worker.eq.${workerId},assigned_to.cs.{${workerId}}`)
         .order("timestamp", { ascending: false });
 
       if (selectedDate) {
@@ -110,7 +110,7 @@ const Index = () => {
           comments: task.comments || [],
           attachments: transformedAttachments,
           worker: task.worker,
-          assigned_to: task.assigned_to || [] // Add this line to include assigned_to
+          assigned_to: task.assigned_to || [] // Ensure assigned_to is always initialized
         });
       });
 
