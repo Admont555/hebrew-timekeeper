@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { useState } from "react";
 import { useParams, Navigate, useNavigate } from "react-router-dom";
@@ -108,7 +109,8 @@ const Index = () => {
           priority: (task.priority || 'normal') as TaskPriority,
           comments: task.comments || [],
           attachments: transformedAttachments,
-          worker: task.worker
+          worker: task.worker,
+          assigned_to: task.assigned_to || [] // Add this line to include assigned_to
         });
       });
 
