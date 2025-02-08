@@ -1,9 +1,8 @@
-
-# A string used to distinguish different Supabase projects on the same host. Defaults to the working
-# directory name when running `supabase init`.
 project_id = "yovaxhdwukpmuagoccwu"
 
 [api]
-# Port to use for the API URL.
-port = 54321
-schemes = ["http", "https"]
+enabled = true
+url = "https://yovaxhdwukpmuagoccwu.supabase.co"
+
+[functions.voice-to-text]
+verify_jwt = false

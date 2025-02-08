@@ -1,4 +1,3 @@
-
 import { Task, TasksByDate, TaskPriority } from "@/types/task";
 import { format } from "date-fns";
 import { he } from "date-fns/locale";
@@ -45,14 +44,14 @@ const TaskListContent = ({
 
   if (Object.keys(tasksByDate).length === 0) {
     return (
-      <div dir="rtl" className="text-center py-8 text-gray-500">
+      <div className="text-center py-8 text-gray-500">
         לא נמצאו משימות
       </div>
     );
   }
 
   return (
-    <div className="space-y-8" dir="rtl">
+    <div className="space-y-8">
       {Object.entries(tasksByDate).map(([date, tasks]) => (
         <motion.div
           key={date}
@@ -62,7 +61,7 @@ const TaskListContent = ({
           className="space-y-4"
         >
           <div className="sticky top-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-10 py-2">
-            <h2 className="text-lg font-semibold text-right">{formatDate(date)}</h2>
+            <h2 className="text-lg font-semibold">{formatDate(date)}</h2>
           </div>
           <AnimatePresence mode="popLayout">
             <div className="space-y-2">
@@ -85,4 +84,3 @@ const TaskListContent = ({
 };
 
 export default TaskListContent;
-

@@ -1,9 +1,8 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { useState } from "react";
 import { useParams, Navigate, useNavigate } from "react-router-dom";
 import RandomQuote from "@/components/RandomQuote";
-import { TasksByDate, TaskPriority, Tag } from "@/types/task";
+import { TasksByDate, TaskPriority, Task } from "@/types/task";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
@@ -17,7 +16,7 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import TaskForm from "@/components/TaskForm";
-import TaskListContainer from "@/components/task/TaskListContainer";
+import TaskList from "@/components/TaskList";
 import DateRangeSelector from "@/components/task/DateRangeSelector";
 import { NavMenu } from "@/components/NavMenu";
 
@@ -45,19 +44,6 @@ const Index = () => {
     editTaskMutation,
     toggleTaskMutation,
   } = useTaskMutations();
-
-  // Query to get tags
-  const { data: tagsData } = useQuery({
-    queryKey: ['tags'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('tags')
-        .select('*');
-      
-      if (error) throw error;
-      return data || [];
-    },
-  });
 
   // Query to get the team member's name
   const { data: teamMember } = useQuery({
@@ -111,24 +97,6 @@ const Index = () => {
           url: attachment.url || ''
         })) || [];
 
-        // Transform tag IDs to Tag objects using the fetched tags data
-        const transformedTags: Tag[] = (task.tags || []).map((tagId: string) => {
-          const matchingTag = tagsData?.find(t => t.id === tagId);
-          if (matchingTag) {
-            return {
-              id: matchingTag.id,
-              name: matchingTag.name,
-              color: matchingTag.color || undefined
-            };
-          }
-          // Fallback for unknown tags
-          return {
-            id: tagId,
-            name: 'Unknown Tag',
-            color: undefined
-          };
-        });
-
         tasksByDate[dateKey].push({
           id: task.id,
           title: task.title,
@@ -140,13 +108,7 @@ const Index = () => {
           priority: (task.priority || 'normal') as TaskPriority,
           comments: task.comments || [],
           attachments: transformedAttachments,
-          worker: task.worker,
-          orderIndex: task.order_index || 0,
-          categoryId: task.category_id,
-          assignedTo: task.assigned_to || [],
-          dueDate: task.due_date,
-          reminderTime: task.reminder_time,
-          tags: transformedTags
+          worker: task.worker
         });
       });
 
@@ -210,8 +172,8 @@ const Index = () => {
             transition={{ delay: 0.4, duration: 0.5 }}
             className="bg-white/80 backdrop-blur-sm dark:bg-gray-800/80 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300"
           >
-            <TaskListContainer 
-              tasksByDate={tasksByDate}
+            <TaskList 
+              tasks={tasksByDate}
               isLoading={isLoading}
               onToggleTask={(taskId) => toggleTaskMutation.mutate({ taskId, worker: workerId })}
               onTaskComplete={handleTaskComplete}

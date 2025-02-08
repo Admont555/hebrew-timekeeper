@@ -1,4 +1,3 @@
-
 import { Task } from "@/types/task";
 import CountdownTimer from "./CountdownTimer";
 import { motion } from "framer-motion";
@@ -58,27 +57,24 @@ const TaskItem = ({ task, onToggleTask, onTaskComplete, onDeleteTask, onEdit }: 
           ? "bg-gray-50/50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-700" 
           : `${getPriorityBgColor(task.priority)} border-purple-100 dark:border-gray-700`}
         hover:shadow-md transition-all duration-300`}
-      dir="rtl"
     >
-      <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-        <div className="flex items-center gap-4 flex-grow">
-          <TaskPriority priority={task.priority} />
-          <div className="flex flex-col items-start gap-1 flex-grow">
-            <span className={`text-lg ${task.completed ? "line-through text-gray-400 dark:text-gray-500" : "text-gray-700 dark:text-gray-300"}`}>
-              {task.title}
-            </span>
-            <span className="text-sm text-gray-500 dark:text-gray-400">
-              {formatTime(task.timestamp)}
-            </span>
-          </div>
-        </div>
-        <div className="flex items-center gap-2">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-4 order-2 sm:order-1">
           <TaskActions
             task={task}
             onDelete={onDeleteTask}
             onEdit={onEdit}
             onToggleComments={() => setShowComments(!showComments)}
           />
+          <TaskPriority priority={task.priority} />
+        </div>
+        <div className="flex flex-col items-end gap-1 order-1 sm:order-2">
+          <span className={`text-lg ${task.completed ? "line-through text-gray-400 dark:text-gray-500" : "text-gray-700 dark:text-gray-300"}`}>
+            {task.title}
+          </span>
+          <span className="text-sm text-gray-500 dark:text-gray-400">
+            {formatTime(task.timestamp)}
+          </span>
         </div>
       </div>
 

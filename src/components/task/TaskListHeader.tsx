@@ -1,4 +1,3 @@
-
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -12,25 +11,24 @@ interface TaskListHeaderProps {
 
 const TaskListHeader = ({ searchTerm, onSearchChange, sortBy, setSortBy }: TaskListHeaderProps) => {
   return (
-    <div className="flex items-center gap-4 mb-6">
-      <div className="relative flex-1">
-        <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+    <div className="space-y-4 mb-6">
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
         <Input
           id="task-search"
           type="search"
           placeholder="חפש משימות..."
           value={searchTerm}
           onChange={(e) => onSearchChange(e.target.value)}
-          className="pr-10 pl-4 text-right"
-          dir="rtl"
+          className="pl-10 pr-4"
           aria-label="חיפוש משימות"
         />
       </div>
       <Select value={sortBy} onValueChange={setSortBy}>
-        <SelectTrigger className="w-[180px] text-right" dir="rtl">
+        <SelectTrigger>
           <SelectValue placeholder="מיין לפי" />
         </SelectTrigger>
-        <SelectContent dir="rtl">
+        <SelectContent>
           <SelectItem value="date">תאריך</SelectItem>
           <SelectItem value="priority">עדיפות</SelectItem>
           <SelectItem value="duration">משך זמן</SelectItem>
