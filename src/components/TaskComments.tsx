@@ -54,14 +54,31 @@ const TaskComments = ({
   };
 
   const formatComment = (comment: string) => {
-    // Split the comment by newlines and look for bullet points
+    // Split the comment by newlines
     return comment.split('\n').map((line, index) => {
       const trimmedLine = line.trim();
-      // Check if line starts with a bullet point (-, *, •)
-      if (trimmedLine.startsWith('-') || trimmedLine.startsWith('*') || trimmedLine.startsWith('•')) {
+      
+      // Check for various bullet point formats:
+      // - Standard bullet points (-, *, •)
+      // - Numbered lists (1., 2., etc.)
+      // - Unicode bullet points (•, ‣, ⁃, ⌑, ○, ●, etc.)
+      // - Copy-pasted bullet points from various sources
+      if (
+        trimmedLine.startsWith('-') || 
+        trimmedLine.startsWith('*') || 
+        trimmedLine.startsWith('•') ||
+        trimmedLine.startsWith('⌑') ||
+        trimmedLine.startsWith('○') ||
+        trimmedLine.startsWith('●') ||
+        trimmedLine.startsWith('‣') ||
+        trimmedLine.startsWith('⁃') ||
+        /^\d+\.\s/.test(trimmedLine) // Matches numbered lists
+      ) {
+        // Remove the bullet point or number and any leading whitespace
+        const content = trimmedLine.replace(/^[-*•⌑○●‣⁃]|\d+\.\s/, '').trim();
         return (
           <li key={index} className="list-disc mr-6">
-            {trimmedLine.substring(1).trim()}
+            {content}
           </li>
         );
       }
