@@ -69,8 +69,16 @@ const TaskList = ({
 
   const deleteDayTasks = (date: string) => {
     const tasksForDay = tasks[date];
-    let deletedCount = 0;
+    if (!tasksForDay) {
+      toast({
+        title: "שגיאה",
+        description: "לא נמצאו משימות לתאריך זה",
+        variant: "destructive",
+      });
+      return;
+    }
     
+    let deletedCount = 0;
     tasksForDay.forEach((task) => {
       onDeleteTask(task.id);
       deletedCount++;
@@ -147,7 +155,6 @@ const TaskList = ({
     []
   );
 
-  // Function to find the active task
   const findActiveTask = () => {
     for (const date of sortedDates) {
       const tasksForDate = organizeTasksByDate[date];
@@ -159,7 +166,6 @@ const TaskList = ({
     return null;
   };
 
-  // Effect to scroll to active task
   useEffect(() => {
     const activeTask = findActiveTask();
     if (activeTask && activeTaskRef.current && scrollAreaRef.current) {
