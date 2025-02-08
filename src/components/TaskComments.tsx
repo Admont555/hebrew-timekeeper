@@ -115,7 +115,7 @@ const TaskComments = ({
 
   return (
     <div className="space-y-4" dir="rtl">
-      <ScrollArea className="h-32 rounded-md border p-4">
+      <ScrollArea className={`rounded-md border p-4 ${comments.length > 0 ? 'max-h-[40vh] min-h-[100px]' : 'h-[100px]'}`}>
         {comments.length === 0 ? (
           <p className="text-gray-500 dark:text-gray-400">אין תגובות עדיין</p>
         ) : (
