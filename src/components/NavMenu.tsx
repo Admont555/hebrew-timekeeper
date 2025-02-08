@@ -1,3 +1,4 @@
+
 import { LogOut, Menu, Moon, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "@/components/ThemeProvider";
@@ -10,21 +11,35 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { motion } from "framer-motion";
+import { useState, useEffect } from "react";
 
 export function NavMenu() {
   const { theme, setTheme } = useTheme();
   const location = useLocation();
   const isLoginPage = location.pathname === "/login";
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const toggleTheme = () => {
     setTheme(theme === "light" ? "dark" : "light");
   };
 
   const handleToggleMenu = () => {
-    // Create and dispatch a custom event to toggle the sidebar
+    setIsMenuOpen(!isMenuOpen);
     const event = new Event('toggleSidebar');
     window.dispatchEvent(event);
   };
+
+  // Listen for clicks outside to detect when menu is closed
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (isMenuOpen && !(e.target as HTMLElement).closest('.menu-button')) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('click', handleClick);
+    return () => document.removeEventListener('click', handleClick);
+  }, [isMenuOpen]);
 
   return (
     <>
@@ -33,7 +48,7 @@ export function NavMenu() {
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
-        className="fixed top-4 right-4 z-50"
+        className={`fixed top-4 right-4 ${isMenuOpen ? 'z-[60]' : 'z-50'}`}
       >
         <TooltipProvider>
           <Tooltip>
@@ -42,7 +57,7 @@ export function NavMenu() {
                 variant="outline"
                 size="icon"
                 onClick={handleToggleMenu}
-                className="hover:bg-accent hover:scale-105 active:scale-95 transition-all duration-200"
+                className="menu-button hover:bg-accent hover:scale-105 active:scale-95 transition-all duration-200"
                 aria-label="פתח תפריט"
               >
                 <Menu className="h-5 w-5" />
