@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -52,11 +53,27 @@ const TaskComments = ({
     }
   };
 
+  const formatComment = (comment: string) => {
+    // Split the comment by newlines and look for bullet points
+    return comment.split('\n').map((line, index) => {
+      const trimmedLine = line.trim();
+      // Check if line starts with a bullet point (-, *, •)
+      if (trimmedLine.startsWith('-') || trimmedLine.startsWith('*') || trimmedLine.startsWith('•')) {
+        return (
+          <li key={index} className="list-disc mr-6">
+            {trimmedLine.substring(1).trim()}
+          </li>
+        );
+      }
+      return <p key={index}>{trimmedLine}</p>;
+    });
+  };
+
   return (
-    <div className="space-y-4">
+    <div className="space-y-4" dir="rtl">
       <ScrollArea className="h-32 rounded-md border p-4">
         {comments.length === 0 ? (
-          <p className="text-gray-500 dark:text-gray-400 text-right">אין תגובות עדיין</p>
+          <p className="text-gray-500 dark:text-gray-400">אין תגובות עדיין</p>
         ) : (
           <div className="space-y-2">
             {comments.map((comment, index) => (
@@ -64,7 +81,7 @@ const TaskComments = ({
                 key={index}
                 className="bg-purple-50 dark:bg-gray-800 p-2 rounded-lg text-right"
               >
-                {comment}
+                {formatComment(comment)}
               </div>
             ))}
           </div>

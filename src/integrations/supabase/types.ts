@@ -9,6 +9,30 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      categories: {
+        Row: {
+          color: string | null
+          created_at: string | null
+          created_by: string
+          id: string
+          name: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string | null
+          created_by: string
+          id?: string
+          name: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string | null
+          created_by?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           created_at: string | null
@@ -177,6 +201,101 @@ export type Database = {
         }
         Relationships: []
       }
+      tags: {
+        Row: {
+          color: string | null
+          created_at: string | null
+          created_by: string
+          id: string
+          name: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string | null
+          created_by: string
+          id?: string
+          name: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string | null
+          created_by?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      task_notifications: {
+        Row: {
+          created_at: string | null
+          id: string
+          message: string
+          read_at: string | null
+          scheduled_for: string | null
+          task_id: string | null
+          type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          message: string
+          read_at?: string | null
+          scheduled_for?: string | null
+          task_id?: string | null
+          type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          message?: string
+          read_at?: string | null
+          scheduled_for?: string | null
+          task_id?: string | null
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_notifications_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      task_tags: {
+        Row: {
+          tag_id: string
+          task_id: string
+        }
+        Insert: {
+          tag_id: string
+          task_id: string
+        }
+        Update: {
+          tag_id?: string
+          task_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_tags_tag_id_fkey"
+            columns: ["tag_id"]
+            isOneToOne: false
+            referencedRelation: "tags"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "task_tags_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       task_templates: {
         Row: {
           created_at: string | null
@@ -211,17 +330,23 @@ export type Database = {
         Row: {
           archived_at: string | null
           archived_by: string | null
+          assigned_to: string[] | null
           attachments: Json[] | null
+          category_id: string | null
           comments: string[] | null
           completed: boolean | null
           date: string | null
+          due_date: string | null
           duration: number | null
           id: string
           notification_time: string | null
           offline_id: string | null
+          order_index: number | null
           priority: string | null
+          reminder_time: string | null
           start_time: string | null
           sync_status: string | null
+          tags: string[] | null
           timestamp: string | null
           title: string
           voice_note: string | null
@@ -230,17 +355,23 @@ export type Database = {
         Insert: {
           archived_at?: string | null
           archived_by?: string | null
+          assigned_to?: string[] | null
           attachments?: Json[] | null
+          category_id?: string | null
           comments?: string[] | null
           completed?: boolean | null
           date?: string | null
+          due_date?: string | null
           duration?: number | null
           id?: string
           notification_time?: string | null
           offline_id?: string | null
+          order_index?: number | null
           priority?: string | null
+          reminder_time?: string | null
           start_time?: string | null
           sync_status?: string | null
+          tags?: string[] | null
           timestamp?: string | null
           title: string
           voice_note?: string | null
@@ -249,23 +380,37 @@ export type Database = {
         Update: {
           archived_at?: string | null
           archived_by?: string | null
+          assigned_to?: string[] | null
           attachments?: Json[] | null
+          category_id?: string | null
           comments?: string[] | null
           completed?: boolean | null
           date?: string | null
+          due_date?: string | null
           duration?: number | null
           id?: string
           notification_time?: string | null
           offline_id?: string | null
+          order_index?: number | null
           priority?: string | null
+          reminder_time?: string | null
           start_time?: string | null
           sync_status?: string | null
+          tags?: string[] | null
           timestamp?: string | null
           title?: string
           voice_note?: string | null
           worker?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "tasks_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       team_members: {
         Row: {
