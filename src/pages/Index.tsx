@@ -111,14 +111,18 @@ const Index = () => {
           url: attachment.url || ''
         })) || [];
 
-        // Transform tag IDs to Tag objects
+        // Transform tag IDs to Tag objects using the fetched tags data
         const transformedTags: Tag[] = (task.tags || []).map((tagId: string) => {
-          const tag = tagsData?.find(t => t.id === tagId);
-          return tag ? {
-            id: tag.id,
-            name: tag.name,
-            color: tag.color || undefined
-          } : {
+          const matchingTag = tagsData?.find(t => t.id === tagId);
+          if (matchingTag) {
+            return {
+              id: matchingTag.id,
+              name: matchingTag.name,
+              color: matchingTag.color || undefined
+            };
+          }
+          // Fallback for unknown tags
+          return {
             id: tagId,
             name: 'Unknown Tag',
             color: undefined
