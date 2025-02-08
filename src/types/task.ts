@@ -1,3 +1,4 @@
+
 export type TaskPriority = 'low' | 'normal' | 'high';
 
 export interface Task {
@@ -12,6 +13,7 @@ export interface Task {
   comments?: string[];
   attachments?: { name: string; url: string; }[];
   worker: string;
+  assigned_to: string[];
 }
 
 export interface TasksByDate {

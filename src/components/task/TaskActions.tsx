@@ -1,6 +1,8 @@
+
 import { Button } from "@/components/ui/button";
 import { Pencil, Trash2, MessageSquare } from "lucide-react";
 import { Task } from "@/types/task";
+import TaskShare from "./TaskShare";
 
 interface TaskActionsProps {
   task: Task;
@@ -10,6 +12,10 @@ interface TaskActionsProps {
 }
 
 const TaskActions = ({ task, onDelete, onEdit, onToggleComments }: TaskActionsProps) => {
+  const handleAssigneesUpdate = (newAssignees: string[]) => {
+    task.assigned_to = newAssignees;
+  };
+
   return (
     <div className="flex gap-2">
       <Button
@@ -30,6 +36,11 @@ const TaskActions = ({ task, onDelete, onEdit, onToggleComments }: TaskActionsPr
       >
         <Pencil className="h-4 w-4 text-blue-500" />
       </Button>
+      <TaskShare
+        taskId={task.id}
+        currentAssignees={task.assigned_to || []}
+        onAssigneesUpdate={handleAssigneesUpdate}
+      />
       <div className="relative">
         <Button
           variant="ghost"
