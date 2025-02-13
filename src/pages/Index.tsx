@@ -20,6 +20,7 @@ import TaskForm from "@/components/TaskForm";
 import TaskList from "@/components/TaskList";
 import DateRangeSelector from "@/components/task/DateRangeSelector";
 import { NavMenu } from "@/components/NavMenu";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const Index = () => {
   const { workerId } = useParams();
@@ -27,6 +28,7 @@ const Index = () => {
   const [selectedDate, setSelectedDate] = useState<Date>();
   const [showConfetti, setShowConfetti] = useState(false);
   const { toast } = useToast();
+  const isMobile = useIsMobile();
 
   const {
     currentWorker,
@@ -110,7 +112,7 @@ const Index = () => {
           comments: task.comments || [],
           attachments: transformedAttachments,
           worker: task.worker,
-          assigned_to: task.assigned_to || [] // Ensure assigned_to is always initialized
+          assigned_to: task.assigned_to || []
         });
       });
 
@@ -136,22 +138,25 @@ const Index = () => {
         className="scroll-container safe-area-top safe-area-bottom min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300"
       >
         <NavMenu />
-        <div className="container mx-auto px-4 py-6 max-w-4xl">
-          <div className="flex items-center justify-between mb-6">
+        <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 max-w-4xl">
+          <div className="flex items-center justify-between mb-4 sm:mb-6">
             <Button 
               variant="outline" 
               onClick={() => navigate('/')}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 text-sm sm:text-base"
+              size={isMobile ? "sm" : "default"}
             >
               <ArrowLeft className="h-4 w-4" />
               חזרה לצוות
             </Button>
-            <h1 className="text-2xl font-bold">{teamMember?.name || 'Loading...'}</h1>
+            <h1 className="text-xl sm:text-2xl font-bold truncate max-w-[200px] sm:max-w-none">
+              {teamMember?.name || 'Loading...'}
+            </h1>
           </div>
 
           <Header />
           
-          <div className="mb-6 max-w-2xl mx-auto">
+          <div className="mb-4 sm:mb-6 max-w-2xl mx-auto">
             <RandomQuote />
           </div>
 
@@ -161,7 +166,7 @@ const Index = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.5 }}
-            className="bg-white/80 backdrop-blur-sm dark:bg-gray-800/80 rounded-xl shadow-lg p-4 mb-6 hover:shadow-xl transition-shadow duration-300"
+            className="bg-white/80 backdrop-blur-sm dark:bg-gray-800/80 rounded-xl shadow-lg p-3 sm:p-4 mb-4 sm:mb-6 hover:shadow-xl transition-shadow duration-300"
           >
             <TaskForm onAddTask={(title, duration, priority) => 
               addTaskMutation.mutate({ title, duration, priority, worker: workerId })} 
@@ -185,7 +190,7 @@ const Index = () => {
             />
           </motion.div>
           
-          <div className="grid gap-6 mt-6">
+          <div className="grid gap-4 sm:gap-6 mt-4 sm:mt-6">
             <TaskStats tasksByDate={tasksByDate} />
             <TaskAnalytics tasksByDate={tasksByDate} />
           </div>
@@ -197,3 +202,4 @@ const Index = () => {
 };
 
 export default Index;
+
