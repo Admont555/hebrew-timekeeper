@@ -1,6 +1,6 @@
 
 import { memo } from 'react';
-import { Handle, Position } from '@xyflow/react';
+import { Handle, Position } from 'reactflow';
 import { Badge } from '@/components/ui/badge';
 
 function WorkflowTaskNode({ data }: { data: { label: string; duration: number; priority: string } }) {

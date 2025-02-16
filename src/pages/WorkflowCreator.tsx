@@ -1,4 +1,3 @@
-
 import { useState, useCallback } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -22,9 +21,9 @@ import {
   useEdgesState,
   ConnectionMode,
   Panel,
-} from '@xyflow/react';
+} from 'reactflow';
 import WorkflowTaskNode from "@/components/WorkflowTaskNode";
-import '@xyflow/react/dist/style.css';
+import 'reactflow/dist/style.css';
 
 const nodeTypes = {
   task: WorkflowTaskNode,
