@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -15,7 +14,7 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Plus, FileText, Download, ArrowLeft } from "lucide-react";
+import { Plus, FileText, Download, ArrowLeft, Paperclip } from "lucide-react";
 import { TableHeader as CustomTableHeader } from "@/components/table/TableHeader";
 import { TableRow as CustomTableRow } from "@/components/table/TableRow";
 import { AnimatePresence, motion } from "framer-motion";
@@ -79,6 +78,73 @@ export default function TableView() {
       return data;
     },
   });
+
+  const handleFileUpload = async (file: File, rowId: string) => {
+    const timestamp = new Date().getTime();
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${rowId}/${timestamp}.${fileExt}`;
+
+    const { data: uploadData, error: uploadError } = await supabase.storage
+      .from('table-attachments')
+      .upload(fileName, file);
+
+    if (uploadError) {
+      toast({
+        title: "שגיאה בהעלאת הקובץ",
+        description: uploadError.message,
+        variant: "destructive",
+      });
+      return null;
+    }
+
+    const { data: { publicUrl } } = supabase.storage
+      .from('table-attachments')
+      .getPublicUrl(fileName);
+
+    return {
+      name: file.name,
+      url: publicUrl,
+      type: file.type,
+      size: file.size,
+    };
+  };
+
+  const updateRowWithAttachment = async (rowId: string, file: File) => {
+    try {
+      const attachment = await handleFileUpload(file, rowId);
+      if (!attachment) return;
+
+      const { data: row } = await supabase
+        .from('table_rows')
+        .select('attachments')
+        .eq('id', rowId)
+        .single();
+
+      const currentAttachments = row?.attachments || [];
+      
+      const { error } = await supabase
+        .from('table_rows')
+        .update({
+          attachments: [...currentAttachments, attachment],
+        })
+        .eq('id', rowId);
+
+      if (error) throw error;
+
+      queryClient.invalidateQueries({ queryKey: ["table-rows", tableId] });
+      
+      toast({
+        title: "הקובץ הועלה בהצלחה",
+        description: "הקובץ צורף לשורה בהצלחה",
+      });
+    } catch (error) {
+      toast({
+        title: "שגיאה בהעלאת הקובץ",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
 
   const handleExportPDF = async () => {
     const container = document.createElement('div');
@@ -427,6 +493,9 @@ export default function TableView() {
                           </div>
                         </TableHead>
                       ))}
+                      <TableHead className="text-right whitespace-nowrap min-w-[100px]">
+                        קבצים מצורפים
+                      </TableHead>
                       <TableHead className="text-center sticky left-0 bg-background min-w-[100px]">
                         פעולות
                       </TableHead>
@@ -461,7 +530,7 @@ export default function TableView() {
                       )}
                       {!isAddingRow && (
                         <TableRow>
-                          <TableCell colSpan={columns.length + 1} className="text-center p-4">
+                          <TableCell colSpan={columns.length + 2} className="text-center p-4">
                             <Button
                               onClick={() => setIsAddingRow(true)}
                               variant="outline"

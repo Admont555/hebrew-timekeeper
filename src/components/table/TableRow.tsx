@@ -1,9 +1,8 @@
-
 import { useState, useRef, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { TableCell, TableRow as UITableRow } from "@/components/ui/table";
-import { Trash2, Edit2, Check, X } from "lucide-react";
+import { Trash2, Edit2, Check, X, Paperclip } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -98,6 +97,47 @@ export function TableRow({
           )}
         </TableCell>
       ))}
+      <TableCell className="text-right min-w-[100px]">
+        {!isEditing ? (
+          <div className="flex flex-col gap-1">
+            {data.attachments?.map((attachment: any, index: number) => (
+              <a
+                key={index}
+                href={attachment.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 text-blue-500 hover:text-blue-700"
+              >
+                <Paperclip className="h-4 w-4" />
+                <span className="truncate max-w-[150px]">{attachment.name}</span>
+              </a>
+            ))}
+          </div>
+        ) : (
+          <div className="flex items-center gap-2">
+            <input
+              type="file"
+              id={`file-${data.id}`}
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  onSave?.({ ...rowData, file });
+                }
+              }}
+            />
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => document.getElementById(`file-${data.id}`)?.click()}
+            >
+              <Paperclip className="h-4 w-4 ml-2" />
+              הוסף קובץ
+            </Button>
+          </div>
+        )}
+      </TableCell>
       <TableCell className="text-center sticky left-0 bg-background min-w-[100px]">
         {isEditing ? (
           <div className="flex justify-center gap-2">
