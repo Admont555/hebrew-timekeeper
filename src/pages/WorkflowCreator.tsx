@@ -92,16 +92,34 @@ function WorkflowCreatorContent() {
     priority: 'normal'
   });
 
-  const { data: workflow } = useQuery({
+  const { data: workflow, isError: workflowError } = useQuery({
     queryKey: ["workflow", workflowId],
     queryFn: async () => {
+      const session = await supabase.auth.getSession();
+      if (!session.data.session) {
+        navigate("/login");
+        throw new Error("No session");
+      }
+
       const { data, error } = await supabase
         .from("workflows")
         .select("*")
         .eq("id", workflowId)
         .single();
 
-      if (error) throw error;
+      if (error) {
+        if (error.code === 'PGRST116') {
+          navigate("/workflows");
+          throw new Error("Workflow not found");
+        }
+        throw error;
+      }
+      
+      if (data.user_id !== session.data.session.user.id) {
+        navigate("/workflows");
+        throw new Error("Unauthorized");
+      }
+
       return data;
     },
   });
@@ -109,6 +127,11 @@ function WorkflowCreatorContent() {
   const { data: workflowTasks } = useQuery({
     queryKey: ["workflow-tasks", workflowId],
     queryFn: async () => {
+      const session = await supabase.auth.getSession();
+      if (!session.data.session) {
+        throw new Error("No session");
+      }
+
       const { data, error } = await supabase
         .from("workflow_tasks")
         .select("*")
@@ -123,6 +146,7 @@ function WorkflowCreatorContent() {
         position: task.position || { x: 0, y: 0 }
       })) as WorkflowTask[];
     },
+    enabled: !!workflow,
   });
 
   useEffect(() => {
@@ -152,6 +176,11 @@ function WorkflowCreatorContent() {
       priority: string;
       position: XYPosition;
     }) => {
+      const session = await supabase.auth.getSession();
+      if (!session.data.session) {
+        throw new Error("No session");
+      }
+
       const { error } = await supabase
         .from("workflow_tasks")
         .insert([{ 
@@ -176,10 +205,6 @@ function WorkflowCreatorContent() {
       });
     },
   });
-
-  const onConnect = useCallback((params: any) => {
-    setEdges((eds) => addEdge(params, eds));
-  }, [setEdges]);
 
   const handleStartNodeEdit = () => {
     setNodes((nds) =>
@@ -222,6 +247,14 @@ function WorkflowCreatorContent() {
       position,
     });
   };
+
+  const onConnect = useCallback((params: any) => {
+    setEdges((eds) => addEdge(params, eds));
+  }, [setEdges]);
+
+  if (workflowError) {
+    return null;
+  }
 
   if (!workflow) return null;
 
