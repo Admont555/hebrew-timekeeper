@@ -1,24 +1,12 @@
-
 import { useState, useRef, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { TableCell, TableRow as UITableRow } from "@/components/ui/table";
-import { Trash2, Edit2, Check, X, FileText, Loader2 } from "lucide-react";
+import { Trash2, Edit2, Check, X, FileText } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Json } from "@/integrations/supabase/types";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 
 interface TableRowProps {
   columns: Array<{ id: string; name: string }>;
@@ -81,16 +69,7 @@ export function TableRow({
     onSave?.(rowData);
   };
 
-  const handleFileUpload = async (file: File | null) => {
-    if (!file) {
-      toast({
-        title: "שגיאה",
-        description: "לא נבחר קובץ",
-        variant: "destructive",
-      });
-      return;
-    }
-
+  const handleFileUpload = async (file: File) => {
     if (file.type !== 'application/pdf') {
       toast({
         title: "שגיאה",
@@ -101,14 +80,21 @@ export function TableRow({
     }
 
     setIsUploading(true);
-
     try {
       const updatedData = {
+        ...rowData,
+        _file: file
+      };
+      setRowData(updatedData);
+      const fileOnlyData = {
         ...data,
         _file: file
       };
-
-      await onSave?.(updatedData);
+      await onSave?.(fileOnlyData);
+      setRowData((prev) => ({
+        ...prev,
+        _file: undefined
+      }));
     } catch (error) {
       console.error('Upload error:', error);
       toast({
@@ -123,10 +109,14 @@ export function TableRow({
 
   const handleRemoveFile = async (fileIndex: number) => {
     try {
-      const updatedData = { ...data };
       const currentAttachments = [...(data.attachments || [])];
       currentAttachments.splice(fileIndex, 1);
-      updatedData.attachments = currentAttachments;
+      
+      const updatedData = {
+        ...data,
+        attachments: currentAttachments
+      };
+      
       await onSave?.(updatedData);
       
       toast({
@@ -197,31 +187,14 @@ export function TableRow({
                   <FileText className="h-4 w-4" />
                   <span className="truncate max-w-[150px]">{attachment.name}</span>
                 </a>
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="opacity-0 group-hover/item:opacity-100 h-6 w-6 p-0 hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-900/20"
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent className="text-right">
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>האם אתה בטוח?</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        האם אתה בטוח שברצונך למחוק את הקובץ? פעולה זו היא בלתי הפיכה.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter className="flex-row-reverse sm:justify-start">
-                      <AlertDialogAction onClick={() => handleRemoveFile(index)}>
-                        כן, מחק
-                      </AlertDialogAction>
-                      <AlertDialogCancel>ביטול</AlertDialogCancel>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleRemoveFile(index)}
+                  className="opacity-0 group-hover/item:opacity-100 h-6 w-6 p-0 hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-900/20"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
               </div>
             ))}
           </div>
@@ -234,7 +207,9 @@ export function TableRow({
               accept=".pdf"
               onChange={(e) => {
                 const file = e.target.files?.[0];
-                handleFileUpload(file);
+                if (file) {
+                  handleFileUpload(file);
+                }
               }}
             />
             <Button
@@ -245,11 +220,7 @@ export function TableRow({
               className="w-8 h-8 p-0"
               disabled={isUploading}
             >
-              {isUploading ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <FileText className="h-4 w-4" />
-              )}
+              <FileText className="h-4 w-4" />
             </Button>
           </div>
         )}
