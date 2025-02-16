@@ -28,6 +28,44 @@ import * as XLSX from 'xlsx';
 import { useNavigate } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
 
+interface FileInputProps {
+  onChange: (file: File) => void;
+  id: string;
+}
+
+const FileInput: React.FC<FileInputProps> = ({ onChange, id }) => {
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      onChange(file);
+    }
+  };
+
+  return (
+    <div className="relative">
+      <input
+        type="file"
+        id={id}
+        onChange={handleFileChange}
+        className="hidden"
+      />
+      <label htmlFor={id}>
+        <Button
+          type="button"
+          variant="outline"
+          className="flex items-center gap-2 cursor-pointer"
+          asChild
+        >
+          <span>
+            <Paperclip className="h-4 w-4" />
+            הוסף קובץ
+          </span>
+        </Button>
+      </label>
+    </div>
+  );
+};
+
 export default function TableView() {
   const { tableId } = useParams();
   const { toast } = useToast();
