@@ -2,7 +2,7 @@
 import { useState, useCallback, useRef } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Plus, Workflow } from "lucide-react";
+import { ArrowLeft, Plus, Workflow, Pencil } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { toast } from "@/hooks/use-toast";
@@ -47,7 +47,10 @@ const initialNodes: Node[] = [
   {
     id: 'start',
     type: 'input',
-    data: { label: 'התחלה' },
+    data: { 
+      label: 'התחלת תהליך',
+      isStartNode: true 
+    },
     position: { x: 250, y: 0 },
     className: 'bg-card p-2 rounded-lg border shadow-sm text-sm font-medium'
   }
@@ -59,6 +62,8 @@ function WorkflowCreatorContent() {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [isOpen, setIsOpen] = useState(false);
+  const [isStartNodeDialogOpen, setIsStartNodeDialogOpen] = useState(false);
+  const [startNodeName, setStartNodeName] = useState("התחלת תהליך");
   const [newTask, setNewTask] = useState({
     title: '',
     duration: 30,
@@ -69,11 +74,29 @@ function WorkflowCreatorContent() {
     setEdges((eds) => addEdge(params, eds));
   }, [setEdges]);
 
+  const handleStartNodeEdit = () => {
+    setNodes((nds) =>
+      nds.map((node) => {
+        if (node.id === 'start') {
+          return {
+            ...node,
+            data: {
+              ...node.data,
+              label: startNodeName,
+            },
+          };
+        }
+        return node;
+      })
+    );
+    setIsStartNodeDialogOpen(false);
+  };
+
   const handleAddTask = () => {
     if (!newTask.title) {
       toast({
         title: "שגיאה",
-        description: "נא להזין כותרת למשימה",
+        description: "נא להזין כותרת לשלב",
         variant: "destructive",
       });
       return;
@@ -143,23 +166,51 @@ function WorkflowCreatorContent() {
             >
               <Background className="bg-muted/20" />
               <Controls position="bottom-right" />
-              <Panel position="top-left" className="bg-background/80 p-2 rounded-lg backdrop-blur">
+              <Panel position="top-left" className="bg-background/80 p-2 rounded-lg backdrop-blur flex gap-2">
                 <div className="text-sm text-muted-foreground">
-                  {nodes.length - 1} משימות
+                  {nodes.length - 1} שלבים
                 </div>
               </Panel>
               
               <Panel position="top-right" className="flex gap-2">
-                <Dialog open={isOpen} onOpenChange={setIsOpen}>
+                <Dialog open={isStartNodeDialogOpen} onOpenChange={setIsStartNodeDialogOpen}>
                   <DialogTrigger asChild>
-                    <Button size="sm" className="gap-2">
-                      <Plus className="h-4 w-4" />
-                      הוסף משימה
+                    <Button size="sm" variant="outline" className="gap-2">
+                      <Pencil className="h-4 w-4" />
+                      ערוך נקודת התחלה
                     </Button>
                   </DialogTrigger>
                   <DialogContent>
                     <DialogHeader>
-                      <DialogTitle>הוספת משימה חדשה</DialogTitle>
+                      <DialogTitle>עריכת נקודת התחלה</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="startName">שם נקודת ההתחלה</Label>
+                        <Input
+                          id="startName"
+                          value={startNodeName}
+                          onChange={(e) => setStartNodeName(e.target.value)}
+                          placeholder="הזן שם..."
+                        />
+                      </div>
+                      <Button onClick={handleStartNodeEdit} className="w-full">
+                        שמור
+                      </Button>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+
+                <Dialog open={isOpen} onOpenChange={setIsOpen}>
+                  <DialogTrigger asChild>
+                    <Button size="sm" className="gap-2">
+                      <Plus className="h-4 w-4" />
+                      הוסף שלב
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>הוספת שלב חדש</DialogTitle>
                     </DialogHeader>
                     <div className="space-y-4">
                       <div className="space-y-2">
@@ -168,7 +219,7 @@ function WorkflowCreatorContent() {
                           id="title"
                           value={newTask.title}
                           onChange={(e) => setNewTask(prev => ({ ...prev, title: e.target.value }))}
-                          placeholder="הזן כותרת למשימה..."
+                          placeholder="הזן כותרת לשלב..."
                         />
                       </div>
                       <div className="space-y-2">
@@ -197,7 +248,7 @@ function WorkflowCreatorContent() {
                         </Select>
                       </div>
                       <Button onClick={handleAddTask} className="w-full">
-                        הוסף משימה
+                        הוסף שלב
                       </Button>
                     </div>
                   </DialogContent>
