@@ -162,18 +162,30 @@ export const useTaskMutations = () => {
           console.error('File upload error:', error);
           throw error;
         }
-      } else if (newTitle || newDuration || newPriority) {
-        const { error } = await supabase
-          .from("tasks")
-          .update({ 
-            title: newTitle, 
-            duration: newDuration,
-            priority: newPriority
-          })
-          .eq("id", taskId)
-          .eq('worker', worker);
+      } else {
+        // If there's a data update (including file removal)
+        const { data: currentRow, error: fetchError } = await supabase
+          .from('table_rows')
+          .select('data')
+          .eq('id', taskId)
+          .single();
 
-        if (error) throw error;
+        if (fetchError) throw fetchError;
+
+        const { error: updateError } = await supabase
+          .from('table_rows')
+          .update({ 
+            data: {
+              ...currentRow?.data,
+              ...newTitle && { title: newTitle },
+              ...newDuration && { duration: newDuration },
+              ...newPriority && { priority: newPriority },
+              ...('attachments' in currentRow?.data) && { attachments: currentRow.data.attachments }
+            }
+          })
+          .eq('id', taskId);
+
+        if (updateError) throw updateError;
       }
     },
     onSuccess: () => {
