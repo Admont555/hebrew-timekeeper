@@ -32,6 +32,11 @@ import {
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 
+interface WorkflowNodeData {
+  label: string;
+  onClick?: () => void;
+}
+
 interface Workflow {
   id: string;
   name: string;
@@ -45,7 +50,16 @@ interface WorkflowConnection {
   target_workflow_id: string;
 }
 
-const WorkflowNode = ({ data }: { data: { label: string } }) => (
+interface DatabaseWorkflow {
+  id: string;
+  name: string;
+  position: { x: number; y: number } | null;
+  created_at: string;
+  updated_at: string;
+  user_id: string;
+}
+
+const WorkflowNode = ({ data }: { data: WorkflowNodeData }) => (
   <Card 
     className="p-4 min-w-[150px] hover:shadow-md transition-shadow cursor-pointer text-center"
     onClick={() => data.onClick?.()}
@@ -84,11 +98,17 @@ function WorkflowsContent() {
 
       if (connectionsError) throw connectionsError;
 
+      // Convert database workflows to our Workflow type with proper position handling
+      const typedWorkflows = (workflowsData as DatabaseWorkflow[]).map(workflow => ({
+        ...workflow,
+        position: workflow.position || { x: 0, y: 0 }
+      })) as Workflow[];
+
       // Convert workflows to nodes
-      const nodes: Node[] = (workflowsData as Workflow[]).map((workflow) => ({
+      const nodes: Node[] = typedWorkflows.map((workflow) => ({
         id: workflow.id,
         type: 'workflow',
-        position: workflow.position || { x: 0, y: 0 },
+        position: workflow.position,
         data: { 
           label: workflow.name,
           onClick: () => navigate(`/workflow-creator/${workflow.id}`)
@@ -107,7 +127,7 @@ function WorkflowsContent() {
       setNodes(nodes);
       setEdges(edges);
 
-      return { workflows: workflowsData, connections: connectionsData };
+      return { workflows: typedWorkflows, connections: connectionsData };
     },
   });
 
