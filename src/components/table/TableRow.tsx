@@ -3,7 +3,7 @@ import { useState, useRef, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { TableCell, TableRow as UITableRow } from "@/components/ui/table";
-import { Trash2, Edit2, Check, X, FileText } from "lucide-react";
+import { Trash2, Edit2, Check, X, FileText, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -81,7 +81,7 @@ export function TableRow({
     onSave?.(rowData);
   };
 
-  const handleFileUpload = async (file: File) => {
+  const handleFileUpload = async (file: File | null) => {
     if (!file) {
       toast({
         title: "שגיאה",
@@ -101,15 +101,14 @@ export function TableRow({
     }
 
     setIsUploading(true);
+
     try {
-      // Update the data with the file
-      const fileData = {
+      const updatedData = {
         ...data,
         _file: file
       };
-      
-      // Call onSave with the file data
-      await onSave?.(fileData);
+
+      await onSave?.(updatedData);
     } catch (error) {
       console.error('Upload error:', error);
       toast({
@@ -124,17 +123,10 @@ export function TableRow({
 
   const handleRemoveFile = async (fileIndex: number) => {
     try {
-      // Create a copy of the current data
       const updatedData = { ...data };
-      
-      // Create a new array of attachments without the removed file
       const currentAttachments = [...(data.attachments || [])];
       currentAttachments.splice(fileIndex, 1);
-      
-      // Update the attachments array in the data
       updatedData.attachments = currentAttachments;
-      
-      // Call onSave with the updated data
       await onSave?.(updatedData);
       
       toast({
@@ -242,9 +234,7 @@ export function TableRow({
               accept=".pdf"
               onChange={(e) => {
                 const file = e.target.files?.[0];
-                if (file) {
-                  handleFileUpload(file);
-                }
+                handleFileUpload(file);
               }}
             />
             <Button
@@ -255,7 +245,11 @@ export function TableRow({
               className="w-8 h-8 p-0"
               disabled={isUploading}
             >
-              <FileText className="h-4 w-4" />
+              {isUploading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <FileText className="h-4 w-4" />
+              )}
             </Button>
           </div>
         )}
