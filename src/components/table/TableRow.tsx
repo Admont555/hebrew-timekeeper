@@ -73,8 +73,9 @@ export function TableRow({
       {columns.map((column) => (
         <TableCell 
           key={column.id} 
-          className="text-right cursor-pointer min-w-[150px] sm:min-w-[200px]"
+          className="text-right cursor-pointer min-w-[150px] sm:min-w-[200px] p-4"
           onClick={() => !isEditing && onEdit?.()}
+          style={{ textAlign: 'right' }}
         >
           {isEditing ? (
             <Input

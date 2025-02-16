@@ -407,26 +407,27 @@ export default function TableView() {
           <ScrollArea className="h-[600px] sm:h-[700px] w-full rounded-md border">
             <div className="relative">
               <div className="overflow-x-auto" id="table-to-export">
-                <Table>
+                <Table dir="rtl">
                   <TableHeader>
                     <TableRow>
                       {columns.map((column) => (
                         <TableHead 
                           key={column.id} 
-                          className="text-right whitespace-nowrap min-w-[150px] sm:min-w-[200px] cursor-pointer hover:bg-muted/50"
+                          className="text-right whitespace-nowrap min-w-[150px] sm:min-w-[200px] cursor-pointer hover:bg-muted/50 p-4"
                           onClick={() => handleSort(column.id)}
+                          style={{ textAlign: 'right' }}
                         >
-                          <div className="flex items-center justify-between">
+                          <div className="flex items-center justify-end gap-2">
+                            <span>{column.name}</span>
                             {sortConfig.column === column.id && (
                               <span className="text-primary">
                                 {sortConfig.direction === 'asc' ? '↑' : '↓'}
                               </span>
                             )}
-                            <span>{column.name}</span>
                           </div>
                         </TableHead>
                       ))}
-                      <TableHead className="text-center sticky right-0 bg-background min-w-[100px]">
+                      <TableHead className="text-center sticky left-0 bg-background min-w-[100px]">
                         פעולות
                       </TableHead>
                     </TableRow>
