@@ -1,3 +1,4 @@
+
 import { useState, useRef, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -120,14 +121,17 @@ export function TableRow({
 
   const handleRemoveFile = async (fileIndex: number) => {
     try {
+      // Create a copy of the current data
+      const updatedData = { ...data };
+      
+      // Create a new array of attachments without the removed file
       const currentAttachments = [...(data.attachments || [])];
       currentAttachments.splice(fileIndex, 1);
       
-      const updatedData = {
-        ...data,
-        attachments: currentAttachments
-      };
+      // Update the attachments array in the data
+      updatedData.attachments = currentAttachments;
       
+      // Call onSave with the updated data
       await onSave?.(updatedData);
       
       toast({
