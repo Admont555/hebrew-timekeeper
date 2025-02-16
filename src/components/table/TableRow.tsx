@@ -7,6 +7,17 @@ import { motion } from "framer-motion";
 import { toast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Json } from "@/integrations/supabase/types";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface TableRowProps {
   columns: Array<{ id: string; name: string }>;
@@ -187,14 +198,31 @@ export function TableRow({
                   <FileText className="h-4 w-4" />
                   <span className="truncate max-w-[150px]">{attachment.name}</span>
                 </a>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => handleRemoveFile(index)}
-                  className="opacity-0 group-hover/item:opacity-100 h-6 w-6 p-0 hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-900/20"
-                >
-                  <X className="h-4 w-4" />
-                </Button>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="opacity-0 group-hover/item:opacity-100 h-6 w-6 p-0 hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-900/20"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent className="text-right">
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>האם אתה בטוח?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        האם אתה בטוח שברצונך למחוק את הקובץ? פעולה זו היא בלתי הפיכה.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter className="flex-row-reverse sm:justify-start">
+                      <AlertDialogAction onClick={() => handleRemoveFile(index)}>
+                        כן, מחק
+                      </AlertDialogAction>
+                      <AlertDialogCancel>ביטול</AlertDialogCancel>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </div>
             ))}
           </div>
