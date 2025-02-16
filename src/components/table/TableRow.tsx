@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -243,31 +242,14 @@ export function TableRow({
                   >
                     <Download className="h-4 w-4 text-blue-500" />
                   </a>
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="p-1 opacity-0 group-hover/item:opacity-100 hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-900/20 rounded-md transition-all"
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent className="text-right">
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>האם אתה בטוח?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          האם אתה בטוח שברצונך למחוק את הקובץ? פעולה זו היא בלתי הפיכה.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter className="flex-row-reverse sm:justify-start">
-                        <AlertDialogAction onClick={() => handleRemoveFile(index)}>
-                          כן, מחק
-                        </AlertDialogAction>
-                        <AlertDialogCancel>ביטול</AlertDialogCancel>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleRemoveFile(index)}
+                    className="p-1 opacity-0 group-hover/item:opacity-100 hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-900/20 rounded-md transition-all"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
                 </div>
               </div>
             ))}
