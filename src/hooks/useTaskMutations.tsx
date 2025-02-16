@@ -1,4 +1,3 @@
-
 import { useQueryClient, useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { TaskPriority } from "@/types/task";
@@ -101,7 +100,6 @@ export const useTaskMutations = () => {
           const fileExt = _file.name.split('.').pop();
           const fileName = `${taskId}/${timestamp}.${fileExt}`;
 
-          // First, upload the file
           const { data: uploadData, error: uploadError } = await supabase.storage
             .from('table-attachments')
             .upload(fileName, _file, {
@@ -114,12 +112,10 @@ export const useTaskMutations = () => {
             throw new Error('Failed to upload file');
           }
 
-          // Get the public URL
           const { data: { publicUrl } } = supabase.storage
             .from('table-attachments')
             .getPublicUrl(fileName);
 
-          // Get current row data
           const { data: currentRow, error: fetchError } = await supabase
             .from('table_rows')
             .select('data')
@@ -131,11 +127,9 @@ export const useTaskMutations = () => {
             throw fetchError;
           }
 
-          // Prepare the data update
-          const existingData = (currentRow?.data as Record<string, any>) || {};
+          const existingData = (currentRow?.data || {}) as TableRowData;
           const existingAttachments = Array.isArray(existingData.attachments) ? existingData.attachments : [];
 
-          // Update the row with new attachment
           const { error: updateError } = await supabase
             .from('table_rows')
             .update({
@@ -163,7 +157,6 @@ export const useTaskMutations = () => {
           throw error;
         }
       } else {
-        // If there's a data update (including file removal)
         const { data: currentRow, error: fetchError } = await supabase
           .from('table_rows')
           .select('data')
@@ -172,17 +165,22 @@ export const useTaskMutations = () => {
 
         if (fetchError) throw fetchError;
 
+        const existingData = (currentRow?.data || {}) as TableRowData;
+        
+        const updatedData: TableRowData = {
+          ...existingData,
+          ...(newTitle && { title: newTitle }),
+          ...(newDuration && { duration: newDuration }),
+          ...(newPriority && { priority: newPriority })
+        };
+
+        if ('attachments' in existingData) {
+          updatedData.attachments = existingData.attachments;
+        }
+
         const { error: updateError } = await supabase
           .from('table_rows')
-          .update({ 
-            data: {
-              ...currentRow?.data,
-              ...newTitle && { title: newTitle },
-              ...newDuration && { duration: newDuration },
-              ...newPriority && { priority: newPriority },
-              ...('attachments' in currentRow?.data) && { attachments: currentRow.data.attachments }
-            }
-          })
+          .update({ data: updatedData })
           .eq('id', taskId);
 
         if (updateError) throw updateError;
