@@ -1,4 +1,3 @@
-
 import { useQueryClient, useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { TaskPriority } from "@/types/task";
@@ -29,7 +28,6 @@ export const useTaskMutations = () => {
     }) => {
       let newTaskId;
       
-      // First create the task if we have task data
       if (title || duration || priority || worker) {
         const now = new Date();
         const dateStr = now.toISOString().split("T")[0];
@@ -54,14 +52,12 @@ export const useTaskMutations = () => {
         newTaskId = taskData.id;
       }
 
-      // Handle file upload if present
       if (_file) {
         try {
           const timestamp = new Date().getTime();
           const fileExt = _file.name.split('.').pop();
           const fileName = `${newTaskId || timestamp}/${timestamp}.${fileExt}`;
 
-          // Upload the file
           const { data: uploadData, error: uploadError } = await supabase.storage
             .from('table-attachments')
             .upload(fileName, _file, {
@@ -74,12 +70,10 @@ export const useTaskMutations = () => {
             throw new Error('Failed to upload file');
           }
 
-          // Get the public URL
           const { data: { publicUrl } } = supabase.storage
             .from('table-attachments')
             .getPublicUrl(fileName);
 
-          // Update task with attachment
           const { error: updateError } = await supabase
             .from('tasks')
             .update({
@@ -141,13 +135,19 @@ export const useTaskMutations = () => {
   });
 
   const editTaskMutation = useMutation({
-    mutationFn: async ({ taskId, newTitle, newDuration, newPriority, worker, _file }: { 
+    mutationFn: async ({ taskId, newTitle, newDuration, newPriority, worker, _file, attachments }: { 
       taskId: string; 
       newTitle?: string; 
       newDuration?: number; 
       newPriority?: TaskPriority;
       worker?: string;
       _file?: File;
+      attachments?: Array<{
+        name: string;
+        url: string;
+        type: string;
+        size: number;
+      }>;
     }) => {
       if (_file) {
         try {
@@ -155,7 +155,6 @@ export const useTaskMutations = () => {
           const fileExt = _file.name.split('.').pop();
           const fileName = `${taskId}/${timestamp}.${fileExt}`;
 
-          // Upload the file
           const { data: uploadData, error: uploadError } = await supabase.storage
             .from('table-attachments')
             .upload(fileName, _file, {
@@ -168,12 +167,10 @@ export const useTaskMutations = () => {
             throw new Error('Failed to upload file');
           }
 
-          // Get the public URL
           const { data: { publicUrl } } = supabase.storage
             .from('table-attachments')
             .getPublicUrl(fileName);
 
-          // Get current task data
           const { data: currentTask, error: fetchError } = await supabase
             .from('tasks')
             .select('*')
@@ -182,10 +179,8 @@ export const useTaskMutations = () => {
 
           if (fetchError) throw fetchError;
 
-          // Prepare the attachments update
           const existingAttachments = Array.isArray(currentTask?.attachments) ? currentTask.attachments : [];
 
-          // Update the task with new attachment
           const { error: updateError } = await supabase
             .from('tasks')
             .update({
@@ -206,6 +201,15 @@ export const useTaskMutations = () => {
           console.error('File upload error:', error);
           throw error;
         }
+      } else if (attachments !== undefined) {
+        const { error: updateError } = await supabase
+          .from('tasks')
+          .update({ 
+            attachments
+          })
+          .eq('id', taskId);
+
+        if (updateError) throw updateError;
       } else if (newTitle || newDuration || newPriority) {
         const { error } = await supabase
           .from("tasks")
@@ -224,7 +228,7 @@ export const useTaskMutations = () => {
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
       toast({
         title: "עודכן בהצלחה",
-        description: "הקובץ הועלה בהצלחה",
+        description: "השינויים נשמרו בהצלחה",
       });
     },
     onError: (error) => {
