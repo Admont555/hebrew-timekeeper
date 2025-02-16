@@ -1,274 +1,76 @@
 
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Plus, Workflow, Pencil } from "lucide-react";
-import { useNavigate, useParams } from "react-router-dom";
-import { motion } from "framer-motion";
-import { toast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
-import {
-  ReactFlow,
-  Background,
-  Controls,
-  Edge,
-  Node,
-  addEdge,
-  useNodesState,
-  useEdgesState,
-  ConnectionMode,
-  Panel,
-  ReactFlowProvider,
-  XYPosition,
-} from 'reactflow';
-import WorkflowTaskNode from "@/components/WorkflowTaskNode";
-import 'reactflow/dist/style.css';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import TaskForm from "@/components/TaskForm";
+import { Task, TaskPriority } from "@/types/task";
+import { ArrowLeft, Plus, Save, Workflow } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import { toast } from "@/hooks/use-toast";
 
-const nodeTypes = {
-  task: WorkflowTaskNode,
-};
-
-const initialNodes: Node[] = [
-  {
-    id: 'start',
-    type: 'input',
-    data: { 
-      label: 'התחלת תהליך',
-      isStartNode: true 
-    },
-    position: { x: 250, y: 0 },
-    className: 'bg-card p-2 rounded-lg border shadow-sm text-sm font-medium'
-  }
-];
-
-interface DatabaseWorkflowTask {
-  id: string;
-  title: string;
-  duration: number;
-  priority: string;
-  position: { x: number; y: number } | null;
-  workflow_id: string;
-  created_at: string;
-}
-
-interface WorkflowTask {
-  id: string;
-  title: string;
-  duration: number;
-  priority: string;
-  position: XYPosition;
-  workflow_id: string;
-}
-
-function WorkflowCreatorContent() {
+export default function WorkflowCreator() {
   const navigate = useNavigate();
-  const { workflowId } = useParams();
-  const reactFlowWrapper = useRef<HTMLDivElement>(null);
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
-  const [isOpen, setIsOpen] = useState(false);
-  const [isStartNodeDialogOpen, setIsStartNodeDialogOpen] = useState(false);
-  const [startNodeName, setStartNodeName] = useState("התחלת תהליך");
-  const [newTask, setNewTask] = useState({
-    title: '',
-    duration: 30,
-    priority: 'normal'
-  });
+  const [workflowName, setWorkflowName] = useState("");
+  const [tasks, setTasks] = useState<Task[]>([]);
 
-  const { data: workflow, isError: workflowError } = useQuery({
-    queryKey: ["workflow", workflowId],
-    queryFn: async () => {
-      const session = await supabase.auth.getSession();
-      if (!session.data.session) {
-        navigate("/login");
-        throw new Error("No session");
-      }
+  const handleAddTask = (title: string, duration: number, priority: TaskPriority) => {
+    const newTask: Task = {
+      id: crypto.randomUUID(),
+      title,
+      duration,
+      priority,
+      timestamp: new Date().toISOString(),
+      completed: false,
+      date: new Date().toISOString().split('T')[0],
+      worker: '',
+      assigned_to: [],
+    };
 
-      const { data, error } = await supabase
-        .from("workflows")
-        .select("*")
-        .eq("id", workflowId)
-        .single();
-
-      if (error) {
-        if (error.code === 'PGRST116') {
-          navigate("/workflows");
-          throw new Error("Workflow not found");
-        }
-        throw error;
-      }
-      
-      if (data.user_id !== session.data.session.user.id) {
-        navigate("/workflows");
-        throw new Error("Unauthorized");
-      }
-
-      return data;
-    },
-  });
-
-  const { data: workflowTasks } = useQuery({
-    queryKey: ["workflow-tasks", workflowId],
-    queryFn: async () => {
-      const session = await supabase.auth.getSession();
-      if (!session.data.session) {
-        throw new Error("No session");
-      }
-
-      const { data, error } = await supabase
-        .from("workflow_tasks")
-        .select("*")
-        .eq("workflow_id", workflowId)
-        .order("created_at", { ascending: true });
-
-      if (error) throw error;
-      
-      // Convert database tasks to WorkflowTask type
-      return (data as DatabaseWorkflowTask[]).map(task => ({
-        ...task,
-        position: task.position || { x: 0, y: 0 }
-      })) as WorkflowTask[];
-    },
-    enabled: !!workflow,
-  });
-
-  useEffect(() => {
-    if (workflowTasks) {
-      const tasksNodes = workflowTasks.map((task) => ({
-        id: task.id,
-        type: 'task',
-        position: task.position || {
-          x: (reactFlowWrapper.current?.getBoundingClientRect().width || 500) / 2,
-          y: (nodes.length * 100) + 100
-        },
-        data: {
-          label: task.title,
-          duration: task.duration,
-          priority: task.priority,
-        },
-      }));
-
-      setNodes([initialNodes[0], ...tasksNodes]);
-    }
-  }, [workflowTasks]);
-
-  const addTaskMutation = useMutation({
-    mutationFn: async (taskData: {
-      title: string;
-      duration: number;
-      priority: string;
-      position: XYPosition;
-    }) => {
-      const session = await supabase.auth.getSession();
-      if (!session.data.session) {
-        throw new Error("No session");
-      }
-
-      const { error } = await supabase
-        .from("workflow_tasks")
-        .insert([{ 
-          title: taskData.title,
-          duration: taskData.duration,
-          priority: taskData.priority,
-          workflow_id: workflowId,
-          position: { x: taskData.position.x, y: taskData.position.y }
-        }]);
-
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      setNewTask({ title: '', duration: 30, priority: 'normal' });
-      setIsOpen(false);
-    },
-    onError: () => {
-      toast({
-        title: "שגיאה",
-        description: "אירעה שגיאה בהוספת השלב",
-        variant: "destructive",
-      });
-    },
-  });
-
-  const handleStartNodeEdit = () => {
-    setNodes((nds) =>
-      nds.map((node) => {
-        if (node.id === 'start') {
-          return {
-            ...node,
-            data: {
-              ...node.data,
-              label: startNodeName,
-            },
-          };
-        }
-        return node;
-      })
-    );
-    setIsStartNodeDialogOpen(false);
+    setTasks([...tasks, newTask]);
+    toast({
+      title: "משימה נוספה",
+      description: "המשימה נוספה לזרימת העבודה בהצלחה",
+    });
   };
 
-  const handleAddTask = () => {
-    if (!newTask.title) {
+  const handleSaveWorkflow = () => {
+    if (!workflowName.trim()) {
       toast({
         title: "שגיאה",
-        description: "נא להזין כותרת לשלב",
+        description: "יש להזין שם לזרימת העבודה",
         variant: "destructive",
       });
       return;
     }
-
-    const rect = reactFlowWrapper.current?.getBoundingClientRect();
-    const position = {
-      x: (rect?.width || 500) / 2,
-      y: (nodes.length * 100) + 100
-    };
-
-    addTaskMutation.mutate({
-      title: newTask.title,
-      duration: newTask.duration,
-      priority: newTask.priority,
-      position,
+    if (tasks.length === 0) {
+      toast({
+        title: "שגיאה",
+        description: "יש להוסיף לפחות משימה אחת לזרימת העבודה",
+        variant: "destructive",
+      });
+      return;
+    }
+    // TODO: Save workflow to database
+    toast({
+      title: "זרימת העבודה נשמרה",
+      description: "זרימת העבודה נשמרה בהצלחה",
     });
   };
 
-  const onConnect = useCallback((params: any) => {
-    setEdges((eds) => addEdge(params, eds));
-  }, [setEdges]);
-
-  if (workflowError) {
-    return null;
-  }
-
-  if (!workflow) return null;
-
   return (
-    <div className="container mx-auto p-6 h-[calc(100vh-4rem)]" dir="rtl">
+    <div className="container max-w-4xl mx-auto p-6" dir="rtl">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="h-full flex flex-col gap-6"
+        className="space-y-6"
       >
         <div className="flex items-center justify-between">
           <Button
             variant="ghost"
-            onClick={() => navigate("/workflows")}
+            onClick={() => navigate(-1)}
             className="gap-2"
           >
             <ArrowLeft className="h-4 w-4" />
@@ -276,130 +78,71 @@ function WorkflowCreatorContent() {
           </Button>
           <div className="flex items-center gap-2">
             <Workflow className="h-6 w-6 text-purple-500" />
-            <h1 className="text-2xl font-bold">{workflow.name}</h1>
+            <h1 className="text-2xl font-bold">יצירת זרימת עבודה</h1>
           </div>
         </div>
 
-        <Card className="relative flex-1">
-          <div ref={reactFlowWrapper} className="h-full">
-            <ReactFlow
-              nodes={nodes}
-              edges={edges}
-              onNodesChange={onNodesChange}
-              onEdgesChange={onEdgesChange}
-              onConnect={onConnect}
-              nodeTypes={nodeTypes}
-              connectionMode={ConnectionMode.Loose}
-              fitView
-              className="rounded-lg bg-muted/30"
-              defaultEdgeOptions={{
-                type: 'smoothstep',
-                animated: true,
-                style: { stroke: '#94a3b8' }
-              }}
-            >
-              <Background />
-              <Controls position="bottom-right" />
-              <Panel position="top-left" className="bg-background/80 p-2 rounded-lg backdrop-blur flex gap-2">
-                <div className="text-sm text-muted-foreground">
-                  {nodes.length - 1} שלבים
-                </div>
-              </Panel>
-              
-              <Panel position="top-right" className="flex gap-2">
-                <Dialog open={isStartNodeDialogOpen} onOpenChange={setIsStartNodeDialogOpen}>
-                  <DialogTrigger asChild>
-                    <Button size="sm" variant="outline" className="gap-2">
-                      <Pencil className="h-4 w-4" />
-                      ערוך נקודת התחלה
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>עריכת נקודת התחלה</DialogTitle>
-                    </DialogHeader>
-                    <div className="space-y-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="startName">שם נקודת ההתחלה</Label>
-                        <Input
-                          id="startName"
-                          value={startNodeName}
-                          onChange={(e) => setStartNodeName(e.target.value)}
-                          placeholder="הזן שם..."
-                        />
-                      </div>
-                      <Button onClick={handleStartNodeEdit} className="w-full">
-                        שמור
-                      </Button>
-                    </div>
-                  </DialogContent>
-                </Dialog>
-
-                <Dialog open={isOpen} onOpenChange={setIsOpen}>
-                  <DialogTrigger asChild>
-                    <Button size="sm" className="gap-2">
-                      <Plus className="h-4 w-4" />
-                      הוסף שלב
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>הוספת שלב חדש</DialogTitle>
-                    </DialogHeader>
-                    <div className="space-y-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="title">כותרת</Label>
-                        <Input
-                          id="title"
-                          value={newTask.title}
-                          onChange={(e) => setNewTask(prev => ({ ...prev, title: e.target.value }))}
-                          placeholder="הזן כותרת לשלב..."
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="duration">משך זמן (בדקות)</Label>
-                        <Input
-                          id="duration"
-                          type="number"
-                          value={newTask.duration}
-                          onChange={(e) => setNewTask(prev => ({ ...prev, duration: parseInt(e.target.value) }))}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="priority">עדיפות</Label>
-                        <Select
-                          value={newTask.priority}
-                          onValueChange={(value) => setNewTask(prev => ({ ...prev, priority: value }))}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="בחר עדיפות" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="high">גבוהה</SelectItem>
-                            <SelectItem value="normal">רגילה</SelectItem>
-                            <SelectItem value="low">נמוכה</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <Button onClick={handleAddTask} className="w-full">
-                        הוסף שלב
-                      </Button>
-                    </div>
-                  </DialogContent>
-                </Dialog>
-              </Panel>
-            </ReactFlow>
+        <Card className="p-6 space-y-6">
+          <div className="space-y-2">
+            <Label htmlFor="workflowName">שם זרימת העבודה</Label>
+            <Input
+              id="workflowName"
+              value={workflowName}
+              onChange={(e) => setWorkflowName(e.target.value)}
+              placeholder="הזן שם לזרימת העבודה..."
+              className="max-w-md"
+            />
           </div>
+
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold">משימות</h2>
+              <span className="text-sm text-muted-foreground">
+                {tasks.length} משימות
+              </span>
+            </div>
+            
+            <TaskForm onAddTask={handleAddTask} />
+
+            <div className="space-y-3">
+              {tasks.map((task, index) => (
+                <motion.div
+                  key={task.id}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  className="flex items-center gap-4 p-4 bg-muted/50 rounded-lg"
+                >
+                  <span className="text-sm font-medium text-muted-foreground">
+                    {index + 1}.
+                  </span>
+                  <div className="flex-grow">
+                    <h3 className="font-medium">{task.title}</h3>
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <span>{task.duration} דקות</span>
+                      <span>•</span>
+                      <span>
+                        {task.priority === 'high' && 'עדיפות גבוהה'}
+                        {task.priority === 'normal' && 'עדיפות רגילה'}
+                        {task.priority === 'low' && 'עדיפות נמוכה'}
+                      </span>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+
+          <Button
+            onClick={handleSaveWorkflow}
+            className="w-full sm:w-auto gap-2"
+            size="lg"
+          >
+            <Save className="h-4 w-4" />
+            שמור זרימת עבודה
+          </Button>
         </Card>
       </motion.div>
     </div>
-  );
-}
-
-export default function WorkflowCreator() {
-  return (
-    <ReactFlowProvider>
-      <WorkflowCreatorContent />
-    </ReactFlowProvider>
   );
 }

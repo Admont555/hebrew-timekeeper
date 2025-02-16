@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -11,7 +12,6 @@ import TableView from "./pages/TableView";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import WorkflowCreator from "./pages/WorkflowCreator";
-import Workflows from "./pages/Workflows";
 import { useEffect, useState } from "react";
 import { supabase } from "./integrations/supabase/client";
 import { useToast } from "./hooks/use-toast";
@@ -138,11 +138,7 @@ const App = () => {
                 element={isAuthenticated ? <Settings /> : <Navigate to="/login" />} 
               />
               <Route 
-                path="/workflows" 
-                element={isAuthenticated ? <Workflows /> : <Navigate to="/login" />} 
-              />
-              <Route 
-                path="/workflow-creator/:workflowId" 
+                path="/workflow-creator" 
                 element={isAuthenticated ? <WorkflowCreator /> : <Navigate to="/login" />} 
               />
             </Routes>
