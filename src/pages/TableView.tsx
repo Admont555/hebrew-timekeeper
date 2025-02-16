@@ -109,42 +109,57 @@ export default function TableView() {
     };
   };
 
-  const updateRowWithAttachment = async (rowId: string, file: File) => {
-    try {
-      const attachment = await handleFileUpload(file, rowId);
-      if (!attachment) return;
+  const editTaskMutation = useMutation({
+    mutationFn: async ({ rowId, data }: { rowId: string; data: Record<string, any> }) => {
+      if (data._file) {
+        const attachment = await handleFileUpload(data._file, rowId);
+        if (attachment) {
+          const { data: currentRow } = await supabase
+            .from('table_rows')
+            .select('data')
+            .eq('id', rowId)
+            .single();
 
-      const { data: row } = await supabase
-        .from('table_rows')
-        .select('attachments')
-        .eq('id', rowId)
-        .single();
+          const currentData = currentRow?.data || {};
+          const currentAttachments = currentData.attachments || [];
 
-      const currentAttachments = row?.attachments || [];
-      
-      const { error } = await supabase
-        .from('table_rows')
-        .update({
-          attachments: [...currentAttachments, attachment],
-        })
-        .eq('id', rowId);
+          const { error } = await supabase
+            .from('table_rows')
+            .update({
+              data: {
+                ...currentData,
+                attachments: [...currentAttachments, attachment]
+              }
+            })
+            .eq('id', rowId);
 
-      if (error) throw error;
+          if (error) throw error;
+        }
+      } else {
+        const { error } = await supabase
+          .from('table_rows')
+          .update({ data })
+          .eq('id', rowId);
 
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["table-rows", tableId] });
-      
+      setEditingRowId(null);
       toast({
-        title: "הקובץ הועלה בהצלחה",
-        description: "הקובץ צורף לשורה בהצלחה",
+        title: "השורה עודכנה",
+        description: "השורה עודכנה בהצלחה",
       });
-    } catch (error) {
+    },
+    onError: (error) => {
       toast({
-        title: "שגיאה בהעלאת הקובץ",
+        title: "שגיאה בעדכון השורה",
         description: error.message,
         variant: "destructive",
       });
-    }
-  };
+    },
+  });
 
   const handleExportPDF = async () => {
     const container = document.createElement('div');
@@ -364,27 +379,19 @@ export default function TableView() {
     },
   });
 
-  const editRowMutation = useMutation({
-    mutationFn: async ({ rowId, data }: { rowId: string; data: Record<string, string> }) => {
+  const deleteRowMutation = useMutation({
+    mutationFn: async (rowId: string) => {
       const { error } = await supabase
         .from("table_rows")
-        .update({ data })
+        .delete()
         .eq("id", rowId);
       if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["table-rows", tableId] });
-      setEditingRowId(null);
       toast({
-        title: "השורה עודכנה",
-        description: "השורה עודכנה בהצלחה",
-      });
-    },
-    onError: (error) => {
-      toast({
-        title: "שגיאה בעדכון השורה",
-        description: error.message,
-        variant: "destructive",
+        title: "השורה נמחקה",
+        description: "השורה נמחקה בהצלחה",
       });
     },
   });
@@ -416,23 +423,6 @@ export default function TableView() {
       return aValue.localeCompare(bValue, 'he');
     }
     return bValue.localeCompare(aValue, 'he');
-  });
-
-  const deleteRowMutation = useMutation({
-    mutationFn: async (rowId: string) => {
-      const { error } = await supabase
-        .from("table_rows")
-        .delete()
-        .eq("id", rowId);
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["table-rows", tableId] });
-      toast({
-        title: "השורה נמחקה",
-        description: "השורה נמחקה בהצלחה",
-      });
-    },
   });
 
   return (
@@ -512,7 +502,7 @@ export default function TableView() {
                           )}
                           isEditing={editingRowId === row.id}
                           onEdit={() => setEditingRowId(row.id)}
-                          onSave={(data) => editRowMutation.mutate({ rowId: row.id, data })}
+                          onSave={(data) => editTaskMutation.mutate({ rowId: row.id, data })}
                           onCancel={() => setEditingRowId(null)}
                           onDelete={() => deleteRowMutation.mutate(row.id)}
                         />

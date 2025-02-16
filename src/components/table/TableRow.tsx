@@ -1,3 +1,4 @@
+
 import { useState, useRef, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -9,9 +10,9 @@ import { useIsMobile } from "@/hooks/use-mobile";
 
 interface TableRowProps {
   columns: Array<{ id: string; name: string }>;
-  data?: Record<string, string>;
+  data?: Record<string, any>;
   isEditing?: boolean;
-  onSave?: (data: Record<string, string>) => void;
+  onSave?: (data: Record<string, any>) => void;
   onCancel?: () => void;
   onDelete?: () => void;
   onEdit?: () => void;
@@ -26,7 +27,7 @@ export function TableRow({
   onDelete,
   onEdit,
 }: TableRowProps) {
-  const [rowData, setRowData] = useState<Record<string, string>>(data);
+  const [rowData, setRowData] = useState<Record<string, any>>(data);
   const [isHovered, setIsHovered] = useState(false);
   const rowRef = useRef<HTMLTableRowElement>(null);
   const isMobile = useIsMobile();
@@ -45,7 +46,7 @@ export function TableRow({
   }, [isEditing, onCancel]);
 
   const handleSave = () => {
-    const hasAtLeastOneValue = columns.some(column => rowData[column.id]?.trim());
+    const hasAtLeastOneValue = columns.some(column => rowData[column.id]?.toString().trim());
     if (!hasAtLeastOneValue) {
       toast({
         title: "שגיאה",
@@ -100,7 +101,7 @@ export function TableRow({
       <TableCell className="text-right min-w-[100px]">
         {!isEditing ? (
           <div className="flex flex-col gap-1">
-            {data.attachments?.map((attachment: any, index: number) => (
+            {(data.attachments || []).map((attachment: { name: string; url: string }, index: number) => (
               <a
                 key={index}
                 href={attachment.url}
@@ -122,7 +123,11 @@ export function TableRow({
               onChange={(e) => {
                 const file = e.target.files?.[0];
                 if (file) {
-                  onSave?.({ ...rowData, file });
+                  setRowData(prev => ({
+                    ...prev,
+                    _file: file // Use _file to distinguish it from other data
+                  }));
+                  handleSave();
                 }
               }}
             />
