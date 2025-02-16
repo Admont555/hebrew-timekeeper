@@ -82,6 +82,15 @@ export function TableRow({
   };
 
   const handleFileUpload = async (file: File) => {
+    if (!file) {
+      toast({
+        title: "שגיאה",
+        description: "לא נבחר קובץ",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (file.type !== 'application/pdf') {
       toast({
         title: "שגיאה",
@@ -93,20 +102,14 @@ export function TableRow({
 
     setIsUploading(true);
     try {
-      const updatedData = {
-        ...rowData,
-        _file: file
-      };
-      setRowData(updatedData);
-      const fileOnlyData = {
+      // Update the data with the file
+      const fileData = {
         ...data,
         _file: file
       };
-      await onSave?.(fileOnlyData);
-      setRowData((prev) => ({
-        ...prev,
-        _file: undefined
-      }));
+      
+      // Call onSave with the file data
+      await onSave?.(fileData);
     } catch (error) {
       console.error('Upload error:', error);
       toast({
