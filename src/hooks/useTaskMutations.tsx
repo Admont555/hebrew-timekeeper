@@ -2,6 +2,7 @@ import { useQueryClient, useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { TaskPriority } from "@/types/task";
 import { useToast } from "@/hooks/use-toast";
+import { Json } from "@/integrations/supabase/types";
 
 interface TableRowData {
   [key: string]: any;
@@ -125,14 +126,14 @@ export const useTaskMutations = () => {
           throw fetchError;
         }
 
-        const currentData = (currentRow?.data || {}) as TableRowData;
-        const currentAttachments = currentData.attachments || [];
+        const currentData = currentRow?.data as Record<string, any> || {};
+        const currentAttachments = Array.isArray(currentData.attachments) ? currentData.attachments : [];
 
         const { error: updateError } = await supabase
           .from('table_rows')
           .update({
             data: {
-              ...currentData,
+              ...Object.assign({}, currentData),
               attachments: [
                 ...currentAttachments,
                 {
