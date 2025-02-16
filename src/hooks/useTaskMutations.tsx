@@ -20,30 +20,84 @@ export const useTaskMutations = () => {
   const queryClient = useQueryClient();
 
   const addTaskMutation = useMutation({
-    mutationFn: async ({ title, duration, priority, worker }: { 
-      title: string; 
-      duration: number; 
-      priority: TaskPriority;
-      worker: string;
+    mutationFn: async ({ title, duration, priority, worker, _file }: { 
+      title?: string; 
+      duration?: number; 
+      priority?: TaskPriority;
+      worker?: string;
+      _file?: File;
     }) => {
-      const now = new Date();
-      const dateStr = now.toISOString().split("T")[0];
+      let newTaskId;
       
-      const newTask = {
-        title,
-        timestamp: now.toISOString(),
-        completed: false,
-        date: dateStr,
-        duration,
-        priority,
-        worker,
-      };
+      // First create the task if we have task data
+      if (title || duration || priority || worker) {
+        const now = new Date();
+        const dateStr = now.toISOString().split("T")[0];
+        
+        const newTask = {
+          title,
+          timestamp: now.toISOString(),
+          completed: false,
+          date: dateStr,
+          duration,
+          priority,
+          worker,
+        };
 
-      const { error } = await supabase
-        .from("tasks")
-        .insert(newTask);
+        const { data: taskData, error } = await supabase
+          .from("tasks")
+          .insert(newTask)
+          .select()
+          .single();
 
-      if (error) throw error;
+        if (error) throw error;
+        newTaskId = taskData.id;
+      }
+
+      // Handle file upload if present
+      if (_file) {
+        try {
+          const timestamp = new Date().getTime();
+          const fileExt = _file.name.split('.').pop();
+          const fileName = `${newTaskId || timestamp}/${timestamp}.${fileExt}`;
+
+          // Upload the file
+          const { data: uploadData, error: uploadError } = await supabase.storage
+            .from('table-attachments')
+            .upload(fileName, _file, {
+              cacheControl: '3600',
+              upsert: false
+            });
+
+          if (uploadError) {
+            console.error('Upload error:', uploadError);
+            throw new Error('Failed to upload file');
+          }
+
+          // Get the public URL
+          const { data: { publicUrl } } = supabase.storage
+            .from('table-attachments')
+            .getPublicUrl(fileName);
+
+          // Update task with attachment
+          const { error: updateError } = await supabase
+            .from('tasks')
+            .update({
+              attachments: [{
+                name: _file.name,
+                url: publicUrl,
+                type: _file.type,
+                size: _file.size,
+              }]
+            })
+            .eq('id', newTaskId);
+
+          if (updateError) throw updateError;
+        } catch (error) {
+          console.error('File upload error:', error);
+          throw error;
+        }
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
@@ -101,7 +155,7 @@ export const useTaskMutations = () => {
           const fileExt = _file.name.split('.').pop();
           const fileName = `${taskId}/${timestamp}.${fileExt}`;
 
-          // First, upload the file
+          // Upload the file
           const { data: uploadData, error: uploadError } = await supabase.storage
             .from('table-attachments')
             .upload(fileName, _file, {
@@ -119,45 +173,35 @@ export const useTaskMutations = () => {
             .from('table-attachments')
             .getPublicUrl(fileName);
 
-          // Get current row data
-          const { data: currentRow, error: fetchError } = await supabase
-            .from('table_rows')
-            .select('data')
+          // Get current task data
+          const { data: currentTask, error: fetchError } = await supabase
+            .from('tasks')
+            .select('*')
             .eq('id', taskId)
             .single();
 
-          if (fetchError) {
-            console.error('Fetch error:', fetchError);
-            throw fetchError;
-          }
+          if (fetchError) throw fetchError;
 
-          // Prepare the data update
-          const existingData = (currentRow?.data as Record<string, any>) || {};
-          const existingAttachments = Array.isArray(existingData.attachments) ? existingData.attachments : [];
+          // Prepare the attachments update
+          const existingAttachments = Array.isArray(currentTask?.attachments) ? currentTask.attachments : [];
 
-          // Update the row with new attachment
+          // Update the task with new attachment
           const { error: updateError } = await supabase
-            .from('table_rows')
+            .from('tasks')
             .update({
-              data: {
-                ...existingData,
-                attachments: [
-                  ...existingAttachments,
-                  {
-                    name: _file.name,
-                    url: publicUrl,
-                    type: _file.type,
-                    size: _file.size,
-                  }
-                ]
-              }
+              attachments: [
+                ...existingAttachments,
+                {
+                  name: _file.name,
+                  url: publicUrl,
+                  type: _file.type,
+                  size: _file.size,
+                }
+              ]
             })
             .eq('id', taskId);
 
-          if (updateError) {
-            console.error('Update error:', updateError);
-            throw updateError;
-          }
+          if (updateError) throw updateError;
         } catch (error) {
           console.error('File upload error:', error);
           throw error;
@@ -178,7 +222,6 @@ export const useTaskMutations = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
-      queryClient.invalidateQueries({ queryKey: ['table-rows'] });
       toast({
         title: "עודכן בהצלחה",
         description: "הקובץ הועלה בהצלחה",
