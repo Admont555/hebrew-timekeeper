@@ -167,6 +167,16 @@ function WorkflowsContent() {
     setIsOpen(false);
     setNewWorkflowName("");
     refetch();
+    
+    // Navigate to the workflow creator after creation
+    if (workflow) {
+      navigate(`/workflow-creator/${workflow.id}`);
+    }
+
+    toast({
+      title: "זרימת עבודה נוצרה",
+      description: "זרימת העבודה נוצרה בהצלחה",
+    });
   };
 
   const onConnect = useCallback(async (params: Connection) => {
@@ -188,6 +198,11 @@ function WorkflowsContent() {
       }
 
       setEdges((eds) => addEdge(params, eds));
+      
+      toast({
+        title: "קשר נוצר",
+        description: "הקשר בין זרימות העבודה נוצר בהצלחה",
+      });
     }
   }, [setEdges]);
 
