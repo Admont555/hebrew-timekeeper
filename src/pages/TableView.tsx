@@ -85,29 +85,53 @@ export default function TableView() {
     const fileExt = file.name.split('.').pop();
     const fileName = `${rowId}/${timestamp}.${fileExt}`;
 
-    const { data: uploadData, error: uploadError } = await supabase.storage
-      .from('table-attachments')
-      .upload(fileName, file);
-
-    if (uploadError) {
+    // First, make sure the file extension exists
+    if (!fileExt) {
       toast({
         title: "שגיאה בהעלאת הקובץ",
-        description: uploadError.message,
+        description: "סוג הקובץ לא תקין",
         variant: "destructive",
       });
       return null;
     }
 
-    const { data: { publicUrl } } = supabase.storage
-      .from('table-attachments')
-      .getPublicUrl(fileName);
+    try {
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('table-attachments')
+        .upload(fileName, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
 
-    return {
-      name: file.name,
-      url: publicUrl,
-      type: file.type,
-      size: file.size,
-    };
+      if (uploadError) {
+        console.error('Upload error:', uploadError);
+        toast({
+          title: "שגיאה בהעלאת הקובץ",
+          description: uploadError.message,
+          variant: "destructive",
+        });
+        return null;
+      }
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('table-attachments')
+        .getPublicUrl(fileName);
+
+      return {
+        name: file.name,
+        url: publicUrl,
+        type: file.type,
+        size: file.size,
+      };
+    } catch (error) {
+      console.error('Upload error:', error);
+      toast({
+        title: "שגיאה בהעלאת הקובץ",
+        description: "אירעה שגיאה בעת העלאת הקובץ",
+        variant: "destructive",
+      });
+      return null;
+    }
   };
 
   const editTaskMutation = useMutation({
@@ -115,11 +139,16 @@ export default function TableView() {
       if (data._file) {
         const attachment = await handleFileUpload(data._file, rowId);
         if (attachment) {
-          const { data: currentRow } = await supabase
+          const { data: currentRow, error: fetchError } = await supabase
             .from('table_rows')
             .select('data')
             .eq('id', rowId)
             .single();
+
+          if (fetchError) {
+            console.error('Fetch error:', fetchError);
+            throw fetchError;
+          }
 
           if (!currentRow) throw new Error('Row not found');
 
@@ -128,7 +157,7 @@ export default function TableView() {
             ? (currentData as any).attachments 
             : [];
 
-          const { error } = await supabase
+          const { error: updateError } = await supabase
             .from('table_rows')
             .update({
               data: {
@@ -138,7 +167,10 @@ export default function TableView() {
             })
             .eq('id', rowId);
 
-          if (error) throw error;
+          if (updateError) {
+            console.error('Update error:', updateError);
+            throw updateError;
+          }
         }
       } else {
         const { error } = await supabase
@@ -158,6 +190,7 @@ export default function TableView() {
       });
     },
     onError: (error) => {
+      console.error('Mutation error:', error);
       toast({
         title: "שגיאה בעדכון השורה",
         description: error.message,
