@@ -31,7 +31,7 @@ interface TableRowProps {
 }
 
 interface TableRowData {
-  [key: string]: Json;
+  [key: string]: any;
   attachments?: Array<{
     name: string;
     url: string;
@@ -150,11 +150,16 @@ export function TableRow({
       
       const updatedData = {
         ...data,
+        id: data.id,
         attachments: currentAttachments
       };
       
       if (onSave) {
-        await onSave(updatedData);
+        await onSave({
+          taskId: data.id,
+          attachments: currentAttachments,
+          worker: data.worker
+        });
         
         toast({
           title: "הקובץ הוסר",
