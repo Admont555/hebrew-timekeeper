@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -14,7 +15,7 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Plus, FileText, Download } from "lucide-react";
+import { Plus, FileText, Download, ArrowLeft } from "lucide-react";
 import { TableHeader as CustomTableHeader } from "@/components/table/TableHeader";
 import { TableRow as CustomTableRow } from "@/components/table/TableRow";
 import { AnimatePresence, motion } from "framer-motion";
@@ -24,6 +25,8 @@ import html2canvas from 'html2canvas';
 import { format } from 'date-fns';
 import { he } from 'date-fns/locale';
 import * as XLSX from 'xlsx';
+import { useNavigate } from "react-router-dom";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export default function TableView() {
   const { tableId } = useParams();
@@ -36,6 +39,8 @@ export default function TableView() {
     column?: string;
     direction: 'asc' | 'desc';
   }>({ direction: 'asc' });
+  const navigate = useNavigate();
+  const isMobile = useIsMobile();
 
   const { data: table } = useQuery({
     queryKey: ["tables", tableId],
@@ -76,7 +81,6 @@ export default function TableView() {
   });
 
   const handleExportPDF = async () => {
-    // Create a temporary container
     const container = document.createElement('div');
     container.style.position = 'absolute';
     container.style.left = '-9999px';
@@ -84,7 +88,6 @@ export default function TableView() {
     document.body.appendChild(container);
 
     try {
-      // Create and style the content container
       const contentContainer = document.createElement('div');
       contentContainer.style.width = '100%';
       contentContainer.style.padding = '20px';
@@ -92,7 +95,6 @@ export default function TableView() {
       contentContainer.style.backgroundColor = '#ffffff';
       container.appendChild(contentContainer);
       
-      // Add header
       const header = document.createElement('div');
       header.style.marginBottom = '20px';
       header.style.textAlign = 'center';
@@ -113,7 +115,6 @@ export default function TableView() {
       header.appendChild(date);
       contentContainer.appendChild(header);
 
-      // Clone and prepare the table
       const tableElement = document.querySelector('table');
       if (!tableElement) {
         throw new Error('Table element not found');
@@ -121,11 +122,9 @@ export default function TableView() {
       
       const tableClone = tableElement.cloneNode(true) as HTMLElement;
       
-      // Remove action column from the cloned table
       const actionCells = tableClone.querySelectorAll('th:last-child, td:last-child');
       actionCells.forEach(cell => cell.remove());
       
-      // Apply styles to the cloned table
       const styles = document.createElement('style');
       styles.textContent = `
         table {
@@ -156,7 +155,6 @@ export default function TableView() {
       contentContainer.appendChild(styles);
       contentContainer.appendChild(tableClone);
 
-      // Generate PDF with improved quality
       const canvas = await html2canvas(contentContainer, {
         scale: 2,
         useCORS: true,
@@ -166,7 +164,6 @@ export default function TableView() {
 
       const imgData = canvas.toDataURL('image/png');
       
-      // Create PDF with proper dimensions
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
@@ -177,11 +174,9 @@ export default function TableView() {
       const pdfHeight = pdf.internal.pageSize.getHeight();
       const margin = 10;
 
-      // Calculate dimensions while maintaining aspect ratio
       const imgWidth = pdfWidth - (2 * margin);
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-      // Add image to PDF
       pdf.addImage(
         imgData,
         'PNG',
@@ -193,7 +188,6 @@ export default function TableView() {
         'FAST'
       );
 
-      // Save the PDF
       const fileName = `${table?.name || 'table'}-${format(new Date(), 'yyyy-MM-dd')}.pdf`;
       pdf.save(fileName);
 
@@ -209,7 +203,6 @@ export default function TableView() {
         variant: "destructive",
       });
     } finally {
-      // Clean up
       if (container && container.parentNode) {
         container.parentNode.removeChild(container);
       }
@@ -217,7 +210,6 @@ export default function TableView() {
   };
 
   const handleExportExcel = () => {
-    // Prepare the data for Excel
     const excelData = rows.map(row => {
       const rowData: Record<string, string> = {};
       columns.forEach(col => {
@@ -226,15 +218,12 @@ export default function TableView() {
       return rowData;
     });
     
-    // Create a new workbook
     const wb = XLSX.utils.book_new();
     const ws = XLSX.utils.json_to_sheet(excelData);
     
-    // Add the worksheet to the workbook
     XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
     
-    // Save the file
-    XLSX.writeFile(wb, `${table?.name || 'table'}-export.xlsx`);
+    XLSX.writeFile(wb, `${table?.name || 'table'}-${format(new Date(), 'yyyy-MM-dd')}.xlsx`);
     
     toast({
       title: "Excel יוצא בהצלחה",
@@ -354,13 +343,13 @@ export default function TableView() {
   const sortedRows = [...filteredRows].sort((a, b) => {
     if (!sortConfig.column) return 0;
     
-    const aValue = a.data[sortConfig.column]?.toLowerCase() || '';
-    const bValue = b.data[sortConfig.column]?.toLowerCase() || '';
+    const aValue = a.data[sortConfig.column]?.toString().toLowerCase() || '';
+    const bValue = b.data[sortConfig.column]?.toString().toLowerCase() || '';
     
     if (sortConfig.direction === 'asc') {
-      return aValue.localeCompare(bValue);
+      return aValue.localeCompare(bValue, 'he');
     }
-    return bValue.localeCompare(aValue);
+    return bValue.localeCompare(aValue, 'he');
   });
 
   const deleteRowMutation = useMutation({
@@ -381,18 +370,29 @@ export default function TableView() {
   });
 
   return (
-    <div className="container mx-auto p-6 min-h-screen bg-background/50" dir="rtl">
-      <div className="max-w-7xl mx-auto space-y-6">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center"
-        >
-          <h1 className="text-3xl font-bold mb-2">{table?.name}</h1>
-          <p className="text-muted-foreground">נהל את הטבלה שלך</p>
-        </motion.div>
+    <div className="container mx-auto p-3 sm:p-6 min-h-screen bg-background/50" dir="rtl">
+      <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6">
+        <div className="flex items-center justify-between">
+          <Button 
+            variant="outline" 
+            onClick={() => navigate('/tables')}
+            className="flex items-center gap-2 text-sm sm:text-base"
+            size={isMobile ? "sm" : "default"}
+          >
+            <ArrowLeft className="h-4 w-4" />
+            חזרה לטבלאות
+          </Button>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center"
+          >
+            <h1 className="text-xl sm:text-3xl font-bold mb-2">{table?.name}</h1>
+            <p className="text-muted-foreground text-sm sm:text-base">נהל את הטבלה שלך</p>
+          </motion.div>
+        </div>
 
-        <Card>
+        <Card className="overflow-hidden">
           <CustomTableHeader
             columns={columns}
             onAddColumn={(name) => addColumnMutation.mutate(name)}
@@ -404,7 +404,7 @@ export default function TableView() {
         </Card>
 
         <Card className="overflow-hidden">
-          <ScrollArea className="h-[700px] w-full rounded-md border">
+          <ScrollArea className="h-[600px] sm:h-[700px] w-full rounded-md border">
             <div className="relative">
               <div className="overflow-x-auto" id="table-to-export">
                 <Table>
@@ -413,7 +413,7 @@ export default function TableView() {
                       {columns.map((column) => (
                         <TableHead 
                           key={column.id} 
-                          className="text-right whitespace-nowrap min-w-[200px] cursor-pointer hover:bg-muted/50"
+                          className="text-right whitespace-nowrap min-w-[150px] sm:min-w-[200px] cursor-pointer hover:bg-muted/50"
                           onClick={() => handleSort(column.id)}
                         >
                           <div className="flex items-center justify-between">
@@ -460,11 +460,12 @@ export default function TableView() {
                       )}
                       {!isAddingRow && (
                         <TableRow>
-                          <TableCell colSpan={columns.length + 1} className="text-center">
+                          <TableCell colSpan={columns.length + 1} className="text-center p-4">
                             <Button
                               onClick={() => setIsAddingRow(true)}
                               variant="outline"
-                              size="sm"
+                              size={isMobile ? "sm" : "default"}
+                              className="w-full sm:w-auto"
                             >
                               <Plus className="ml-2 h-4 w-4" /> הוסף שורה
                             </Button>
@@ -484,7 +485,8 @@ export default function TableView() {
           <Button
             variant="outline"
             onClick={handleExportPDF}
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 text-sm sm:text-base"
+            size={isMobile ? "sm" : "default"}
           >
             <FileText className="h-4 w-4" />
             ייצא ל-PDF
@@ -492,7 +494,8 @@ export default function TableView() {
           <Button
             variant="outline"
             onClick={handleExportExcel}
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 text-sm sm:text-base"
+            size={isMobile ? "sm" : "default"}
           >
             <Download className="h-4 w-4" />
             ייצא ל-Excel

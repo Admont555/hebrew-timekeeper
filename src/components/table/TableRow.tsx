@@ -1,10 +1,12 @@
+
 import { useState, useRef, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { TableCell, TableRow as UITableRow } from "@/components/ui/table";
-import { Trash2 } from "lucide-react";
+import { Trash2, Edit2, Check, X } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "@/hooks/use-toast";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface TableRowProps {
   columns: Array<{ id: string; name: string }>;
@@ -28,6 +30,7 @@ export function TableRow({
   const [rowData, setRowData] = useState<Record<string, string>>(data);
   const [isHovered, setIsHovered] = useState(false);
   const rowRef = useRef<HTMLTableRowElement>(null);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -69,7 +72,7 @@ export function TableRow({
       {columns.map((column) => (
         <TableCell 
           key={column.id} 
-          className="min-w-[200px] cursor-pointer text-right"
+          className="min-w-[150px] sm:min-w-[200px] cursor-pointer text-right"
           onClick={() => !isEditing && onEdit?.()}
         >
           {isEditing ? (
@@ -84,6 +87,7 @@ export function TableRow({
               }
               className="text-right"
               dir="rtl"
+              size={isMobile ? 16 : undefined}
             />
           ) : (
             <span className="block w-full hover:bg-muted/50 p-2 rounded transition-colors">
@@ -94,23 +98,43 @@ export function TableRow({
       ))}
       <TableCell className="text-center sticky right-0 bg-background min-w-[100px]">
         {isEditing ? (
-          <div className="space-x-2">
-            <Button onClick={handleSave} size="sm" variant="outline">
-              שמור
+          <div className="flex justify-center gap-2">
+            <Button 
+              onClick={handleSave} 
+              size="icon"
+              variant="ghost"
+              className="h-8 w-8"
+            >
+              <Check className="h-4 w-4 text-green-500" />
             </Button>
-            <Button onClick={onCancel} size="sm" variant="ghost">
-              ביטול
+            <Button 
+              onClick={onCancel} 
+              size="icon"
+              variant="ghost"
+              className="h-8 w-8"
+            >
+              <X className="h-4 w-4 text-red-500" />
             </Button>
           </div>
         ) : (
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={onDelete}
-            className="opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive/10 hover:text-destructive"
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
+          <div className="flex justify-center gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onEdit}
+              className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+            >
+              <Edit2 className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onDelete}
+              className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-900/20"
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </div>
         )}
       </TableCell>
     </motion.tr>
