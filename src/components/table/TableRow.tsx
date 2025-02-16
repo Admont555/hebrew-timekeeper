@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { TableCell, TableRow as UITableRow } from "@/components/ui/table";
-import { Trash2, Edit2, Check, X, FileText, Loader2, Upload, Download } from "lucide-react";
+import { Edit2, Check, X, FileText, Loader2, Upload, Download } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -249,7 +249,7 @@ export function TableRow({
                         size="sm"
                         className="p-1 opacity-0 group-hover/item:opacity-100 hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-900/20 rounded-md transition-all"
                       >
-                        <Trash2 className="h-4 w-4" />
+                        <X className="h-4 w-4" />
                       </Button>
                     </AlertDialogTrigger>
                     <AlertDialogContent className="text-right">
