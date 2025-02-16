@@ -104,31 +104,41 @@ export const useTaskMutations = () => {
           .from('table-attachments')
           .getPublicUrl(fileName);
 
-        const { data: currentTask } = await supabase
-          .from("tasks")
-          .select("attachments")
-          .eq("id", taskId)
+        const { data: currentRow, error: fetchError } = await supabase
+          .from('table_rows')
+          .select('data')
+          .eq('id', taskId)
           .maybeSingle();
 
-        const currentAttachments = currentTask?.attachments || [];
+        if (fetchError) {
+          console.error('Fetch error:', fetchError);
+          throw fetchError;
+        }
+
+        const currentData = currentRow?.data || {};
+        const currentAttachments = Array.isArray((currentData as any).attachments) 
+          ? (currentData as any).attachments 
+          : [];
 
         const { error: updateError } = await supabase
-          .from("tasks")
-          .update({ 
-            attachments: [
-              ...currentAttachments,
-              {
+          .from('table_rows')
+          .update({
+            data: {
+              ...currentData,
+              attachments: [...currentAttachments, {
                 name: _file.name,
                 url: publicUrl,
                 type: _file.type,
                 size: _file.size,
-              }
-            ]
+              }]
+            }
           })
-          .eq("id", taskId)
-          .eq('worker', worker);
+          .eq('id', taskId);
 
-        if (updateError) throw updateError;
+        if (updateError) {
+          console.error('Update error:', updateError);
+          throw updateError;
+        }
       } else if (newTitle || newDuration || newPriority) {
         const { error } = await supabase
           .from("tasks")
@@ -145,15 +155,16 @@ export const useTaskMutations = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      queryClient.invalidateQueries({ queryKey: ['table-rows'] });
       toast({
-        title: "משימה עודכנה",
-        description: "המשימה עודכנה בהצלחה",
+        title: "עודכן בהצלחה",
+        description: "הקובץ הועלה בהצלחה",
       });
     },
     onError: (error) => {
       console.error('Error in editTaskMutation:', error);
       toast({
-        title: "שגיאה בעדכון משימה",
+        title: "שגיאה בעדכון",
         description: error.message,
         variant: "destructive",
       });
