@@ -7,6 +7,7 @@ import { Trash2, Edit2, Check, X, FileText } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { Json } from "@/integrations/supabase/types";
 
 interface TableRowProps {
   columns: Array<{ id: string; name: string }>;
@@ -16,6 +17,16 @@ interface TableRowProps {
   onCancel?: () => void;
   onDelete?: () => void;
   onEdit?: () => void;
+}
+
+interface TableRowData {
+  [key: string]: Json;
+  attachments?: Array<{
+    name: string;
+    url: string;
+    type: string;
+    size: number;
+  }>;
 }
 
 export function TableRow({
@@ -71,11 +82,12 @@ export function TableRow({
 
     setIsUploading(true);
     try {
-      setRowData(prev => ({
-        ...prev,
+      const updatedData = {
+        ...rowData,
         _file: file
-      }));
-      await handleSave();
+      };
+      setRowData(updatedData);
+      await onSave?.(updatedData);
     } catch (error) {
       console.error('Upload error:', error);
       toast({
@@ -148,7 +160,7 @@ export function TableRow({
           <div className="flex items-center gap-2">
             <input
               type="file"
-              id={`file-${data.id}`}
+              id={`file-${data.id || 'new'}`}
               className="hidden"
               accept=".pdf"
               onChange={(e) => {
@@ -162,7 +174,7 @@ export function TableRow({
               type="button"
               variant="outline"
               size="sm"
-              onClick={() => document.getElementById(`file-${data.id}`)?.click()}
+              onClick={() => document.getElementById(`file-${data.id || 'new'}`)?.click()}
               className="w-8 h-8 p-0"
               disabled={isUploading}
             >
