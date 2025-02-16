@@ -87,7 +87,17 @@ export function TableRow({
         _file: file
       };
       setRowData(updatedData);
-      await onSave?.(updatedData);
+      // Here we create a separate copy of the data just for the file upload
+      const fileOnlyData = {
+        ...data,
+        _file: file
+      };
+      await onSave?.(fileOnlyData);
+      // After successful upload, update the local row data without the _file property
+      setRowData((prev) => ({
+        ...prev,
+        _file: undefined
+      }));
     } catch (error) {
       console.error('Upload error:', error);
       toast({
