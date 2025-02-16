@@ -3,6 +3,16 @@ import { supabase } from "@/integrations/supabase/client";
 import { TaskPriority } from "@/types/task";
 import { useToast } from "@/hooks/use-toast";
 
+interface TableRowData {
+  [key: string]: any;
+  attachments?: Array<{
+    name: string;
+    url: string;
+    type: string;
+    size: number;
+  }>;
+}
+
 export const useTaskMutations = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -115,22 +125,23 @@ export const useTaskMutations = () => {
           throw fetchError;
         }
 
-        const currentData = currentRow?.data || {};
-        const currentAttachments = Array.isArray((currentData as any).attachments) 
-          ? (currentData as any).attachments 
-          : [];
+        const currentData = (currentRow?.data || {}) as TableRowData;
+        const currentAttachments = currentData.attachments || [];
 
         const { error: updateError } = await supabase
           .from('table_rows')
           .update({
             data: {
               ...currentData,
-              attachments: [...currentAttachments, {
-                name: _file.name,
-                url: publicUrl,
-                type: _file.type,
-                size: _file.size,
-              }]
+              attachments: [
+                ...currentAttachments,
+                {
+                  name: _file.name,
+                  url: publicUrl,
+                  type: _file.type,
+                  size: _file.size,
+                }
+              ]
             }
           })
           .eq('id', taskId);
