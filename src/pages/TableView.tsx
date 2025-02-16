@@ -65,6 +65,16 @@ const FileInput: React.FC<FileInputProps> = ({ onChange, id }) => {
   );
 };
 
+interface TableRowData {
+  [key: string]: Json;
+  attachments?: Array<{
+    name: string;
+    url: string;
+    type: string;
+    size: number;
+  }>;
+}
+
 export default function TableView() {
   const { tableId } = useParams();
   const { toast } = useToast();
@@ -186,10 +196,8 @@ export default function TableView() {
             throw fetchError;
           }
 
-          const currentData = currentRow?.data || {};
-          const currentAttachments = Array.isArray(currentData.attachments) 
-            ? currentData.attachments 
-            : [];
+          const currentData = (currentRow?.data || {}) as TableRowData;
+          const currentAttachments = currentData.attachments || [];
 
           const { error: updateError } = await supabase
             .from('table_rows')
@@ -197,7 +205,7 @@ export default function TableView() {
               data: {
                 ...currentData,
                 attachments: [...currentAttachments, attachment]
-              }
+              } as TableRowData
             })
             .eq('id', rowId);
 
