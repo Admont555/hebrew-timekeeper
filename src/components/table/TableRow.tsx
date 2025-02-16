@@ -2,11 +2,23 @@ import { useState, useRef, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { TableCell, TableRow as UITableRow } from "@/components/ui/table";
-import { Trash2, Edit2, Check, X, FileText } from "lucide-react";
+import { Trash2, Edit2, Check, X, FileText, Loader2, Upload, Download } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Json } from "@/integrations/supabase/types";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { cn } from "@/lib/utils";
 
 interface TableRowProps {
   columns: Array<{ id: string; name: string }>;
@@ -40,6 +52,7 @@ export function TableRow({
   const [rowData, setRowData] = useState<Record<string, any>>(data);
   const [isHovered, setIsHovered] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [dragActive, setDragActive] = useState(false);
   const rowRef = useRef<HTMLTableRowElement>(null);
   const isMobile = useIsMobile();
 
@@ -56,6 +69,27 @@ export function TableRow({
     };
   }, [isEditing, onCancel]);
 
+  const handleDrag = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setDragActive(true);
+    } else if (e.type === "dragleave") {
+      setDragActive(false);
+    }
+  };
+
+  const handleDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      const file = e.dataTransfer.files[0];
+      await handleFileUpload(file);
+    }
+  };
+
   const handleSave = () => {
     const hasAtLeastOneValue = columns.some(column => rowData[column.id]?.toString().trim());
     if (!hasAtLeastOneValue && !rowData._file) {
@@ -69,7 +103,16 @@ export function TableRow({
     onSave?.(rowData);
   };
 
-  const handleFileUpload = async (file: File) => {
+  const handleFileUpload = async (file: File | null) => {
+    if (!file) {
+      toast({
+        title: "שגיאה",
+        description: "לא נבחר קובץ",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (file.type !== 'application/pdf') {
       toast({
         title: "שגיאה",
@@ -80,21 +123,14 @@ export function TableRow({
     }
 
     setIsUploading(true);
+
     try {
       const updatedData = {
-        ...rowData,
-        _file: file
-      };
-      setRowData(updatedData);
-      const fileOnlyData = {
         ...data,
         _file: file
       };
-      await onSave?.(fileOnlyData);
-      setRowData((prev) => ({
-        ...prev,
-        _file: undefined
-      }));
+
+      await onSave?.(updatedData);
     } catch (error) {
       console.error('Upload error:', error);
       toast({
@@ -131,6 +167,14 @@ export function TableRow({
         variant: "destructive",
       });
     }
+  };
+
+  const formatFileSize = (bytes: number): string => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
   return (
@@ -173,33 +217,73 @@ export function TableRow({
           )}
         </TableCell>
       ))}
-      <TableCell className="text-right min-w-[100px]">
+      <TableCell className="text-right min-w-[200px] relative">
         {!isEditing ? (
-          <div className="flex flex-col gap-1">
-            {(data.attachments || []).map((attachment: { name: string; url: string }, index: number) => (
-              <div key={index} className="flex items-center justify-between gap-2 group/item">
-                <a
-                  href={attachment.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2 text-blue-500 hover:text-blue-700"
-                >
-                  <FileText className="h-4 w-4" />
-                  <span className="truncate max-w-[150px]">{attachment.name}</span>
-                </a>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => handleRemoveFile(index)}
-                  className="opacity-0 group-hover/item:opacity-100 h-6 w-6 p-0 hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-900/20"
-                >
-                  <X className="h-4 w-4" />
-                </Button>
+          <div className="flex flex-col gap-2">
+            {(data.attachments || []).map((attachment: { name: string; url: string; size: number; type: string }, index: number) => (
+              <div key={index} className="flex items-center justify-between gap-2 group/item bg-muted/40 p-2 rounded-lg">
+                <div className="flex flex-col flex-grow min-w-0">
+                  <div className="flex items-center gap-2">
+                    <FileText className="h-4 w-4 flex-shrink-0 text-blue-500" />
+                    <span className="truncate text-sm font-medium">{attachment.name}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
+                    <span>{formatFileSize(attachment.size)}</span>
+                    <span>•</span>
+                    <span>PDF</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1">
+                  <a
+                    href={attachment.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-1 hover:bg-background rounded-md transition-colors"
+                  >
+                    <Download className="h-4 w-4 text-blue-500" />
+                  </a>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="p-1 opacity-0 group-hover/item:opacity-100 hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-900/20 rounded-md transition-all"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent className="text-right">
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>האם אתה בטוח?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          האם אתה בטוח שברצונך למחוק את הקובץ? פעולה זו היא בלתי הפיכה.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter className="flex-row-reverse sm:justify-start">
+                        <AlertDialogAction onClick={() => handleRemoveFile(index)}>
+                          כן, מחק
+                        </AlertDialogAction>
+                        <AlertDialogCancel>ביטול</AlertDialogCancel>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </div>
               </div>
             ))}
           </div>
         ) : (
-          <div className="flex items-center gap-2">
+          <div
+            className={cn(
+              "flex flex-col items-center justify-center h-24 border-2 border-dashed rounded-lg transition-all",
+              dragActive ? "border-primary bg-primary/10" : "border-muted-foreground/25",
+              "relative cursor-pointer hover:border-primary hover:bg-primary/5"
+            )}
+            onDragEnter={handleDrag}
+            onDragLeave={handleDrag}
+            onDragOver={handleDrag}
+            onDrop={handleDrop}
+            onClick={() => document.getElementById(`file-${data.id || 'new'}`)?.click()}
+          >
             <input
               type="file"
               id={`file-${data.id || 'new'}`}
@@ -207,21 +291,24 @@ export function TableRow({
               accept=".pdf"
               onChange={(e) => {
                 const file = e.target.files?.[0];
-                if (file) {
-                  handleFileUpload(file);
-                }
+                if (file) handleFileUpload(file);
               }}
             />
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => document.getElementById(`file-${data.id || 'new'}`)?.click()}
-              className="w-8 h-8 p-0"
-              disabled={isUploading}
-            >
-              <FileText className="h-4 w-4" />
-            </Button>
+            {isUploading ? (
+              <div className="flex flex-col items-center gap-2">
+                <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                <span className="text-sm text-muted-foreground">מעלה קובץ...</span>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center gap-2">
+                <Upload className="h-6 w-6 text-muted-foreground" />
+                <div className="text-center">
+                  <span className="text-sm font-medium">גרור קובץ לכאן או</span>
+                  <span className="text-sm text-primary mx-1">לחץ לבחירה</span>
+                </div>
+                <span className="text-xs text-muted-foreground">PDF בלבד</span>
+              </div>
+            )}
           </div>
         )}
       </TableCell>
