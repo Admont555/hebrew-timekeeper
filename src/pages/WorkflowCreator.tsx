@@ -1,5 +1,5 @@
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Plus, Workflow } from "lucide-react";
@@ -18,7 +18,7 @@ import {
   useEdgesState,
   ConnectionMode,
   Panel,
-  useReactFlow,
+  ReactFlowProvider,
 } from 'reactflow';
 import WorkflowTaskNode from "@/components/WorkflowTaskNode";
 import 'reactflow/dist/style.css';
@@ -53,9 +53,9 @@ const initialNodes: Node[] = [
   }
 ];
 
-export default function WorkflowCreator() {
+function WorkflowCreatorContent() {
   const navigate = useNavigate();
-  const { project } = useReactFlow();
+  const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [isOpen, setIsOpen] = useState(false);
@@ -79,14 +79,14 @@ export default function WorkflowCreator() {
       return;
     }
 
-    const position = project?.getBoundingClientRect();
+    const rect = reactFlowWrapper.current?.getBoundingClientRect();
     const newNodeId = crypto.randomUUID();
     
     const newNode: Node = {
       id: newNodeId,
       type: 'task',
       position: {
-        x: (position?.width || 500) / 2,
+        x: (rect?.width || 500) / 2,
         y: (nodes.length * 100) + 100
       },
       data: {
@@ -124,87 +124,97 @@ export default function WorkflowCreator() {
         </div>
 
         <Card className="relative flex-1">
-          <ReactFlow
-            nodes={nodes}
-            edges={edges}
-            onNodesChange={onNodesChange}
-            onEdgesChange={onEdgesChange}
-            onConnect={onConnect}
-            nodeTypes={nodeTypes}
-            connectionMode={ConnectionMode.Loose}
-            fitView
-            className="rounded-lg bg-muted/30"
-            defaultEdgeOptions={{
-              type: 'smoothstep',
-              animated: true,
-              style: { stroke: '#94a3b8' }
-            }}
-          >
-            <Background className="bg-muted/20" />
-            <Controls position="bottom-right" />
-            <Panel position="top-left" className="bg-background/80 p-2 rounded-lg backdrop-blur">
-              <div className="text-sm text-muted-foreground">
-                {nodes.length - 1} משימות
-              </div>
-            </Panel>
-            
-            <Panel position="top-right" className="flex gap-2">
-              <Dialog open={isOpen} onOpenChange={setIsOpen}>
-                <DialogTrigger asChild>
-                  <Button size="sm" className="gap-2">
-                    <Plus className="h-4 w-4" />
-                    הוסף משימה
-                  </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>הוספת משימה חדשה</DialogTitle>
-                  </DialogHeader>
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="title">כותרת</Label>
-                      <Input
-                        id="title"
-                        value={newTask.title}
-                        onChange={(e) => setNewTask(prev => ({ ...prev, title: e.target.value }))}
-                        placeholder="הזן כותרת למשימה..."
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="duration">משך זמן (בדקות)</Label>
-                      <Input
-                        id="duration"
-                        type="number"
-                        value={newTask.duration}
-                        onChange={(e) => setNewTask(prev => ({ ...prev, duration: parseInt(e.target.value) }))}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="priority">עדיפות</Label>
-                      <Select
-                        value={newTask.priority}
-                        onValueChange={(value) => setNewTask(prev => ({ ...prev, priority: value }))}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="בחר עדיפות" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="high">גבוהה</SelectItem>
-                          <SelectItem value="normal">רגילה</SelectItem>
-                          <SelectItem value="low">נמוכה</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <Button onClick={handleAddTask} className="w-full">
+          <div ref={reactFlowWrapper} className="h-full">
+            <ReactFlow
+              nodes={nodes}
+              edges={edges}
+              onNodesChange={onNodesChange}
+              onEdgesChange={onEdgesChange}
+              onConnect={onConnect}
+              nodeTypes={nodeTypes}
+              connectionMode={ConnectionMode.Loose}
+              fitView
+              className="rounded-lg bg-muted/30"
+              defaultEdgeOptions={{
+                type: 'smoothstep',
+                animated: true,
+                style: { stroke: '#94a3b8' }
+              }}
+            >
+              <Background className="bg-muted/20" />
+              <Controls position="bottom-right" />
+              <Panel position="top-left" className="bg-background/80 p-2 rounded-lg backdrop-blur">
+                <div className="text-sm text-muted-foreground">
+                  {nodes.length - 1} משימות
+                </div>
+              </Panel>
+              
+              <Panel position="top-right" className="flex gap-2">
+                <Dialog open={isOpen} onOpenChange={setIsOpen}>
+                  <DialogTrigger asChild>
+                    <Button size="sm" className="gap-2">
+                      <Plus className="h-4 w-4" />
                       הוסף משימה
                     </Button>
-                  </div>
-                </DialogContent>
-              </Dialog>
-            </Panel>
-          </ReactFlow>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>הוספת משימה חדשה</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="title">כותרת</Label>
+                        <Input
+                          id="title"
+                          value={newTask.title}
+                          onChange={(e) => setNewTask(prev => ({ ...prev, title: e.target.value }))}
+                          placeholder="הזן כותרת למשימה..."
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="duration">משך זמן (בדקות)</Label>
+                        <Input
+                          id="duration"
+                          type="number"
+                          value={newTask.duration}
+                          onChange={(e) => setNewTask(prev => ({ ...prev, duration: parseInt(e.target.value) }))}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="priority">עדיפות</Label>
+                        <Select
+                          value={newTask.priority}
+                          onValueChange={(value) => setNewTask(prev => ({ ...prev, priority: value }))}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="בחר עדיפות" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="high">גבוהה</SelectItem>
+                            <SelectItem value="normal">רגילה</SelectItem>
+                            <SelectItem value="low">נמוכה</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <Button onClick={handleAddTask} className="w-full">
+                        הוסף משימה
+                      </Button>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+              </Panel>
+            </ReactFlow>
+          </div>
         </Card>
       </motion.div>
     </div>
+  );
+}
+
+export default function WorkflowCreator() {
+  return (
+    <ReactFlowProvider>
+      <WorkflowCreatorContent />
+    </ReactFlowProvider>
   );
 }
