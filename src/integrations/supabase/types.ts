@@ -500,7 +500,7 @@ export type Database = {
           created_at: string | null
           duration: number
           id: string
-          position: number
+          position: Json | null
           priority: string
           title: string
           workflow_id: string | null
@@ -509,7 +509,7 @@ export type Database = {
           created_at?: string | null
           duration: number
           id?: string
-          position: number
+          position?: Json | null
           priority: string
           title: string
           workflow_id?: string | null
@@ -518,7 +518,7 @@ export type Database = {
           created_at?: string | null
           duration?: number
           id?: string
-          position?: number
+          position?: Json | null
           priority?: string
           title?: string
           workflow_id?: string | null

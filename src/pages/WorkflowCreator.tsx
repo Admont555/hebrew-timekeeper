@@ -1,3 +1,4 @@
+
 import { useState, useCallback, useRef, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -18,6 +19,7 @@ import {
   ConnectionMode,
   Panel,
   ReactFlowProvider,
+  XYPosition,
 } from 'reactflow';
 import WorkflowTaskNode from "@/components/WorkflowTaskNode";
 import 'reactflow/dist/style.css';
@@ -55,6 +57,15 @@ const initialNodes: Node[] = [
     className: 'bg-card p-2 rounded-lg border shadow-sm text-sm font-medium'
   }
 ];
+
+interface WorkflowTask {
+  id: string;
+  title: string;
+  duration: number;
+  priority: string;
+  position: { x: number; y: number };
+  workflow_id: string;
+}
 
 function WorkflowCreatorContent() {
   const navigate = useNavigate();
@@ -95,7 +106,7 @@ function WorkflowCreatorContent() {
         .order("created_at", { ascending: true });
 
       if (error) throw error;
-      return data;
+      return data as WorkflowTask[];
     },
   });
 
@@ -124,11 +135,15 @@ function WorkflowCreatorContent() {
       title: string;
       duration: number;
       priority: string;
-      position: { x: number; y: number };
+      position: XYPosition;
     }) => {
       const { error } = await supabase
         .from("workflow_tasks")
-        .insert([{ ...taskData, workflow_id: workflowId }]);
+        .insert([{ 
+          ...taskData, 
+          workflow_id: workflowId,
+          position: taskData.position // Now position is properly typed as XYPosition
+        }]);
 
       if (error) throw error;
     },
@@ -233,7 +248,7 @@ function WorkflowCreatorContent() {
                 style: { stroke: '#94a3b8' }
               }}
             >
-              <Background className="bg-muted/20" />
+              <Background />
               <Controls position="bottom-right" />
               <Panel position="top-left" className="bg-background/80 p-2 rounded-lg backdrop-blur flex gap-2">
                 <div className="text-sm text-muted-foreground">
