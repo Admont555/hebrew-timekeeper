@@ -68,11 +68,12 @@ export function TableRow({
       className="group hover:bg-muted/50"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      dir="rtl"
     >
       {columns.map((column) => (
         <TableCell 
           key={column.id} 
-          className="min-w-[150px] sm:min-w-[200px] cursor-pointer text-right"
+          className="text-right cursor-pointer min-w-[150px] sm:min-w-[200px]"
           onClick={() => !isEditing && onEdit?.()}
         >
           {isEditing ? (
@@ -90,13 +91,13 @@ export function TableRow({
               size={isMobile ? 16 : undefined}
             />
           ) : (
-            <span className="block w-full hover:bg-muted/50 p-2 rounded transition-colors">
+            <span className="block w-full hover:bg-muted/50 p-2 rounded transition-colors text-right">
               {data[column.id] || "-"}
             </span>
           )}
         </TableCell>
       ))}
-      <TableCell className="text-center sticky right-0 bg-background min-w-[100px]">
+      <TableCell className="text-center sticky left-0 bg-background min-w-[100px]">
         {isEditing ? (
           <div className="flex justify-center gap-2">
             <Button 

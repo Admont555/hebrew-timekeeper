@@ -40,7 +40,7 @@ export function TableHeader({
             placeholder="שם העמודה החדשה"
             value={newColumnName}
             onChange={(e) => setNewColumnName(e.target.value)}
-            className="max-w-[200px] text-right"
+            className="text-right"
             dir="rtl"
             size={isMobile ? 16 : undefined}
           />
@@ -48,20 +48,20 @@ export function TableHeader({
             type="submit" 
             disabled={!newColumnName.trim()} 
             size={isMobile ? "sm" : "default"}
-            className="whitespace-nowrap"
+            className="whitespace-nowrap mr-auto"
           >
             <Plus className="ml-2 h-4 w-4" /> הוסף עמודה
           </Button>
         </form>
-        <div className="flex items-center gap-2 w-full sm:w-auto">
+        <div className="flex items-center gap-2 w-full sm:w-auto mr-auto">
+          <Search className="h-4 w-4 text-gray-500" />
           <Input
             placeholder="חיפוש..."
             onChange={(e) => onSearch(e.target.value)}
-            className="max-w-[200px] text-right"
+            className="text-right"
             dir="rtl"
             size={isMobile ? 16 : undefined}
           />
-          <Search className="h-4 w-4 text-gray-500" />
         </div>
       </div>
     </div>
