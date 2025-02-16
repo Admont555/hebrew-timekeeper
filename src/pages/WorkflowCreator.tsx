@@ -66,7 +66,6 @@ export default function WorkflowCreator() {
 
     setNodes((nds) => [...nds, newNode]);
     
-    // Add edge from last node to new node
     if (nodes.length > 0) {
       const lastNode = nodes[nodes.length - 1];
       const newEdge: Edge = {
@@ -103,7 +102,6 @@ export default function WorkflowCreator() {
     }
 
     try {
-      // Insert workflow
       const { data: workflow, error: workflowError } = await supabase
         .from('workflows')
         .insert({ name: workflowName })
@@ -112,7 +110,6 @@ export default function WorkflowCreator() {
 
       if (workflowError) throw workflowError;
 
-      // Insert workflow tasks
       const tasks = nodes
         .filter(node => node.type === 'task')
         .map((node, index) => ({
@@ -168,7 +165,7 @@ export default function WorkflowCreator() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-[300px,1fr] gap-6 flex-1">
-          <Card className="p-6 space-y-6 h-fit">
+          <Card>
             <div className="space-y-2">
               <Label htmlFor="workflowName">שם זרימת העבודה</Label>
               <Input
