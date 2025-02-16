@@ -3,7 +3,7 @@ import { useState, useRef, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { TableCell, TableRow as UITableRow } from "@/components/ui/table";
-import { Trash2, Edit2, Check, X, Paperclip } from "lucide-react";
+import { Trash2, Edit2, Check, X, FileText } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -109,7 +109,7 @@ export function TableRow({
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 text-blue-500 hover:text-blue-700"
               >
-                <Paperclip className="h-4 w-4" />
+                <FileText className="h-4 w-4" />
                 <span className="truncate max-w-[150px]">{attachment.name}</span>
               </a>
             ))}
@@ -120,12 +120,21 @@ export function TableRow({
               type="file"
               id={`file-${data.id}`}
               className="hidden"
+              accept=".pdf"
               onChange={(e) => {
                 const file = e.target.files?.[0];
                 if (file) {
+                  if (file.type !== 'application/pdf') {
+                    toast({
+                      title: "שגיאה",
+                      description: "ניתן להעלות קבצי PDF בלבד",
+                      variant: "destructive",
+                    });
+                    return;
+                  }
                   setRowData(prev => ({
                     ...prev,
-                    _file: file // Use _file to distinguish it from other data
+                    _file: file
                   }));
                   handleSave();
                 }
@@ -136,9 +145,9 @@ export function TableRow({
               variant="outline"
               size="sm"
               onClick={() => document.getElementById(`file-${data.id}`)?.click()}
+              className="w-8 h-8 p-0"
             >
-              <Paperclip className="h-4 w-4 ml-2" />
-              הוסף קובץ
+              <FileText className="h-4 w-4" />
             </Button>
           </div>
         )}
