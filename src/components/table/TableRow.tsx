@@ -153,12 +153,16 @@ export function TableRow({
         attachments: currentAttachments
       };
       
-      await onSave?.(updatedData);
-      
-      toast({
-        title: "הקובץ הוסר",
-        description: "הקובץ הוסר בהצלחה",
-      });
+      if (onSave) {
+        await onSave(updatedData);
+        
+        toast({
+          title: "הקובץ הוסר",
+          description: "הקובץ הוסר בהצלחה",
+        });
+      } else {
+        throw new Error("Save function not provided");
+      }
     } catch (error) {
       console.error('Error removing file:', error);
       toast({
@@ -245,7 +249,10 @@ export function TableRow({
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => handleRemoveFile(index)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleRemoveFile(index);
+                    }}
                     className="p-1 opacity-0 group-hover/item:opacity-100 hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-900/20 rounded-md transition-all"
                   >
                     <X className="h-4 w-4" />
