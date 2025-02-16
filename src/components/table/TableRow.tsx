@@ -29,6 +29,7 @@ export function TableRow({
 }: TableRowProps) {
   const [rowData, setRowData] = useState<Record<string, any>>(data);
   const [isHovered, setIsHovered] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const rowRef = useRef<HTMLTableRowElement>(null);
   const isMobile = useIsMobile();
 
@@ -47,7 +48,7 @@ export function TableRow({
 
   const handleSave = () => {
     const hasAtLeastOneValue = columns.some(column => rowData[column.id]?.toString().trim());
-    if (!hasAtLeastOneValue) {
+    if (!hasAtLeastOneValue && !rowData._file) {
       toast({
         title: "שגיאה",
         description: "יש למלא לפחות שדה אחד",
@@ -56,6 +57,35 @@ export function TableRow({
       return;
     }
     onSave?.(rowData);
+  };
+
+  const handleFileUpload = async (file: File) => {
+    if (file.type !== 'application/pdf') {
+      toast({
+        title: "שגיאה",
+        description: "ניתן להעלות קבצי PDF בלבד",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      setRowData(prev => ({
+        ...prev,
+        _file: file
+      }));
+      await handleSave();
+    } catch (error) {
+      console.error('Upload error:', error);
+      toast({
+        title: "שגיאה בהעלאת הקובץ",
+        description: "אירעה שגיאה בעת העלאת הקובץ",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   return (
@@ -124,19 +154,7 @@ export function TableRow({
               onChange={(e) => {
                 const file = e.target.files?.[0];
                 if (file) {
-                  if (file.type !== 'application/pdf') {
-                    toast({
-                      title: "שגיאה",
-                      description: "ניתן להעלות קבצי PDF בלבד",
-                      variant: "destructive",
-                    });
-                    return;
-                  }
-                  setRowData(prev => ({
-                    ...prev,
-                    _file: file
-                  }));
-                  handleSave();
+                  handleFileUpload(file);
                 }
               }}
             />
@@ -146,6 +164,7 @@ export function TableRow({
               size="sm"
               onClick={() => document.getElementById(`file-${data.id}`)?.click()}
               className="w-8 h-8 p-0"
+              disabled={isUploading}
             >
               <FileText className="h-4 w-4" />
             </Button>
@@ -160,6 +179,7 @@ export function TableRow({
               size="icon"
               variant="ghost"
               className="h-8 w-8"
+              disabled={isUploading}
             >
               <Check className="h-4 w-4 text-green-500" />
             </Button>
@@ -168,6 +188,7 @@ export function TableRow({
               size="icon"
               variant="ghost"
               className="h-8 w-8"
+              disabled={isUploading}
             >
               <X className="h-4 w-4 text-red-500" />
             </Button>

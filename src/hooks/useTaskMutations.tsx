@@ -75,24 +75,73 @@ export const useTaskMutations = () => {
   });
 
   const editTaskMutation = useMutation({
-    mutationFn: async ({ taskId, newTitle, newDuration, newPriority, worker }: { 
+    mutationFn: async ({ taskId, newTitle, newDuration, newPriority, worker, _file }: { 
       taskId: string; 
-      newTitle: string; 
-      newDuration: number; 
-      newPriority: TaskPriority;
-      worker: string;
+      newTitle?: string; 
+      newDuration?: number; 
+      newPriority?: TaskPriority;
+      worker?: string;
+      _file?: File;
     }) => {
-      const { error } = await supabase
-        .from("tasks")
-        .update({ 
-          title: newTitle, 
-          duration: newDuration,
-          priority: newPriority
-        })
-        .eq("id", taskId)
-        .eq('worker', worker);
+      if (_file) {
+        const timestamp = new Date().getTime();
+        const fileExt = _file.name.split('.').pop();
+        const fileName = `${taskId}/${timestamp}.${fileExt}`;
 
-      if (error) throw error;
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('table-attachments')
+          .upload(fileName, _file, {
+            cacheControl: '3600',
+            upsert: false
+          });
+
+        if (uploadError) {
+          console.error('Upload error:', uploadError);
+          throw new Error('Failed to upload file');
+        }
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('table-attachments')
+          .getPublicUrl(fileName);
+
+        const { data: currentTask } = await supabase
+          .from("tasks")
+          .select("attachments")
+          .eq("id", taskId)
+          .maybeSingle();
+
+        const currentAttachments = currentTask?.attachments || [];
+
+        const { error: updateError } = await supabase
+          .from("tasks")
+          .update({ 
+            attachments: [
+              ...currentAttachments,
+              {
+                name: _file.name,
+                url: publicUrl,
+                type: _file.type,
+                size: _file.size,
+              }
+            ]
+          })
+          .eq("id", taskId)
+          .eq('worker', worker);
+
+        if (updateError) throw updateError;
+      } else if (newTitle || newDuration || newPriority) {
+        const { error } = await supabase
+          .from("tasks")
+          .update({ 
+            title: newTitle, 
+            duration: newDuration,
+            priority: newPriority
+          })
+          .eq("id", taskId)
+          .eq('worker', worker);
+
+        if (error) throw error;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
@@ -102,6 +151,7 @@ export const useTaskMutations = () => {
       });
     },
     onError: (error) => {
+      console.error('Error in editTaskMutation:', error);
       toast({
         title: "שגיאה בעדכון משימה",
         description: error.message,
