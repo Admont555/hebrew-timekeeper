@@ -417,10 +417,10 @@ export default function TableView() {
                           onClick={() => handleSort(column.id)}
                           style={{ textAlign: 'right' }}
                         >
-                          <div className="flex items-center justify-end gap-2">
-                            <span>{column.name}</span>
+                          <div className="flex items-center justify-end gap-2 w-full text-right">
+                            <span className="flex-1 text-right">{column.name}</span>
                             {sortConfig.column === column.id && (
-                              <span className="text-primary">
+                              <span className="text-primary flex-shrink-0">
                                 {sortConfig.direction === 'asc' ? '↑' : '↓'}
                               </span>
                             )}
