@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -17,22 +17,97 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
+import {
+  ReactFlow,
+  Background,
+  Controls,
+  addEdge,
+  useNodesState,
+  useEdgesState,
+  Node,
+  Edge,
+  ConnectionMode,
+  Connection,
+  ReactFlowProvider,
+} from 'reactflow';
+import 'reactflow/dist/style.css';
 
-export default function Workflows() {
+interface Workflow {
+  id: string;
+  name: string;
+  position: { x: number; y: number };
+  created_at: string;
+}
+
+interface WorkflowConnection {
+  id: string;
+  source_workflow_id: string;
+  target_workflow_id: string;
+}
+
+const WorkflowNode = ({ data }: { data: { label: string } }) => (
+  <Card 
+    className="p-4 min-w-[150px] hover:shadow-md transition-shadow cursor-pointer text-center"
+    onClick={() => data.onClick?.()}
+  >
+    <div className="flex items-center justify-center gap-2">
+      <Workflow className="h-4 w-4 text-purple-500" />
+      <span className="font-medium">{data.label}</span>
+    </div>
+  </Card>
+);
+
+const nodeTypes = {
+  workflow: WorkflowNode,
+};
+
+function WorkflowsContent() {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [newWorkflowName, setNewWorkflowName] = useState("");
+  const [nodes, setNodes, onNodesChange] = useNodesState([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
   const { data: workflows, refetch } = useQuery({
     queryKey: ["workflows"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data: workflowsData, error: workflowsError } = await supabase
         .from("workflows")
         .select("*")
         .order("created_at", { ascending: false });
 
-      if (error) throw error;
-      return data;
+      if (workflowsError) throw workflowsError;
+
+      const { data: connectionsData, error: connectionsError } = await supabase
+        .from("workflow_connections")
+        .select("*");
+
+      if (connectionsError) throw connectionsError;
+
+      // Convert workflows to nodes
+      const nodes: Node[] = (workflowsData as Workflow[]).map((workflow) => ({
+        id: workflow.id,
+        type: 'workflow',
+        position: workflow.position || { x: 0, y: 0 },
+        data: { 
+          label: workflow.name,
+          onClick: () => navigate(`/workflow-creator/${workflow.id}`)
+        },
+      }));
+
+      // Convert connections to edges
+      const edges: Edge[] = (connectionsData as WorkflowConnection[]).map((conn) => ({
+        id: conn.id,
+        source: conn.source_workflow_id,
+        target: conn.target_workflow_id,
+        type: 'smoothstep',
+        animated: true,
+      }));
+
+      setNodes(nodes);
+      setEdges(edges);
+
+      return { workflows: workflowsData, connections: connectionsData };
     },
   });
 
@@ -46,9 +121,17 @@ export default function Workflows() {
       return;
     }
 
+    const position = {
+      x: Math.random() * 500,
+      y: Math.random() * 300
+    };
+
     const { data: workflow, error } = await supabase
       .from("workflows")
-      .insert([{ name: newWorkflowName }])
+      .insert([{ 
+        name: newWorkflowName,
+        position
+      }])
       .select()
       .single();
 
@@ -64,8 +147,29 @@ export default function Workflows() {
     setIsOpen(false);
     setNewWorkflowName("");
     refetch();
-    navigate(`/workflow-creator/${workflow.id}`);
   };
+
+  const onConnect = useCallback(async (params: Connection) => {
+    if (params.source && params.target) {
+      const { error } = await supabase
+        .from("workflow_connections")
+        .insert([{
+          source_workflow_id: params.source,
+          target_workflow_id: params.target,
+        }]);
+
+      if (error) {
+        toast({
+          title: "שגיאה",
+          description: "אירעה שגיאה ביצירת הקשר",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      setEdges((eds) => addEdge(params, eds));
+    }
+  }, [setEdges]);
 
   return (
     <div className="container mx-auto p-6" dir="rtl">
@@ -108,21 +212,34 @@ export default function Workflows() {
           </Dialog>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {workflows?.map((workflow) => (
-            <Card
-              key={workflow.id}
-              className="p-4 hover:shadow-md transition-shadow cursor-pointer"
-              onClick={() => navigate(`/workflow-creator/${workflow.id}`)}
-            >
-              <div className="flex items-center justify-between">
-                <h3 className="font-medium">{workflow.name}</h3>
-                <Workflow className="h-4 w-4 text-purple-500" />
-              </div>
-            </Card>
-          ))}
-        </div>
+        <Card className="h-[600px]">
+          <ReactFlow
+            nodes={nodes}
+            edges={edges}
+            onNodesChange={onNodesChange}
+            onEdgesChange={onEdgesChange}
+            onConnect={onConnect}
+            nodeTypes={nodeTypes}
+            connectionMode={ConnectionMode.Loose}
+            defaultEdgeOptions={{
+              type: 'smoothstep',
+              animated: true,
+              style: { stroke: '#94a3b8' }
+            }}
+          >
+            <Background />
+            <Controls position="bottom-right" />
+          </ReactFlow>
+        </Card>
       </motion.div>
     </div>
+  );
+}
+
+export default function Workflows() {
+  return (
+    <ReactFlowProvider>
+      <WorkflowsContent />
+    </ReactFlowProvider>
   );
 }
