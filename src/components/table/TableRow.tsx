@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -87,13 +86,11 @@ export function TableRow({
         _file: file
       };
       setRowData(updatedData);
-      // Here we create a separate copy of the data just for the file upload
       const fileOnlyData = {
         ...data,
         _file: file
       };
       await onSave?.(fileOnlyData);
-      // After successful upload, update the local row data without the _file property
       setRowData((prev) => ({
         ...prev,
         _file: undefined
@@ -107,6 +104,32 @@ export function TableRow({
       });
     } finally {
       setIsUploading(false);
+    }
+  };
+
+  const handleRemoveFile = async (fileIndex: number) => {
+    try {
+      const currentAttachments = [...(data.attachments || [])];
+      currentAttachments.splice(fileIndex, 1);
+      
+      const updatedData = {
+        ...data,
+        attachments: currentAttachments
+      };
+      
+      await onSave?.(updatedData);
+      
+      toast({
+        title: "הקובץ הוסר",
+        description: "הקובץ הוסר בהצלחה",
+      });
+    } catch (error) {
+      console.error('Error removing file:', error);
+      toast({
+        title: "שגיאה בהסרת הקובץ",
+        description: "אירעה שגיאה בעת הסרת הקובץ",
+        variant: "destructive",
+      });
     }
   };
 
@@ -154,16 +177,25 @@ export function TableRow({
         {!isEditing ? (
           <div className="flex flex-col gap-1">
             {(data.attachments || []).map((attachment: { name: string; url: string }, index: number) => (
-              <a
-                key={index}
-                href={attachment.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 text-blue-500 hover:text-blue-700"
-              >
-                <FileText className="h-4 w-4" />
-                <span className="truncate max-w-[150px]">{attachment.name}</span>
-              </a>
+              <div key={index} className="flex items-center justify-between gap-2 group/item">
+                <a
+                  href={attachment.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 text-blue-500 hover:text-blue-700"
+                >
+                  <FileText className="h-4 w-4" />
+                  <span className="truncate max-w-[150px]">{attachment.name}</span>
+                </a>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleRemoveFile(index)}
+                  className="opacity-0 group-hover/item:opacity-100 h-6 w-6 p-0 hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-900/20"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
             ))}
           </div>
         ) : (
