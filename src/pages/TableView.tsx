@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -120,14 +121,18 @@ export default function TableView() {
             .eq('id', rowId)
             .single();
 
-          const currentData = currentRow?.data || {};
-          const currentAttachments = currentData.attachments || [];
+          if (!currentRow) throw new Error('Row not found');
+
+          const currentData = typeof currentRow.data === 'object' ? currentRow.data : {};
+          const currentAttachments = Array.isArray((currentData as any).attachments) 
+            ? (currentData as any).attachments 
+            : [];
 
           const { error } = await supabase
             .from('table_rows')
             .update({
               data: {
-                ...currentData,
+                ...(typeof currentData === 'object' ? currentData : {}),
                 attachments: [...currentAttachments, attachment]
               }
             })
