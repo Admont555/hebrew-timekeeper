@@ -86,13 +86,14 @@ export const useTaskMutations = () => {
   });
 
   const editTaskMutation = useMutation({
-    mutationFn: async ({ taskId, newTitle, newDuration, newPriority, worker, _file }: { 
+    mutationFn: async ({ taskId, newTitle, newDuration, newPriority, worker, _file, attachments }: { 
       taskId: string; 
       newTitle?: string; 
       newDuration?: number; 
       newPriority?: TaskPriority;
       worker?: string;
       _file?: File;
+      attachments?: Array<{ name: string; url: string; type: string; size: number; }>;
     }) => {
       if (_file) {
         try {
@@ -171,12 +172,9 @@ export const useTaskMutations = () => {
           ...existingData,
           ...(newTitle && { title: newTitle }),
           ...(newDuration && { duration: newDuration }),
-          ...(newPriority && { priority: newPriority })
+          ...(newPriority && { priority: newPriority }),
+          ...(attachments !== undefined && { attachments })
         };
-
-        if ('attachments' in existingData) {
-          updatedData.attachments = existingData.attachments;
-        }
 
         const { error: updateError } = await supabase
           .from('table_rows')
@@ -191,7 +189,7 @@ export const useTaskMutations = () => {
       queryClient.invalidateQueries({ queryKey: ['table-rows'] });
       toast({
         title: "עודכן בהצלחה",
-        description: "הקובץ הועלה בהצלחה",
+        description: "השינויים נשמרו בהצלחה",
       });
     },
     onError: (error) => {
