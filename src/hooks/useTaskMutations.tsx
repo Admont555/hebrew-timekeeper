@@ -1,3 +1,4 @@
+
 import { useQueryClient, useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { TaskPriority } from "@/types/task";
@@ -95,61 +96,71 @@ export const useTaskMutations = () => {
       _file?: File;
     }) => {
       if (_file) {
-        const timestamp = new Date().getTime();
-        const fileExt = _file.name.split('.').pop();
-        const fileName = `${taskId}/${timestamp}.${fileExt}`;
+        try {
+          const timestamp = new Date().getTime();
+          const fileExt = _file.name.split('.').pop();
+          const fileName = `${taskId}/${timestamp}.${fileExt}`;
 
-        const { data: uploadData, error: uploadError } = await supabase.storage
-          .from('table-attachments')
-          .upload(fileName, _file, {
-            cacheControl: '3600',
-            upsert: false
-          });
+          // First, upload the file
+          const { data: uploadData, error: uploadError } = await supabase.storage
+            .from('table-attachments')
+            .upload(fileName, _file, {
+              cacheControl: '3600',
+              upsert: false
+            });
 
-        if (uploadError) {
-          console.error('Upload error:', uploadError);
-          throw new Error('Failed to upload file');
-        }
+          if (uploadError) {
+            console.error('Upload error:', uploadError);
+            throw new Error('Failed to upload file');
+          }
 
-        const { data: { publicUrl } } = supabase.storage
-          .from('table-attachments')
-          .getPublicUrl(fileName);
+          // Get the public URL
+          const { data: { publicUrl } } = supabase.storage
+            .from('table-attachments')
+            .getPublicUrl(fileName);
 
-        const { data: currentRow, error: fetchError } = await supabase
-          .from('table_rows')
-          .select('data')
-          .eq('id', taskId)
-          .maybeSingle();
+          // Get current row data
+          const { data: currentRow, error: fetchError } = await supabase
+            .from('table_rows')
+            .select('data')
+            .eq('id', taskId)
+            .single();
 
-        if (fetchError) {
-          console.error('Fetch error:', fetchError);
-          throw fetchError;
-        }
+          if (fetchError) {
+            console.error('Fetch error:', fetchError);
+            throw fetchError;
+          }
 
-        const currentData = currentRow?.data as Record<string, any> || {};
-        const currentAttachments = Array.isArray(currentData.attachments) ? currentData.attachments : [];
+          // Prepare the data update
+          const existingData = (currentRow?.data as Record<string, any>) || {};
+          const existingAttachments = Array.isArray(existingData.attachments) ? existingData.attachments : [];
 
-        const { error: updateError } = await supabase
-          .from('table_rows')
-          .update({
-            data: {
-              ...Object.assign({}, currentData),
-              attachments: [
-                ...currentAttachments,
-                {
-                  name: _file.name,
-                  url: publicUrl,
-                  type: _file.type,
-                  size: _file.size,
-                }
-              ]
-            }
-          })
-          .eq('id', taskId);
+          // Update the row with new attachment
+          const { error: updateError } = await supabase
+            .from('table_rows')
+            .update({
+              data: {
+                ...existingData,
+                attachments: [
+                  ...existingAttachments,
+                  {
+                    name: _file.name,
+                    url: publicUrl,
+                    type: _file.type,
+                    size: _file.size,
+                  }
+                ]
+              }
+            })
+            .eq('id', taskId);
 
-        if (updateError) {
-          console.error('Update error:', updateError);
-          throw updateError;
+          if (updateError) {
+            console.error('Update error:', updateError);
+            throw updateError;
+          }
+        } catch (error) {
+          console.error('File upload error:', error);
+          throw error;
         }
       } else if (newTitle || newDuration || newPriority) {
         const { error } = await supabase
