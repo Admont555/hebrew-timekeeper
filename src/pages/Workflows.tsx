@@ -85,6 +85,11 @@ function WorkflowsContent() {
   const { data: workflows, refetch } = useQuery({
     queryKey: ["workflows"],
     queryFn: async () => {
+      const session = await supabase.auth.getSession();
+      if (!session.data.session) {
+        throw new Error("No session");
+      }
+
       const { data: workflowsData, error: workflowsError } = await supabase
         .from("workflows")
         .select("*")
@@ -141,6 +146,16 @@ function WorkflowsContent() {
       return;
     }
 
+    const session = await supabase.auth.getSession();
+    if (!session.data.session) {
+      toast({
+        title: "שגיאה",
+        description: "נא להתחבר למערכת",
+        variant: "destructive",
+      });
+      return;
+    }
+
     const position = {
       x: Math.random() * 500,
       y: Math.random() * 300
@@ -150,7 +165,8 @@ function WorkflowsContent() {
       .from("workflows")
       .insert([{ 
         name: newWorkflowName,
-        position
+        position,
+        user_id: session.data.session.user.id
       }])
       .select()
       .single();
