@@ -58,12 +58,22 @@ const initialNodes: Node[] = [
   }
 ];
 
+interface DatabaseWorkflowTask {
+  id: string;
+  title: string;
+  duration: number;
+  priority: string;
+  position: { x: number; y: number } | null;
+  workflow_id: string;
+  created_at: string;
+}
+
 interface WorkflowTask {
   id: string;
   title: string;
   duration: number;
   priority: string;
-  position: { x: number; y: number };
+  position: XYPosition;
   workflow_id: string;
 }
 
@@ -106,7 +116,12 @@ function WorkflowCreatorContent() {
         .order("created_at", { ascending: true });
 
       if (error) throw error;
-      return data as WorkflowTask[];
+      
+      // Convert database tasks to WorkflowTask type
+      return (data as DatabaseWorkflowTask[]).map(task => ({
+        ...task,
+        position: task.position || { x: 0, y: 0 }
+      })) as WorkflowTask[];
     },
   });
 
@@ -140,9 +155,11 @@ function WorkflowCreatorContent() {
       const { error } = await supabase
         .from("workflow_tasks")
         .insert([{ 
-          ...taskData, 
+          title: taskData.title,
+          duration: taskData.duration,
+          priority: taskData.priority,
           workflow_id: workflowId,
-          position: taskData.position // Now position is properly typed as XYPosition
+          position: { x: taskData.position.x, y: taskData.position.y }
         }]);
 
       if (error) throw error;
