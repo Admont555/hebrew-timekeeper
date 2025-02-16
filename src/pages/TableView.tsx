@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -119,21 +118,20 @@ export default function TableView() {
   });
 
   const handleFileUpload = async (file: File, rowId: string) => {
-    const timestamp = new Date().getTime();
-    const fileExt = file.name.split('.').pop();
-    const fileName = `${rowId}/${timestamp}.${fileExt}`;
-
-    // First, make sure the file extension exists
-    if (!fileExt) {
-      toast({
-        title: "שגיאה בהעלאת הקובץ",
-        description: "סוג הקובץ לא תקין",
-        variant: "destructive",
-      });
-      return null;
-    }
-
     try {
+      const timestamp = new Date().getTime();
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${rowId}/${timestamp}.${fileExt}`;
+
+      if (!fileExt) {
+        toast({
+          title: "שגיאה בהעלאת הקובץ",
+          description: "סוג הקובץ לא תקין",
+          variant: "destructive",
+        });
+        return null;
+      }
+
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('table-attachments')
         .upload(fileName, file, {
@@ -188,18 +186,16 @@ export default function TableView() {
             throw fetchError;
           }
 
-          if (!currentRow) throw new Error('Row not found');
-
-          const currentData = typeof currentRow.data === 'object' ? currentRow.data : {};
-          const currentAttachments = Array.isArray((currentData as any).attachments) 
-            ? (currentData as any).attachments 
+          const currentData = currentRow?.data || {};
+          const currentAttachments = Array.isArray(currentData.attachments) 
+            ? currentData.attachments 
             : [];
 
           const { error: updateError } = await supabase
             .from('table_rows')
             .update({
               data: {
-                ...(typeof currentData === 'object' ? currentData : {}),
+                ...currentData,
                 attachments: [...currentAttachments, attachment]
               }
             })
