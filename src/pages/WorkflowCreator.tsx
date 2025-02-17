@@ -96,11 +96,13 @@ export default function WorkflowCreator() {
           .eq('workflow_id', workflowId);
 
         if (!stepsError && steps) {
-          const workflowNodes: CustomNode[] = steps.map((step: WorkflowStep) => ({
+          const workflowNodes: CustomNode[] = steps.map((step) => ({
             id: step.id,
             type: 'default',
             data: { label: step.title },
-            position: step.position || { x: 0, y: 0 },
+            position: typeof step.position === 'string' 
+              ? JSON.parse(step.position)
+              : step.position || { x: 0, y: 0 },
             style: {
               background: '#f0f0f0',
               border: '1px solid #ddd',
@@ -187,17 +189,20 @@ export default function WorkflowCreator() {
       const stepsToSave = nodes
         .filter(node => node.id !== 'start')
         .map(node => ({
+          id: node.id,
           workflow_id: workflowToUse,
-          title: node.data.label,
+          title: node.data.label as string,
           position: node.position,
-          duration: 0, // Default duration
-          priority: 'medium', // Default priority
+          duration: 0,
+          priority: 'medium',
         }));
 
       if (stepsToSave.length > 0) {
         const { error: stepsError } = await supabase
           .from('workflow_tasks')
-          .upsert(stepsToSave);
+          .upsert(stepsToSave, {
+            onConflict: 'id'
+          });
 
         if (stepsError) throw stepsError;
       }
