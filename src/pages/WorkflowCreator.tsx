@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,6 +16,23 @@ export default function WorkflowCreator() {
   const [workflowName, setWorkflowName] = useState("");
   const [tasks, setTasks] = useState<Task[]>([]);
   const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => {
+    // Check authentication status when component mounts
+    const checkAuth = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast({
+          title: "שגיאה",
+          description: "יש להתחבר למערכת",
+          variant: "destructive",
+        });
+        navigate('/login');
+      }
+    };
+    
+    checkAuth();
+  }, [navigate]);
 
   const handleAddTask = (title: string, duration: number, priority: TaskPriority) => {
     const newTask: Task = {
@@ -57,10 +74,18 @@ export default function WorkflowCreator() {
 
     setIsSaving(true);
     try {
+      // First get the current user
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      
+      if (authError || !user) {
+        throw new Error("User not authenticated");
+      }
+
+      // Then create the workflow with the user's ID
       const { data: workflow, error: workflowError } = await supabase
         .from('workflows')
         .insert([
-          { name: workflowName, user_id: (await supabase.auth.getUser()).data.user?.id }
+          { name: workflowName, user_id: user.id }
         ])
         .select()
         .single();
@@ -92,11 +117,20 @@ export default function WorkflowCreator() {
       }
     } catch (error) {
       console.error('Error saving workflow:', error);
-      toast({
-        title: "שגיאה",
-        description: "אירעה שגיאה בשמירת זרימת העבודה",
-        variant: "destructive",
-      });
+      if (error instanceof Error && error.message === "User not authenticated") {
+        toast({
+          title: "שגיאה",
+          description: "יש להתחבר למערכת",
+          variant: "destructive",
+        });
+        navigate('/login');
+      } else {
+        toast({
+          title: "שגיאה",
+          description: "אירעה שגיאה בשמירת זרימת העבודה",
+          variant: "destructive",
+        });
+      }
     } finally {
       setIsSaving(false);
     }
