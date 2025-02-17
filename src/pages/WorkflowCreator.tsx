@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import {
   Background,
   Connection,
@@ -19,11 +19,13 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, Plus, Save, Workflow, Delete } from "lucide-react";
+import { ArrowLeft, Plus, Save, Workflow, Download, Edit } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 
 interface WorkflowStep {
   id: string;
@@ -45,6 +47,61 @@ interface CustomNode extends Node {
   };
 }
 
+const CustomNodeComponent = ({ data, id }: { data: any; id: string }) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [title, setTitle] = useState(data.label);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (isEditing && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [isEditing]);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    data.onNodeLabelChange(id, title);
+    setIsEditing(false);
+  };
+
+  return (
+    <div className="group relative bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+      <Button
+        variant="ghost"
+        size="icon"
+        className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+        onClick={() => setIsEditing(true)}
+      >
+        <Edit className="h-4 w-4" />
+      </Button>
+      {isEditing ? (
+        <form onSubmit={handleSubmit} className="min-w-[150px]">
+          <Input
+            ref={inputRef}
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            className="text-sm"
+            onBlur={handleSubmit}
+          />
+        </form>
+      ) : (
+        <div className="text-sm font-medium">{data.label}</div>
+      )}
+      {data.duration > 0 && (
+        <div className="text-xs text-gray-500 mt-2">
+          משך: {data.duration} דקות
+        </div>
+      )}
+      {data.priority && (
+        <div className="text-xs text-gray-500">
+          עדיפות: {data.priority === 'high' ? 'גבוהה' : data.priority === 'low' ? 'נמוכה' : 'רגילה'}
+        </div>
+      )}
+    </div>
+  );
+};
+
 const initialNodes: CustomNode[] = [
   {
     id: 'start',
@@ -52,7 +109,7 @@ const initialNodes: CustomNode[] = [
     data: { label: 'התחלה' },
     position: { x: 250, y: 0 },
     style: {
-      background: '#4CAF50',
+      background: 'linear-gradient(45deg, #4CAF50, #45a049)',
       color: 'white',
       border: 'none',
       width: 150,
@@ -66,11 +123,65 @@ function WorkflowCreator() {
   const { workflowId } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const [workflowName, setWorkflowName] = useState("");
   const [nodes, setNodes, onNodesChange] = useNodesState<CustomNode>(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+
+  const handleNodeLabelChange = useCallback((nodeId: string, newLabel: string) => {
+    setNodes((nds) =>
+      nds.map((node) => {
+        if (node.id === nodeId) {
+          return {
+            ...node,
+            data: {
+              ...node.data,
+              label: newLabel,
+            },
+          };
+        }
+        return node;
+      })
+    );
+  }, [setNodes]);
+
+  const nodeTypes = {
+    default: (props: any) => (
+      <CustomNodeComponent {...props} data={{ ...props.data, onNodeLabelChange: handleNodeLabelChange }} />
+    ),
+  };
+
+  const handleDownloadPDF = useCallback(async () => {
+    if (reactFlowWrapper.current) {
+      try {
+        const canvas = await html2canvas(reactFlowWrapper.current, {
+          backgroundColor: '#ffffff',
+        });
+        const imgData = canvas.toDataURL('image/png');
+        const pdf = new jsPDF({
+          orientation: 'landscape',
+          unit: 'px',
+          format: [canvas.width, canvas.height],
+        });
+        pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+        pdf.save(`workflow-${workflowName || 'untitled'}.pdf`);
+
+        toast({
+          title: "הצלחה",
+          description: "זרימת העבודה נשמרה כ-PDF בהצלחה",
+        });
+      } catch (error) {
+        console.error('Error generating PDF:', error);
+        toast({
+          title: "שגיאה",
+          description: "אירעה שגיאה ביצירת ה-PDF",
+          variant: "destructive",
+        });
+      }
+    }
+  }, [workflowName, toast]);
 
   useEffect(() => {
     const loadWorkflow = async () => {
@@ -142,6 +253,7 @@ function WorkflowCreator() {
         type: 'smoothstep',
         animated: true,
         style: { stroke: '#6b7280', strokeWidth: 2 },
+        markerEnd: { type: MarkerType.ArrowClosed },
       }, 
       eds
     )),
@@ -313,24 +425,39 @@ function WorkflowCreator() {
 
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <h2 className="text-lg font-semibold">שלבים</h2>
+                <div className="flex items-center gap-4">
+                  <h2 className="text-lg font-semibold">שלבים</h2>
+                  <Button
+                    onClick={handleAddStep}
+                    className="gap-2"
+                    variant="secondary"
+                  >
+                    <Plus className="h-4 w-4" />
+                    הוסף שלב
+                  </Button>
+                </div>
                 <Button
-                  onClick={handleAddStep}
+                  onClick={handleDownloadPDF}
+                  variant="outline"
                   className="gap-2"
-                  variant="secondary"
                 >
-                  <Plus className="h-4 w-4" />
-                  הוסף שלב
+                  <Download className="h-4 w-4" />
+                  הורד כ-PDF
                 </Button>
               </div>
 
-              <div style={{ height: 600 }} className="rounded-lg border bg-gray-50/50">
+              <div 
+                ref={reactFlowWrapper}
+                style={{ height: 600 }} 
+                className="rounded-lg border bg-gray-50/50"
+              >
                 <ReactFlow
                   nodes={nodes}
                   edges={edges}
                   onNodesChange={onNodesChange}
                   onEdgesChange={onEdgesChange}
                   onConnect={onConnect}
+                  nodeTypes={nodeTypes}
                   fitView
                   className="bg-dot-pattern"
                   defaultEdgeOptions={{
@@ -340,7 +467,12 @@ function WorkflowCreator() {
                 >
                   <Background color="#94a3b8" gap={16} size={1} />
                   <Controls className="bg-white border rounded-lg shadow-sm" />
-                  <MiniMap className="bg-white border rounded-lg shadow-sm" />
+                  <MiniMap 
+                    className="bg-white border rounded-lg shadow-sm" 
+                    nodeColor={(node) => {
+                      return node.style?.background || '#fff';
+                    }}
+                  />
                 </ReactFlow>
               </div>
             </div>
