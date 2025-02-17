@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback, useRef } from "react";
 import {
   Background,
@@ -469,9 +470,8 @@ function WorkflowCreator() {
                   <Controls className="bg-white border rounded-lg shadow-sm" />
                   <MiniMap 
                     className="bg-white border rounded-lg shadow-sm" 
-                    nodeColor={(node) => {
-                      return node.style?.background?.toString() || '#ffffff';
-                    }}
+                    nodeStrokeColor="#ffffff"
+                    nodeColor="#e2e8f0"
                   />
                 </ReactFlow>
               </div>
