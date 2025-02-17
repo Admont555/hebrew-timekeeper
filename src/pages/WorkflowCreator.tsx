@@ -11,6 +11,7 @@ import {
   Connection,
   Edge,
   Node,
+  XYPosition,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { Card } from "@/components/ui/card";
@@ -27,7 +28,9 @@ interface WorkflowStep {
   id: string;
   workflow_id: string;
   title: string;
-  position: { x: number; y: number };
+  position: XYPosition;
+  duration: number;
+  priority: string;
 }
 
 interface CustomNode extends Node {
@@ -93,7 +96,7 @@ export default function WorkflowCreator() {
           .eq('workflow_id', workflowId);
 
         if (!stepsError && steps) {
-          const workflowNodes: CustomNode[] = steps.map((step) => ({
+          const workflowNodes: CustomNode[] = steps.map((step: WorkflowStep) => ({
             id: step.id,
             type: 'default',
             data: { label: step.title },
@@ -187,6 +190,8 @@ export default function WorkflowCreator() {
           workflow_id: workflowToUse,
           title: node.data.label,
           position: node.position,
+          duration: 0, // Default duration
+          priority: 'medium', // Default priority
         }));
 
       if (stepsToSave.length > 0) {
