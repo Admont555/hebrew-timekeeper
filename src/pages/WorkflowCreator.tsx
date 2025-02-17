@@ -9,11 +9,13 @@ import { ArrowLeft, Plus, Save, Workflow } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { toast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function WorkflowCreator() {
   const navigate = useNavigate();
   const [workflowName, setWorkflowName] = useState("");
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [isSaving, setIsSaving] = useState(false);
 
   const handleAddTask = (title: string, duration: number, priority: TaskPriority) => {
     const newTask: Task = {
@@ -35,7 +37,7 @@ export default function WorkflowCreator() {
     });
   };
 
-  const handleSaveWorkflow = () => {
+  const handleSaveWorkflow = async () => {
     if (!workflowName.trim()) {
       toast({
         title: "שגיאה",
@@ -52,11 +54,52 @@ export default function WorkflowCreator() {
       });
       return;
     }
-    // TODO: Save workflow to database
-    toast({
-      title: "זרימת העבודה נשמרה",
-      description: "זרימת העבודה נשמרה בהצלחה",
-    });
+
+    setIsSaving(true);
+    try {
+      const { data: workflow, error: workflowError } = await supabase
+        .from('workflows')
+        .insert([
+          { name: workflowName, user_id: (await supabase.auth.getUser()).data.user?.id }
+        ])
+        .select()
+        .single();
+
+      if (workflowError) throw workflowError;
+
+      if (workflow) {
+        // Add tasks to the workflow
+        const { error: tasksError } = await supabase
+          .from('workflow_tasks')
+          .insert(
+            tasks.map((task, index) => ({
+              workflow_id: workflow.id,
+              title: task.title,
+              duration: task.duration,
+              priority: task.priority,
+              position: { x: 0, y: index * 100 }
+            }))
+          );
+
+        if (tasksError) throw tasksError;
+
+        toast({
+          title: "זרימת העבודה נשמרה",
+          description: "זרימת העבודה נשמרה בהצלחה",
+        });
+        
+        navigate('/workflows');
+      }
+    } catch (error) {
+      console.error('Error saving workflow:', error);
+      toast({
+        title: "שגיאה",
+        description: "אירעה שגיאה בשמירת זרימת העבודה",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -142,9 +185,10 @@ export default function WorkflowCreator() {
             onClick={handleSaveWorkflow}
             className="w-full sm:w-auto gap-2"
             size="lg"
+            disabled={isSaving}
           >
             <Save className="h-4 w-4" />
-            שמור זרימת עבודה
+            {isSaving ? 'שומר...' : 'שמור זרימת עבודה'}
           </Button>
         </Card>
       </motion.div>
