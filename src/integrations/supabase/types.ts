@@ -495,6 +495,107 @@ export type Database = {
         }
         Relationships: []
       }
+      workflow_connections: {
+        Row: {
+          created_at: string | null
+          id: string
+          source_workflow_id: string
+          target_workflow_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          source_workflow_id: string
+          target_workflow_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          source_workflow_id?: string
+          target_workflow_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workflow_connections_source_workflow_id_fkey"
+            columns: ["source_workflow_id"]
+            isOneToOne: false
+            referencedRelation: "workflows"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "workflow_connections_target_workflow_id_fkey"
+            columns: ["target_workflow_id"]
+            isOneToOne: false
+            referencedRelation: "workflows"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workflow_tasks: {
+        Row: {
+          created_at: string | null
+          duration: number
+          id: string
+          position: Json | null
+          priority: string
+          title: string
+          workflow_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          duration: number
+          id?: string
+          position?: Json | null
+          priority: string
+          title: string
+          workflow_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          duration?: number
+          id?: string
+          position?: Json | null
+          priority?: string
+          title?: string
+          workflow_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workflow_tasks_workflow_id_fkey"
+            columns: ["workflow_id"]
+            isOneToOne: false
+            referencedRelation: "workflows"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workflows: {
+        Row: {
+          created_at: string | null
+          id: string
+          name: string
+          position: Json | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          name: string
+          position?: Json | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          name?: string
+          position?: Json | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
