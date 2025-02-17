@@ -311,6 +311,8 @@ function WorkflowCreator() {
                 label: step.title,
                 duration: step.duration,
                 priority: step.priority,
+                onNodeUpdate: handleNodeUpdate,
+                onNodeDelete: handleDeleteNode,
               },
               position: typeof step.position === 'string' 
                 ? JSON.parse(step.position)
@@ -319,7 +321,7 @@ function WorkflowCreator() {
                 background: '#ffffff',
                 border: '1px solid #e2e8f0',
                 borderRadius: '8px',
-                width: 200,
+                width: 280,
                 padding: '16px',
               },
             }));
@@ -339,7 +341,7 @@ function WorkflowCreator() {
     };
 
     loadWorkflow();
-  }, [workflowId, setNodes, toast]);
+  }, [workflowId, setNodes, toast, handleNodeUpdate, handleDeleteNode]);
 
   const onConnect = useCallback(
     (params: Connection | Edge) => setEdges((eds) => addEdge(
