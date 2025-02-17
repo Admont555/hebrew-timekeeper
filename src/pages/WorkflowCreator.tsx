@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback, useRef } from "react";
 import {
   Background,
@@ -46,6 +45,7 @@ interface CustomNode extends Node {
     borderRadius?: string;
     width: number;
     padding?: string;
+    boxShadow?: string;
   };
 }
 
@@ -315,11 +315,6 @@ function WorkflowCreator() {
     
     setNodes((nds) => [...nds, newNode]);
   };
-
-  const handleDeleteNode = useCallback((nodeId: string) => {
-    setNodes((nds) => nds.filter((node) => node.id !== nodeId));
-    setEdges((eds) => eds.filter((edge) => edge.source !== nodeId && edge.target !== nodeId));
-  }, [setNodes, setEdges]);
 
   const handleSaveWorkflow = async () => {
     if (!workflowName.trim()) {
