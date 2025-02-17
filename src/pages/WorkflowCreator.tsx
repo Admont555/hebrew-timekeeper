@@ -19,7 +19,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, Plus, Save, Workflow, Download, Edit, Trash2 } from "lucide-react";
+import { ArrowLeft, Plus, Save, Workflow, Download } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
@@ -33,6 +33,7 @@ interface NodeData {
   label: string;
   duration: number;
   priority: Priority;
+  [key: string]: any;
 }
 
 interface WorkflowStep {
@@ -44,20 +45,10 @@ interface WorkflowStep {
   priority: Priority;
 }
 
-interface CustomNode extends Node<NodeData> {
-  style?: {
-    background: string;
-    color?: string;
-    border: string;
-    borderRadius?: string;
-    width: number;
-    padding?: string;
-    boxShadow?: string;
-  };
-}
+type CustomNode = Node<NodeData>;
 
-const CustomNodeComponent = ({ data }: { data: any }) => {
-  const getPriorityColor = (priority: string) => {
+const CustomNodeComponent = ({ data }: { data: NodeData }) => {
+  const getPriorityColor = (priority: Priority) => {
     switch (priority) {
       case 'high': return 'bg-red-100 text-red-700';
       case 'low': return 'bg-green-100 text-green-700';
@@ -90,7 +81,11 @@ const initialNodes: CustomNode[] = [
   {
     id: 'start',
     type: 'input',
-    data: { label: 'התחלה' },
+    data: { 
+      label: 'התחלה',
+      duration: 0,
+      priority: 'normal' as Priority
+    },
     position: { x: 250, y: 50 },
     style: {
       background: 'linear-gradient(45deg, #6366f1, #4f46e5)',
@@ -110,7 +105,7 @@ function WorkflowCreator() {
   const { toast } = useToast();
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const [workflowName, setWorkflowName] = useState("");
-  const [nodes, setNodes, onNodesChange] = useNodesState<CustomNode>(initialNodes);
+  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -118,7 +113,7 @@ function WorkflowCreator() {
   const [editingStep, setEditingStep] = useState({
     title: '',
     duration: 0,
-    priority: 'normal' as 'high' | 'normal' | 'low'
+    priority: 'normal' as Priority
   });
 
   useEffect(() => {
@@ -153,7 +148,7 @@ function WorkflowCreator() {
               data: { 
                 label: step.title,
                 duration: step.duration,
-                priority: step.priority,
+                priority: step.priority as Priority,
               },
               position: typeof step.position === 'string' 
                 ? JSON.parse(step.position)
@@ -259,9 +254,9 @@ function WorkflowCreator() {
     setSelectedNode(null);
   };
 
-  const handleNodeClick = (event: React.MouseEvent, node: CustomNode) => {
+  const handleNodeClick = (event: React.MouseEvent, node: Node<NodeData>) => {
     if (node.id === 'start') return;
-    setSelectedNode(node);
+    setSelectedNode(node as CustomNode);
     setEditingStep({
       title: node.data.label,
       duration: node.data.duration,
@@ -422,7 +417,6 @@ function WorkflowCreator() {
         </div>
 
         <div className="grid grid-cols-12 gap-6">
-          {/* Workflow Editor */}
           <div className="col-span-8">
             <Card className="p-6">
               <div className="space-y-6">
@@ -475,7 +469,6 @@ function WorkflowCreator() {
             </Card>
           </div>
 
-          {/* Sidebar */}
           <div className="col-span-4">
             <Card className="p-6 space-y-6">
               <div className="flex justify-between items-center">
