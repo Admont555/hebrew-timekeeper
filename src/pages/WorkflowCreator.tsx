@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from "react";
 import {
   Background,
@@ -20,7 +19,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, Plus, Save, Workflow } from "lucide-react";
+import { ArrowLeft, Plus, Save, Workflow, Delete } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
@@ -57,6 +56,9 @@ const initialNodes: CustomNode[] = [
       color: 'white',
       border: 'none',
       width: 150,
+      padding: '12px',
+      borderRadius: '8px',
+      boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
     },
   },
 ];
@@ -69,51 +71,66 @@ function WorkflowCreator() {
   const [nodes, setNodes, onNodesChange] = useNodesState<CustomNode>(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [isSaving, setIsSaving] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const loadWorkflow = async () => {
-      if (!workflowId) return;
+      if (!workflowId) {
+        setIsLoading(false);
+        return;
+      }
 
-      const { data: workflow, error } = await supabase
-        .from('workflows')
-        .select('*')
-        .eq('id', workflowId)
-        .single();
+      try {
+        const { data: workflow, error } = await supabase
+          .from('workflows')
+          .select('*')
+          .eq('id', workflowId)
+          .single();
 
-      if (error) {
+        if (error) throw error;
+
+        if (workflow) {
+          setWorkflowName(workflow.name);
+          const { data: steps, error: stepsError } = await supabase
+            .from('workflow_tasks')
+            .select('*')
+            .eq('workflow_id', workflowId);
+
+          if (stepsError) throw stepsError;
+
+          if (steps) {
+            const workflowNodes: CustomNode[] = steps.map((step) => ({
+              id: step.id,
+              type: 'default',
+              data: { 
+                label: step.title,
+                duration: step.duration,
+                priority: step.priority,
+              },
+              position: typeof step.position === 'string' 
+                ? JSON.parse(step.position)
+                : step.position || { x: 0, y: 0 },
+              style: {
+                background: '#ffffff',
+                border: '1px solid #e2e8f0',
+                borderRadius: '8px',
+                width: 200,
+                padding: '16px',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
+              },
+            }));
+            setNodes([...initialNodes, ...workflowNodes]);
+          }
+        }
+      } catch (error) {
+        console.error('Error loading workflow:', error);
         toast({
           title: "שגיאה",
           description: "לא הצלחנו לטעון את זרימת העבודה",
           variant: "destructive",
         });
-        return;
-      }
-
-      if (workflow) {
-        setWorkflowName(workflow.name);
-        const { data: steps, error: stepsError } = await supabase
-          .from('workflow_tasks')
-          .select('*')
-          .eq('workflow_id', workflowId);
-
-        if (!stepsError && steps) {
-          const workflowNodes: CustomNode[] = steps.map((step) => ({
-            id: step.id,
-            type: 'default',
-            data: { label: step.title },
-            position: typeof step.position === 'string' 
-              ? JSON.parse(step.position)
-              : step.position || { x: 0, y: 0 },
-            style: {
-              background: '#f0f0f0',
-              border: '1px solid #ddd',
-              borderRadius: '8px',
-              width: 180,
-              padding: '10px',
-            },
-          }));
-          setNodes([...initialNodes, ...workflowNodes]);
-        }
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -121,30 +138,48 @@ function WorkflowCreator() {
   }, [workflowId, setNodes, toast]);
 
   const onConnect = useCallback(
-    (params: Connection | Edge) => setEdges((eds) => addEdge(params, eds)),
+    (params: Connection | Edge) => setEdges((eds) => addEdge(
+      { 
+        ...params, 
+        type: 'smoothstep',
+        animated: true,
+        style: { stroke: '#6b7280', strokeWidth: 2 },
+      }, 
+      eds
+    )),
     [setEdges]
   );
 
   const handleAddStep = () => {
     const newId = crypto.randomUUID();
-    const yOffset = nodes.length * 100;
+    const yOffset = nodes.length * 120;
     
     const newNode: CustomNode = {
       id: newId,
       type: 'default',
-      data: { label: 'שלב חדש' },
+      data: { 
+        label: 'שלב חדש',
+        duration: 0,
+        priority: 'medium',
+      },
       position: { x: 250, y: yOffset },
       style: {
-        background: '#f0f0f0',
-        border: '1px solid #ddd',
+        background: '#ffffff',
+        border: '1px solid #e2e8f0',
         borderRadius: '8px',
-        width: 180,
-        padding: '10px',
+        width: 200,
+        padding: '16px',
+        boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
       },
     };
     
     setNodes((nds) => [...nds, newNode]);
   };
+
+  const handleDeleteNode = useCallback((nodeId: string) => {
+    setNodes((nds) => nds.filter((node) => node.id !== nodeId));
+    setEdges((eds) => eds.filter((edge) => edge.source !== nodeId && edge.target !== nodeId));
+  }, [setNodes, setEdges]);
 
   const handleSaveWorkflow = async () => {
     if (!workflowName.trim()) {
@@ -234,6 +269,14 @@ function WorkflowCreator() {
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="container mx-auto p-6 flex items-center justify-center min-h-screen" dir="rtl">
+        <div className="text-lg text-gray-600">טוען...</div>
+      </div>
+    );
+  }
+
   return (
     <div className="container mx-auto p-6" dir="rtl">
       <motion.div
@@ -252,7 +295,9 @@ function WorkflowCreator() {
           </Button>
           <div className="flex items-center gap-2">
             <Workflow className="h-6 w-6 text-purple-500" />
-            <h1 className="text-2xl font-bold">יצירת זרימת עבודה</h1>
+            <h1 className="text-2xl font-bold">
+              {workflowId ? 'עריכת זרימת עבודה' : 'יצירת זרימת עבודה'}
+            </h1>
           </div>
         </div>
 
@@ -275,13 +320,14 @@ function WorkflowCreator() {
                 <Button
                   onClick={handleAddStep}
                   className="gap-2"
+                  variant="secondary"
                 >
                   <Plus className="h-4 w-4" />
                   הוסף שלב
                 </Button>
               </div>
 
-              <div style={{ height: 500 }} className="rounded-lg border">
+              <div style={{ height: 600 }} className="rounded-lg border bg-gray-50/50">
                 <ReactFlow
                   nodes={nodes}
                   edges={edges}
@@ -289,23 +335,37 @@ function WorkflowCreator() {
                   onEdgesChange={onEdgesChange}
                   onConnect={onConnect}
                   fitView
+                  className="bg-dot-pattern"
+                  defaultEdgeOptions={{
+                    type: 'smoothstep',
+                    animated: true,
+                  }}
                 >
-                  <Background />
-                  <Controls />
-                  <MiniMap />
+                  <Background color="#94a3b8" gap={16} size={1} />
+                  <Controls className="bg-white border rounded-lg shadow-sm" />
+                  <MiniMap className="bg-white border rounded-lg shadow-sm" />
                 </ReactFlow>
               </div>
             </div>
 
-            <Button
-              onClick={handleSaveWorkflow}
-              className="w-full sm:w-auto gap-2"
-              size="lg"
-              disabled={isSaving}
-            >
-              <Save className="h-4 w-4" />
-              {isSaving ? 'שומר...' : 'שמור זרימת עבודה'}
-            </Button>
+            <div className="flex justify-end gap-4">
+              <Button
+                variant="outline"
+                onClick={() => navigate(-1)}
+                className="gap-2"
+              >
+                ביטול
+              </Button>
+              <Button
+                onClick={handleSaveWorkflow}
+                className="gap-2"
+                size="lg"
+                disabled={isSaving}
+              >
+                <Save className="h-4 w-4" />
+                {isSaving ? 'שומר...' : 'שמור זרימת עבודה'}
+              </Button>
+            </div>
           </div>
         </Card>
       </motion.div>
