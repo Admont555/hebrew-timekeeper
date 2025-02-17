@@ -10,6 +10,7 @@ import {
   Node,
   Position,
   ReactFlow,
+  Panel,
   XYPosition,
   addEdge,
   useEdgesState,
@@ -20,7 +21,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, Plus, Save, Workflow, Download, Edit } from "lucide-react";
+import { ArrowLeft, Plus, Save, Workflow, Download, Edit, Trash2 } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
@@ -66,17 +67,29 @@ const CustomNodeComponent = ({ data, id }: { data: any; id: string }) => {
   };
 
   return (
-    <div className="group relative bg-white p-4 rounded-lg shadow-sm border border-gray-200">
-      <Button
-        variant="ghost"
-        size="icon"
-        className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
-        onClick={() => setIsEditing(true)}
-      >
-        <Edit className="h-4 w-4" />
-      </Button>
+    <div className="group relative min-w-[200px] bg-gradient-to-br from-white to-gray-50 p-5 rounded-xl shadow-lg border border-gray-100">
+      <div className="absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
+        <Button
+          variant="secondary"
+          size="icon"
+          className="h-8 w-8 rounded-lg shadow-sm"
+          onClick={() => setIsEditing(true)}
+        >
+          <Edit className="h-4 w-4" />
+        </Button>
+        {id !== 'start' && (
+          <Button
+            variant="destructive"
+            size="icon"
+            className="h-8 w-8 rounded-lg shadow-sm"
+            onClick={() => data.onNodeDelete(id)}
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        )}
+      </div>
       {isEditing ? (
-        <form onSubmit={handleSubmit} className="min-w-[150px]">
+        <form onSubmit={handleSubmit} className="min-w-[180px]">
           <Input
             ref={inputRef}
             type="text"
@@ -87,16 +100,20 @@ const CustomNodeComponent = ({ data, id }: { data: any; id: string }) => {
           />
         </form>
       ) : (
-        <div className="text-sm font-medium">{data.label}</div>
-      )}
-      {data.duration > 0 && (
-        <div className="text-xs text-gray-500 mt-2">
-          משך: {data.duration} דקות
-        </div>
-      )}
-      {data.priority && (
-        <div className="text-xs text-gray-500">
-          עדיפות: {data.priority === 'high' ? 'גבוהה' : data.priority === 'low' ? 'נמוכה' : 'רגילה'}
+        <div className="space-y-2">
+          <div className="text-sm font-medium">{data.label}</div>
+          {data.duration > 0 && (
+            <div className="text-xs text-gray-500">
+              משך: {data.duration} דקות
+            </div>
+          )}
+          {data.priority && (
+            <div className="inline-block px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-700">
+              {data.priority === 'high' ? '🔴 עדיפות גבוהה' : 
+               data.priority === 'low' ? '🟢 עדיפות נמוכה' : 
+               '🟡 עדיפות רגילה'}
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -108,14 +125,15 @@ const initialNodes: CustomNode[] = [
     id: 'start',
     type: 'input',
     data: { label: 'התחלה' },
-    position: { x: 250, y: 0 },
+    position: { x: 250, y: 50 },
     style: {
-      background: 'linear-gradient(45deg, #4CAF50, #45a049)',
+      background: 'linear-gradient(45deg, #6366f1, #4f46e5)',
       color: 'white',
       border: 'none',
-      width: 150,
-      padding: '12px',
-      borderRadius: '8px',
+      width: 200,
+      padding: '16px',
+      borderRadius: '12px',
+      boxShadow: '0 4px 6px -1px rgb(99 102 241 / 0.2), 0 2px 4px -2px rgb(99 102 241 / 0.2)',
     },
   },
 ];
@@ -148,9 +166,21 @@ function WorkflowCreator() {
     );
   }, [setNodes]);
 
+  const handleDeleteNode = useCallback((nodeId: string) => {
+    setNodes((nds) => nds.filter((node) => node.id !== nodeId));
+    setEdges((eds) => eds.filter((edge) => edge.source !== nodeId && edge.target !== nodeId));
+  }, [setNodes, setEdges]);
+
   const nodeTypes = {
     default: (props: any) => (
-      <CustomNodeComponent {...props} data={{ ...props.data, onNodeLabelChange: handleNodeLabelChange }} />
+      <CustomNodeComponent 
+        {...props} 
+        data={{ 
+          ...props.data, 
+          onNodeLabelChange: handleNodeLabelChange,
+          onNodeDelete: handleDeleteNode,
+        }} 
+      />
     ),
   };
 
@@ -404,7 +434,7 @@ function WorkflowCreator() {
             חזור
           </Button>
           <div className="flex items-center gap-2">
-            <Workflow className="h-6 w-6 text-purple-500" />
+            <Workflow className="h-6 w-6 text-indigo-500" />
             <h1 className="text-2xl font-bold">
               {workflowId ? 'עריכת זרימת עבודה' : 'יצירת זרימת עבודה'}
             </h1>
@@ -424,10 +454,52 @@ function WorkflowCreator() {
               />
             </div>
 
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <h2 className="text-lg font-semibold">שלבים</h2>
+            <div 
+              ref={reactFlowWrapper}
+              className="relative h-[700px] rounded-xl border bg-gray-50/50 overflow-hidden"
+            >
+              <ReactFlow
+                nodes={nodes}
+                edges={edges}
+                onNodesChange={onNodesChange}
+                onEdgesChange={onEdgesChange}
+                onConnect={onConnect}
+                nodeTypes={nodeTypes}
+                fitView
+                className="bg-dot-pattern"
+                defaultEdgeOptions={{
+                  type: 'smoothstep',
+                  animated: true,
+                  style: { 
+                    strokeWidth: 2,
+                    stroke: '#6366f1',
+                  },
+                  markerEnd: {
+                    type: MarkerType.ArrowClosed,
+                    color: '#6366f1',
+                  },
+                }}
+              >
+                <Background 
+                  color="#6366f1" 
+                  gap={16} 
+                  size={1} 
+                  className="opacity-5"
+                />
+                <Controls 
+                  className="bg-white border rounded-xl shadow-lg p-2"
+                  style={{ right: 16, left: 'auto' }}
+                />
+                <MiniMap 
+                  className="bg-white border rounded-xl shadow-lg"
+                  style={{ right: 16, left: 'auto', bottom: 16 }}
+                  nodeColor="#e0e7ff"
+                  maskColor="rgb(99 102 241 / 0.1)"
+                />
+                <Panel 
+                  position="top-center" 
+                  className="bg-white rounded-xl shadow-lg p-2 flex gap-2"
+                >
                   <Button
                     onClick={handleAddStep}
                     className="gap-2"
@@ -436,45 +508,16 @@ function WorkflowCreator() {
                     <Plus className="h-4 w-4" />
                     הוסף שלב
                   </Button>
-                </div>
-                <Button
-                  onClick={handleDownloadPDF}
-                  variant="outline"
-                  className="gap-2"
-                >
-                  <Download className="h-4 w-4" />
-                  הורד כ-PDF
-                </Button>
-              </div>
-
-              <div 
-                ref={reactFlowWrapper}
-                style={{ height: 600 }} 
-                className="rounded-lg border bg-gray-50/50"
-              >
-                <ReactFlow
-                  nodes={nodes}
-                  edges={edges}
-                  onNodesChange={onNodesChange}
-                  onEdgesChange={onEdgesChange}
-                  onConnect={onConnect}
-                  nodeTypes={nodeTypes}
-                  fitView
-                  className="bg-dot-pattern"
-                  defaultEdgeOptions={{
-                    type: 'smoothstep',
-                    animated: true,
-                  }}
-                >
-                  <Background color="#94a3b8" gap={16} size={1} />
-                  <Controls className="bg-white border rounded-lg shadow-sm" />
-                  <MiniMap 
-                    className="bg-white border rounded-lg shadow-sm" 
-                    nodeStrokeColor="#ffffff"
-                    nodeColor="#e2e8f0"
-                  />
-                </ReactFlow>
-              </div>
+                  <Button
+                    onClick={handleDownloadPDF}
+                    variant="outline"
+                    className="gap-2"
+                  >
+                    <Download className="h-4 w-4" />
+                    הורד כ-PDF
+                  </Button>
+                </Panel>
+              </ReactFlow>
             </div>
 
             <div className="flex justify-end gap-4">
