@@ -4,8 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import TaskForm from "@/components/TaskForm";
-import { Task, TaskPriority } from "@/types/task";
+import { TaskPriority } from "@/types/task";
 import { ArrowLeft, Plus, Save, Workflow } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -102,7 +101,13 @@ export default function WorkflowCreator() {
               </span>
             </div>
             
-            <TaskForm onAddTask={handleAddTask} />
+            <Button
+              onClick={() => handleAddTask("משימה חדשה", 30, "normal")}
+              className="w-full sm:w-auto gap-2"
+            >
+              <Plus className="h-4 w-4" />
+              הוסף משימה
+            </Button>
 
             <div className="space-y-3">
               {tasks.map((task, index) => (
