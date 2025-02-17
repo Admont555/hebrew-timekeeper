@@ -1,6 +1,7 @@
 
 import { useState, useEffect, useCallback } from "react";
-import ReactFlow, {
+import {
+  ReactFlow,
   MiniMap,
   Controls,
   Background,
@@ -9,6 +10,7 @@ import ReactFlow, {
   addEdge,
   Connection,
   Edge,
+  Node,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { Card } from "@/components/ui/card";
@@ -23,12 +25,23 @@ import { supabase } from "@/integrations/supabase/client";
 
 interface WorkflowStep {
   id: string;
+  workflow_id: string;
   title: string;
-  description: string;
   position: { x: number; y: number };
 }
 
-const initialNodes = [
+interface CustomNode extends Node {
+  style?: {
+    background: string;
+    color?: string;
+    border: string;
+    borderRadius?: string;
+    width: number;
+    padding?: string;
+  };
+}
+
+const initialNodes: CustomNode[] = [
   {
     id: 'start',
     type: 'input',
@@ -48,7 +61,7 @@ export default function WorkflowCreator() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [workflowName, setWorkflowName] = useState("");
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
+  const [nodes, setNodes, onNodesChange] = useNodesState<CustomNode>(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -75,16 +88,16 @@ export default function WorkflowCreator() {
         setWorkflowName(workflow.name);
         // Load workflow steps as nodes
         const { data: steps, error: stepsError } = await supabase
-          .from('workflow_steps')
+          .from('workflow_tasks')
           .select('*')
           .eq('workflow_id', workflowId);
 
         if (!stepsError && steps) {
-          const workflowNodes = steps.map((step) => ({
+          const workflowNodes: CustomNode[] = steps.map((step) => ({
             id: step.id,
             type: 'default',
             data: { label: step.title },
-            position: step.position,
+            position: step.position || { x: 0, y: 0 },
             style: {
               background: '#f0f0f0',
               border: '1px solid #ddd',
@@ -110,22 +123,21 @@ export default function WorkflowCreator() {
     const newId = crypto.randomUUID();
     const yOffset = nodes.length * 100;
     
-    setNodes((nds) => [
-      ...nds,
-      {
-        id: newId,
-        type: 'default',
-        data: { label: 'שלב חדש' },
-        position: { x: 250, y: yOffset },
-        style: {
-          background: '#f0f0f0',
-          border: '1px solid #ddd',
-          borderRadius: '8px',
-          width: 180,
-          padding: '10px',
-        },
+    const newNode: CustomNode = {
+      id: newId,
+      type: 'default',
+      data: { label: 'שלב חדש' },
+      position: { x: 250, y: yOffset },
+      style: {
+        background: '#f0f0f0',
+        border: '1px solid #ddd',
+        borderRadius: '8px',
+        width: 180,
+        padding: '10px',
       },
-    ]);
+    };
+    
+    setNodes((nds) => [...nds, newNode]);
   };
 
   const handleSaveWorkflow = async () => {
@@ -179,7 +191,7 @@ export default function WorkflowCreator() {
 
       if (stepsToSave.length > 0) {
         const { error: stepsError } = await supabase
-          .from('workflow_steps')
+          .from('workflow_tasks')
           .upsert(stepsToSave);
 
         if (stepsError) throw stepsError;
