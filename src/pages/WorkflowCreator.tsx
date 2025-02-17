@@ -1,5 +1,5 @@
-
 import { useState, useEffect, useCallback } from "react";
+import type { XYPosition } from '@xyflow/react';
 import {
   ReactFlow,
   MiniMap,
@@ -8,12 +8,9 @@ import {
   useNodesState,
   useEdgesState,
   addEdge,
-  Connection,
-  Edge,
-  Node,
-  XYPosition,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
+import type { Connection, Edge, Node } from '@xyflow/react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -89,7 +86,6 @@ export default function WorkflowCreator() {
 
       if (workflow) {
         setWorkflowName(workflow.name);
-        // Load workflow steps as nodes
         const { data: steps, error: stepsError } = await supabase
           .from('workflow_tasks')
           .select('*')
@@ -185,7 +181,6 @@ export default function WorkflowCreator() {
         if (updateError) throw updateError;
       }
 
-      // Save workflow steps
       const stepsToSave = nodes
         .filter(node => node.id !== 'start')
         .map(node => ({
