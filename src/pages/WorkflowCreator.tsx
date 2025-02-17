@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { TaskPriority } from "@/types/task";
+import { Task, TaskPriority } from "@/types/task";
 import { ArrowLeft, Plus, Save, Workflow } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
