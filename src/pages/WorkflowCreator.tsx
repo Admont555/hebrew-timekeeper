@@ -1,57 +1,131 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import ReactFlow, {
+  MiniMap,
+  Controls,
+  Background,
+  useNodesState,
+  useEdgesState,
+  addEdge,
+  Connection,
+  Edge,
+} from '@xyflow/react';
+import '@xyflow/react/dist/style.css';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Task, TaskPriority } from "@/types/task";
 import { ArrowLeft, Plus, Save, Workflow } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { toast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
+interface WorkflowStep {
+  id: string;
+  title: string;
+  description: string;
+  position: { x: number; y: number };
+}
+
+const initialNodes = [
+  {
+    id: 'start',
+    type: 'input',
+    data: { label: 'התחלה' },
+    position: { x: 250, y: 0 },
+    style: {
+      background: '#4CAF50',
+      color: 'white',
+      border: 'none',
+      width: 150,
+    },
+  },
+];
+
 export default function WorkflowCreator() {
+  const { workflowId } = useParams();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [workflowName, setWorkflowName] = useState("");
-  const [tasks, setTasks] = useState<Task[]>([]);
+  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
-    // Check authentication status when component mounts
-    const checkAuth = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
+    const loadWorkflow = async () => {
+      if (!workflowId) return;
+
+      const { data: workflow, error } = await supabase
+        .from('workflows')
+        .select('*')
+        .eq('id', workflowId)
+        .single();
+
+      if (error) {
         toast({
           title: "שגיאה",
-          description: "יש להתחבר למערכת",
+          description: "לא הצלחנו לטעון את זרימת העבודה",
           variant: "destructive",
         });
-        navigate('/login');
+        return;
+      }
+
+      if (workflow) {
+        setWorkflowName(workflow.name);
+        // Load workflow steps as nodes
+        const { data: steps, error: stepsError } = await supabase
+          .from('workflow_steps')
+          .select('*')
+          .eq('workflow_id', workflowId);
+
+        if (!stepsError && steps) {
+          const workflowNodes = steps.map((step) => ({
+            id: step.id,
+            type: 'default',
+            data: { label: step.title },
+            position: step.position,
+            style: {
+              background: '#f0f0f0',
+              border: '1px solid #ddd',
+              borderRadius: '8px',
+              width: 180,
+              padding: '10px',
+            },
+          }));
+          setNodes([...initialNodes, ...workflowNodes]);
+        }
       }
     };
+
+    loadWorkflow();
+  }, [workflowId, setNodes, toast]);
+
+  const onConnect = useCallback(
+    (params: Connection | Edge) => setEdges((eds) => addEdge(params, eds)),
+    [setEdges]
+  );
+
+  const handleAddStep = () => {
+    const newId = crypto.randomUUID();
+    const yOffset = nodes.length * 100;
     
-    checkAuth();
-  }, [navigate]);
-
-  const handleAddTask = (title: string, duration: number, priority: TaskPriority) => {
-    const newTask: Task = {
-      id: crypto.randomUUID(),
-      title,
-      duration,
-      priority,
-      timestamp: new Date().toISOString(),
-      completed: false,
-      date: new Date().toISOString().split('T')[0],
-      worker: '',
-      assigned_to: [],
-    };
-
-    setTasks([...tasks, newTask]);
-    toast({
-      title: "משימה נוספה",
-      description: "המשימה נוספה לזרימת העבודה בהצלחה",
-    });
+    setNodes((nds) => [
+      ...nds,
+      {
+        id: newId,
+        type: 'default',
+        data: { label: 'שלב חדש' },
+        position: { x: 250, y: yOffset },
+        style: {
+          background: '#f0f0f0',
+          border: '1px solid #ddd',
+          borderRadius: '8px',
+          width: 180,
+          padding: '10px',
+        },
+      },
+    ]);
   };
 
   const handleSaveWorkflow = async () => {
@@ -63,58 +137,60 @@ export default function WorkflowCreator() {
       });
       return;
     }
-    if (tasks.length === 0) {
-      toast({
-        title: "שגיאה",
-        description: "יש להוסיף לפחות משימה אחת לזרימת העבודה",
-        variant: "destructive",
-      });
-      return;
-    }
 
     setIsSaving(true);
     try {
-      // First get the current user
       const { data: { user }, error: authError } = await supabase.auth.getUser();
       
       if (authError || !user) {
         throw new Error("User not authenticated");
       }
 
-      // Then create the workflow with the user's ID
-      const { data: workflow, error: workflowError } = await supabase
-        .from('workflows')
-        .insert([
-          { name: workflowName, user_id: user.id }
-        ])
-        .select()
-        .single();
+      let workflowToUse = workflowId;
 
-      if (workflowError) throw workflowError;
+      if (!workflowId) {
+        const { data: workflow, error: workflowError } = await supabase
+          .from('workflows')
+          .insert([
+            { name: workflowName, user_id: user.id }
+          ])
+          .select()
+          .single();
 
-      if (workflow) {
-        // Add tasks to the workflow
-        const { error: tasksError } = await supabase
-          .from('workflow_tasks')
-          .insert(
-            tasks.map((task, index) => ({
-              workflow_id: workflow.id,
-              title: task.title,
-              duration: task.duration,
-              priority: task.priority,
-              position: { x: 0, y: index * 100 }
-            }))
-          );
+        if (workflowError) throw workflowError;
+        workflowToUse = workflow.id;
+      } else {
+        const { error: updateError } = await supabase
+          .from('workflows')
+          .update({ name: workflowName })
+          .eq('id', workflowId);
 
-        if (tasksError) throw tasksError;
-
-        toast({
-          title: "זרימת העבודה נשמרה",
-          description: "זרימת העבודה נשמרה בהצלחה",
-        });
-        
-        navigate('/workflows');
+        if (updateError) throw updateError;
       }
+
+      // Save workflow steps
+      const stepsToSave = nodes
+        .filter(node => node.id !== 'start')
+        .map(node => ({
+          workflow_id: workflowToUse,
+          title: node.data.label,
+          position: node.position,
+        }));
+
+      if (stepsToSave.length > 0) {
+        const { error: stepsError } = await supabase
+          .from('workflow_steps')
+          .upsert(stepsToSave);
+
+        if (stepsError) throw stepsError;
+      }
+
+      toast({
+        title: "זרימת העבודה נשמרה",
+        description: "זרימת העבודה נשמרה בהצלחה",
+      });
+      
+      navigate('/workflows');
     } catch (error) {
       console.error('Error saving workflow:', error);
       if (error instanceof Error && error.message === "User not authenticated") {
@@ -137,7 +213,7 @@ export default function WorkflowCreator() {
   };
 
   return (
-    <div className="container max-w-4xl mx-auto p-6" dir="rtl">
+    <div className="container mx-auto p-6" dir="rtl">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -158,72 +234,57 @@ export default function WorkflowCreator() {
           </div>
         </div>
 
-        <Card className="p-6 space-y-6">
-          <div className="space-y-2">
-            <Label htmlFor="workflowName">שם זרימת העבודה</Label>
-            <Input
-              id="workflowName"
-              value={workflowName}
-              onChange={(e) => setWorkflowName(e.target.value)}
-              placeholder="הזן שם לזרימת העבודה..."
-              className="max-w-md"
-            />
-          </div>
-
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold">משימות</h2>
-              <span className="text-sm text-muted-foreground">
-                {tasks.length} משימות
-              </span>
+        <Card className="p-6">
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <Label htmlFor="workflowName">שם זרימת העבודה</Label>
+              <Input
+                id="workflowName"
+                value={workflowName}
+                onChange={(e) => setWorkflowName(e.target.value)}
+                placeholder="הזן שם לזרימת העבודה..."
+                className="max-w-md"
+              />
             </div>
-            
-            <Button
-              onClick={() => handleAddTask("משימה חדשה", 30, "normal")}
-              className="w-full sm:w-auto gap-2"
-            >
-              <Plus className="h-4 w-4" />
-              הוסף משימה
-            </Button>
 
-            <div className="space-y-3">
-              {tasks.map((task, index) => (
-                <motion.div
-                  key={task.id}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                  className="flex items-center gap-4 p-4 bg-muted/50 rounded-lg"
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-semibold">שלבים</h2>
+                <Button
+                  onClick={handleAddStep}
+                  className="gap-2"
                 >
-                  <span className="text-sm font-medium text-muted-foreground">
-                    {index + 1}.
-                  </span>
-                  <div className="flex-grow">
-                    <h3 className="font-medium">{task.title}</h3>
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <span>{task.duration} דקות</span>
-                      <span>•</span>
-                      <span>
-                        {task.priority === 'high' && 'עדיפות גבוהה'}
-                        {task.priority === 'normal' && 'עדיפות רגילה'}
-                        {task.priority === 'low' && 'עדיפות נמוכה'}
-                      </span>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </div>
+                  <Plus className="h-4 w-4" />
+                  הוסף שלב
+                </Button>
+              </div>
 
-          <Button
-            onClick={handleSaveWorkflow}
-            className="w-full sm:w-auto gap-2"
-            size="lg"
-            disabled={isSaving}
-          >
-            <Save className="h-4 w-4" />
-            {isSaving ? 'שומר...' : 'שמור זרימת עבודה'}
-          </Button>
+              <div style={{ height: 500 }} className="rounded-lg border">
+                <ReactFlow
+                  nodes={nodes}
+                  edges={edges}
+                  onNodesChange={onNodesChange}
+                  onEdgesChange={onEdgesChange}
+                  onConnect={onConnect}
+                  fitView
+                >
+                  <Background />
+                  <Controls />
+                  <MiniMap />
+                </ReactFlow>
+              </div>
+            </div>
+
+            <Button
+              onClick={handleSaveWorkflow}
+              className="w-full sm:w-auto gap-2"
+              size="lg"
+              disabled={isSaving}
+            >
+              <Save className="h-4 w-4" />
+              {isSaving ? 'שומר...' : 'שמור זרימת עבודה'}
+            </Button>
+          </div>
         </Card>
       </motion.div>
     </div>
