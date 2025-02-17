@@ -61,7 +61,7 @@ const initialNodes: CustomNode[] = [
   },
 ];
 
-export default function WorkflowCreator() {
+function WorkflowCreator() {
   const { workflowId } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -312,3 +312,5 @@ export default function WorkflowCreator() {
     </div>
   );
 }
+
+export default WorkflowCreator;
