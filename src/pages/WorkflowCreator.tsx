@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback, useRef } from "react";
 import {
   Background,
@@ -20,7 +19,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, Plus, Save, Workflow, Download } from "lucide-react";
+import { ArrowLeft, Plus, Save, Workflow, Download, Edit, Trash2 } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
@@ -28,16 +27,24 @@ import { supabase } from "@/integrations/supabase/client";
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 
+type Priority = 'high' | 'normal' | 'low';
+
+interface NodeData {
+  label: string;
+  duration: number;
+  priority: Priority;
+}
+
 interface WorkflowStep {
   id: string;
   workflow_id: string;
   title: string;
   position: XYPosition;
   duration: number;
-  priority: string;
+  priority: Priority;
 }
 
-interface CustomNode extends Node {
+interface CustomNode extends Node<NodeData> {
   style?: {
     background: string;
     color?: string;
@@ -252,13 +259,13 @@ function WorkflowCreator() {
     setSelectedNode(null);
   };
 
-  const handleNodeClick = (event: React.MouseEvent, node: Node) => {
+  const handleNodeClick = (event: React.MouseEvent, node: CustomNode) => {
     if (node.id === 'start') return;
     setSelectedNode(node);
     setEditingStep({
       title: node.data.label,
-      duration: node.data.duration || 0,
-      priority: node.data.priority || 'normal'
+      duration: node.data.duration,
+      priority: node.data.priority
     });
   };
 
@@ -338,17 +345,15 @@ function WorkflowCreator() {
           id: node.id,
           workflow_id: workflowToUse,
           title: node.data.label,
-          position: node.position,
-          duration: node.data.duration || 0,
-          priority: node.data.priority || 'normal',
+          position: JSON.stringify(node.position),
+          duration: node.data.duration,
+          priority: node.data.priority,
         }));
 
       if (stepsToSave.length > 0) {
         const { error: stepsError } = await supabase
           .from('workflow_tasks')
-          .upsert(stepsToSave, {
-            onConflict: 'id'
-          });
+          .upsert(stepsToSave);
 
         if (stepsError) throw stepsError;
       }
