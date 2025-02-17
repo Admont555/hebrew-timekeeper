@@ -1,5 +1,6 @@
+
 import { motion } from "framer-motion";
-import { Menu } from "lucide-react";
+import { Menu, ListChecks } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useLocation, Link } from "react-router-dom";
 import { Button } from "./ui/button";
@@ -27,6 +28,7 @@ export function AppSidebar() {
   const menuItems = [
     { name: "משימות", path: "/" },
     { name: "טבלאות", path: "/tables" },
+    { name: "זרימות עבודה", path: "/workflows", icon: <ListChecks className="h-4 w-4 ml-2" /> },
     { name: "הגדרות", path: "/settings" },
   ];
 
@@ -69,13 +71,14 @@ export function AppSidebar() {
               <Link
                 key={item.path}
                 to={item.path}
-                className={`block px-4 py-2 rounded-lg transition-colors ${
+                className={`flex items-center px-4 py-2 rounded-lg transition-colors ${
                   location.pathname === item.path
                     ? "bg-sidebar-accent text-sidebar-accent-foreground"
                     : "hover:bg-sidebar-accent/50"
                 }`}
                 onClick={toggleSidebar}
               >
+                {item.icon}
                 {item.name}
               </Link>
             ))}
