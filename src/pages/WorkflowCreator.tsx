@@ -494,7 +494,6 @@ function WorkflowCreator() {
                 <Panel 
                   position="top-center" 
                   className="bg-white rounded-xl shadow-lg p-2 flex gap-2"
-                  style={{ top: -50 }}
                 >
                   <Button
                     onClick={handleAddStep}
