@@ -1,16 +1,21 @@
+
 import { useState, useEffect, useCallback } from "react";
-import type { XYPosition } from '@xyflow/react';
 import {
-  ReactFlow,
-  MiniMap,
-  Controls,
   Background,
-  useNodesState,
-  useEdgesState,
+  Connection,
+  Controls,
+  Edge,
+  MarkerType,
+  MiniMap,
+  Node,
+  Position,
+  ReactFlow,
+  XYPosition,
   addEdge,
+  useEdgesState,
+  useNodesState,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import type { Connection, Edge, Node } from '@xyflow/react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
