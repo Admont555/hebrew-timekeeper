@@ -58,7 +58,6 @@ const initialNodes: CustomNode[] = [
       width: 150,
       padding: '12px',
       borderRadius: '8px',
-      boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
     },
   },
 ];
@@ -116,7 +115,6 @@ function WorkflowCreator() {
                 borderRadius: '8px',
                 width: 200,
                 padding: '16px',
-                boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
               },
             }));
             setNodes([...initialNodes, ...workflowNodes]);
@@ -160,7 +158,7 @@ function WorkflowCreator() {
       data: { 
         label: 'שלב חדש',
         duration: 0,
-        priority: 'medium',
+        priority: 'normal',
       },
       position: { x: 250, y: yOffset },
       style: {
@@ -169,7 +167,6 @@ function WorkflowCreator() {
         borderRadius: '8px',
         width: 200,
         padding: '16px',
-        boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
       },
     };
     
@@ -229,7 +226,7 @@ function WorkflowCreator() {
           title: node.data.label as string,
           position: node.position,
           duration: 0,
-          priority: 'medium',
+          priority: 'normal',
         }));
 
       if (stepsToSave.length > 0) {
