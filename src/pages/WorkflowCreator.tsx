@@ -52,6 +52,8 @@ interface CustomNode extends Node {
 const CustomNodeComponent = ({ data, id }: { data: any; id: string }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [title, setTitle] = useState(data.label);
+  const [duration, setDuration] = useState(data.duration || 0);
+  const [priority, setPriority] = useState(data.priority || 'normal');
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -62,12 +64,24 @@ const CustomNodeComponent = ({ data, id }: { data: any; id: string }) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    data.onNodeLabelChange(id, title);
+    data.onNodeUpdate(id, {
+      label: title,
+      duration: duration,
+      priority: priority
+    });
     setIsEditing(false);
   };
 
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'high': return 'bg-red-100 text-red-700';
+      case 'low': return 'bg-green-100 text-green-700';
+      default: return 'bg-yellow-100 text-yellow-700';
+    }
+  };
+
   return (
-    <div className="group relative min-w-[200px] bg-gradient-to-br from-white to-gray-50 p-5 rounded-xl shadow-lg border border-gray-100">
+    <div className="group relative min-w-[280px] bg-white p-6 rounded-xl shadow-lg border border-gray-100 transition-all hover:shadow-xl">
       <div className="absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
         <Button
           variant="secondary"
@@ -89,26 +103,58 @@ const CustomNodeComponent = ({ data, id }: { data: any; id: string }) => {
         )}
       </div>
       {isEditing ? (
-        <form onSubmit={handleSubmit} className="min-w-[180px]">
-          <Input
-            ref={inputRef}
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            className="text-sm"
-            onBlur={handleSubmit}
-          />
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label>כותרת</Label>
+            <Input
+              ref={inputRef}
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="text-sm"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label>משך (דקות)</Label>
+            <Input
+              type="number"
+              min="0"
+              value={duration}
+              onChange={(e) => setDuration(Number(e.target.value))}
+              className="text-sm"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label>עדיפות</Label>
+            <select
+              value={priority}
+              onChange={(e) => setPriority(e.target.value)}
+              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+            >
+              <option value="high">גבוהה</option>
+              <option value="normal">רגילה</option>
+              <option value="low">נמוכה</option>
+            </select>
+          </div>
+          <div className="flex justify-end gap-2 pt-2">
+            <Button type="button" variant="ghost" onClick={() => setIsEditing(false)}>
+              ביטול
+            </Button>
+            <Button type="submit">
+              שמור
+            </Button>
+          </div>
         </form>
       ) : (
-        <div className="space-y-2">
-          <div className="text-sm font-medium">{data.label}</div>
+        <div className="space-y-3">
+          <div className="text-lg font-medium">{data.label}</div>
           {data.duration > 0 && (
-            <div className="text-xs text-gray-500">
+            <div className="text-sm text-gray-500">
               משך: {data.duration} דקות
             </div>
           )}
           {data.priority && (
-            <div className="inline-block px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-700">
+            <div className={`inline-block px-3 py-1 text-sm rounded-full ${getPriorityColor(data.priority)}`}>
               {data.priority === 'high' ? '🔴 עדיפות גבוהה' : 
                data.priority === 'low' ? '🟢 עדיפות נמוכה' : 
                '🟡 עדיפות רגילה'}
@@ -166,6 +212,23 @@ function WorkflowCreator() {
     );
   }, [setNodes]);
 
+  const handleNodeUpdate = useCallback((nodeId: string, updates: { label: string; duration: number; priority: string }) => {
+    setNodes((nds) =>
+      nds.map((node) => {
+        if (node.id === nodeId) {
+          return {
+            ...node,
+            data: {
+              ...node.data,
+              ...updates,
+            },
+          };
+        }
+        return node;
+      })
+    );
+  }, [setNodes]);
+
   const handleDeleteNode = useCallback((nodeId: string) => {
     setNodes((nds) => nds.filter((node) => node.id !== nodeId));
     setEdges((eds) => eds.filter((edge) => edge.source !== nodeId && edge.target !== nodeId));
@@ -178,6 +241,7 @@ function WorkflowCreator() {
         data={{ 
           ...props.data, 
           onNodeLabelChange: handleNodeLabelChange,
+          onNodeUpdate: handleNodeUpdate,
           onNodeDelete: handleDeleteNode,
         }} 
       />
@@ -293,7 +357,8 @@ function WorkflowCreator() {
 
   const handleAddStep = () => {
     const newId = crypto.randomUUID();
-    const yOffset = nodes.length * 120;
+    const lastNode = [...nodes].sort((a, b) => b.position.y - a.position.y)[0];
+    const yOffset = lastNode ? lastNode.position.y + 200 : 200;
     
     const newNode: CustomNode = {
       id: newId,
@@ -308,7 +373,7 @@ function WorkflowCreator() {
         background: '#ffffff',
         border: '1px solid #e2e8f0',
         borderRadius: '8px',
-        width: 200,
+        width: 280,
         padding: '16px',
       },
     };
