@@ -27,28 +27,15 @@ import { supabase } from "@/integrations/supabase/client";
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 
-type Priority = 'high' | 'normal' | 'low';
-
 interface NodeData {
   label: string;
-  duration: number;
-  priority: Priority;
+  duration?: number;
+  priority?: string;
   [key: string]: any;
 }
 
-interface WorkflowStep {
-  id: string;
-  workflow_id: string;
-  title: string;
-  position: XYPosition;
-  duration: number;
-  priority: Priority;
-}
-
-type CustomNode = Node<NodeData>;
-
 const CustomNodeComponent = ({ data }: { data: NodeData }) => {
-  const getPriorityColor = (priority: Priority) => {
+  const getPriorityColor = (priority?: string) => {
     switch (priority) {
       case 'high': return 'bg-red-100 text-red-700';
       case 'low': return 'bg-green-100 text-green-700';
@@ -60,7 +47,7 @@ const CustomNodeComponent = ({ data }: { data: NodeData }) => {
     <div className="min-w-[280px] bg-white p-6 rounded-xl shadow-lg border border-gray-100">
       <div className="space-y-3">
         <div className="text-lg font-medium">{data.label}</div>
-        {data.duration > 0 && (
+        {data.duration && data.duration > 0 && (
           <div className="text-sm text-gray-500">
             משך: {data.duration} דקות
           </div>
@@ -77,14 +64,12 @@ const CustomNodeComponent = ({ data }: { data: NodeData }) => {
   );
 };
 
-const initialNodes: CustomNode[] = [
+const initialNodes: Node<NodeData>[] = [
   {
     id: 'start',
     type: 'input',
     data: { 
       label: 'התחלה',
-      duration: 0,
-      priority: 'normal' as Priority
     },
     position: { x: 250, y: 50 },
     style: {
@@ -109,11 +94,11 @@ function WorkflowCreator() {
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedNode, setSelectedNode] = useState<CustomNode | null>(null);
+  const [selectedNode, setSelectedNode] = useState<Node<NodeData> | null>(null);
   const [editingStep, setEditingStep] = useState({
     title: '',
     duration: 0,
-    priority: 'normal' as Priority
+    priority: 'normal'
   });
 
   useEffect(() => {
@@ -142,13 +127,13 @@ function WorkflowCreator() {
           if (stepsError) throw stepsError;
 
           if (steps) {
-            const workflowNodes: CustomNode[] = steps.map((step) => ({
+            const workflowNodes = steps.map((step) => ({
               id: step.id,
               type: 'default',
               data: { 
                 label: step.title,
                 duration: step.duration,
-                priority: step.priority as Priority,
+                priority: step.priority,
               },
               position: typeof step.position === 'string' 
                 ? JSON.parse(step.position)
@@ -198,7 +183,7 @@ function WorkflowCreator() {
     const lastNode = [...nodes].sort((a, b) => b.position.y - a.position.y)[0];
     const yOffset = lastNode ? lastNode.position.y + 200 : 200;
     
-    const newNode: CustomNode = {
+    const newNode: Node<NodeData> = {
       id: newId,
       type: 'default',
       data: { 
@@ -256,11 +241,11 @@ function WorkflowCreator() {
 
   const handleNodeClick = (event: React.MouseEvent, node: Node<NodeData>) => {
     if (node.id === 'start') return;
-    setSelectedNode(node as CustomNode);
+    setSelectedNode(node);
     setEditingStep({
       title: node.data.label,
-      duration: node.data.duration,
-      priority: node.data.priority
+      duration: node.data.duration || 0,
+      priority: node.data.priority || 'normal'
     });
   };
 
@@ -504,7 +489,7 @@ function WorkflowCreator() {
                     <Label>עדיפות</Label>
                     <select
                       value={editingStep.priority}
-                      onChange={(e) => setEditingStep(prev => ({ ...prev, priority: e.target.value as 'high' | 'normal' | 'low' }))}
+                      onChange={(e) => setEditingStep(prev => ({ ...prev, priority: e.target.value }))}
                       className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                     >
                       <option value="high">גבוהה</option>
