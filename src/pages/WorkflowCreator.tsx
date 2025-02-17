@@ -470,7 +470,7 @@ function WorkflowCreator() {
                   <MiniMap 
                     className="bg-white border rounded-lg shadow-sm" 
                     nodeColor={(node) => {
-                      return node.style?.background || '#fff';
+                      return node.style?.background?.toString() || '#ffffff';
                     }}
                   />
                 </ReactFlow>
