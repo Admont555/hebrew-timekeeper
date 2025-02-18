@@ -403,7 +403,7 @@ function WorkflowCreator() {
 
         <div className="grid grid-cols-12 gap-6">
           <div className="col-span-8">
-            <Card className="p-6">
+            <Card>
               <div className="space-y-6">
                 <div className="space-y-2">
                   <Label htmlFor="workflowName">שם זרימת העבודה</Label>
