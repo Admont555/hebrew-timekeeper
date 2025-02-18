@@ -77,68 +77,67 @@ function WorkflowCreator() {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto p-6 flex items-center justify-center min-h-screen" dir="rtl">
+      <div className="flex items-center justify-center min-h-screen" dir="rtl">
         <div className="text-lg text-gray-600">טוען...</div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto p-6" dir="rtl">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="space-y-6"
-      >
-        <div className="flex items-center justify-between">
-          <Button
-            variant="ghost"
-            onClick={() => navigate(-1)}
-            className="gap-2"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            חזור
-          </Button>
-          <div className="flex items-center gap-2">
-            <Workflow className="h-6 w-6 text-indigo-500" />
-            <h1 className="text-2xl font-bold">
-              {workflowId ? 'עריכת זרימת עבודה' : 'יצירת זרימת עבודה'}
-            </h1>
-          </div>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="space-y-6"
+      dir="rtl"
+    >
+      <div className="flex items-center justify-between">
+        <Button
+          variant="ghost"
+          onClick={() => navigate(-1)}
+          className="gap-2"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          חזור
+        </Button>
+        <div className="flex items-center gap-2">
+          <Workflow className="h-6 w-6 text-indigo-500" />
+          <h1 className="text-2xl font-bold">
+            {workflowId ? 'עריכת זרימת עבודה' : 'יצירת זרימת עבודה'}
+          </h1>
         </div>
+      </div>
 
-        <div className="h-[700px] rounded-xl border bg-gray-50/50 overflow-hidden">
-          <ReactFlow
-            nodes={nodes}
-            edges={edges}
-            onNodesChange={onNodesChange}
-            onEdgesChange={onEdgesChange}
-            onConnect={onConnect}
-            fitView
-            defaultEdgeOptions={{
-              type: 'smoothstep',
-              animated: true,
-              style: { 
-                strokeWidth: 2,
-                stroke: '#6366f1',
-              },
-              markerEnd: {
-                type: MarkerType.ArrowClosed,
-                color: '#6366f1',
-              },
-            }}
-          >
-            <Background color="#6366f1" gap={16} size={1} className="opacity-5" />
-            <Controls className="bg-white border rounded-xl shadow-lg p-2" />
-            <MiniMap
-              className="bg-white border rounded-xl shadow-lg"
-              nodeColor="#e0e7ff"
-              maskColor="rgb(99 102 241 / 0.1)"
-            />
-          </ReactFlow>
-        </div>
-      </motion.div>
-    </div>
+      <div className="h-[700px] rounded-xl border bg-gray-50/50 overflow-hidden">
+        <ReactFlow
+          nodes={nodes}
+          edges={edges}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          onConnect={onConnect}
+          fitView
+          defaultEdgeOptions={{
+            type: 'smoothstep',
+            animated: true,
+            style: { 
+              strokeWidth: 2,
+              stroke: '#6366f1',
+            },
+            markerEnd: {
+              type: MarkerType.ArrowClosed,
+              color: '#6366f1',
+            },
+          }}
+        >
+          <Background color="#6366f1" gap={16} size={1} className="opacity-5" />
+          <Controls className="bg-white border rounded-xl shadow-lg p-2" />
+          <MiniMap
+            className="bg-white border rounded-xl shadow-lg"
+            nodeColor="#e0e7ff"
+            maskColor="rgb(99 102 241 / 0.1)"
+          />
+        </ReactFlow>
+      </div>
+    </motion.div>
   );
 }
 
