@@ -40,7 +40,7 @@ function WorkflowCreator() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen" dir="rtl">
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-indigo-50 to-white" dir="rtl">
         <div className="text-lg text-gray-600">טוען...</div>
       </div>
     );
@@ -50,57 +50,59 @@ function WorkflowCreator() {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="max-w-xl mx-auto pt-8 px-4 space-y-6"
+      className="min-h-screen bg-gradient-to-br from-indigo-50 to-white px-4 py-8"
       dir="rtl"
     >
-      <div className="flex items-center justify-between">
-        <Button
-          variant="ghost"
-          onClick={() => navigate(-1)}
-          className="gap-2"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          חזור
-        </Button>
-        <div className="flex items-center gap-2">
-          <Workflow className="h-6 w-6 text-indigo-500" />
-          <h1 className="text-2xl font-bold">
-            {workflowId ? 'עריכת זרימת עבודה' : 'יצירת זרימת עבודה'}
-          </h1>
-        </div>
-      </div>
-
-      <div className="rounded-xl border bg-white shadow-sm">
-        <ScrollArea className="h-[calc(100vh-12rem)] px-6 pt-6">
-          <div className="relative space-y-6 pb-6">
-            {steps.map((step, index) => (
-              <div key={step.id} className="relative">
-                <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 hover:border-indigo-200 transition-colors">
-                  <h3 className="font-medium">{step.label}</h3>
-                </div>
-                {index < steps.length - 1 && (
-                  <>
-                    <div className="absolute right-6 -bottom-4 w-[1px] h-[calc(100%-0.5rem)] bg-indigo-200" />
-                    <div className="absolute right-[18px] -bottom-6 z-10 bg-white rounded-full">
-                      <CircleChevronDown 
-                        className="h-6 w-6 text-indigo-400 drop-shadow-sm transition-colors hover:text-indigo-500" 
-                      />
-                    </div>
-                  </>
-                )}
-              </div>
-            ))}
-          </div>
-        </ScrollArea>
-        
-        <div className="px-6 py-4 border-t bg-gray-50/50">
+      <div className="max-w-4xl mx-auto space-y-8">
+        <div className="flex items-center justify-between">
           <Button
-            onClick={addStep}
             variant="ghost"
-            className="w-full h-auto py-2 border-2 border-dashed border-gray-200 hover:border-indigo-200 hover:bg-gray-50/80 transition-colors"
+            onClick={() => navigate(-1)}
+            className="gap-2 hover:bg-white/50 transition-all"
           >
-            <Plus className="h-5 w-5 text-indigo-500" />
+            <ArrowLeft className="h-4 w-4" />
+            חזור
           </Button>
+          <div className="flex items-center gap-3">
+            <Workflow className="h-7 w-7 text-indigo-500" />
+            <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-purple-600">
+              {workflowId ? 'עריכת זרימת עבודה' : 'יצירת זרימת עבודה'}
+            </h1>
+          </div>
+        </div>
+
+        <div className="rounded-2xl border bg-white/70 backdrop-blur-sm shadow-xl">
+          <ScrollArea className="h-[calc(100vh-14rem)] px-8 pt-8">
+            <div className="relative space-y-6 pb-8">
+              {steps.map((step, index) => (
+                <div key={step.id} className="relative group">
+                  <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm hover:border-indigo-200 hover:shadow-md transition-all duration-300">
+                    <h3 className="font-medium text-lg">{step.label}</h3>
+                  </div>
+                  {index < steps.length - 1 && (
+                    <>
+                      <div className="absolute right-8 -bottom-4 w-[1px] h-[calc(100%-1rem)] bg-gradient-to-b from-indigo-200 to-purple-200" />
+                      <div className="absolute right-[26px] -bottom-6 z-10 bg-white rounded-full shadow-sm">
+                        <CircleChevronDown 
+                          className="h-6 w-6 text-indigo-400 transition-all duration-300 group-hover:text-indigo-500 group-hover:scale-110" 
+                        />
+                      </div>
+                    </>
+                  )}
+                </div>
+              ))}
+            </div>
+          </ScrollArea>
+          
+          <div className="px-8 py-6 border-t bg-white/50 backdrop-blur-sm rounded-b-2xl">
+            <Button
+              onClick={addStep}
+              variant="ghost"
+              className="w-full h-auto py-4 border-2 border-dashed border-gray-200 hover:border-indigo-200 hover:bg-white/50 transition-all duration-300 group"
+            >
+              <Plus className="h-6 w-6 text-indigo-400 group-hover:text-indigo-500 group-hover:scale-110 transition-transform duration-300" />
+            </Button>
+          </div>
         </div>
       </div>
     </motion.div>
