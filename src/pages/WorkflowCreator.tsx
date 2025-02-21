@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, ChevronDown, Plus, Workflow } from "lucide-react";
+import { ArrowLeft, CircleChevronDown, Plus, Workflow } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
@@ -79,12 +79,14 @@ function WorkflowCreator() {
                   <h3 className="font-medium">{step.label}</h3>
                 </div>
                 {index < steps.length - 1 && (
-                  <div className="absolute right-6 -bottom-4 w-[1px] h-[calc(100%-0.5rem)] bg-indigo-200" />
-                )}
-                {index < steps.length - 1 && (
-                  <div className="absolute right-4 -bottom-4 z-10">
-                    <ChevronDown className="h-4 w-4 text-indigo-400" />
-                  </div>
+                  <>
+                    <div className="absolute right-6 -bottom-4 w-[1px] h-[calc(100%-0.5rem)] bg-indigo-200" />
+                    <div className="absolute right-[18px] -bottom-6 z-10 bg-white rounded-full">
+                      <CircleChevronDown 
+                        className="h-6 w-6 text-indigo-400 drop-shadow-sm transition-colors hover:text-indigo-500" 
+                      />
+                    </div>
+                  </>
                 )}
               </div>
             ))}
