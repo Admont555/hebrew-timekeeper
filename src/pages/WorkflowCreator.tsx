@@ -1,11 +1,12 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, CircleChevronDown, Plus, Workflow } from "lucide-react";
+import { ArrowLeft, CircleChevronDown, Plus, Workflow, Pencil, Check } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Input } from "@/components/ui/input";
 
 interface WorkflowStep {
   id: string;
@@ -19,6 +20,7 @@ function WorkflowCreator() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(true);
+  const [editingStepId, setEditingStepId] = useState<string | null>(null);
   const [steps, setSteps] = useState<WorkflowStep[]>([
     {
       id: 'start',
@@ -36,6 +38,17 @@ function WorkflowCreator() {
       label: `שלב ${steps.length + 1}`,
     };
     setSteps([...steps, newStep]);
+  };
+
+  const updateStepLabel = (stepId: string, newLabel: string) => {
+    setSteps(steps.map(step => 
+      step.id === stepId ? { ...step, label: newLabel } : step
+    ));
+    setEditingStepId(null);
+    toast({
+      description: "השלב עודכן בהצלחה",
+      duration: 2000,
+    });
   };
 
   if (isLoading) {
@@ -77,7 +90,44 @@ function WorkflowCreator() {
               {steps.map((step, index) => (
                 <div key={step.id} className="relative group">
                   <div className="bg-background p-6 rounded-xl border border-border shadow-sm hover:border-primary/20 hover:shadow-md transition-all duration-300">
-                    <h3 className="font-medium text-lg text-foreground">{step.label}</h3>
+                    {editingStepId === step.id ? (
+                      <form 
+                        onSubmit={(e) => {
+                          e.preventDefault();
+                          const input = e.currentTarget.elements.namedItem('stepLabel') as HTMLInputElement;
+                          if (input?.value.trim()) {
+                            updateStepLabel(step.id, input.value.trim());
+                          }
+                        }}
+                        className="flex items-center gap-2"
+                      >
+                        <Input
+                          name="stepLabel"
+                          defaultValue={step.label}
+                          autoFocus
+                          className="text-lg"
+                        />
+                        <Button 
+                          size="icon" 
+                          type="submit"
+                          className="shrink-0"
+                        >
+                          <Check className="h-4 w-4" />
+                        </Button>
+                      </form>
+                    ) : (
+                      <div className="flex items-center justify-between gap-2">
+                        <h3 className="font-medium text-lg text-foreground">{step.label}</h3>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => setEditingStepId(step.id)}
+                          className="opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    )}
                   </div>
                   {index < steps.length - 1 && (
                     <>
