@@ -1,79 +1,41 @@
 
-import { useState, useEffect, useRef, useCallback } from "react";
-import {
-  Background,
-  Connection,
-  Controls,
-  Edge,
-  MarkerType,
-  MiniMap,
-  Node,
-  ReactFlow,
-  addEdge,
-  useEdgesState,
-  useNodesState,
-} from '@xyflow/react';
-import '@xyflow/react/dist/style.css';
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Workflow } from "lucide-react";
+import { ArrowLeft, Plus, Workflow } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 
-interface NodeData {
+interface WorkflowStep {
+  id: string;
   label: string;
   duration?: number;
   priority?: string;
-  [key: string]: any;
 }
-
-const initialNodes: Node<NodeData>[] = [
-  {
-    id: 'start',
-    type: 'input',
-    data: { 
-      label: 'התחלה',
-    },
-    position: { x: 250, y: 50 },
-    style: {
-      background: 'linear-gradient(45deg, #6366f1, #4f46e5)',
-      color: 'white',
-      border: 'none',
-      width: 200,
-      padding: '16px',
-      borderRadius: '12px',
-      boxShadow: '0 4px 6px -1px rgb(99 102 241 / 0.2), 0 2px 4px -2px rgb(99 102 241 / 0.2)',
-    },
-  },
-];
 
 function WorkflowCreator() {
   const { workflowId } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const reactFlowWrapper = useRef<HTMLDivElement>(null);
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [steps, setSteps] = useState<WorkflowStep[]>([
+    {
+      id: 'start',
+      label: 'התחלה',
+    }
+  ]);
 
   useEffect(() => {
     setIsLoading(false);
   }, []);
 
-  const onConnect = useCallback(
-    (params: Connection | Edge) => setEdges((eds) => addEdge(
-      { 
-        ...params, 
-        type: 'smoothstep',
-        animated: true,
-        style: { strokeWidth: 2, stroke: '#6366f1' },
-        markerEnd: { type: MarkerType.ArrowClosed, color: '#6366f1' },
-      }, 
-      eds
-    )),
-    [setEdges]
-  );
+  const addStep = () => {
+    const newStep: WorkflowStep = {
+      id: `step-${steps.length + 1}`,
+      label: `שלב ${steps.length + 1}`,
+    };
+    setSteps([...steps, newStep]);
+  };
 
   if (isLoading) {
     return (
@@ -107,35 +69,26 @@ function WorkflowCreator() {
         </div>
       </div>
 
-      <div className="h-[700px] rounded-xl border bg-gray-50/50 overflow-hidden">
-        <ReactFlow
-          nodes={nodes}
-          edges={edges}
-          onNodesChange={onNodesChange}
-          onEdgesChange={onEdgesChange}
-          onConnect={onConnect}
-          fitView
-          defaultEdgeOptions={{
-            type: 'smoothstep',
-            animated: true,
-            style: { 
-              strokeWidth: 2,
-              stroke: '#6366f1',
-            },
-            markerEnd: {
-              type: MarkerType.ArrowClosed,
-              color: '#6366f1',
-            },
-          }}
-        >
-          <Background color="#6366f1" gap={16} size={1} className="opacity-5" />
-          <Controls className="bg-white border rounded-xl shadow-lg p-2" />
-          <MiniMap
-            className="bg-white border rounded-xl shadow-lg"
-            nodeColor="#e0e7ff"
-            maskColor="rgb(99 102 241 / 0.1)"
-          />
-        </ReactFlow>
+      <div className="rounded-xl border bg-gray-50/50 p-6">
+        <div className="space-y-4">
+          {steps.map((step, index) => (
+            <div 
+              key={step.id}
+              className="bg-white p-4 rounded-lg border shadow-sm"
+            >
+              <h3 className="font-medium">{step.label}</h3>
+            </div>
+          ))}
+          
+          <Button
+            onClick={addStep}
+            variant="outline"
+            className="w-full border-dashed gap-2"
+          >
+            <Plus className="h-4 w-4" />
+            הוסף שלב
+          </Button>
+        </div>
       </div>
     </motion.div>
   );
