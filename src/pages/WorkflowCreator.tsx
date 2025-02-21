@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, CircleChevronDown, Plus, Workflow, Pencil, Check } from "lucide-react";
+import { ArrowLeft, CircleChevronDown, Plus, Workflow, Pencil, Check, GitBranch } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
@@ -13,6 +13,7 @@ interface WorkflowStep {
   label: string;
   duration?: number;
   priority?: string;
+  children?: WorkflowStep[];
 }
 
 function WorkflowCreator() {
@@ -40,15 +41,136 @@ function WorkflowCreator() {
     setSteps([...steps, newStep]);
   };
 
+  const splitStep = (stepId: string) => {
+    setSteps(currentSteps => {
+      const updateStep = (steps: WorkflowStep[]): WorkflowStep[] => {
+        return steps.map(step => {
+          if (step.id === stepId) {
+            return {
+              ...step,
+              children: [
+                {
+                  id: `${step.id}-1`,
+                  label: 'תוצאה 1',
+                },
+                {
+                  id: `${step.id}-2`,
+                  label: 'תוצאה 2',
+                }
+              ]
+            };
+          }
+          return {
+            ...step,
+            children: step.children ? updateStep(step.children) : undefined
+          };
+        });
+      };
+
+      return updateStep(currentSteps);
+    });
+
+    toast({
+      description: "השלב פוצל בהצלחה",
+      duration: 2000,
+    });
+  };
+
   const updateStepLabel = (stepId: string, newLabel: string) => {
-    setSteps(steps.map(step => 
-      step.id === stepId ? { ...step, label: newLabel } : step
-    ));
+    const updateStep = (steps: WorkflowStep[]): WorkflowStep[] => {
+      return steps.map(step => {
+        if (step.id === stepId) {
+          return { ...step, label: newLabel };
+        }
+        if (step.children) {
+          return { ...step, children: updateStep(step.children) };
+        }
+        return step;
+      });
+    };
+
+    setSteps(updateStep(steps));
     setEditingStepId(null);
     toast({
       description: "השלב עודכן בהצלחה",
       duration: 2000,
     });
+  };
+
+  const renderSteps = (steps: WorkflowStep[], level: number = 0) => {
+    return (
+      <div className="relative space-y-6">
+        {steps.map((step, index) => (
+          <div key={step.id} className="relative group">
+            <div className="bg-background p-6 rounded-xl border border-border shadow-sm hover:border-primary/20 hover:shadow-md transition-all duration-300">
+              {editingStepId === step.id ? (
+                <form 
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    const input = e.currentTarget.elements.namedItem('stepLabel') as HTMLInputElement;
+                    if (input?.value.trim()) {
+                      updateStepLabel(step.id, input.value.trim());
+                    }
+                  }}
+                  className="flex items-center justify-center gap-2"
+                >
+                  <Input
+                    name="stepLabel"
+                    defaultValue={step.label}
+                    autoFocus
+                    className="text-lg text-center"
+                  />
+                  <Button 
+                    size="icon" 
+                    type="submit"
+                    className="shrink-0"
+                  >
+                    <Check className="h-4 w-4" />
+                  </Button>
+                </form>
+              ) : (
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex-1 text-center">
+                    <h3 className="font-medium text-lg text-foreground">{step.label}</h3>
+                  </div>
+                  <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => splitStep(step.id)}
+                      className={step.children ? "hidden" : ""}
+                    >
+                      <GitBranch className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setEditingStepId(step.id)}
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
+            {step.children ? (
+              <div className="mt-6 mr-8 space-y-6">
+                {renderSteps(step.children, level + 1)}
+              </div>
+            ) : index < steps.length - 1 && (
+              <>
+                <div className="absolute right-8 -bottom-4 w-[1px] h-[calc(100%-1rem)] bg-gradient-to-b from-indigo-300/50 to-purple-300/50 dark:from-indigo-400/30 dark:to-purple-400/30" />
+                <div className="absolute right-[26px] -bottom-6 z-10 bg-background rounded-full shadow-sm">
+                  <CircleChevronDown 
+                    className="h-6 w-6 text-primary/50 transition-all duration-300 group-hover:text-primary group-hover:scale-110" 
+                  />
+                </div>
+              </>
+            )}
+          </div>
+        ))}
+      </div>
+    );
   };
 
   if (isLoading) {
@@ -86,64 +208,7 @@ function WorkflowCreator() {
 
         <div className="rounded-2xl border bg-card/70 backdrop-blur-sm shadow-xl">
           <ScrollArea className="h-[calc(100vh-14rem)] px-8 pt-8">
-            <div className="relative space-y-6 pb-8">
-              {steps.map((step, index) => (
-                <div key={step.id} className="relative group">
-                  <div className="bg-background p-6 rounded-xl border border-border shadow-sm hover:border-primary/20 hover:shadow-md transition-all duration-300">
-                    {editingStepId === step.id ? (
-                      <form 
-                        onSubmit={(e) => {
-                          e.preventDefault();
-                          const input = e.currentTarget.elements.namedItem('stepLabel') as HTMLInputElement;
-                          if (input?.value.trim()) {
-                            updateStepLabel(step.id, input.value.trim());
-                          }
-                        }}
-                        className="flex items-center justify-center gap-2"
-                      >
-                        <Input
-                          name="stepLabel"
-                          defaultValue={step.label}
-                          autoFocus
-                          className="text-lg text-center"
-                        />
-                        <Button 
-                          size="icon" 
-                          type="submit"
-                          className="shrink-0"
-                        >
-                          <Check className="h-4 w-4" />
-                        </Button>
-                      </form>
-                    ) : (
-                      <div className="flex items-center justify-between gap-2">
-                        <div className="flex-1 text-center">
-                          <h3 className="font-medium text-lg text-foreground">{step.label}</h3>
-                        </div>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => setEditingStepId(step.id)}
-                          className="opacity-0 group-hover:opacity-100 transition-opacity"
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-                  {index < steps.length - 1 && (
-                    <>
-                      <div className="absolute right-8 -bottom-4 w-[1px] h-[calc(100%-1rem)] bg-gradient-to-b from-indigo-300/50 to-purple-300/50 dark:from-indigo-400/30 dark:to-purple-400/30" />
-                      <div className="absolute right-[26px] -bottom-6 z-10 bg-background rounded-full shadow-sm">
-                        <CircleChevronDown 
-                          className="h-6 w-6 text-primary/50 transition-all duration-300 group-hover:text-primary group-hover:scale-110" 
-                        />
-                      </div>
-                    </>
-                  )}
-                </div>
-              ))}
-            </div>
+            {renderSteps(steps)}
           </ScrollArea>
           
           <div className="px-8 py-6 border-t bg-muted/30 backdrop-blur-sm rounded-b-2xl">
