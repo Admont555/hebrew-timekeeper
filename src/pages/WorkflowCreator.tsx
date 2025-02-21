@@ -5,6 +5,7 @@ import { ArrowLeft, ChevronDown, Plus, Workflow } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface WorkflowStep {
   id: string;
@@ -70,8 +71,8 @@ function WorkflowCreator() {
       </div>
 
       <div className="rounded-xl border bg-white shadow-sm">
-        <div className="p-6">
-          <div className="relative space-y-2">
+        <ScrollArea className="h-[calc(100vh-12rem)] px-6 pt-6">
+          <div className="relative space-y-2 pb-6">
             {steps.map((step, index) => (
               <div key={step.id} className="relative">
                 <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 hover:border-indigo-200 transition-colors">
@@ -87,15 +88,17 @@ function WorkflowCreator() {
                 )}
               </div>
             ))}
-            
-            <Button
-              onClick={addStep}
-              variant="ghost"
-              className="w-full h-auto py-2 border-2 border-dashed border-gray-200 hover:border-indigo-200 hover:bg-gray-50/80 transition-colors"
-            >
-              <Plus className="h-5 w-5 text-indigo-500" />
-            </Button>
           </div>
+        </ScrollArea>
+        
+        <div className="px-6 py-4 border-t bg-gray-50/50">
+          <Button
+            onClick={addStep}
+            variant="ghost"
+            className="w-full h-auto py-2 border-2 border-dashed border-gray-200 hover:border-indigo-200 hover:bg-gray-50/80 transition-colors"
+          >
+            <Plus className="h-5 w-5 text-indigo-500" />
+          </Button>
         </div>
       </div>
     </motion.div>
