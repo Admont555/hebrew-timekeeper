@@ -49,7 +49,7 @@ function WorkflowCreator() {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="space-y-6"
+      className="max-w-2xl mx-auto pt-8 px-4 space-y-6"
       dir="rtl"
     >
       <div className="flex items-center justify-between">
@@ -69,23 +69,25 @@ function WorkflowCreator() {
         </div>
       </div>
 
-      <div className="rounded-xl border bg-gray-50/50 p-6">
-        <div className="space-y-4">
+      <div className="rounded-xl border bg-white shadow-sm">
+        <div className="p-6 space-y-4">
           {steps.map((step, index) => (
             <div 
               key={step.id}
-              className="bg-white p-4 rounded-lg border shadow-sm"
+              className="bg-gray-50/80 p-4 rounded-lg border border-gray-100 hover:border-indigo-100 transition-colors"
             >
               <h3 className="font-medium">{step.label}</h3>
             </div>
           ))}
-          
+        </div>
+        
+        <div className="px-6 pb-6">
           <Button
             onClick={addStep}
             variant="outline"
-            className="w-full border-dashed gap-2"
+            className="w-full border-dashed border-gray-200 hover:border-indigo-200 hover:bg-gray-50/80 transition-colors gap-2"
           >
-            <Plus className="h-4 w-4" />
+            <Plus className="h-4 w-4 text-indigo-500" />
             הוסף שלב
           </Button>
         </div>
