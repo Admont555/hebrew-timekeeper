@@ -72,17 +72,17 @@ function WorkflowCreator() {
 
       <div className="rounded-xl border bg-white shadow-sm">
         <ScrollArea className="h-[calc(100vh-12rem)] px-6 pt-6">
-          <div className="relative space-y-2 pb-6">
+          <div className="relative space-y-6 pb-6">
             {steps.map((step, index) => (
               <div key={step.id} className="relative">
                 <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 hover:border-indigo-200 transition-colors">
                   <h3 className="font-medium">{step.label}</h3>
                 </div>
                 {index < steps.length - 1 && (
-                  <div className="absolute right-6 -bottom-2 w-[1px] h-[calc(100%-1rem)] bg-indigo-200" />
+                  <div className="absolute right-6 -bottom-4 w-[1px] h-[calc(100%-0.5rem)] bg-indigo-200" />
                 )}
                 {index < steps.length - 1 && (
-                  <div className="absolute right-4 -bottom-2 z-10">
+                  <div className="absolute right-4 -bottom-4 z-10">
                     <ChevronDown className="h-4 w-4 text-indigo-400" />
                   </div>
                 )}
