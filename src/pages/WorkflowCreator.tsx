@@ -99,13 +99,13 @@ function WorkflowCreator() {
                             updateStepLabel(step.id, input.value.trim());
                           }
                         }}
-                        className="flex items-center gap-2"
+                        className="flex items-center justify-center gap-2"
                       >
                         <Input
                           name="stepLabel"
                           defaultValue={step.label}
                           autoFocus
-                          className="text-lg"
+                          className="text-lg text-center"
                         />
                         <Button 
                           size="icon" 
@@ -117,7 +117,9 @@ function WorkflowCreator() {
                       </form>
                     ) : (
                       <div className="flex items-center justify-between gap-2">
-                        <h3 className="font-medium text-lg text-foreground">{step.label}</h3>
+                        <div className="flex-1 text-center">
+                          <h3 className="font-medium text-lg text-foreground">{step.label}</h3>
+                        </div>
                         <Button
                           variant="ghost"
                           size="icon"
