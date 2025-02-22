@@ -174,10 +174,16 @@ function WorkflowCreator() {
                 {
                   id: `${step.id}-1`,
                   label: 'תוצאה 1',
+                  type: 'task',
+                  description: '',
+                  priority: 'medium'
                 },
                 {
                   id: `${step.id}-2`,
                   label: 'תוצאה 2',
+                  type: 'task',
+                  description: '',
+                  priority: 'medium'
                 }
               ]
             };
