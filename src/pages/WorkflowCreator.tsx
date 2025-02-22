@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, CircleChevronDown, Plus, Workflow, Pencil, Check, GitBranch } from "lucide-react";
@@ -199,7 +200,7 @@ function WorkflowCreator() {
       className="min-h-screen bg-gradient-to-br from-background to-background/50 px-4 py-8"
       dir="rtl"
     >
-      <div className="max-w-4xl mx-auto space-y-8">
+      <div className="max-w-7xl mx-auto space-y-8">
         <div className="flex items-center justify-between">
           <Button
             variant="ghost"
@@ -219,7 +220,9 @@ function WorkflowCreator() {
 
         <div className="rounded-2xl border bg-card/70 backdrop-blur-sm shadow-xl">
           <ScrollArea className="h-[calc(100vh-14rem)] px-8 pt-8">
-            {renderSteps(steps)}
+            <div className="relative space-y-6">
+              {renderSteps(steps)}
+            </div>
           </ScrollArea>
           
           <div className="px-8 py-6 border-t bg-muted/30 backdrop-blur-sm rounded-b-2xl">
