@@ -58,6 +58,7 @@ import {
   TooltipTrigger,
   TooltipProvider,
 } from "@/components/ui/tooltip";
+import TaskAttachments from "@/components/task/TaskAttachments";
 import type { WorkflowStep, StepType, StepPriority } from "@/types/workflow";
 
 const stepTypeIcons: Record<StepType, React.ReactNode> = {
@@ -225,6 +226,14 @@ function WorkflowCreator() {
     });
   };
 
+  const handleAttachmentsUpdate = (stepId: string, newAttachments: { name: string; url: string }[]) => {
+    updateStep(stepId, { attachments: newAttachments });
+    toast({
+      description: "הקבצים המצורפים עודכנו בהצלחה",
+      duration: 2000,
+    });
+  };
+
   const renderSteps = (steps: WorkflowStep[], level: number = 0) => {
     return (
       <div className="relative space-y-8">
@@ -295,6 +304,14 @@ function WorkflowCreator() {
                           id="stepDescription"
                           defaultValue={step.description}
                           onChange={(e) => updateStep(step.id, { description: e.target.value })}
+                        />
+                      </div>
+                      <div className="grid gap-2">
+                        <label>קבצים מצורפים</label>
+                        <TaskAttachments
+                          taskId={step.id}
+                          attachments={step.attachments || []}
+                          onAttachmentsUpdate={(newAttachments) => handleAttachmentsUpdate(step.id, newAttachments)}
                         />
                       </div>
                     </div>
