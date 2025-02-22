@@ -1,4 +1,3 @@
-
 import { useState, useCallback, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { 
@@ -144,7 +143,7 @@ function WorkflowCreator() {
       label: `שלב ${steps.length + 1}`,
       type: 'task',
       description: '',
-      priority: 'medium',
+      priority: 'medium'
     };
 
     setSteps(currentSteps => {
@@ -167,7 +166,9 @@ function WorkflowCreator() {
         });
       };
 
-      return addStepToChildren(currentSteps);
+      const newSteps = addStepToChildren(currentSteps);
+      addToHistory(newSteps);
+      return newSteps;
     });
   };
 
@@ -188,20 +189,40 @@ function WorkflowCreator() {
     });
   };
 
-  const updateStep = (stepId: string, updates: Partial<WorkflowStep>) => {
+  const splitStep = (stepId: string) => {
     setSteps(currentSteps => {
-      const updateStepRecursive = (steps: WorkflowStep[]): WorkflowStep[] => {
+      const updateStep = (steps: WorkflowStep[]): WorkflowStep[] => {
         return steps.map(step => {
           if (step.id === stepId) {
-            return { ...step, ...updates };
+            const branch1: WorkflowStep = {
+              id: `${step.id}-1`,
+              label: 'תוצאה 1',
+              type: 'task',
+              description: '',
+              priority: 'medium'
+            };
+            const branch2: WorkflowStep = {
+              id: `${step.id}-2`,
+              label: 'תוצאה 2',
+              type: 'task',
+              description: '',
+              priority: 'medium'
+            };
+            return {
+              ...step,
+              children: [branch1, branch2]
+            };
           }
           if (step.children) {
-            return { ...step, children: updateStepRecursive(step.children) };
+            return { ...step, children: updateStep(step.children) };
           }
           return step;
         });
       };
-      return updateStepRecursive(currentSteps);
+
+      const newSteps = updateStep(currentSteps);
+      addToHistory(newSteps);
+      return newSteps;
     });
   };
 
@@ -217,7 +238,7 @@ function WorkflowCreator() {
           }
           return true;
         });
-      });
+      };
 
       const newSteps = deleteStepRecursive(currentSteps);
       addToHistory(newSteps);
@@ -226,47 +247,24 @@ function WorkflowCreator() {
 
     toast({
       description: "השלב נמחק בהצלחה",
-      duration: 2000,
+      duration: 2000
     });
   };
 
-  const splitStep = (stepId: string) => {
+  const updateStep = (stepId: string, updates: Partial<WorkflowStep>) => {
     setSteps(currentSteps => {
-      const updateStep = (steps: WorkflowStep[]): WorkflowStep[] => {
+      const updateStepRecursive = (steps: WorkflowStep[]): WorkflowStep[] => {
         return steps.map(step => {
           if (step.id === stepId) {
-            const branch1: WorkflowStep = {
-              id: `${step.id}-1`,
-              label: 'תוצאה 1',
-              type: 'task',
-              description: '',
-              priority: 'medium',
-            };
-            const branch2: WorkflowStep = {
-              id: `${step.id}-2`,
-              label: 'תוצאה 2',
-              type: 'task',
-              description: '',
-              priority: 'medium',
-            };
-            return {
-              ...step,
-              children: [branch1, branch2]
-            };
+            return { ...step, ...updates };
           }
           if (step.children) {
-            return { ...step, children: updateStep(step.children) };
+            return { ...step, children: updateStepRecursive(step.children) };
           }
           return step;
         });
       };
-
-      return updateStep(currentSteps);
-    });
-
-    toast({
-      description: "השלב פוצל בהצלחה",
-      duration: 2000,
+      return updateStepRecursive(currentSteps);
     });
   };
 
