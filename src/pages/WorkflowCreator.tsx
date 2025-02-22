@@ -454,10 +454,12 @@ function WorkflowCreator() {
               <div className="mt-8">
                 <div className="relative">
                   <div className="absolute right-8 top-0 w-[2px] h-8 bg-gradient-to-b from-purple-300 to-indigo-300 dark:from-purple-500/30 dark:to-indigo-500/30 animate-pulse" />
-                  <div className="grid grid-cols-2 gap-12">
+                  <div className={`${step.children.length === 2 ? 'grid grid-cols-2 gap-12' : 'flex flex-col gap-8'}`}>
                     {step.children.map((childStep, childIndex) => (
                       <div key={childStep.id} className="relative">
-                        <div className="absolute -top-8 right-1/2 w-[calc(50%+3rem)] h-[2px] bg-gradient-to-l from-purple-300 to-indigo-300 dark:from-purple-500/30 dark:to-indigo-500/30 animate-pulse" />
+                        {step.children?.length === 2 && (
+                          <div className="absolute -top-8 right-1/2 w-[calc(50%+3rem)] h-[2px] bg-gradient-to-l from-purple-300 to-indigo-300 dark:from-purple-500/30 dark:to-indigo-500/30 animate-pulse" />
+                        )}
                         <div className="space-y-8">
                           {renderSteps([childStep], level + 1)}
                           <Button
