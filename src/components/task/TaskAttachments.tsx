@@ -1,13 +1,21 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Paperclip, X, FileUp } from "lucide-react";
 
+interface Attachment {
+  id: string;
+  name: string;
+  url: string;
+  type: string;
+}
+
 interface TaskAttachmentsProps {
   taskId: string;
-  attachments: { name: string; url: string }[];
-  onAttachmentsUpdate: (newAttachments: { name: string; url: string }[]) => void;
+  attachments: Attachment[];
+  onAttachmentsUpdate: (newAttachments: Attachment[]) => void;
 }
 
 const TaskAttachments = ({ taskId, attachments, onAttachmentsUpdate }: TaskAttachmentsProps) => {
@@ -33,20 +41,15 @@ const TaskAttachments = ({ taskId, attachments, onAttachmentsUpdate }: TaskAttac
         .from('task-attachments')
         .getPublicUrl(filePath);
 
-      const newAttachment = {
+      const newAttachment: Attachment = {
+        id: crypto.randomUUID(),
         name: file.name,
-        url: publicUrl
+        url: publicUrl,
+        type: file.type
       };
 
       const updatedAttachments = [...attachments, newAttachment];
       
-      const { error: updateError } = await supabase
-        .from('tasks')
-        .update({ attachments: updatedAttachments })
-        .eq('id', taskId);
-
-      if (updateError) throw updateError;
-
       onAttachmentsUpdate(updatedAttachments);
       
       toast({
@@ -67,14 +70,6 @@ const TaskAttachments = ({ taskId, attachments, onAttachmentsUpdate }: TaskAttac
   const handleRemoveAttachment = async (index: number) => {
     try {
       const updatedAttachments = attachments.filter((_, i) => i !== index);
-      
-      const { error } = await supabase
-        .from('tasks')
-        .update({ attachments: updatedAttachments })
-        .eq('id', taskId);
-
-      if (error) throw error;
-
       onAttachmentsUpdate(updatedAttachments);
       
       toast({
@@ -122,7 +117,7 @@ const TaskAttachments = ({ taskId, attachments, onAttachmentsUpdate }: TaskAttac
         <div className="space-y-2">
           {attachments.map((attachment, index) => (
             <div
-              key={index}
+              key={attachment.id}
               className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-800 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
             >
               <a
