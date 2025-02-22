@@ -466,7 +466,10 @@ function WorkflowCreator() {
                         <div className="space-y-8">
                           {renderSteps([childStep], level + 1)}
                           <Button
-                            onClick={() => addStep(childStep.id)}
+                            onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                              e.preventDefault();
+                              addStep(childStep.id);
+                            }}
                             variant="ghost"
                             className="w-full h-auto py-4 border-2 border-dashed border-purple-200/50 dark:border-purple-700/30 hover:border-purple-300/50 dark:hover:border-purple-600/50 hover:bg-purple-100/30 dark:hover:bg-purple-900/30 transition-all duration-300 group"
                           >
