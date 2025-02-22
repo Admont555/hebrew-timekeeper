@@ -226,7 +226,7 @@ function WorkflowCreator() {
     });
   };
 
-  const handleAttachmentsUpdate = (stepId: string, newAttachments: { name: string; url: string }[]) => {
+  const handleAttachmentsUpdate = (stepId: string, newAttachments: { id: string; name: string; url: string; type: string; }[]) => {
     updateStep(stepId, { attachments: newAttachments });
     toast({
       description: "הקבצים המצורפים עודכנו בהצלחה",
