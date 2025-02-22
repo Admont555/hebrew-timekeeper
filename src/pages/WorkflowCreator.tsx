@@ -1,12 +1,28 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, CircleChevronDown, Plus, Workflow, Pencil, Check, GitBranch } from "lucide-react";
+import { ArrowLeft, CircleChevronDown, Plus, Workflow, Pencil, Check, GitBranch, Trash2 } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+  TooltipProvider,
+} from "@/components/ui/tooltip";
 
 interface WorkflowStep {
   id: string;
@@ -39,6 +55,30 @@ function WorkflowCreator() {
       label: `שלב ${steps.length + 1}`,
     };
     setSteps([...steps, newStep]);
+  };
+
+  const deleteStep = (stepId: string) => {
+    setSteps(currentSteps => {
+      const deleteStepRecursive = (steps: WorkflowStep[]): WorkflowStep[] => {
+        return steps.filter(step => {
+          if (step.id === stepId) {
+            return false;
+          }
+          if (step.children) {
+            step.children = deleteStepRecursive(step.children);
+          }
+          return true;
+        });
+      };
+
+      const newSteps = deleteStepRecursive(currentSteps);
+      return newSteps;
+    });
+
+    toast({
+      description: "השלב נמחק בהצלחה",
+      duration: 2000,
+    });
   };
 
   const splitStep = (stepId: string) => {
@@ -149,6 +189,45 @@ function WorkflowCreator() {
                     >
                       <Pencil className="h-4 w-4" />
                     </Button>
+                    {step.id !== 'start' && (
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="hover:text-destructive"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>האם אתה בטוח?</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    פעולה זו תמחק את השלב ואת כל השלבים המקושרים אליו
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>ביטול</AlertDialogCancel>
+                                  <AlertDialogAction
+                                    onClick={() => deleteStep(step.id)}
+                                    className="bg-destructive hover:bg-destructive/90"
+                                  >
+                                    מחק
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>מחק שלב</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    )}
                   </div>
                 </div>
               )}
