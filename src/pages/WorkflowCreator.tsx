@@ -22,43 +22,6 @@ import {
 import { useNavigate, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { 
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-  TooltipProvider,
-} from "@/components/ui/tooltip";
-import TaskAttachments from "@/components/task/TaskAttachments";
 import type { WorkflowStep, StepType, StepPriority } from "@/types/workflow";
 
 const stepTypeIcons: Record<StepType, React.ReactNode> = {
@@ -95,7 +58,8 @@ function WorkflowCreator() {
     setIsLoading(false);
   }, []);
 
-  const addStep = (parentStepId?: string) => {
+  const handleAddStep = (e: React.MouseEvent<HTMLButtonElement>, parentStepId?: string) => {
+    e.preventDefault();
     const newStep: WorkflowStep = {
       id: `step-${crypto.randomUUID()}`,
       label: `שלב ${steps.length + 1}`,
@@ -466,10 +430,7 @@ function WorkflowCreator() {
                         <div className="space-y-8">
                           {renderSteps([childStep], level + 1)}
                           <Button
-                            onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
-                              e.preventDefault();
-                              addStep(childStep.id);
-                            }}
+                            onClick={(e) => handleAddStep(e, childStep.id)}
                             variant="ghost"
                             className="w-full h-auto py-4 border-2 border-dashed border-purple-200/50 dark:border-purple-700/30 hover:border-purple-300/50 dark:hover:border-purple-600/50 hover:bg-purple-100/30 dark:hover:bg-purple-900/30 transition-all duration-300 group"
                           >
@@ -546,7 +507,7 @@ function WorkflowCreator() {
           
           <div className="px-8 py-6 border-t border-purple-100/50 dark:border-purple-900/30 bg-purple-50/30 dark:bg-purple-900/20 backdrop-blur-xl rounded-b-2xl">
             <Button
-              onClick={addStep}
+              onClick={(e) => handleAddStep(e)}
               variant="ghost"
               className="w-full h-auto py-6 border-2 border-dashed border-purple-200/50 dark:border-purple-700/30 hover:border-purple-300/50 dark:hover:border-purple-600/50 hover:bg-purple-100/30 dark:hover:bg-purple-900/30 transition-all duration-300 group hover:scale-[1.02]"
             >
