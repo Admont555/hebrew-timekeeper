@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, CircleChevronDown, Plus, Workflow, Pencil, Check, GitBranch } from "lucide-react";
@@ -154,8 +153,20 @@ function WorkflowCreator() {
               )}
             </div>
             {step.children ? (
-              <div className="mt-6 mr-8 space-y-6">
-                {renderSteps(step.children, level + 1)}
+              <div className="mt-6">
+                <div className="relative">
+                  <div className="absolute right-8 top-0 w-[1px] h-6 bg-gradient-to-b from-indigo-300/50 to-purple-300/50 dark:from-indigo-400/30 dark:to-purple-400/30" />
+                  <div className="grid grid-cols-2 gap-8">
+                    {step.children.map((childStep, childIndex) => (
+                      <div key={childStep.id} className="relative">
+                        <div className="absolute -top-6 right-1/2 w-[calc(50%+2rem)] h-[1px] bg-gradient-to-l from-indigo-300/50 to-purple-300/50 dark:from-indigo-400/30 dark:to-purple-400/30" />
+                        <div className="space-y-6">
+                          {renderSteps([childStep], level + 1)}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
             ) : index < steps.length - 1 && (
               <>
