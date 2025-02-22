@@ -95,15 +95,37 @@ function WorkflowCreator() {
     setIsLoading(false);
   }, []);
 
-  const addStep = () => {
+  const addStep = (parentStepId?: string) => {
     const newStep: WorkflowStep = {
-      id: `step-${steps.length + 1}`,
+      id: `step-${crypto.randomUUID()}`,
       label: `שלב ${steps.length + 1}`,
       type: 'task',
       description: '',
       priority: 'medium',
     };
-    setSteps([...steps, newStep]);
+
+    setSteps(currentSteps => {
+      if (!parentStepId) {
+        return [...currentSteps, newStep];
+      }
+
+      const addStepToChildren = (steps: WorkflowStep[]): WorkflowStep[] => {
+        return steps.map(step => {
+          if (step.id === parentStepId) {
+            if (!step.children) {
+              step.children = [];
+            }
+            return { ...step, children: [...step.children, newStep] };
+          }
+          if (step.children) {
+            return { ...step, children: addStepToChildren(step.children) };
+          }
+          return step;
+        });
+      };
+
+      return addStepToChildren(currentSteps);
+    });
   };
 
   const toggleCollapse = (stepId: string) => {
@@ -169,30 +191,34 @@ function WorkflowCreator() {
       const updateStep = (steps: WorkflowStep[]): WorkflowStep[] => {
         return steps.map(step => {
           if (step.id === stepId) {
+            const branch1Id = `${step.id}-1`;
+            const branch2Id = `${step.id}-2`;
             return {
               ...step,
               children: [
                 {
-                  id: `${step.id}-1`,
+                  id: branch1Id,
                   label: 'תוצאה 1',
                   type: 'task',
                   description: '',
-                  priority: 'medium'
+                  priority: 'medium',
+                  children: []
                 },
                 {
-                  id: `${step.id}-2`,
+                  id: branch2Id,
                   label: 'תוצאה 2',
                   type: 'task',
                   description: '',
-                  priority: 'medium'
+                  priority: 'medium',
+                  children: []
                 }
               ]
             };
           }
-          return {
-            ...step,
-            children: step.children ? updateStep(step.children) : undefined
-          };
+          if (step.children) {
+            return { ...step, children: updateStep(step.children) };
+          }
+          return step;
         });
       };
 
@@ -439,6 +465,13 @@ function WorkflowCreator() {
                         <div className="absolute -top-8 right-1/2 w-[calc(50%+3rem)] h-[2px] bg-gradient-to-l from-purple-300 to-indigo-300 dark:from-purple-500/30 dark:to-indigo-500/30 animate-pulse" />
                         <div className="space-y-8">
                           {renderSteps([childStep], level + 1)}
+                          <Button
+                            onClick={() => addStep(childStep.id)}
+                            variant="ghost"
+                            className="w-full h-auto py-4 border-2 border-dashed border-purple-200/50 dark:border-purple-700/30 hover:border-purple-300/50 dark:hover:border-purple-600/50 hover:bg-purple-100/30 dark:hover:bg-purple-900/30 transition-all duration-300 group"
+                          >
+                            <Plus className="h-4 w-4 text-purple-400 dark:text-purple-500 group-hover:text-purple-500 dark:group-hover:text-purple-400 group-hover:scale-110 transition-transform duration-300" />
+                          </Button>
                         </div>
                       </div>
                     ))}
