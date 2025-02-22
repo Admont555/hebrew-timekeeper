@@ -1,3 +1,4 @@
+
 import { useState, useCallback, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { 
@@ -66,7 +67,7 @@ const stepTypeIcons: Record<StepType, React.ReactNode> = {
   task: <FileSpreadsheet className="h-4 w-4" />,
   notification: <Bell className="h-4 w-4" />,
   document: <FileText className="h-4 w-4" />,
-  automation: <Zap className="h-4 w-4" />,
+  automation: <Zap className="h-4 w-4" />
 };
 
 const stepTypeColors: Record<StepType, string> = {
@@ -74,7 +75,13 @@ const stepTypeColors: Record<StepType, string> = {
   task: "from-blue-100/80 to-blue-50/30 dark:from-blue-900/20 dark:to-blue-800/10",
   notification: "from-yellow-100/80 to-yellow-50/30 dark:from-yellow-900/20 dark:to-yellow-800/10",
   document: "from-purple-100/80 to-purple-50/30 dark:from-purple-900/20 dark:to-purple-800/10",
-  automation: "from-orange-100/80 to-orange-50/30 dark:from-orange-900/20 dark:to-orange-800/10",
+  automation: "from-orange-100/80 to-orange-50/30 dark:from-orange-900/20 dark:to-orange-800/10"
+};
+
+const priorityColors = {
+  low: "text-gray-400 dark:text-gray-500",
+  medium: "text-amber-500 dark:text-amber-400",
+  high: "text-red-500 dark:text-red-400"
 };
 
 function WorkflowCreator() {
