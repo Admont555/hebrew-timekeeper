@@ -33,7 +33,7 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
+  SelectValue
 } from "@/components/ui/select";
 import {
   Dialog,
@@ -41,7 +41,7 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
+  DialogFooter
 } from "@/components/ui/dialog";
 import {
   AlertDialog,
@@ -52,13 +52,13 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
+  AlertDialogTrigger
 } from "@/components/ui/alert-dialog";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
-  TooltipTrigger,
+  TooltipTrigger
 } from "@/components/ui/tooltip";
 import type { WorkflowStep, StepType, StepPriority } from "@/types/workflow";
 
@@ -97,7 +97,7 @@ function WorkflowCreator() {
       label: 'התחלה',
       type: 'task',
       description: '',
-      priority: 'medium',
+      priority: 'medium'
     }
   ]);
   const [history, setHistory] = useState<WorkflowStep[][]>([]);
