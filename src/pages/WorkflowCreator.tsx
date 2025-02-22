@@ -27,6 +27,7 @@ import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { supabase } from "@/integrations/supabase/client";
 import { 
   Select,
   SelectContent,
@@ -90,17 +91,53 @@ function WorkflowCreator() {
   const [isLoading, setIsLoading] = useState(true);
   const [editingStepId, setEditingStepId] = useState<string | null>(null);
   const [deleteDialogStep, setDeleteDialogStep] = useState<WorkflowStep | null>(null);
-  const [steps, setSteps] = useState<WorkflowStep[]>([
-    {
-      id: 'start',
-      label: 'התחלה',
-      type: 'task',
-      description: '',
-      priority: 'medium'
-    }
-  ]);
+  const [steps, setSteps] = useState<WorkflowStep[]>([]);
   const [history, setHistory] = useState<WorkflowStep[][]>([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
+  const [workflowName, setWorkflowName] = useState("");
+
+  useEffect(() => {
+    const loadWorkflow = async () => {
+      if (!workflowId) {
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        const { data: workflow, error } = await supabase
+          .from('workflows')
+          .select('*')
+          .eq('id', workflowId)
+          .single();
+
+        if (error) {
+          throw error;
+        }
+
+        if (workflow) {
+          setWorkflowName(workflow.name);
+          setSteps([{
+            id: 'start',
+            label: 'התחלה',
+            type: 'task',
+            description: '',
+            priority: 'medium'
+          }]);
+        }
+      } catch (error) {
+        console.error('Error loading workflow:', error);
+        toast({
+          title: "שגיאה בטעינת זרימת העבודה",
+          description: "אירעה שגיאה בטעינת זרימת העבודה",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadWorkflow();
+  }, [workflowId, toast]);
 
   const addToHistory = useCallback((newSteps: WorkflowStep[]) => {
     setHistory(prev => [...prev.slice(0, historyIndex + 1), newSteps]);
