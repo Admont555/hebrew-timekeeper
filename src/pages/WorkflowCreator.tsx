@@ -139,10 +139,16 @@ function WorkflowCreator() {
 
   const renderSteps = (steps: WorkflowStep[], level: number = 0) => {
     return (
-      <div className="relative space-y-6">
+      <div className="relative space-y-8">
         {steps.map((step, index) => (
-          <div key={step.id} className="relative group">
-            <div className="bg-background p-6 rounded-xl border border-border shadow-sm hover:border-primary/20 hover:shadow-md transition-all duration-300">
+          <motion.div 
+            key={step.id} 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: index * 0.1 }}
+            className="relative group"
+          >
+            <div className="bg-card/90 p-6 rounded-xl border border-border shadow-lg hover:shadow-xl hover:border-primary/20 hover:bg-card transition-all duration-300 ease-in-out backdrop-blur-sm">
               {editingStepId === step.id ? (
                 <form 
                   onSubmit={(e) => {
@@ -158,27 +164,27 @@ function WorkflowCreator() {
                     name="stepLabel"
                     defaultValue={step.label}
                     autoFocus
-                    className="text-lg text-center"
+                    className="text-lg text-center font-medium"
                   />
                   <Button 
                     size="icon" 
                     type="submit"
-                    className="shrink-0"
+                    className="shrink-0 hover:scale-105 transition-transform"
                   >
                     <Check className="h-4 w-4" />
                   </Button>
                 </form>
               ) : (
-                <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center justify-between gap-4">
                   <div className="flex-1 text-center">
-                    <h3 className="font-medium text-lg text-foreground">{step.label}</h3>
+                    <h3 className="font-medium text-lg text-foreground/90">{step.label}</h3>
                   </div>
-                  <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-200">
                     <Button
                       variant="ghost"
                       size="icon"
                       onClick={() => splitStep(step.id)}
-                      className={step.children ? "hidden" : ""}
+                      className={`hover:scale-105 transition-transform ${step.children ? "hidden" : ""}`}
                     >
                       <GitBranch className="h-4 w-4" />
                     </Button>
@@ -186,6 +192,7 @@ function WorkflowCreator() {
                       variant="ghost"
                       size="icon"
                       onClick={() => setEditingStepId(step.id)}
+                      className="hover:scale-105 transition-transform"
                     >
                       <Pencil className="h-4 w-4" />
                     </Button>
@@ -198,23 +205,23 @@ function WorkflowCreator() {
                                 <Button
                                   variant="ghost"
                                   size="icon"
-                                  className="hover:text-destructive"
+                                  className="hover:text-destructive hover:scale-105 transition-transform"
                                 >
                                   <Trash2 className="h-4 w-4" />
                                 </Button>
                               </AlertDialogTrigger>
-                              <AlertDialogContent>
+                              <AlertDialogContent className="sm:max-w-md">
                                 <AlertDialogHeader>
-                                  <AlertDialogTitle>האם אתה בטוח?</AlertDialogTitle>
-                                  <AlertDialogDescription>
+                                  <AlertDialogTitle className="text-xl">האם אתה בטוח?</AlertDialogTitle>
+                                  <AlertDialogDescription className="text-base">
                                     פעולה זו תמחק את השלב ואת כל השלבים המקושרים אליו
                                   </AlertDialogDescription>
                                 </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                  <AlertDialogCancel>ביטול</AlertDialogCancel>
+                                <AlertDialogFooter className="gap-2">
+                                  <AlertDialogCancel className="hover:scale-105 transition-transform">ביטול</AlertDialogCancel>
                                   <AlertDialogAction
                                     onClick={() => deleteStep(step.id)}
-                                    className="bg-destructive hover:bg-destructive/90"
+                                    className="bg-destructive hover:bg-destructive/90 hover:scale-105 transition-transform"
                                   >
                                     מחק
                                   </AlertDialogAction>
@@ -222,7 +229,7 @@ function WorkflowCreator() {
                               </AlertDialogContent>
                             </AlertDialog>
                           </TooltipTrigger>
-                          <TooltipContent>
+                          <TooltipContent side="left" className="bg-card/95 backdrop-blur-sm">
                             <p>מחק שלב</p>
                           </TooltipContent>
                         </Tooltip>
@@ -233,14 +240,14 @@ function WorkflowCreator() {
               )}
             </div>
             {step.children ? (
-              <div className="mt-6">
+              <div className="mt-8">
                 <div className="relative">
-                  <div className="absolute right-8 top-0 w-[1px] h-6 bg-gradient-to-b from-indigo-300/50 to-purple-300/50 dark:from-indigo-400/30 dark:to-purple-400/30" />
-                  <div className="grid grid-cols-2 gap-8">
+                  <div className="absolute right-8 top-0 w-[2px] h-8 bg-gradient-to-b from-indigo-300/50 to-purple-300/50 dark:from-indigo-400/30 dark:to-purple-400/30" />
+                  <div className="grid grid-cols-2 gap-12">
                     {step.children.map((childStep, childIndex) => (
                       <div key={childStep.id} className="relative">
-                        <div className="absolute -top-6 right-1/2 w-[calc(50%+2rem)] h-[1px] bg-gradient-to-l from-indigo-300/50 to-purple-300/50 dark:from-indigo-400/30 dark:to-purple-400/30" />
-                        <div className="space-y-6">
+                        <div className="absolute -top-8 right-1/2 w-[calc(50%+3rem)] h-[2px] bg-gradient-to-l from-indigo-300/50 to-purple-300/50 dark:from-indigo-400/30 dark:to-purple-400/30" />
+                        <div className="space-y-8">
                           {renderSteps([childStep], level + 1)}
                         </div>
                       </div>
@@ -250,15 +257,15 @@ function WorkflowCreator() {
               </div>
             ) : index < steps.length - 1 && (
               <>
-                <div className="absolute right-8 -bottom-4 w-[1px] h-[calc(100%-1rem)] bg-gradient-to-b from-indigo-300/50 to-purple-300/50 dark:from-indigo-400/30 dark:to-purple-400/30" />
-                <div className="absolute right-[26px] -bottom-6 z-10 bg-background rounded-full shadow-sm">
+                <div className="absolute right-8 -bottom-4 w-[2px] h-[calc(100%-1rem)] bg-gradient-to-b from-indigo-300/50 to-purple-300/50 dark:from-indigo-400/30 dark:to-purple-400/30" />
+                <div className="absolute right-[26px] -bottom-8 z-10 bg-background rounded-full shadow-lg">
                   <CircleChevronDown 
                     className="h-6 w-6 text-primary/50 transition-all duration-300 group-hover:text-primary group-hover:scale-110" 
                   />
                 </div>
               </>
             )}
-          </div>
+          </motion.div>
         ))}
       </div>
     );
@@ -266,8 +273,14 @@ function WorkflowCreator() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-background" dir="rtl">
-        <div className="text-muted-foreground">טוען...</div>
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-background to-background/50" dir="rtl">
+        <motion.div 
+          initial={{ opacity: 0 }} 
+          animate={{ opacity: 1 }}
+          className="text-muted-foreground"
+        >
+          טוען...
+        </motion.div>
       </div>
     );
   }
@@ -276,7 +289,7 @@ function WorkflowCreator() {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="min-h-screen bg-gradient-to-br from-background to-background/50 px-4 py-8"
+      className="min-h-screen bg-gradient-to-br from-background to-background/50 px-6 py-8"
       dir="rtl"
     >
       <div className="max-w-7xl mx-auto space-y-8">
@@ -284,13 +297,13 @@ function WorkflowCreator() {
           <Button
             variant="ghost"
             onClick={() => navigate(-1)}
-            className="gap-2 hover:bg-accent transition-all"
+            className="gap-2 hover:bg-accent hover:scale-105 transition-all"
           >
             <ArrowLeft className="h-4 w-4" />
             חזור
           </Button>
           <div className="flex items-center gap-3">
-            <Workflow className="h-7 w-7 text-primary" />
+            <Workflow className="h-7 w-7 text-primary animate-pulse" />
             <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-purple-400 dark:from-indigo-300 dark:to-purple-300">
               {workflowId ? 'עריכת זרימת עבודה' : 'יצירת זרימת עבודה'}
             </h1>
@@ -299,7 +312,7 @@ function WorkflowCreator() {
 
         <div className="rounded-2xl border bg-card/70 backdrop-blur-sm shadow-xl">
           <ScrollArea className="h-[calc(100vh-14rem)] px-8 pt-8">
-            <div className="relative space-y-6">
+            <div className="relative pb-8">
               {renderSteps(steps)}
             </div>
           </ScrollArea>
@@ -308,7 +321,7 @@ function WorkflowCreator() {
             <Button
               onClick={addStep}
               variant="ghost"
-              className="w-full h-auto py-4 border-2 border-dashed border-border hover:border-primary/20 hover:bg-accent transition-all duration-300 group"
+              className="w-full h-auto py-6 border-2 border-dashed border-border hover:border-primary/20 hover:bg-accent transition-all duration-300 group hover:scale-[1.02]"
             >
               <Plus className="h-6 w-6 text-primary/60 group-hover:text-primary group-hover:scale-110 transition-transform duration-300" />
             </Button>
