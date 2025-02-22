@@ -1,6 +1,13 @@
 
 export type TaskPriority = 'low' | 'normal' | 'high';
 
+export interface Attachment {
+  id: string;
+  name: string;
+  url: string;
+  type: string;
+}
+
 export interface Task {
   id: string;
   title: string;
@@ -11,7 +18,7 @@ export interface Task {
   startTime?: string;
   priority: TaskPriority;
   comments?: string[];
-  attachments?: { name: string; url: string; }[];
+  attachments?: Attachment[];
   worker: string;
   assigned_to: string[];
 }

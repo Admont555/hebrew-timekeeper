@@ -1,5 +1,5 @@
 
-import { Task } from "@/types/task";
+import { Task, Attachment } from "@/types/task";
 import CountdownTimer from "./CountdownTimer";
 import { motion } from "framer-motion";
 import { useState } from "react";
@@ -43,12 +43,7 @@ const TaskItem = ({ task, onToggleTask, onTaskComplete, onDeleteTask, onEdit }: 
     task.comments = newComments;
   };
 
-  const handleAttachmentsUpdate = (newAttachments: Array<{
-    id: string;
-    name: string;
-    url: string;
-    type: string;
-  }>) => {
+  const handleAttachmentsUpdate = (newAttachments: Attachment[]) => {
     task.attachments = newAttachments;
   };
 
