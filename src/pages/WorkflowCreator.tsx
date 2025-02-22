@@ -459,13 +459,6 @@ function WorkflowCreator() {
                           )}
                           <div className="space-y-8">
                             {renderSteps([childStep], level + 1)}
-                            <Button
-                              onClick={(e) => handleAddStep(e, childStep.id)}
-                              variant="ghost"
-                              className="w-full h-auto py-4 border-2 border-dashed border-purple-200/50 dark:border-purple-700/30 hover:border-purple-300/50 dark:hover:border-purple-600/50 hover:bg-purple-100/30 dark:hover:bg-purple-900/30 transition-all duration-300 group"
-                            >
-                              <Plus className="h-4 w-4 text-purple-400 dark:text-purple-500 group-hover:text-purple-500 dark:group-hover:text-purple-400 group-hover:scale-110 transition-transform duration-300" />
-                            </Button>
                           </div>
                         </div>
                       ))}
@@ -474,7 +467,7 @@ function WorkflowCreator() {
                 </motion.div>
               )}
             </AnimatePresence>
-            {!step.children && index < steps.length - 1 && (
+            {!step.children && index === steps.length - 1 && (
               <>
                 <div className="absolute right-8 -bottom-4 w-[2px] h-[calc(100%-1rem)] bg-gradient-to-b from-purple-300 to-indigo-300 dark:from-purple-500/30 dark:to-indigo-500/30 animate-pulse" />
                 <div className="absolute right-[26px] -bottom-8 z-10 bg-white dark:bg-gray-900 rounded-full shadow-lg shadow-purple-200/20 dark:shadow-purple-900/20">
@@ -482,6 +475,13 @@ function WorkflowCreator() {
                     className="h-6 w-6 text-purple-400 dark:text-purple-500 transition-all duration-300 group-hover:text-purple-500 dark:group-hover:text-purple-400 group-hover:scale-110" 
                   />
                 </div>
+                <Button
+                  onClick={(e) => handleAddStep(e, step.id)}
+                  variant="ghost"
+                  className="w-full h-auto py-4 mt-8 border-2 border-dashed border-purple-200/50 dark:border-purple-700/30 hover:border-purple-300/50 dark:hover:border-purple-600/50 hover:bg-purple-100/30 dark:hover:bg-purple-900/30 transition-all duration-300 group"
+                >
+                  <Plus className="h-4 w-4 text-purple-400 dark:text-purple-500 group-hover:text-purple-500 dark:group-hover:text-purple-400 group-hover:scale-110 transition-transform duration-300" />
+                </Button>
               </>
             )}
           </motion.div>
