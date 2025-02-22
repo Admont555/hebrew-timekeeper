@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { 
@@ -113,10 +112,10 @@ function WorkflowCreator() {
       const addStepToChildren = (steps: WorkflowStep[]): WorkflowStep[] => {
         return steps.map(step => {
           if (step.id === parentStepId) {
-            if (!step.children) {
-              step.children = [];
-            }
-            return { ...step, children: [...step.children, newStep] };
+            return {
+              ...step,
+              children: step.children ? [...step.children, newStep] : [newStep]
+            };
           }
           if (step.children) {
             return { ...step, children: addStepToChildren(step.children) };
@@ -192,28 +191,23 @@ function WorkflowCreator() {
       const updateStep = (steps: WorkflowStep[]): WorkflowStep[] => {
         return steps.map(step => {
           if (step.id === stepId) {
-            const branch1Id = `${step.id}-1`;
-            const branch2Id = `${step.id}-2`;
+            const branch1: WorkflowStep = {
+              id: `${step.id}-1`,
+              label: 'תוצאה 1',
+              type: 'task',
+              description: '',
+              priority: 'medium',
+            };
+            const branch2: WorkflowStep = {
+              id: `${step.id}-2`,
+              label: 'תוצאה 2',
+              type: 'task',
+              description: '',
+              priority: 'medium',
+            };
             return {
               ...step,
-              children: [
-                {
-                  id: branch1Id,
-                  label: 'תוצאה 1',
-                  type: 'task',
-                  description: '',
-                  priority: 'medium',
-                  children: []
-                },
-                {
-                  id: branch2Id,
-                  label: 'תוצאה 2',
-                  type: 'task',
-                  description: '',
-                  priority: 'medium',
-                  children: []
-                }
-              ]
+              children: [branch1, branch2]
             };
           }
           if (step.children) {
