@@ -1,3 +1,4 @@
+<lov-code>
 import { useState, useCallback, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { 
@@ -122,8 +123,19 @@ function WorkflowCreator() {
         if (workflow) {
           setWorkflowName(workflow.name);
           
-          const workflowSteps = workflow.steps as Json;
-          const parsedSteps: WorkflowStep[] = Array.isArray(workflowSteps) ? workflowSteps as WorkflowStep[] : [];
+          // First cast to unknown, then to our specific type to safely handle the conversion
+          const workflowSteps = workflow.steps as unknown;
+          // Now check if it's an array and has the required properties
+          const parsedSteps = Array.isArray(workflowSteps) 
+            ? workflowSteps.map(step => {
+                // Ensure each step has the required properties
+                if (typeof step === 'object' && step !== null && 
+                    'id' in step && 'label' in step && 'type' in step) {
+                  return step as WorkflowStep;
+                }
+                return null;
+              }).filter((step): step is WorkflowStep => step !== null)
+            : [];
           
           const initialSteps: WorkflowStep[] = parsedSteps.length > 0 ? parsedSteps : [{
             id: 'start',
@@ -817,66 +829,4 @@ function WorkflowCreator() {
                     className="gap-2 hover:bg-purple-100/50 dark:hover:bg-purple-900/50"
                   >
                     <Download className="h-4 w-4" />
-                    הורד PDF
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent side="bottom">
-                  <p>הורד את הזרימה כקובץ PDF</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-            <Workflow className="h-7 w-7 text-purple-500 dark:text-purple-400 animate-pulse" />
-            <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-500 to-indigo-500 dark:from-purple-400 dark:to-indigo-400">
-              {workflowId ? 'עריכת זרימת עבודה' : 'יצירת זרימת עבודה'}
-            </h1>
-          </div>
-        </div>
-
-        <div className="rounded-2xl border border-purple-100/50 dark:border-purple-900/30 bg-white/70 dark:bg-gray-900/70 backdrop-blur-xl shadow-xl shadow-purple-200/20 dark:shadow-purple-900/20">
-          <ScrollArea className="h-[calc(100vh-14rem)] px-8 pt-8">
-            <div className="relative pb-8">
-              {renderSteps(steps)}
-            </div>
-          </ScrollArea>
-          
-          <div className="px-8 py-6 border-t border-purple-100/50 dark:border-purple-900/30 bg-purple-50/30 dark:bg-purple-900/20 backdrop-blur-xl rounded-b-2xl">
-            <Button
-              onClick={(e) => handleAddStep(e)}
-              variant="ghost"
-              className="w-full h-auto py-6 border-2 border-dashed border-purple-200/50 dark:border-purple-700/30 hover:border-purple-300/50 dark:hover:border-purple-600/50 hover:bg-purple-100/30 dark:hover:bg-purple-900/30 transition-all duration-300 group hover:scale-[1.02]"
-            >
-              <Plus className="h-6 w-6 text-purple-400 dark:text-purple-500 group-hover:text-purple-500 dark:group-hover:text-purple-400 group-hover:scale-110 transition-transform duration-300" />
-            </Button>
-          </div>
-        </div>
-      </div>
-
-      <AlertDialog open={!!deleteDialogStep} onOpenChange={() => setDeleteDialogStep(null)}>
-        <AlertDialogContent className="sm:max-w-md bg-white/90 dark:bg-gray-900/90 backdrop-blur-lg border-purple-100 dark:border-purple-900">
-          <AlertDialogHeader>
-            <AlertDialogTitle className="text-xl">האם אתה בטוח?</AlertDialogTitle>
-            <AlertDialogDescription className="text-base">
-              פעולה זו תמחק את השלב ואת כל השלבים המקושרים אליו
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter className="gap-2">
-            <AlertDialogCancel className="hover:scale-105 transition-transform">ביטול</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => {
-                if (deleteDialogStep) {
-                  deleteStep(deleteDialogStep);
-                  setDeleteDialogStep(null);
-                }
-              }}
-              className="bg-red-500 hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700 hover:scale-105 transition-transform"
-            >
-              מחק
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </motion.div>
-  );
-}
-
-export default WorkflowCreator;
+                    ה
