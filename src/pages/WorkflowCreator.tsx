@@ -119,18 +119,20 @@ function WorkflowCreator() {
 
         if (workflow) {
           setWorkflowName(workflow.name);
-          setSteps([{
+          setSteps(workflow.steps?.length > 0 ? workflow.steps : [{
             id: 'start',
             label: 'התחלה',
             type: 'task',
             description: '',
             priority: 'medium'
           }]);
+          setHistory([workflow.steps || []]);
+          setHistoryIndex(0);
         }
       } catch (error) {
         console.error('Error loading workflow:', error);
         toast({
-          title: "שגיאה בטעינת זרי��ת העבודה",
+          title: "שגיאה בטעינת זרימת העבודה",
           description: "אירעה שגיאה בטעינת זרימת העבודה",
           variant: "destructive",
         });
@@ -141,6 +143,33 @@ function WorkflowCreator() {
 
     loadWorkflow();
   }, [workflowId, toast]);
+
+  useEffect(() => {
+    const saveSteps = async () => {
+      if (!workflowId || isLoading) return;
+
+      try {
+        const { error } = await supabase
+          .from('workflows')
+          .update({ steps })
+          .eq('id', workflowId);
+
+        if (error) {
+          throw error;
+        }
+      } catch (error) {
+        console.error('Error saving workflow steps:', error);
+        toast({
+          title: "שגיאה בשמירת השלבים",
+          description: "אירעה שגיאה בשמירת השלבים",
+          variant: "destructive",
+        });
+      }
+    };
+
+    const timeoutId = setTimeout(saveSteps, 500);
+    return () => clearTimeout(timeoutId);
+  }, [steps, workflowId, isLoading, toast]);
 
   const addToHistory = useCallback((newSteps: WorkflowStep[]) => {
     setHistory(prev => [...prev.slice(0, historyIndex + 1), newSteps]);
@@ -188,7 +217,9 @@ function WorkflowCreator() {
 
     setSteps(currentSteps => {
       if (!parentStepId) {
-        return [...currentSteps, newStep];
+        const newSteps = [...currentSteps, newStep];
+        addToHistory(newSteps);
+        return newSteps;
       }
 
       const addStepToChildren = (steps: WorkflowStep[]): WorkflowStep[] => {
