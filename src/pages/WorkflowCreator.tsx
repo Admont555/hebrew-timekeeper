@@ -1,4 +1,3 @@
-<lov-code>
 import { useState, useCallback, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { 
@@ -830,4 +829,4 @@ function WorkflowCreator() {
                     הורד PDF
                   </Button>
                 </TooltipTrigger>
-                
+                <TooltipContent
