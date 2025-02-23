@@ -64,6 +64,7 @@ import type { WorkflowStep, StepType, StepPriority } from "@/types/workflow";
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { Download } from 'lucide-react';
+import type { Json } from '@/integrations/supabase/types';
 
 const stepTypeIcons: Record<StepType, React.ReactNode> = {
   approval: <CheckSquare className="h-4 w-4" />,
@@ -119,13 +120,18 @@ function WorkflowCreator() {
 
         if (workflow) {
           setWorkflowName(workflow.name);
-          const initialSteps = workflow.steps || [{
+          
+          const workflowSteps = workflow.steps as Json;
+          const parsedSteps: WorkflowStep[] = Array.isArray(workflowSteps) ? workflowSteps as WorkflowStep[] : [];
+          
+          const initialSteps: WorkflowStep[] = parsedSteps.length > 0 ? parsedSteps : [{
             id: 'start',
             label: 'התחלה',
             type: 'task' as StepType,
             description: '',
             priority: 'medium' as StepPriority
           }];
+
           setSteps(initialSteps);
           setHistory([initialSteps]);
           setHistoryIndex(0);
@@ -150,10 +156,12 @@ function WorkflowCreator() {
       if (!workflowId || isLoading) return;
 
       try {
+        const stepsJson = JSON.parse(JSON.stringify(steps)) as Json;
+
         const { error } = await supabase
           .from('workflows')
           .update({ 
-            steps: steps,
+            steps: stepsJson,
             updated_at: new Date().toISOString()
           })
           .eq('id', workflowId);
