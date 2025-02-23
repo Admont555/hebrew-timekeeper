@@ -1,3 +1,4 @@
+<lov-code>
 import { useState, useCallback, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { 
@@ -62,9 +63,9 @@ import {
   TooltipTrigger
 } from "@/components/ui/tooltip";
 import type { WorkflowStep, StepType, StepPriority } from "@/types/workflow";
+import type { Json } from '@/integrations/supabase/types';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
-import type { Json } from '@/integrations/supabase/types';
 import { format } from 'date-fns';
 
 const stepTypeIcons: Record<StepType, React.ReactNode> = {
@@ -830,4 +831,3 @@ function WorkflowCreator() {
                     <Download className="h-4 w-4" />
                     הורד PDF
                   </Button>
-                </
