@@ -65,6 +65,7 @@ import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { Download } from 'lucide-react';
 import type { Json } from '@/integrations/supabase/types';
+import { format } from 'date-fns';
 
 const stepTypeIcons: Record<StepType, React.ReactNode> = {
   approval: <CheckSquare className="h-4 w-4" />,
@@ -540,62 +541,125 @@ function WorkflowCreator() {
     try {
       const container = document.createElement('div');
       container.style.width = '800px';
-      container.style.padding = '20px';
+      container.style.padding = '40px';
       container.style.position = 'absolute';
+      container.style.backgroundColor = '#ffffff';
       container.dir = 'rtl';
       document.body.appendChild(container);
 
       const content = document.createElement('div');
-      content.style.fontFamily = 'Arial, sans-serif';
+      content.style.fontFamily = 'Heebo, Arial, sans-serif';
       
+      const header = document.createElement('div');
+      header.style.marginBottom = '30px';
+      header.style.borderBottom = '2px solid #6b46c1';
+      header.style.paddingBottom = '20px';
+      header.style.display = 'flex';
+      header.style.justifyContent = 'space-between';
+      header.style.alignItems = 'center';
+
       const title = document.createElement('h1');
-      title.style.fontSize = '24px';
-      title.style.marginBottom = '20px';
-      title.style.color = '#000';
+      title.style.fontSize = '28px';
+      title.style.color = '#6b46c1';
+      title.style.margin = '0';
       title.textContent = workflowName || 'זרימת עבודה';
-      content.appendChild(title);
+      
+      const date = document.createElement('div');
+      date.style.color = '#666';
+      date.style.fontSize = '14px';
+      date.textContent = format(new Date(), 'dd/MM/yyyy');
+      
+      header.appendChild(title);
+      header.appendChild(date);
+      content.appendChild(header);
+
+      const summary = document.createElement('div');
+      summary.style.backgroundColor = '#f8f9fa';
+      summary.style.padding = '15px';
+      summary.style.borderRadius = '8px';
+      summary.style.marginBottom = '30px';
+      summary.style.fontSize = '14px';
+      summary.style.color = '#4a5568';
+      summary.textContent = `סה"כ שלבים: ${steps.length}`;
+      content.appendChild(summary);
 
       const renderStepForPDF = (step: WorkflowStep, level: number = 0) => {
         const stepElement = document.createElement('div');
-        stepElement.style.marginLeft = `${level * 20}px`;
-        stepElement.style.marginBottom = '10px';
-        stepElement.style.padding = '10px';
-        stepElement.style.borderRadius = '4px';
-        stepElement.style.backgroundColor = '#f8f9fa';
-        stepElement.style.border = '1px solid #e9ecef';
+        stepElement.style.marginRight = `${level * 25}px`;
+        stepElement.style.marginBottom = '20px';
+        stepElement.style.padding = '20px';
+        stepElement.style.borderRadius = '8px';
+        stepElement.style.backgroundColor = '#ffffff';
+        stepElement.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
+        stepElement.style.border = '1px solid #e2e8f0';
 
-        const stepContent = document.createElement('div');
-        stepContent.style.display = 'flex';
-        stepContent.style.alignItems = 'center';
-        stepContent.style.gap = '10px';
+        const stepHeader = document.createElement('div');
+        stepHeader.style.display = 'flex';
+        stepHeader.style.alignItems = 'center';
+        stepHeader.style.gap = '10px';
+        stepHeader.style.marginBottom = '10px';
 
-        const stepNumber = document.createElement('span');
-        stepNumber.style.color = '#6b7280';
-        stepNumber.textContent = `${level + 1}.`;
-        
-        const stepTitle = document.createElement('span');
+        const stepNumber = document.createElement('div');
+        stepNumber.style.backgroundColor = '#6b46c1';
+        stepNumber.style.color = '#ffffff';
+        stepNumber.style.padding = '4px 8px';
+        stepNumber.style.borderRadius = '4px';
+        stepNumber.style.fontSize = '12px';
+        stepNumber.textContent = `${level + 1}`;
+
+        const stepTitle = document.createElement('div');
         stepTitle.style.fontWeight = 'bold';
+        stepTitle.style.fontSize = '16px';
+        stepTitle.style.color = '#2d3748';
         stepTitle.textContent = step.label;
 
-        const stepType = document.createElement('span');
-        stepType.style.color = '#6b7280';
+        const stepType = document.createElement('div');
+        stepType.style.color = '#718096';
         stepType.style.fontSize = '12px';
-        stepType.textContent = `(${step.type})`;
+        stepType.style.padding = '2px 8px';
+        stepType.style.backgroundColor = '#f7fafc';
+        stepType.style.borderRadius = '4px';
+        stepType.textContent = step.type;
 
-        stepContent.appendChild(stepNumber);
-        stepContent.appendChild(stepTitle);
-        stepContent.appendChild(stepType);
-        stepElement.appendChild(stepContent);
+        stepHeader.appendChild(stepNumber);
+        stepHeader.appendChild(stepTitle);
+        stepHeader.appendChild(stepType);
+        stepElement.appendChild(stepHeader);
 
         if (step.description) {
-          const description = document.createElement('p');
-          description.style.marginTop = '5px';
-          description.style.color = '#4b5563';
+          const description = document.createElement('div');
+          description.style.marginTop = '10px';
+          description.style.color = '#4a5568';
           description.style.fontSize = '14px';
+          description.style.padding = '8px';
+          description.style.backgroundColor = '#f8fafc';
+          description.style.borderRadius = '4px';
           description.textContent = step.description;
           stepElement.appendChild(description);
         }
 
+        const metadata = document.createElement('div');
+        metadata.style.display = 'flex';
+        metadata.style.gap = '15px';
+        metadata.style.marginTop = '10px';
+        metadata.style.padding = '8px 0';
+        metadata.style.borderTop = '1px solid #e2e8f0';
+        metadata.style.color = '#718096';
+        metadata.style.fontSize = '12px';
+
+        if (step.priority) {
+          const priority = document.createElement('div');
+          priority.textContent = `עדיפות: ${step.priority}`;
+          metadata.appendChild(priority);
+        }
+
+        if (step.duration) {
+          const duration = document.createElement('div');
+          duration.textContent = `משך: ${step.duration} דקות`;
+          metadata.appendChild(duration);
+        }
+
+        stepElement.appendChild(metadata);
         return stepElement;
       };
 
@@ -603,7 +667,14 @@ function WorkflowCreator() {
         steps.forEach(step => {
           content.appendChild(renderStepForPDF(step, level));
           if (step.children) {
-            renderWorkflowSteps(step.children, level + 1);
+            const childrenContainer = document.createElement('div');
+            childrenContainer.style.marginRight = '20px';
+            childrenContainer.style.borderRight = '2px solid #e2e8f0';
+            childrenContainer.style.paddingRight = '20px';
+            step.children.forEach(childStep => {
+              renderWorkflowSteps([childStep], level + 1);
+            });
+            content.appendChild(childrenContainer);
           }
         });
       };
@@ -629,16 +700,25 @@ function WorkflowCreator() {
 
       const imgWidth = 595;
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      const marginTop = 20;
+      const pageHeight = 842;
+      let position = 0;
 
-      pdf.addImage(
-        canvas.toDataURL('image/jpeg', 1.0),
-        'JPEG',
-        0,
-        marginTop,
-        imgWidth,
-        imgHeight
-      );
+      while (position < imgHeight) {
+        if (position > 0) {
+          pdf.addPage();
+        }
+        
+        pdf.addImage(
+          canvas.toDataURL('image/jpeg', 1.0),
+          'JPEG',
+          0,
+          position === 0 ? 0 : -position,
+          imgWidth,
+          imgHeight
+        );
+        
+        position += pageHeight;
+      }
 
       pdf.save(`${workflowName || 'workflow'}.pdf`);
 
