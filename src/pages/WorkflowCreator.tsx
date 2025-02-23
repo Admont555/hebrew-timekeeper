@@ -21,38 +21,8 @@ import {
   Redo2
 } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
-import { motion as m, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { supabase } from "@/integrations/supabase/client";
-import { 
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from "@/components/ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter
-} from "@/components/ui/dialog";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger
-} from "@/components/ui/alert-dialog";
 import {
   Tooltip,
   TooltipContent,
@@ -61,9 +31,12 @@ import {
 } from "@/components/ui/tooltip";
 import type { WorkflowStep, StepType, StepPriority } from "@/types/workflow";
 import type { Json } from '@/integrations/supabase/types';
+import { supabase } from "@/integrations/supabase/client";
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { format } from 'date-fns';
+
+const MotionDiv = motion.div;
 
 const stepTypeIcons: Record<StepType, React.ReactNode> = {
   approval: <CheckSquare className="h-4 w-4" />,
@@ -120,12 +93,9 @@ function WorkflowCreator() {
         if (workflow) {
           setWorkflowName(workflow.name);
           
-          // First cast to unknown, then to our specific type to safely handle the conversion
           const workflowSteps = workflow.steps as unknown;
-          // Now check if it's an array and has the required properties
           const parsedSteps = Array.isArray(workflowSteps) 
             ? workflowSteps.map(step => {
-                // Ensure each step has the required properties
                 if (typeof step === 'object' && step !== null && 
                     'id' in step && 'label' in step && 'type' in step) {
                   return step as WorkflowStep;
@@ -399,7 +369,7 @@ function WorkflowCreator() {
     return (
       <div className="relative space-y-8">
         {steps.map((step, index) => (
-          <m.div 
+          <MotionDiv 
             key={step.id}
             layout
             initial={{ opacity: 0, y: 20 }}
@@ -498,7 +468,7 @@ function WorkflowCreator() {
             </div>
             <AnimatePresence>
               {step.children && !step.isCollapsed && (
-                <m.div
+                <MotionDiv
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: "auto" }}
                   exit={{ opacity: 0, height: 0 }}
@@ -520,7 +490,7 @@ function WorkflowCreator() {
                       ))}
                     </div>
                   </div>
-                </m.div>
+                </MotionDiv>
               )}
             </AnimatePresence>
             {!step.children && index === steps.length - 1 && (
@@ -540,7 +510,7 @@ function WorkflowCreator() {
                 </Button>
               </>
             )}
-          </m.div>
+          </MotionDiv>
         ))}
       </div>
     );
@@ -748,19 +718,19 @@ function WorkflowCreator() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900" dir="rtl">
-        <m.div 
+        <MotionDiv 
           initial={{ opacity: 0 }} 
           animate={{ opacity: 1 }}
           className="text-muted-foreground"
         >
           טוען...
-        </m.div>
+        </MotionDiv>
       </div>
     );
   }
 
   return (
-    <m.div
+    <MotionDiv
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 px-6 py-8"
@@ -829,4 +799,27 @@ function WorkflowCreator() {
                     הורד PDF
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent
+                <TooltipContent side="top">
+                  <p>הורד את הזרימה כקובץ PDF</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+        </div>
+        <div className="space-y-8">
+          {steps.length > 0 ? renderSteps(steps) : (
+            <Button
+              onClick={(e) => handleAddStep(e)}
+              variant="ghost"
+              className="w-full h-auto py-8 border-2 border-dashed border-purple-200/50 dark:border-purple-700/30 hover:border-purple-300/50 dark:hover:border-purple-600/50 hover:bg-purple-100/30 dark:hover:bg-purple-900/30 transition-all duration-300 group"
+            >
+              <Plus className="h-6 w-6 text-purple-400 dark:text-purple-500 group-hover:text-purple-500 dark:group-hover:text-purple-400 group-hover:scale-110 transition-transform duration-300" />
+            </Button>
+          )}
+        </div>
+      </div>
+    </MotionDiv>
+  );
+}
+
+export default WorkflowCreator;
