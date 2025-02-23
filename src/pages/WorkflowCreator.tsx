@@ -1,4 +1,3 @@
-<lov-code>
 import { useState, useCallback, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { 
@@ -829,4 +828,4 @@ function WorkflowCreator() {
                     className="gap-2 hover:bg-purple-100/50 dark:hover:bg-purple-900/50"
                   >
                     <Download className="h-4 w-4" />
-                    ה
+                    הורד PDF
