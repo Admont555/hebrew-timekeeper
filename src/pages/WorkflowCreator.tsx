@@ -119,14 +119,15 @@ function WorkflowCreator() {
 
         if (workflow) {
           setWorkflowName(workflow.name);
-          setSteps(workflow.steps?.length > 0 ? workflow.steps : [{
+          const initialSteps = workflow.steps || [{
             id: 'start',
             label: 'התחלה',
-            type: 'task',
+            type: 'task' as StepType,
             description: '',
-            priority: 'medium'
-          }]);
-          setHistory([workflow.steps || []]);
+            priority: 'medium' as StepPriority
+          }];
+          setSteps(initialSteps);
+          setHistory([initialSteps]);
           setHistoryIndex(0);
         }
       } catch (error) {
@@ -151,7 +152,10 @@ function WorkflowCreator() {
       try {
         const { error } = await supabase
           .from('workflows')
-          .update({ steps })
+          .update({ 
+            steps: steps,
+            updated_at: new Date().toISOString()
+          })
           .eq('id', workflowId);
 
         if (error) {

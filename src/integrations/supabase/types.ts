@@ -575,6 +575,7 @@ export type Database = {
           id: string
           name: string
           position: Json | null
+          steps: Json | null
           updated_at: string | null
           user_id: string
         }
@@ -583,6 +584,7 @@ export type Database = {
           id?: string
           name: string
           position?: Json | null
+          steps?: Json | null
           updated_at?: string | null
           user_id: string
         }
@@ -591,6 +593,7 @@ export type Database = {
           id?: string
           name?: string
           position?: Json | null
+          steps?: Json | null
           updated_at?: string | null
           user_id?: string
         }
