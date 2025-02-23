@@ -1,4 +1,3 @@
-<lov-code>
 import { useState, useCallback, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { 
@@ -20,7 +19,8 @@ import {
   Paperclip,
   MessageSquare,
   Undo2,
-  Redo2
+  Redo2,
+  Download
 } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
@@ -64,7 +64,6 @@ import {
 import type { WorkflowStep, StepType, StepPriority } from "@/types/workflow";
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
-import { Download } from 'lucide-react';
 import type { Json } from '@/integrations/supabase/types';
 import { format } from 'date-fns';
 
@@ -829,4 +828,6 @@ function WorkflowCreator() {
                     className="gap-2 hover:bg-purple-100/50 dark:hover:bg-purple-900/50"
                   >
                     <Download className="h-4 w-4" />
-                    ה
+                    הורד PDF
+                  </Button>
+                </
