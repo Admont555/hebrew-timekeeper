@@ -522,13 +522,18 @@ function WorkflowCreator() {
       container.style.width = '800px';
       container.style.padding = '40px';
       container.style.position = 'absolute';
+      container.style.left = '50%';
+      container.style.transform = 'translateX(-50%)';
       container.style.backgroundColor = '#ffffff';
       container.dir = 'rtl';
       document.body.appendChild(container);
 
       const content = document.createElement('div');
       content.style.fontFamily = 'Heebo, Arial, sans-serif';
-      
+      content.style.maxWidth = '720px';
+      content.style.margin = '0 auto';
+      container.appendChild(content);
+
       const header = document.createElement('div');
       header.style.marginBottom = '30px';
       header.style.borderBottom = '2px solid #6b46c1';
@@ -536,6 +541,7 @@ function WorkflowCreator() {
       header.style.display = 'flex';
       header.style.justifyContent = 'space-between';
       header.style.alignItems = 'center';
+      content.appendChild(header);
 
       const title = document.createElement('h1');
       title.style.fontSize = '28px';
@@ -550,7 +556,6 @@ function WorkflowCreator() {
       
       header.appendChild(title);
       header.appendChild(date);
-      content.appendChild(header);
 
       const summary = document.createElement('div');
       summary.style.backgroundColor = '#f8f9fa';
@@ -559,97 +564,119 @@ function WorkflowCreator() {
       summary.style.marginBottom = '30px';
       summary.style.fontSize = '14px';
       summary.style.color = '#4a5568';
+      summary.style.textAlign = 'center';
       summary.textContent = `סה"כ שלבים: ${steps.length}`;
       content.appendChild(summary);
 
       const renderStepForPDF = (step: WorkflowStep, level: number = 0) => {
         const stepElement = document.createElement('div');
-        stepElement.style.marginRight = `${level * 25}px`;
-        stepElement.style.marginBottom = '20px';
-        stepElement.style.padding = '20px';
-        stepElement.style.borderRadius = '8px';
+        stepElement.style.width = '100%';
+        stepElement.style.maxWidth = '600px';
+        stepElement.style.margin = '0 auto 20px auto';
+        stepElement.style.padding = '24px';
+        stepElement.style.borderRadius = '12px';
         stepElement.style.backgroundColor = '#ffffff';
-        stepElement.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
+        stepElement.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
         stepElement.style.border = '1px solid #e2e8f0';
+        stepElement.style.position = 'relative';
+        content.appendChild(stepElement);
 
         const stepHeader = document.createElement('div');
         stepHeader.style.display = 'flex';
         stepHeader.style.alignItems = 'center';
-        stepHeader.style.gap = '10px';
-        stepHeader.style.marginBottom = '10px';
+        stepHeader.style.gap = '12px';
+        stepHeader.style.marginBottom = '16px';
+        stepElement.appendChild(stepHeader);
 
         const stepNumber = document.createElement('div');
         stepNumber.style.backgroundColor = '#6b46c1';
         stepNumber.style.color = '#ffffff';
-        stepNumber.style.padding = '4px 8px';
-        stepNumber.style.borderRadius = '4px';
-        stepNumber.style.fontSize = '12px';
+        stepNumber.style.padding = '6px 12px';
+        stepNumber.style.borderRadius = '6px';
+        stepNumber.style.fontSize = '14px';
+        stepNumber.style.fontWeight = 'bold';
+        stepNumber.style.minWidth = '32px';
+        stepNumber.style.textAlign = 'center';
         stepNumber.textContent = `${level + 1}`;
+        stepHeader.appendChild(stepNumber);
 
         const stepTitle = document.createElement('div');
+        stepTitle.style.flex = '1';
         stepTitle.style.fontWeight = 'bold';
-        stepTitle.style.fontSize = '16px';
+        stepTitle.style.fontSize = '18px';
         stepTitle.style.color = '#2d3748';
         stepTitle.textContent = step.label;
+        stepHeader.appendChild(stepTitle);
 
         const stepType = document.createElement('div');
         stepType.style.color = '#718096';
         stepType.style.fontSize = '12px';
-        stepType.style.padding = '2px 8px';
+        stepType.style.padding = '4px 10px';
         stepType.style.backgroundColor = '#f7fafc';
         stepType.style.borderRadius = '4px';
+        stepType.style.whiteSpace = 'nowrap';
         stepType.textContent = step.type;
-
-        stepHeader.appendChild(stepNumber);
-        stepHeader.appendChild(stepTitle);
         stepHeader.appendChild(stepType);
-        stepElement.appendChild(stepHeader);
 
         if (step.description) {
           const description = document.createElement('div');
-          description.style.marginTop = '10px';
+          description.style.margin = '16px 0';
           description.style.color = '#4a5568';
           description.style.fontSize = '14px';
-          description.style.padding = '8px';
+          description.style.lineHeight = '1.5';
+          description.style.padding = '12px';
           description.style.backgroundColor = '#f8fafc';
-          description.style.borderRadius = '4px';
+          description.style.borderRadius = '6px';
           description.textContent = step.description;
           stepElement.appendChild(description);
         }
 
         const metadata = document.createElement('div');
         metadata.style.display = 'flex';
-        metadata.style.gap = '15px';
-        metadata.style.marginTop = '10px';
-        metadata.style.padding = '8px 0';
+        metadata.style.gap = '16px';
+        metadata.style.marginTop = '16px';
+        metadata.style.padding = '12px 0';
         metadata.style.borderTop = '1px solid #e2e8f0';
         metadata.style.color = '#718096';
-        metadata.style.fontSize = '12px';
+        metadata.style.fontSize = '13px';
+        stepElement.appendChild(metadata);
 
         if (step.priority) {
           const priority = document.createElement('div');
+          priority.style.display = 'flex';
+          priority.style.alignItems = 'center';
+          priority.style.gap = '4px';
           priority.textContent = `עדיפות: ${step.priority}`;
           metadata.appendChild(priority);
         }
 
         if (step.duration) {
           const duration = document.createElement('div');
+          duration.style.display = 'flex';
+          duration.style.alignItems = 'center';
+          duration.style.gap = '4px';
           duration.textContent = `משך: ${step.duration} דקות`;
           metadata.appendChild(duration);
         }
-
-        stepElement.appendChild(metadata);
-        return stepElement;
       };
 
       const renderWorkflowSteps = (steps: WorkflowStep[], level: number = 0) => {
         steps.forEach(step => {
-          content.appendChild(renderStepForPDF(step, level));
+          const stepContainer = document.createElement('div');
+          stepContainer.style.display = 'flex';
+          stepContainer.style.flexDirection = 'column';
+          stepContainer.style.alignItems = 'center';
+          stepContainer.style.width = '100%';
+          content.appendChild(stepContainer);
+          stepContainer.appendChild(renderStepForPDF(step, level));
+
           if (step.children) {
             const childrenContainer = document.createElement('div');
-            childrenContainer.style.marginRight = '20px';
+            childrenContainer.style.width = '100%';
+            childrenContainer.style.maxWidth = '600px';
+            childrenContainer.style.margin = '0 auto';
+            childrenContainer.style.paddingRight = '40px';
             childrenContainer.style.borderRight = '2px solid #e2e8f0';
-            childrenContainer.style.paddingRight = '20px';
             step.children.forEach(childStep => {
               renderWorkflowSteps([childStep], level + 1);
             });
@@ -659,13 +686,14 @@ function WorkflowCreator() {
       };
 
       renderWorkflowSteps(steps);
-      container.appendChild(content);
 
       const canvas = await html2canvas(container, {
         scale: 2,
         useCORS: true,
         logging: false,
-        backgroundColor: '#ffffff'
+        backgroundColor: '#ffffff',
+        width: container.offsetWidth,
+        height: container.offsetHeight
       });
 
       document.body.removeChild(container);
@@ -677,26 +705,27 @@ function WorkflowCreator() {
         hotfixes: ['px_scaling']
       });
 
-      const imgWidth = 595;
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const imgWidth = pageWidth - 40;
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      const pageHeight = 842;
-      let position = 0;
+      let position = 20;
 
       while (position < imgHeight) {
-        if (position > 0) {
+        if (position > 20) {
           pdf.addPage();
         }
         
         pdf.addImage(
           canvas.toDataURL('image/jpeg', 1.0),
           'JPEG',
-          0,
-          position === 0 ? 0 : -position,
+          20,
+          position === 20 ? 20 : -position + 20,
           imgWidth,
           imgHeight
         );
         
-        position += pageHeight;
+        position += pageHeight - 40;
       }
 
       pdf.save(`${workflowName || 'workflow'}.pdf`);
