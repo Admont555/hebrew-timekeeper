@@ -61,6 +61,9 @@ import {
   TooltipTrigger
 } from "@/components/ui/tooltip";
 import type { WorkflowStep, StepType, StepPriority } from "@/types/workflow";
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
+import { Download } from 'lucide-react';
 
 const stepTypeIcons: Record<StepType, React.ReactNode> = {
   approval: <CheckSquare className="h-4 w-4" />,
@@ -127,7 +130,7 @@ function WorkflowCreator() {
       } catch (error) {
         console.error('Error loading workflow:', error);
         toast({
-          title: "שגיאה בטעינת זרימת העבודה",
+          title: "שגיאה בטעינת זרי��ת העבודה",
           description: "אירעה שגיאה בטעינת זרימת העבודה",
           variant: "destructive",
         });
@@ -490,6 +493,126 @@ function WorkflowCreator() {
     );
   };
 
+  const handleDownloadPDF = async () => {
+    try {
+      const container = document.createElement('div');
+      container.style.width = '800px';
+      container.style.padding = '20px';
+      container.style.position = 'absolute';
+      container.dir = 'rtl';
+      document.body.appendChild(container);
+
+      const content = document.createElement('div');
+      content.style.fontFamily = 'Arial, sans-serif';
+      
+      const title = document.createElement('h1');
+      title.style.fontSize = '24px';
+      title.style.marginBottom = '20px';
+      title.style.color = '#000';
+      title.textContent = workflowName || 'זרימת עבודה';
+      content.appendChild(title);
+
+      const renderStepForPDF = (step: WorkflowStep, level: number = 0) => {
+        const stepElement = document.createElement('div');
+        stepElement.style.marginLeft = `${level * 20}px`;
+        stepElement.style.marginBottom = '10px';
+        stepElement.style.padding = '10px';
+        stepElement.style.borderRadius = '4px';
+        stepElement.style.backgroundColor = '#f8f9fa';
+        stepElement.style.border = '1px solid #e9ecef';
+
+        const stepContent = document.createElement('div');
+        stepContent.style.display = 'flex';
+        stepContent.style.alignItems = 'center';
+        stepContent.style.gap = '10px';
+
+        const stepNumber = document.createElement('span');
+        stepNumber.style.color = '#6b7280';
+        stepNumber.textContent = `${level + 1}.`;
+        
+        const stepTitle = document.createElement('span');
+        stepTitle.style.fontWeight = 'bold';
+        stepTitle.textContent = step.label;
+
+        const stepType = document.createElement('span');
+        stepType.style.color = '#6b7280';
+        stepType.style.fontSize = '12px';
+        stepType.textContent = `(${step.type})`;
+
+        stepContent.appendChild(stepNumber);
+        stepContent.appendChild(stepTitle);
+        stepContent.appendChild(stepType);
+        stepElement.appendChild(stepContent);
+
+        if (step.description) {
+          const description = document.createElement('p');
+          description.style.marginTop = '5px';
+          description.style.color = '#4b5563';
+          description.style.fontSize = '14px';
+          description.textContent = step.description;
+          stepElement.appendChild(description);
+        }
+
+        return stepElement;
+      };
+
+      const renderWorkflowSteps = (steps: WorkflowStep[], level: number = 0) => {
+        steps.forEach(step => {
+          content.appendChild(renderStepForPDF(step, level));
+          if (step.children) {
+            renderWorkflowSteps(step.children, level + 1);
+          }
+        });
+      };
+
+      renderWorkflowSteps(steps);
+      container.appendChild(content);
+
+      const canvas = await html2canvas(container, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff'
+      });
+
+      document.body.removeChild(container);
+
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'px',
+        format: 'a4',
+        hotfixes: ['px_scaling']
+      });
+
+      const imgWidth = 595;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      const marginTop = 20;
+
+      pdf.addImage(
+        canvas.toDataURL('image/jpeg', 1.0),
+        'JPEG',
+        0,
+        marginTop,
+        imgWidth,
+        imgHeight
+      );
+
+      pdf.save(`${workflowName || 'workflow'}.pdf`);
+
+      toast({
+        description: "הזרימה הורדה בהצלחה",
+        duration: 2000,
+      });
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      toast({
+        title: "שגיאה בהורדת הזרימה",
+        description: "אירעה שגיאה בעת יצירת קובץ PDF",
+        variant: "destructive",
+      });
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900" dir="rtl">
@@ -562,6 +685,23 @@ function WorkflowCreator() {
             </div>
           </div>
           <div className="flex items-center gap-3">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="outline"
+                    onClick={handleDownloadPDF}
+                    className="gap-2 hover:bg-purple-100/50 dark:hover:bg-purple-900/50"
+                  >
+                    <Download className="h-4 w-4" />
+                    הורד PDF
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom">
+                  <p>הורד את הזרימה כקובץ PDF</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
             <Workflow className="h-7 w-7 text-purple-500 dark:text-purple-400 animate-pulse" />
             <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-500 to-indigo-500 dark:from-purple-400 dark:to-indigo-400">
               {workflowId ? 'עריכת זרימת עבודה' : 'יצירת זרימת עבודה'}
