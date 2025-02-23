@@ -1,3 +1,4 @@
+<lov-code>
 import { useState, useCallback, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { 
@@ -16,14 +17,12 @@ import {
   Zap,
   ChevronRight,
   ChevronDown,
-  Paperclip,
-  MessageSquare,
+  Download,
   Undo2,
-  Redo2,
-  Download
+  Redo2
 } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion as m, AnimatePresence } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
@@ -401,7 +400,7 @@ function WorkflowCreator() {
     return (
       <div className="relative space-y-8">
         {steps.map((step, index) => (
-          <motion.div 
+          <m.div 
             key={step.id}
             layout
             initial={{ opacity: 0, y: 20 }}
@@ -500,7 +499,7 @@ function WorkflowCreator() {
             </div>
             <AnimatePresence>
               {step.children && !step.isCollapsed && (
-                <motion.div
+                <m.div
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: "auto" }}
                   exit={{ opacity: 0, height: 0 }}
@@ -522,7 +521,7 @@ function WorkflowCreator() {
                       ))}
                     </div>
                   </div>
-                </motion.div>
+                </m.div>
               )}
             </AnimatePresence>
             {!step.children && index === steps.length - 1 && (
@@ -542,7 +541,7 @@ function WorkflowCreator() {
                 </Button>
               </>
             )}
-          </motion.div>
+          </m.div>
         ))}
       </div>
     );
@@ -750,19 +749,19 @@ function WorkflowCreator() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900" dir="rtl">
-        <motion.div 
+        <m.div 
           initial={{ opacity: 0 }} 
           animate={{ opacity: 1 }}
           className="text-muted-foreground"
         >
           טוען...
-        </motion.div>
+        </m.div>
       </div>
     );
   }
 
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 px-6 py-8"
@@ -830,4 +829,5 @@ function WorkflowCreator() {
                     <Download className="h-4 w-4" />
                     הורד PDF
                   </Button>
-                </
+                </TooltipTrigger>
+                
