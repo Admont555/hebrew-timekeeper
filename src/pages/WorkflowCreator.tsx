@@ -268,7 +268,7 @@ function WorkflowCreator() {
               id: `${step.id}-2`,
               label: 'תוצאה 2',
               type: 'task',
-2              description: '',
+              description: '',
               priority: 'medium'
             };
             return {
