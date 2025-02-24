@@ -667,8 +667,11 @@ function WorkflowCreator() {
           stepContainer.style.flexDirection = 'column';
           stepContainer.style.alignItems = 'center';
           stepContainer.style.width = '100%';
+          
           content.appendChild(stepContainer);
-          stepContainer.appendChild(renderStepForPDF(step, level));
+          
+          const stepElement = renderStepForPDF(step, level);
+          stepContainer.appendChild(stepElement);
 
           if (step.children) {
             const childrenContainer = document.createElement('div');
@@ -677,10 +680,12 @@ function WorkflowCreator() {
             childrenContainer.style.margin = '0 auto';
             childrenContainer.style.paddingRight = '40px';
             childrenContainer.style.borderRight = '2px solid #e2e8f0';
+            
+            content.appendChild(childrenContainer);
+            
             step.children.forEach(childStep => {
               renderWorkflowSteps([childStep], level + 1);
             });
-            content.appendChild(childrenContainer);
           }
         });
       };
