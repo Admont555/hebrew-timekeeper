@@ -1,6 +1,5 @@
 
 export type StepType = 'approval' | 'task' | 'notification' | 'document' | 'automation';
-export type StepPriority = 'low' | 'medium' | 'high';
 
 export interface WorkflowStep {
   id: string;
@@ -8,7 +7,6 @@ export interface WorkflowStep {
   type: StepType;
   description?: string;
   duration?: number;
-  priority?: StepPriority;
   isCollapsed?: boolean;
   children?: WorkflowStep[];
   conditions?: {

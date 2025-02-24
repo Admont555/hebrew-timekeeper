@@ -82,6 +82,15 @@ export function WorkflowCard({ workflow, onDelete }: WorkflowCardProps) {
     }
   };
 
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleUpdate();
+    } else if (e.key === 'Escape') {
+      setIsEditing(false);
+      setName(workflow.name);
+    }
+  };
+
   return (
     <motion.div
       layout
@@ -90,7 +99,10 @@ export function WorkflowCard({ workflow, onDelete }: WorkflowCardProps) {
       exit={{ opacity: 0, y: -20 }}
       className="hover-scale"
     >
-      <Card className="p-6 space-y-4 cursor-pointer" onClick={() => !isEditing && navigate(`/workflows/${workflow.id}`)}>
+      <Card 
+        className="p-6 space-y-4 cursor-pointer" 
+        onClick={() => !isEditing && navigate(`/workflows/${workflow.id}`)}
+      >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Workflow className="h-5 w-5 text-purple-500" />
@@ -100,8 +112,8 @@ export function WorkflowCard({ workflow, onDelete }: WorkflowCardProps) {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 onBlur={handleUpdate}
-                onKeyPress={(e) => e.key === "Enter" && handleUpdate()}
-                className="border p-1 rounded"
+                onKeyDown={handleKeyPress}
+                className="border p-1 rounded focus:outline-none focus:ring-2 focus:ring-purple-500"
                 onClick={(e) => e.stopPropagation()}
                 autoFocus
               />
