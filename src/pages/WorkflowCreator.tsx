@@ -1,3 +1,4 @@
+
 import { useState, useCallback, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { 
@@ -52,12 +53,6 @@ const stepTypeColors: Record<StepType, string> = {
   notification: "from-yellow-100/80 to-yellow-50/30 dark:from-yellow-900/20 dark:to-yellow-800/10",
   document: "from-purple-100/80 to-purple-50/30 dark:from-purple-900/20 dark:to-purple-800/10",
   automation: "from-orange-100/80 to-orange-50/30 dark:from-orange-900/20 dark:to-orange-800/10"
-};
-
-const priorityColors = {
-  low: "text-gray-400 dark:text-gray-500",
-  medium: "text-amber-500 dark:text-amber-400",
-  high: "text-red-500 dark:text-red-400"
 };
 
 function WorkflowCreator() {
@@ -386,7 +381,9 @@ function WorkflowCreator() {
                 <div className="flex items-center gap-2">
                   {stepTypeIcons[step.type]}
                 </div>
-                <h3 className="font-medium text-lg text-gray-800 dark:text-gray-200">{step.label}</h3>
+                <h3 className="font-medium text-lg text-gray-800 dark:text-gray-200">
+                  {step.label}
+                </h3>
                 <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-200">
                   {step.children && (
                     <TooltipProvider>
@@ -819,3 +816,33 @@ function WorkflowCreator() {
                   <Button
                     variant="outline"
                     onClick={handleDownloadPDF}
+                    className="gap-2 hover:bg-purple-100/50 dark:hover:bg-purple-900/50"
+                  >
+                    <Download className="h-4 w-4" />
+                    הורד PDF
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="top">
+                  <p>הורד את הזרימה כקובץ PDF</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+        </div>
+        <div className="space-y-8">
+          {steps.length > 0 ? renderSteps(steps) : (
+            <Button
+              onClick={(e) => handleAddStep(e)}
+              variant="ghost"
+              className="w-full h-auto py-8 border-2 border-dashed border-purple-200/50 dark:border-purple-700/30 hover:border-purple-300/50 dark:hover:border-purple-600/50 hover:bg-purple-100/30 dark:hover:bg-purple-900/30 transition-all duration-300 group"
+            >
+              <Plus className="h-6 w-6 text-purple-400 dark:text-purple-500 group-hover:text-purple-500 dark:group-hover:text-purple-400 group-hover:scale-110 transition-transform duration-300" />
+            </Button>
+          )}
+        </div>
+      </div>
+    </MotionDiv>
+  );
+}
+
+export default WorkflowCreator;
