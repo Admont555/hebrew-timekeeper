@@ -29,7 +29,7 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from "@/components/ui/tooltip";
-import type { WorkflowStep, StepType, StepPriority } from "@/types/workflow";
+import type { WorkflowStep, StepType } from "@/types/workflow";
 import type { Json } from '@/integrations/supabase/types';
 import { supabase } from "@/integrations/supabase/client";
 import jsPDF from 'jspdf';
@@ -104,12 +104,11 @@ function WorkflowCreator() {
               }).filter((step): step is WorkflowStep => step !== null)
             : [];
           
-          const initialSteps: WorkflowStep[] = parsedSteps.length > 0 ? parsedSteps : [{
+          const initialSteps: WorkflowStep[] = [{
             id: 'start',
             label: 'התחלה',
-            type: 'task' as StepType,
-            description: '',
-            priority: 'medium' as StepPriority
+            type: 'task',
+            description: ''
           }];
 
           setSteps(initialSteps);
@@ -261,15 +260,13 @@ function WorkflowCreator() {
               id: `${step.id}-1`,
               label: 'תוצאה 1',
               type: 'task',
-              description: '',
-              priority: 'medium'
+              description: ''
             };
             const branch2: WorkflowStep = {
               id: `${step.id}-2`,
               label: 'תוצאה 2',
               type: 'task',
-              description: '',
-              priority: 'medium'
+              description: ''
             };
             return {
               ...step,
