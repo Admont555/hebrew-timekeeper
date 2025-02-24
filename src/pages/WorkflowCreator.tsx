@@ -268,7 +268,7 @@ function WorkflowCreator() {
               id: `${step.id}-2`,
               label: 'תוצאה 2',
               type: 'task',
-              description: '',
+2              description: '',
               priority: 'medium'
             };
             return {
@@ -568,7 +568,7 @@ function WorkflowCreator() {
       summary.textContent = `סה"כ שלבים: ${steps.length}`;
       content.appendChild(summary);
 
-      const renderStepForPDF = (step: WorkflowStep, level: number = 0) => {
+      const renderStepForPDF = (step: WorkflowStep, level: number = 0): HTMLDivElement => {
         const stepElement = document.createElement('div');
         stepElement.style.width = '100%';
         stepElement.style.maxWidth = '600px';
@@ -586,6 +586,7 @@ function WorkflowCreator() {
         stepHeader.style.alignItems = 'center';
         stepHeader.style.gap = '12px';
         stepHeader.style.marginBottom = '16px';
+        stepHeader.style.padding = '12px 0';
         stepElement.appendChild(stepHeader);
 
         const stepNumber = document.createElement('div');
@@ -658,9 +659,11 @@ function WorkflowCreator() {
           duration.textContent = `משך: ${step.duration} דקות`;
           metadata.appendChild(duration);
         }
+
+        return stepElement;
       };
 
-      const renderWorkflowSteps = (steps: WorkflowStep[], level: number = 0) => {
+      const renderWorkflowSteps = (steps: WorkflowStep[], level: number = 0): void => {
         steps.forEach(step => {
           const stepContainer = document.createElement('div');
           stepContainer.style.display = 'flex';
@@ -691,6 +694,7 @@ function WorkflowCreator() {
       };
 
       renderWorkflowSteps(steps);
+      container.appendChild(content);
 
       const canvas = await html2canvas(container, {
         scale: 2,
