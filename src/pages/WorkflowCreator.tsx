@@ -10,6 +10,8 @@ import { useWorkflowState } from "@/hooks/useWorkflowState";
 import WorkflowHeader from "@/components/workflow/WorkflowHeader";
 import WorkflowStep from "@/components/workflow/WorkflowStep";
 import { generatePDF } from "@/components/workflow/workflow-utils";
+import EditStepDialog from "@/components/workflow/EditStepDialog";
+import DeleteStepDialog from "@/components/workflow/DeleteStepDialog";
 
 const MotionDiv = motion.div;
 
@@ -135,48 +137,22 @@ function WorkflowCreator() {
           )}
         </div>
 
-        {/* Edit Step Dialog would go here */}
-        {editingStepId && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-            <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg max-w-md w-full">
-              <h2 className="text-xl font-semibold mb-4">ערוך שלב</h2>
-              <input
-                className="w-full p-2 border rounded mb-4 bg-background"
-                defaultValue={steps.find(s => s.id === editingStepId)?.label || ''}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    updateStepLabel(editingStepId, (e.target as HTMLInputElement).value);
-                  }
-                }}
-                autoFocus
-              />
-              <div className="flex justify-end gap-2">
-                <Button variant="outline" onClick={() => setEditingStepId(null)}>ביטול</Button>
-                <Button onClick={() => {
-                  const input = document.querySelector('input') as HTMLInputElement;
-                  updateStepLabel(editingStepId, input.value);
-                }}>שמור</Button>
-              </div>
-            </div>
-          </div>
-        )}
+        {/* Dialog components */}
+        <EditStepDialog
+          stepId={editingStepId}
+          defaultValue={steps.find(s => s.id === editingStepId)?.label || ''}
+          onCancel={() => setEditingStepId(null)}
+          onSave={updateStepLabel}
+        />
 
-        {/* Delete Step Dialog would go here */}
-        {deleteDialogStep && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-            <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg max-w-md w-full">
-              <h2 className="text-xl font-semibold mb-4">מחיקת שלב</h2>
-              <p className="mb-4">האם אתה בטוח שברצונך למחוק את שלב "{deleteDialogStep.label}"?</p>
-              <div className="flex justify-end gap-2">
-                <Button variant="outline" onClick={() => setDeleteDialogStep(null)}>ביטול</Button>
-                <Button variant="destructive" onClick={() => {
-                  deleteStep(deleteDialogStep);
-                  setDeleteDialogStep(null);
-                }}>מחק</Button>
-              </div>
-            </div>
-          </div>
-        )}
+        <DeleteStepDialog
+          step={deleteDialogStep}
+          onCancel={() => setDeleteDialogStep(null)}
+          onDelete={(step) => {
+            deleteStep(step);
+            setDeleteDialogStep(null);
+          }}
+        />
       </div>
     </MotionDiv>
   );
