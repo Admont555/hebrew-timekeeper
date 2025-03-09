@@ -1,11 +1,10 @@
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
   -webkit-touch-callout: none;
-  -webkit-user-select: none;
   -webkit-tap-highlight-color: transparent;
-  height: 100%;
 }
 
 body {
@@ -25,6 +24,7 @@ html {
   scroll-behavior: smooth;
   height: 100%;
   overflow: hidden;
+  -webkit-text-size-adjust: 100%;
 }
 
 /* Updated z-index for popups and dropdowns */
@@ -99,6 +99,7 @@ html {
 @media (max-width: 768px) {
   body {
     overscroll-behavior-y: none;
+    -webkit-overflow-scrolling: touch;
   }
   
   input, textarea, select {
@@ -128,6 +129,7 @@ html {
     width: 100% !important;
     max-height: 80vh !important;
     overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
   }
 }
 
@@ -178,6 +180,7 @@ html {
 
 .fade-in {
   animation: fadeIn 0.5s ease-out forwards;
+  -webkit-animation: fadeIn 0.5s ease-out forwards;
 }
 
 @keyframes fadeIn {
@@ -189,4 +192,36 @@ html {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+@-webkit-keyframes fadeIn {
+  from {
+    opacity: 0;
+    -webkit-transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    -webkit-transform: translateY(0);
+  }
+}
+
+/* Fix for iOS overscroll issues */
+html, body {
+  position: fixed;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+}
+
+#root {
+  height: 100%;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Fixed position elements adjustments for iOS */
+.fixed {
+  position: fixed !important;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
 }
