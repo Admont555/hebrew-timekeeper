@@ -90,10 +90,13 @@ export const useWorkflowState = (workflowId?: string) => {
       if (!workflowId || isLoading) return;
 
       try {
+        // Convert steps to a JSON-compatible format by stringifying and parsing
+        const jsonCompatibleSteps = JSON.parse(JSON.stringify(steps));
+        
         const { error } = await supabase
           .from('workflows')
           .update({ 
-            steps: steps,
+            steps: jsonCompatibleSteps,
             updated_at: new Date().toISOString()
           })
           .eq('id', workflowId);
