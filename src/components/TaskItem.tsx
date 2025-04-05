@@ -7,6 +7,8 @@ import TaskComments from "./TaskComments";
 import TaskActions from "./task/TaskActions";
 import TaskPriority from "./task/TaskPriority";
 import TaskAttachments from "./task/TaskAttachments";
+import { Checkbox } from "./ui/checkbox";
+import { Check } from "lucide-react";
 
 interface TaskItemProps {
   task: Task;
@@ -89,13 +91,19 @@ const TaskItem = ({ task, onToggleTask, onTaskComplete, onDeleteTask, onEdit }: 
           isCompleted={task.completed}
           onComplete={() => onTaskComplete(task.id)}
         />
-        <input
-          type="checkbox"
-          checked={task.completed}
-          onChange={() => onToggleTask(task.id)}
-          className="h-5 w-5 rounded border-gray-300 text-purple-600 transition-colors duration-200 focus:ring-purple-500 dark:border-gray-600 dark:bg-gray-700"
-          aria-label="סמן משימה כהושלמה"
-        />
+        <div className="flex items-center justify-center">
+          <Checkbox 
+            id={`task-${task.id}`}
+            checked={task.completed}
+            onCheckedChange={() => onToggleTask(task.id)}
+            className={`h-6 w-6 rounded-md border-2 ${
+              task.completed 
+                ? "border-purple-500 bg-purple-500 text-white" 
+                : "border-purple-300 dark:border-purple-700"
+            } transition-colors duration-200 focus:ring-purple-500 focus:ring-offset-2`}
+            aria-label="סמן משימה כהושלמה"
+          />
+        </div>
       </div>
 
       <TaskAttachments

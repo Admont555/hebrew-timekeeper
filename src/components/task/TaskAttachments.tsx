@@ -1,8 +1,9 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { X, FileUp } from "lucide-react";
+import { X, FileUp, Paperclip } from "lucide-react";
 
 interface Attachment {
   id: string;
