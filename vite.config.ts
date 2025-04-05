@@ -12,12 +12,7 @@ export default defineConfig(({ mode }) => ({
   },
   plugins: [
     react(),
-    mode === 'development' &&
-    componentTagger({
-      // Using latest options pattern
-      componentPaths: ['src/components', 'src/pages'],
-      exclude: ['**/node_modules/**'],
-    }),
+    mode === 'development' && componentTagger(),
   ].filter(Boolean),
   resolve: {
     alias: {
