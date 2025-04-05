@@ -26,7 +26,6 @@ const TaskListContent = ({
   onEditTask,
 }: TaskListContentProps) => {
   const [reorderedTasks, setReorderedTasks] = useState<TasksByDate>(tasksByDate);
-  const [isDragging, setIsDragging] = useState(false);
 
   useEffect(() => {
     setReorderedTasks(tasksByDate);
@@ -76,21 +75,18 @@ const TaskListContent = ({
         >
           <div className="sticky top-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-10 py-2 flex justify-between items-center">
             <h2 className="text-lg font-semibold">{formatDate(date)}</h2>
-            {tasks.length > 1 && (
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="text-xs flex items-center gap-1 text-muted-foreground"
-                onClick={() => setIsDragging(!isDragging)}
-              >
-                <MoveVertical className="h-3 w-3" />
-                {isDragging ? "סיים סידור" : "סדר מחדש"}
-              </Button>
-            )}
+            <div className="text-xs text-muted-foreground">
+              {tasks.length > 1 && (
+                <div className="flex items-center gap-1">
+                  <MoveVertical className="h-3 w-3" />
+                  <span>גרור כדי לסדר מחדש</span>
+                </div>
+              )}
+            </div>
           </div>
           <AnimatePresence mode="popLayout">
             <div className="space-y-2">
-              {isDragging ? (
+              {tasks.length > 0 && (
                 <Reorder.Group 
                   axis="y" 
                   values={tasks} 
@@ -114,17 +110,6 @@ const TaskListContent = ({
                     </Reorder.Item>
                   ))}
                 </Reorder.Group>
-              ) : (
-                tasks.map((task) => (
-                  <TaskItem
-                    key={task.id}
-                    task={task}
-                    onToggleTask={onToggleTask}
-                    onTaskComplete={onTaskComplete}
-                    onDeleteTask={onDeleteTask}
-                    onEdit={handleEditTask}
-                  />
-                ))
               )}
             </div>
           </AnimatePresence>
