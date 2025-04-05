@@ -1,8 +1,15 @@
+
 import { useState, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { Mic, Square } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface VoiceInputProps {
   onTranscription: (text: string) => void;
@@ -81,23 +88,32 @@ const VoiceInput = ({ onTranscription }: VoiceInputProps) => {
   };
 
   return (
-    <Button
-      type="button"
-      variant="outline"
-      size="icon"
-      onClick={isRecording ? stopRecording : startRecording}
-      className={`transition-colors duration-200 ${
-        isRecording 
-          ? 'bg-red-100 hover:bg-red-200 dark:bg-red-900/30 dark:hover:bg-red-900/50' 
-          : 'hover:bg-purple-50 dark:hover:bg-gray-700'
-      }`}
-    >
-      {isRecording ? (
-        <Square className="h-4 w-4 text-red-500" />
-      ) : (
-        <Mic className="h-4 w-4 text-purple-500" />
-      )}
-    </Button>
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            onClick={isRecording ? stopRecording : startRecording}
+            className={`transition-colors duration-200 ${
+              isRecording 
+                ? 'bg-red-100 hover:bg-red-200 dark:bg-red-900/30 dark:hover:bg-red-900/50' 
+                : 'hover:bg-purple-50 dark:hover:bg-gray-700'
+            }`}
+          >
+            {isRecording ? (
+              <Square className="h-4 w-4 text-red-500" />
+            ) : (
+              <Mic className="h-4 w-4 text-purple-500" />
+            )}
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent side="top">
+          <p>{isRecording ? "הפסק הקלטה" : "התחל הקלטה"}</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   );
 };
 

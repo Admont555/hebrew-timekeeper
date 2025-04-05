@@ -1,3 +1,4 @@
+
 import { Button } from "./ui/button";
 import { Trash2 } from "lucide-react";
 import { motion } from "framer-motion";
@@ -12,6 +13,12 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface DeleteCompletedButtonProps {
   onDelete: () => void;
@@ -26,16 +33,25 @@ const DeleteCompletedButton = ({ onDelete }: DeleteCompletedButtonProps) => {
       className="mb-4 flex justify-end"
     >
       <AlertDialog>
-        <AlertDialogTrigger asChild>
-          <Button
-            variant="destructive"
-            size="sm"
-            className="flex items-center gap-2"
-          >
-            <Trash2 className="h-4 w-4" />
-            מחק משימות שהושלמו
-          </Button>
-        </AlertDialogTrigger>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  className="flex items-center gap-2"
+                >
+                  <Trash2 className="h-4 w-4" />
+                  מחק משימות שהושלמו
+                </Button>
+              </AlertDialogTrigger>
+            </TooltipTrigger>
+            <TooltipContent side="left">
+              <p>מחק את כל המשימות שהושלמו</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
         <AlertDialogContent className="text-right">
           <AlertDialogHeader>
             <AlertDialogTitle>האם אתה בטוח?</AlertDialogTitle>

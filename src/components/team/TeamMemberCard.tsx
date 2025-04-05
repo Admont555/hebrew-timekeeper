@@ -19,6 +19,12 @@ import {
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface TeamMemberCardProps {
   id: string;
@@ -187,12 +193,23 @@ const TeamMemberCard = ({
             }}
             data-prevent-navigation="true"
           >
-            <WorkerNameEditor
-              currentName={name}
-              currentAvatarUrl={avatarUrl}
-              workerId={workerId}
-              onNameChange={handleNameChange}
-            />
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div>
+                    <WorkerNameEditor
+                      currentName={name}
+                      currentAvatarUrl={avatarUrl}
+                      workerId={workerId}
+                      onNameChange={handleNameChange}
+                    />
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent side="left">
+                  <p>ערוך פרטי עובד</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </motion.div>
           <motion.button
             initial={{ scale: 0.9, opacity: 0 }}
@@ -205,7 +222,16 @@ const TeamMemberCard = ({
             }}
             className="absolute top-6 left-6 p-2 rounded-full bg-white/90 hover:bg-white dark:bg-gray-800/90 dark:hover:bg-gray-800 border border-red-500/50 hover:border-red-700 transition-all duration-200 opacity-0 group-hover:opacity-100 shadow-lg hover:shadow-xl"
           >
-            <XOctagon className="h-4 w-4 text-red-500" />
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <XOctagon className="h-4 w-4 text-red-500" />
+                </TooltipTrigger>
+                <TooltipContent side="right">
+                  <p>מחק עובד</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </motion.button>
         </>
       )}
