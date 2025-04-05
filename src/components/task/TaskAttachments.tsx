@@ -1,9 +1,8 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Paperclip, X, FileUp, Plus } from "lucide-react";
+import { X, FileUp } from "lucide-react";
 
 interface Attachment {
   id: string;
@@ -16,11 +15,11 @@ interface TaskAttachmentsProps {
   taskId: string;
   attachments: Attachment[];
   onAttachmentsUpdate: (newAttachments: Attachment[]) => void;
+  showUploadField: boolean;
 }
 
-const TaskAttachments = ({ taskId, attachments, onAttachmentsUpdate }: TaskAttachmentsProps) => {
+const TaskAttachments = ({ taskId, attachments, onAttachmentsUpdate, showUploadField }: TaskAttachmentsProps) => {
   const [isUploading, setIsUploading] = useState(false);
-  const [showUploadField, setShowUploadField] = useState(false);
   const { toast } = useToast();
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -57,8 +56,6 @@ const TaskAttachments = ({ taskId, attachments, onAttachmentsUpdate }: TaskAttac
         title: "קובץ הועלה",
         description: "הקובץ הועלה בהצלחה",
       });
-      
-      setShowUploadField(false);
     } catch (error) {
       toast({
         title: "שגיאה בהעלאת קובץ",
@@ -86,10 +83,6 @@ const TaskAttachments = ({ taskId, attachments, onAttachmentsUpdate }: TaskAttac
         variant: "destructive",
       });
     }
-  };
-
-  const toggleUploadField = () => {
-    setShowUploadField(prev => !prev);
   };
 
   return (
@@ -123,17 +116,7 @@ const TaskAttachments = ({ taskId, attachments, onAttachmentsUpdate }: TaskAttac
         </div>
       )}
 
-      {!showUploadField ? (
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={toggleUploadField}
-          className="flex items-center justify-center gap-1 text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300"
-        >
-          <Paperclip className="h-4 w-4" />
-          {attachments.length > 0 ? '' : ''}
-        </Button>
-      ) : (
+      {showUploadField && (
         <div className="space-y-2">
           <Button
             variant="outline"
@@ -158,14 +141,6 @@ const TaskAttachments = ({ taskId, attachments, onAttachmentsUpdate }: TaskAttac
                 בחר קובץ
               </>
             )}
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setShowUploadField(false)}
-            className="w-full text-gray-500"
-          >
-            ביטול
           </Button>
         </div>
       )}

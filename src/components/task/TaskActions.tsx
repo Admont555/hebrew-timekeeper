@@ -1,17 +1,27 @@
 
 import { Button } from "@/components/ui/button";
-import { Pencil, Trash2, MessageSquare } from "lucide-react";
+import { Pencil, Trash2, MessageSquare, Paperclip } from "lucide-react";
 import { Task } from "@/types/task";
 import TaskShare from "./TaskShare";
+import { useState } from "react";
 
 interface TaskActionsProps {
   task: Task;
   onDelete: (taskId: string) => void;
   onEdit: (task: Task) => void;
   onToggleComments: () => void;
+  onToggleAttachments: () => void;
+  showAttachments: boolean;
 }
 
-const TaskActions = ({ task, onDelete, onEdit, onToggleComments }: TaskActionsProps) => {
+const TaskActions = ({ 
+  task, 
+  onDelete, 
+  onEdit, 
+  onToggleComments, 
+  onToggleAttachments,
+  showAttachments 
+}: TaskActionsProps) => {
   const handleAssigneesUpdate = (newAssignees: string[]) => {
     task.assigned_to = newAssignees;
   };
@@ -35,6 +45,15 @@ const TaskActions = ({ task, onDelete, onEdit, onToggleComments }: TaskActionsPr
         aria-label="ערוך משימה"
       >
         <Pencil className="h-4 w-4 text-blue-500" />
+      </Button>
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={onToggleAttachments}
+        className="h-8 w-8 hover:bg-purple-100 dark:hover:bg-purple-900/30 transition-colors duration-200"
+        aria-label="צרף קובץ"
+      >
+        <Paperclip className="h-4 w-4 text-purple-500" />
       </Button>
       <TaskShare
         taskId={task.id}

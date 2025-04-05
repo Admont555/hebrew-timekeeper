@@ -18,6 +18,7 @@ interface TaskItemProps {
 
 const TaskItem = ({ task, onToggleTask, onTaskComplete, onDeleteTask, onEdit }: TaskItemProps) => {
   const [showComments, setShowComments] = useState(false);
+  const [showAttachments, setShowAttachments] = useState(false);
 
   const formatTime = (timestamp: string) => {
     return new Date(timestamp).toLocaleTimeString("he-IL", {
@@ -66,6 +67,8 @@ const TaskItem = ({ task, onToggleTask, onTaskComplete, onDeleteTask, onEdit }: 
             onDelete={onDeleteTask}
             onEdit={onEdit}
             onToggleComments={() => setShowComments(!showComments)}
+            onToggleAttachments={() => setShowAttachments(!showAttachments)}
+            showAttachments={showAttachments}
           />
           <TaskPriority priority={task.priority} />
         </div>
@@ -99,6 +102,7 @@ const TaskItem = ({ task, onToggleTask, onTaskComplete, onDeleteTask, onEdit }: 
         taskId={task.id}
         attachments={task.attachments || []}
         onAttachmentsUpdate={handleAttachmentsUpdate}
+        showUploadField={showAttachments}
       />
       
       {showComments && (
