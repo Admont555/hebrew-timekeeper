@@ -33,7 +33,7 @@ const DeleteCompletedButton = ({ onDelete }: DeleteCompletedButtonProps) => {
       className="mb-4 flex justify-end"
     >
       <AlertDialog>
-        <TooltipProvider>
+        <TooltipProvider delayDuration={300}>
           <Tooltip>
             <TooltipTrigger asChild>
               <AlertDialogTrigger asChild>

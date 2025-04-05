@@ -33,7 +33,7 @@ const TaskActions = ({
 
   return (
     <div className="flex gap-2">
-      <TooltipProvider>
+      <TooltipProvider delayDuration={300}>
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
@@ -52,7 +52,7 @@ const TaskActions = ({
         </Tooltip>
       </TooltipProvider>
 
-      <TooltipProvider>
+      <TooltipProvider delayDuration={300}>
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
@@ -71,7 +71,7 @@ const TaskActions = ({
         </Tooltip>
       </TooltipProvider>
 
-      <TooltipProvider>
+      <TooltipProvider delayDuration={300}>
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
@@ -90,7 +90,7 @@ const TaskActions = ({
         </Tooltip>
       </TooltipProvider>
 
-      <TooltipProvider>
+      <TooltipProvider delayDuration={300}>
         <Tooltip>
           <TooltipTrigger asChild>
             <div className="relative">
@@ -107,7 +107,7 @@ const TaskActions = ({
         </Tooltip>
       </TooltipProvider>
 
-      <TooltipProvider>
+      <TooltipProvider delayDuration={300}>
         <Tooltip>
           <TooltipTrigger asChild>
             <div className="relative">

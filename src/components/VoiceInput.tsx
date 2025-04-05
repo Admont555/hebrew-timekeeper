@@ -1,4 +1,3 @@
-
 import { useState, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { Mic, Square } from "lucide-react";
@@ -88,7 +87,7 @@ const VoiceInput = ({ onTranscription }: VoiceInputProps) => {
   };
 
   return (
-    <TooltipProvider>
+    <TooltipProvider delayDuration={300}>
       <Tooltip>
         <TooltipTrigger asChild>
           <Button
