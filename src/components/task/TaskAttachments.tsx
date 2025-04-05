@@ -128,10 +128,10 @@ const TaskAttachments = ({ taskId, attachments, onAttachmentsUpdate }: TaskAttac
           variant="ghost"
           size="sm"
           onClick={toggleUploadField}
-          className="w-full flex items-center justify-center gap-2 text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300"
+          className="flex items-center justify-center gap-1 text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300"
         >
           <Paperclip className="h-4 w-4" />
-          {attachments.length > 0 ? 'הוסף קובץ נוסף' : 'צרף קובץ'}
+          {attachments.length > 0 ? '' : ''}
         </Button>
       ) : (
         <div className="space-y-2">
