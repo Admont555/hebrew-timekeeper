@@ -1,8 +1,11 @@
+
 project_id = "yovaxhdwukpmuagoccwu"
 
 [api]
 enabled = true
 url = "https://yovaxhdwukpmuagoccwu.supabase.co"
+# Using latest format for edge functions configuration
+environment_variables = []
 
 [functions.voice-to-text]
 verify_jwt = false
