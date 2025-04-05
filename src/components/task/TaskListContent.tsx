@@ -1,12 +1,12 @@
+
 import { Task, TasksByDate, TaskPriority } from "@/types/task";
 import { format } from "date-fns";
 import { he } from "date-fns/locale";
-import { AnimatePresence, motion } from "framer-motion";
-import { Loader2 } from "lucide-react";
+import { AnimatePresence, motion, Reorder } from "framer-motion";
+import { Loader2, MoveVertical } from "lucide-react";
 import TaskItem from "../TaskItem";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "../ui/alert-dialog";
 import { Button } from "../ui/button";
-import { Trash2 } from "lucide-react";
+import { useState, useEffect } from "react";
 
 interface TaskListContentProps {
   tasksByDate: TasksByDate;
@@ -25,6 +25,13 @@ const TaskListContent = ({
   onDeleteTask,
   onEditTask,
 }: TaskListContentProps) => {
+  const [reorderedTasks, setReorderedTasks] = useState<TasksByDate>(tasksByDate);
+  const [isDragging, setIsDragging] = useState(false);
+
+  useEffect(() => {
+    setReorderedTasks(tasksByDate);
+  }, [tasksByDate]);
+
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
     return format(date, "EEEE, d בMMMM yyyy", { locale: he });
@@ -32,6 +39,13 @@ const TaskListContent = ({
 
   const handleEditTask = (task: Task) => {
     onEditTask(task.id, task.title, task.duration, task.priority);
+  };
+
+  const handleReorder = (date: string, newOrder: Task[]) => {
+    setReorderedTasks(prev => ({
+      ...prev,
+      [date]: newOrder
+    }));
   };
 
   if (isLoading) {
@@ -42,7 +56,7 @@ const TaskListContent = ({
     );
   }
 
-  if (Object.keys(tasksByDate).length === 0) {
+  if (Object.keys(reorderedTasks).length === 0) {
     return (
       <div className="text-center py-8 text-gray-500">
         לא נמצאו משימות
@@ -52,7 +66,7 @@ const TaskListContent = ({
 
   return (
     <div className="space-y-8">
-      {Object.entries(tasksByDate).map(([date, tasks]) => (
+      {Object.entries(reorderedTasks).map(([date, tasks]) => (
         <motion.div
           key={date}
           initial={{ opacity: 0, y: 20 }}
@@ -60,21 +74,58 @@ const TaskListContent = ({
           exit={{ opacity: 0, y: -20 }}
           className="space-y-4"
         >
-          <div className="sticky top-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-10 py-2">
+          <div className="sticky top-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-10 py-2 flex justify-between items-center">
             <h2 className="text-lg font-semibold">{formatDate(date)}</h2>
+            {tasks.length > 1 && (
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="text-xs flex items-center gap-1 text-muted-foreground"
+                onClick={() => setIsDragging(!isDragging)}
+              >
+                <MoveVertical className="h-3 w-3" />
+                {isDragging ? "סיים סידור" : "סדר מחדש"}
+              </Button>
+            )}
           </div>
           <AnimatePresence mode="popLayout">
             <div className="space-y-2">
-              {tasks.map((task) => (
-                <TaskItem
-                  key={task.id}
-                  task={task}
-                  onToggleTask={onToggleTask}
-                  onTaskComplete={onTaskComplete}
-                  onDeleteTask={onDeleteTask}
-                  onEdit={handleEditTask}
-                />
-              ))}
+              {isDragging ? (
+                <Reorder.Group 
+                  axis="y" 
+                  values={tasks} 
+                  onReorder={(newOrder) => handleReorder(date, newOrder)}
+                  className="space-y-2"
+                >
+                  {tasks.map((task) => (
+                    <Reorder.Item
+                      key={task.id}
+                      value={task}
+                      className="cursor-move touch-manipulation"
+                    >
+                      <TaskItem
+                        key={task.id}
+                        task={task}
+                        onToggleTask={onToggleTask}
+                        onTaskComplete={onTaskComplete}
+                        onDeleteTask={onDeleteTask}
+                        onEdit={handleEditTask}
+                      />
+                    </Reorder.Item>
+                  ))}
+                </Reorder.Group>
+              ) : (
+                tasks.map((task) => (
+                  <TaskItem
+                    key={task.id}
+                    task={task}
+                    onToggleTask={onToggleTask}
+                    onTaskComplete={onTaskComplete}
+                    onDeleteTask={onDeleteTask}
+                    onEdit={handleEditTask}
+                  />
+                ))
+              )}
             </div>
           </AnimatePresence>
         </motion.div>
