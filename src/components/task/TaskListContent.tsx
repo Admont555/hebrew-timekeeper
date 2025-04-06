@@ -3,10 +3,21 @@ import { Task, TasksByDate, TaskPriority } from "@/types/task";
 import { format } from "date-fns";
 import { he } from "date-fns/locale";
 import { AnimatePresence, motion, Reorder } from "framer-motion";
-import { Loader2, MoveVertical } from "lucide-react";
+import { Loader2, MoveVertical, Trash2 } from "lucide-react";
 import TaskItem from "../TaskItem";
 import { Button } from "../ui/button";
 import { useState, useEffect } from "react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface TaskListContentProps {
   tasksByDate: TasksByDate;
@@ -15,6 +26,7 @@ interface TaskListContentProps {
   onTaskComplete: (taskId: string) => void;
   onDeleteTask: (taskId: string) => void;
   onEditTask: (task: Task) => void;
+  onDeleteAllTasksForDate?: (date: string) => void;
 }
 
 const TaskListContent = ({
@@ -24,6 +36,7 @@ const TaskListContent = ({
   onTaskComplete,
   onDeleteTask,
   onEditTask,
+  onDeleteAllTasksForDate,
 }: TaskListContentProps) => {
   const [reorderedTasks, setReorderedTasks] = useState<TasksByDate>(tasksByDate);
 
@@ -71,12 +84,47 @@ const TaskListContent = ({
         >
           <div className="sticky top-0 bg-purple-50/95 dark:bg-gray-800/95 backdrop-blur-sm border-b border-purple-100 dark:border-gray-700 shadow-sm z-10 py-3 flex justify-between items-center rounded-t-lg px-3">
             <h2 className="text-lg font-semibold text-purple-800 dark:text-purple-300">{formatDate(date)}</h2>
-            <div className="text-xs text-muted-foreground">
-              {tasks.length > 1 && (
-                <div className="flex items-center gap-1">
-                  <MoveVertical className="h-3 w-3" />
-                  <span>גרור כדי לסדר מחדש</span>
-                </div>
+            <div className="flex items-center gap-3">
+              <div className="text-xs text-muted-foreground">
+                {tasks.length > 1 && (
+                  <div className="flex items-center gap-1">
+                    <MoveVertical className="h-3 w-3" />
+                    <span>גרור כדי לסדר מחדש</span>
+                  </div>
+                )}
+              </div>
+              
+              {tasks.length > 0 && onDeleteAllTasksForDate && (
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      className="text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>מחיקת כל המשימות</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        האם אתה בטוח שברצונך למחוק את כל המשימות מתאריך {formatDate(date)}?
+                        <br />
+                        פעולה זו אינה הפיכה.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>ביטול</AlertDialogCancel>
+                      <AlertDialogAction 
+                        onClick={() => onDeleteAllTasksForDate(date)}
+                        className="bg-red-500 hover:bg-red-600"
+                      >
+                        מחק הכל
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               )}
             </div>
           </div>

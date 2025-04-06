@@ -12,6 +12,7 @@ interface TaskListProps {
   onTaskComplete: (taskId: string) => void;
   onDeleteTask: (taskId: string) => void;
   onEditTask: (taskId: string, newTitle: string, newDuration: number, newPriority: TaskPriority) => void;
+  onDeleteAllTasksForDate?: (date: string) => void;
 }
 
 const TaskList = ({
@@ -21,6 +22,7 @@ const TaskList = ({
   onTaskComplete,
   onDeleteTask,
   onEditTask,
+  onDeleteAllTasksForDate,
 }: TaskListProps) => {
   const activeTaskRef = useRef<HTMLDivElement>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
@@ -40,6 +42,7 @@ const TaskList = ({
         onTaskComplete={onTaskComplete}
         onDeleteTask={onDeleteTask}
         onEditTask={handleEditTask}
+        onDeleteAllTasksForDate={onDeleteAllTasksForDate}
       />
     </ScrollArea>
   );

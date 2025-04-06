@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { useState } from "react";
 import { useParams, Navigate, useNavigate } from "react-router-dom";
@@ -122,6 +121,41 @@ const Index = () => {
     },
   });
 
+  // New function to delete all tasks for a specific date
+  const handleDeleteAllTasksForDate = async (date: string) => {
+    try {
+      // Get all task IDs for the specified date
+      const tasks = tasksByDate[date] || [];
+      const taskIds = tasks.map(task => task.id);
+      
+      if (taskIds.length === 0) return;
+      
+      // Delete all tasks with these IDs
+      const { error } = await supabase
+        .from("tasks")
+        .delete()
+        .in("id", taskIds)
+        .eq("worker", workerId || '');
+      
+      if (error) throw error;
+      
+      // Invalidate the query to refresh the task list
+      await queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      
+      toast({
+        title: "משימות נמחקו",
+        description: `${taskIds.length} משימות נמחקו מתאריך ${new Date(date).toLocaleDateString()}`,
+      });
+    } catch (error) {
+      console.error('Error deleting tasks:', error);
+      toast({
+        title: "שגיאה במחיקת משימות",
+        description: "לא ניתן למחוק את המשימות",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleTaskComplete = (taskId: string) => {
     toggleTaskMutation.mutate({ taskId, worker: workerId || '' });
     setShowConfetti(true);
@@ -189,6 +223,7 @@ const Index = () => {
               onDeleteTask={(taskId) => deleteTaskMutation.mutate(taskId)}
               onEditTask={(taskId, newTitle, newDuration, newPriority) => 
                 editTaskMutation.mutate({ taskId, newTitle, newDuration, newPriority, worker: workerId })}
+              onDeleteAllTasksForDate={handleDeleteAllTasksForDate}
             />
           </motion.div>
           
