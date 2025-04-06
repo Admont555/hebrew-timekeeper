@@ -13,7 +13,7 @@ import {
 interface TaskActionsProps {
   task: Task;
   onDelete: (taskId: string) => void;
-  onEdit: (task: Task) => void;
+  onEdit: () => void;
   onToggleComments: () => void;
   onToggleAttachments: () => void;
   showAttachments: boolean;
@@ -58,7 +58,7 @@ const TaskActions = ({
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => onEdit(task)}
+              onClick={onEdit}
               className="h-8 w-8 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors duration-200"
               aria-label="ערוך משימה"
             >

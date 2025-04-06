@@ -2,7 +2,6 @@
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Task, TasksByDate, TaskPriority } from "@/types/task";
 import { useState, useRef } from "react";
-import TaskForm from "./TaskForm";
 import { useToast } from "@/hooks/use-toast";
 import TaskListContent from "./task/TaskListContent";
 
@@ -23,50 +22,24 @@ const TaskList = ({
   onDeleteTask,
   onEditTask,
 }: TaskListProps) => {
-  const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
-  const [editingTask, setEditingTask] = useState<Task | null>(null);
-  const { toast } = useToast();
   const activeTaskRef = useRef<HTMLDivElement>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const { toast } = useToast();
 
-  const handleEdit = (task: Task) => {
-    setEditingTaskId(task.id);
-    setEditingTask(task);
-  };
-
-  const handleEditSubmit = (title: string, duration: number, priority: TaskPriority) => {
-    if (editingTaskId) {
-      onEditTask(editingTaskId, title, duration, priority);
-      setEditingTaskId(null);
-      setEditingTask(null);
-    }
+  // Pass the onEditTask function directly to TaskListContent
+  const handleEditTask = (task: Task) => {
+    onEditTask(task.id, task.title, task.duration || 0, task.priority);
   };
 
   return (
     <ScrollArea ref={scrollAreaRef} className="flex-1 w-full rounded-lg p-6">
-      {editingTaskId && editingTask && (
-        <div className="mb-4 bg-purple-50 dark:bg-gray-700 p-4 rounded-lg">
-          <TaskForm
-            onAddTask={handleEditSubmit}
-            initialTitle={editingTask.title}
-            initialDuration={editingTask.duration || 0}
-            initialPriority={editingTask.priority || "normal"}
-            submitLabel="עדכן"
-            onCancel={() => {
-              setEditingTaskId(null);
-              setEditingTask(null);
-            }}
-          />
-        </div>
-      )}
-      
       <TaskListContent
         tasksByDate={tasks}
         isLoading={isLoading}
         onToggleTask={onToggleTask}
         onTaskComplete={onTaskComplete}
         onDeleteTask={onDeleteTask}
-        onEditTask={handleEdit}
+        onEditTask={handleEditTask}
       />
     </ScrollArea>
   );

@@ -9,6 +9,7 @@ import TaskPriority from "./task/TaskPriority";
 import TaskAttachments from "./task/TaskAttachments";
 import { Checkbox } from "./ui/checkbox";
 import { Check } from "lucide-react";
+import TaskForm from "./TaskForm";
 
 interface TaskItemProps {
   task: Task;
@@ -21,6 +22,7 @@ interface TaskItemProps {
 const TaskItem = ({ task, onToggleTask, onTaskComplete, onDeleteTask, onEdit }: TaskItemProps) => {
   const [showComments, setShowComments] = useState(false);
   const [showAttachments, setShowAttachments] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
 
   const formatTime = (timestamp: string) => {
     return new Date(timestamp).toLocaleTimeString("he-IL", {
@@ -50,6 +52,27 @@ const TaskItem = ({ task, onToggleTask, onTaskComplete, onDeleteTask, onEdit }: 
     task.attachments = newAttachments;
   };
 
+  const handleEditClick = () => {
+    setIsEditing(true);
+  };
+
+  const handleEditSubmit = (title: string, duration: number, priority: TaskPriority) => {
+    // Create a modified task object to pass to the edit handler
+    const editedTask = {
+      ...task,
+      title,
+      duration,
+      priority
+    };
+    
+    onEdit(editedTask);
+    setIsEditing(false);
+  };
+
+  const handleEditCancel = () => {
+    setIsEditing(false);
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -62,49 +85,64 @@ const TaskItem = ({ task, onToggleTask, onTaskComplete, onDeleteTask, onEdit }: 
           : `${getPriorityBgColor(task.priority)} border-purple-100 dark:border-gray-700`}
         hover:shadow-md transition-all duration-300`}
     >
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-4 order-2 sm:order-1">
-          <TaskActions
-            task={task}
-            onDelete={onDeleteTask}
-            onEdit={onEdit}
-            onToggleComments={() => setShowComments(!showComments)}
-            onToggleAttachments={() => setShowAttachments(!showAttachments)}
-            showAttachments={showAttachments}
+      {isEditing ? (
+        <div className="bg-white/80 dark:bg-gray-700/80 p-4 rounded-lg mb-2">
+          <TaskForm
+            onAddTask={handleEditSubmit}
+            initialTitle={task.title}
+            initialDuration={task.duration || 0}
+            initialPriority={task.priority || "normal"}
+            submitLabel="עדכן"
+            onCancel={handleEditCancel}
           />
-          <TaskPriority priority={task.priority} />
         </div>
-        <div className="flex flex-col items-end gap-1 order-1 sm:order-2">
-          <span className={`text-lg ${task.completed ? "line-through text-gray-400 dark:text-gray-500" : "text-gray-700 dark:text-gray-300"}`}>
-            {task.title}
-          </span>
-          <span className="text-sm text-gray-500 dark:text-gray-400">
-            {formatTime(task.timestamp)}
-          </span>
-        </div>
-      </div>
+      ) : (
+        <>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-4 order-2 sm:order-1">
+              <TaskActions
+                task={task}
+                onDelete={onDeleteTask}
+                onEdit={handleEditClick}
+                onToggleComments={() => setShowComments(!showComments)}
+                onToggleAttachments={() => setShowAttachments(!showAttachments)}
+                showAttachments={showAttachments}
+              />
+              <TaskPriority priority={task.priority} />
+            </div>
+            <div className="flex flex-col items-end gap-1 order-1 sm:order-2">
+              <span className={`text-lg ${task.completed ? "line-through text-gray-400 dark:text-gray-500" : "text-gray-700 dark:text-gray-300"}`}>
+                {task.title}
+              </span>
+              <span className="text-sm text-gray-500 dark:text-gray-400">
+                {formatTime(task.timestamp)}
+              </span>
+            </div>
+          </div>
 
-      <div className="flex items-center justify-between gap-4">
-        <CountdownTimer
-          duration={task.duration}
-          startTime={task.startTime}
-          isCompleted={task.completed}
-          onComplete={() => onTaskComplete(task.id)}
-        />
-        <div className="flex items-center justify-center">
-          <Checkbox 
-            id={`task-${task.id}`}
-            checked={task.completed}
-            onCheckedChange={() => onToggleTask(task.id)}
-            className={`h-6 w-6 rounded-md border-2 ${
-              task.completed 
-                ? "border-purple-500 bg-purple-500 text-white" 
-                : "border-purple-300 dark:border-purple-700"
-            } transition-colors duration-200 focus:ring-purple-500 focus:ring-offset-2`}
-            aria-label="סמן משימה כהושלמה"
-          />
-        </div>
-      </div>
+          <div className="flex items-center justify-between gap-4">
+            <CountdownTimer
+              duration={task.duration}
+              startTime={task.startTime}
+              isCompleted={task.completed}
+              onComplete={() => onTaskComplete(task.id)}
+            />
+            <div className="flex items-center justify-center">
+              <Checkbox 
+                id={`task-${task.id}`}
+                checked={task.completed}
+                onCheckedChange={() => onToggleTask(task.id)}
+                className={`h-6 w-6 rounded-md border-2 ${
+                  task.completed 
+                    ? "border-purple-500 bg-purple-500 text-white" 
+                    : "border-purple-300 dark:border-purple-700"
+                } transition-colors duration-200 focus:ring-purple-500 focus:ring-offset-2`}
+                aria-label="סמן משימה כהושלמה"
+              />
+            </div>
+          </div>
+        </>
+      )}
 
       <TaskAttachments
         taskId={task.id}
