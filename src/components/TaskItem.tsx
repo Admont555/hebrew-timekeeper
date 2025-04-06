@@ -1,5 +1,5 @@
 
-import { Task, Attachment, TaskPriority } from "@/types/task";
+import { Task, Attachment } from "@/types/task";
 import CountdownTimer from "./CountdownTimer";
 import { motion } from "framer-motion";
 import { useState } from "react";
@@ -108,7 +108,7 @@ const TaskItem = ({ task, onToggleTask, onTaskComplete, onDeleteTask, onEdit }: 
                 onToggleAttachments={() => setShowAttachments(!showAttachments)}
                 showAttachments={showAttachments}
               />
-              <TaskPriority priority={task.priority} />
+              <TaskPriorityComponent priority={task.priority} />
             </div>
             <div className="flex flex-col items-end gap-1 order-1 sm:order-2">
               <span className={`text-lg ${task.completed ? "line-through text-gray-400 dark:text-gray-500" : "text-gray-700 dark:text-gray-300"}`}>
