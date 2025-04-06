@@ -1,11 +1,11 @@
 
-import { Task, Attachment } from "@/types/task";
+import { Task, Attachment, TaskPriority } from "@/types/task";
 import CountdownTimer from "./CountdownTimer";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import TaskComments from "./TaskComments";
 import TaskActions from "./task/TaskActions";
-import TaskPriority from "./task/TaskPriority";
+import TaskPriorityComponent from "./task/TaskPriority";
 import TaskAttachments from "./task/TaskAttachments";
 import { Checkbox } from "./ui/checkbox";
 import { Check } from "lucide-react";
@@ -56,7 +56,7 @@ const TaskItem = ({ task, onToggleTask, onTaskComplete, onDeleteTask, onEdit }: 
     setIsEditing(true);
   };
 
-  const handleEditSubmit = (title: string, duration: number, priority: TaskPriority) => {
+  const handleEditSubmit = (title: string, duration: number, priority: 'low' | 'normal' | 'high') => {
     // Create a modified task object to pass to the edit handler
     const editedTask = {
       ...task,
