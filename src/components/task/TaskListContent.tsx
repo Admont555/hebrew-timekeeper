@@ -14,7 +14,7 @@ interface TaskListContentProps {
   onToggleTask: (taskId: string) => void;
   onTaskComplete: (taskId: string) => void;
   onDeleteTask: (taskId: string) => void;
-  onEditTask: (taskId: string, newTitle: string, newDuration: number, newPriority: TaskPriority) => void;
+  onEditTask: (task: Task) => void;
 }
 
 const TaskListContent = ({
@@ -34,10 +34,6 @@ const TaskListContent = ({
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
     return format(date, "EEEE, d בMMMM yyyy", { locale: he });
-  };
-
-  const handleEditTask = (task: Task) => {
-    onEditTask(task.id, task.title, task.duration, task.priority);
   };
 
   const handleReorder = (date: string, newOrder: Task[]) => {
@@ -105,7 +101,7 @@ const TaskListContent = ({
                         onToggleTask={onToggleTask}
                         onTaskComplete={onTaskComplete}
                         onDeleteTask={onDeleteTask}
-                        onEdit={handleEditTask}
+                        onEdit={onEditTask}
                       />
                     </Reorder.Item>
                   ))}

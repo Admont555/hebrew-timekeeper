@@ -24,32 +24,38 @@ const TaskList = ({
   onEditTask,
 }: TaskListProps) => {
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
   const { toast } = useToast();
   const activeTaskRef = useRef<HTMLDivElement>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
   const handleEdit = (task: Task) => {
     setEditingTaskId(task.id);
+    setEditingTask(task);
   };
 
   const handleEditSubmit = (title: string, duration: number, priority: TaskPriority) => {
     if (editingTaskId) {
       onEditTask(editingTaskId, title, duration, priority);
       setEditingTaskId(null);
+      setEditingTask(null);
     }
   };
 
   return (
     <ScrollArea ref={scrollAreaRef} className="flex-1 w-full rounded-lg p-6">
-      {editingTaskId && (
+      {editingTaskId && editingTask && (
         <div className="mb-4 bg-purple-50 dark:bg-gray-700 p-4 rounded-lg">
           <TaskForm
             onAddTask={handleEditSubmit}
-            initialTitle={(tasks[Object.keys(tasks)[0]]?.find(t => t.id === editingTaskId)?.title) || ""}
-            initialDuration={tasks[Object.keys(tasks)[0]]?.find(t => t.id === editingTaskId)?.duration || 0}
-            initialPriority={tasks[Object.keys(tasks)[0]]?.find(t => t.id === editingTaskId)?.priority || "normal"}
+            initialTitle={editingTask.title}
+            initialDuration={editingTask.duration || 0}
+            initialPriority={editingTask.priority || "normal"}
             submitLabel="עדכן"
-            onCancel={() => setEditingTaskId(null)}
+            onCancel={() => {
+              setEditingTaskId(null);
+              setEditingTask(null);
+            }}
           />
         </div>
       )}
@@ -60,10 +66,7 @@ const TaskList = ({
         onToggleTask={onToggleTask}
         onTaskComplete={onTaskComplete}
         onDeleteTask={onDeleteTask}
-        onEditTask={(taskId, newTitle, newDuration, newPriority) => {
-          setEditingTaskId(null);
-          onEditTask(taskId, newTitle, newDuration, newPriority);
-        }}
+        onEditTask={handleEdit}
       />
     </ScrollArea>
   );
