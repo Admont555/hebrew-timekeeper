@@ -1,3 +1,4 @@
+
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Task, TasksByDate, TaskPriority } from "@/types/task";
 import TaskListHeader from "./TaskListHeader";
@@ -9,6 +10,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { User } from "lucide-react";
+import { useState } from "react";
 
 interface TaskListContainerProps {
   tasksByDate: TasksByDate;
@@ -30,6 +32,7 @@ const TaskListContainer = ({
   const { sortedTasks, sortBy, setSortBy } = useTaskSorting(tasksByDate);
   const { searchTerm, setSearchTerm, filteredTasks } = useTaskSearch(sortedTasks);
   const { workerId } = useParams();
+  const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
 
   const { data: teamMember } = useQuery({
     queryKey: ['team-member', workerId],
@@ -44,6 +47,13 @@ const TaskListContainer = ({
       return data;
     },
   });
+
+  // This adapter function bridges the Task object from TaskListContent
+  // to the separate parameters expected by the parent component
+  const handleEditTask = (task: Task) => {
+    setEditingTaskId(task.id);
+    onEditTask(task.id, task.title, task.duration || 0, task.priority);
+  };
 
   return (
     <div className="bg-white/80 dark:bg-gray-800/80 rounded-xl shadow-lg">
@@ -78,7 +88,7 @@ const TaskListContainer = ({
           onToggleTask={onToggleTask}
           onTaskComplete={onTaskComplete}
           onDeleteTask={onDeleteTask}
-          onEditTask={onEditTask}
+          onEditTask={handleEditTask}
         />
       </ScrollArea>
     </div>

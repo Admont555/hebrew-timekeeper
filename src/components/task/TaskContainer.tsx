@@ -1,3 +1,4 @@
+
 import { TasksByDate, Task, TaskPriority } from "@/types/task";
 import TaskList from "@/components/TaskList";
 import { useParams } from "react-router-dom";
@@ -5,6 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { User } from "lucide-react";
+import { useState } from "react";
 
 interface TaskContainerProps {
   tasksByDate: TasksByDate;
@@ -24,6 +26,7 @@ const TaskContainer = ({
   onEditTask,
 }: TaskContainerProps) => {
   const { workerId } = useParams();
+  const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
 
   const { data: teamMember } = useQuery({
     queryKey: ['team-member', workerId],
@@ -38,6 +41,13 @@ const TaskContainer = ({
       return data;
     },
   });
+
+  // This adapter function bridges the Task object from TaskList
+  // to the separate parameters expected by the parent component
+  const handleEditTask = (task: Task) => {
+    setEditingTaskId(task.id);
+    onEditTask(task.id, task.title, task.duration || 0, task.priority);
+  };
 
   return (
     <div className="bg-white/80 dark:bg-gray-800/80 rounded-xl shadow-lg">
