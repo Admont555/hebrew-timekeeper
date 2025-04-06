@@ -69,8 +69,8 @@ const TaskListContent = ({
           exit={{ opacity: 0, y: -20 }}
           className="space-y-4"
         >
-          <div className="sticky top-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-10 py-2 flex justify-between items-center">
-            <h2 className="text-lg font-semibold">{formatDate(date)}</h2>
+          <div className="sticky top-0 bg-purple-50/95 dark:bg-gray-800/95 backdrop-blur-sm border-b border-purple-100 dark:border-gray-700 shadow-sm z-10 py-3 flex justify-between items-center rounded-t-lg px-3">
+            <h2 className="text-lg font-semibold text-purple-800 dark:text-purple-300">{formatDate(date)}</h2>
             <div className="text-xs text-muted-foreground">
               {tasks.length > 1 && (
                 <div className="flex items-center gap-1">
