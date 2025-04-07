@@ -176,6 +176,26 @@
   .text-gradient {
     @apply bg-gradient-to-r from-purple-800 to-indigo-700 dark:from-purple-300 dark:to-indigo-400 bg-clip-text text-transparent;
   }
+  
+  /* Team member card hover effect */
+  .team-card-hover {
+    @apply transition-all duration-300 transform hover:-translate-y-2 hover:shadow-xl;
+  }
+  
+  /* Glass effect for cards */
+  .glass-effect {
+    @apply backdrop-blur-sm bg-white/80 dark:bg-gray-800/80 border border-white/20 dark:border-gray-700/20;
+  }
+  
+  /* Soft shadow for cards and elements */
+  .soft-shadow {
+    @apply shadow-[0_8px_30px_rgb(0,0,0,0.05)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)];
+  }
+  
+  /* Animated gradient border */
+  .gradient-border {
+    @apply relative after:absolute after:inset-0 after:p-[1px] after:rounded-lg after:bg-gradient-to-r after:from-purple-500 after:to-blue-500 after:opacity-50 after:-z-10;
+  }
 }
 
 @keyframes gradient {

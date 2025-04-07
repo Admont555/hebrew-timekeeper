@@ -1,6 +1,7 @@
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card } from "@/components/ui/card";
-import { UserRound, XOctagon, AlertOctagon } from "lucide-react";
+import { UserRound, XOctagon, AlertOctagon, CheckCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import WorkerNameEditor from "@/components/WorkerNameEditor";
@@ -49,17 +50,23 @@ const TeamMemberCard = ({
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  const { data: openTasksCount = 0 } = useQuery({
-    queryKey: ['open-tasks', workerId],
+  const { data: tasksData = { open: 0, completed: 0 } } = useQuery({
+    queryKey: ['tasks-summary', workerId],
     queryFn: async () => {
-      const { count, error } = await supabase
+      const { count: open, error: openError } = await supabase
         .from('tasks')
         .select('*', { count: 'exact', head: true })
         .eq('worker', workerId)
         .eq('completed', false);
 
-      if (error) throw error;
-      return count || 0;
+      const { count: completed, error: completedError } = await supabase
+        .from('tasks')
+        .select('*', { count: 'exact', head: true })
+        .eq('worker', workerId)
+        .eq('completed', true);
+
+      if (openError || completedError) throw openError || completedError;
+      return { open: open || 0, completed: completed || 0 };
     },
   });
 
@@ -79,8 +86,18 @@ const TeamMemberCard = ({
       if (newAvatarUrl) {
         setAvatarUrl(newAvatarUrl);
       }
+      
+      toast({
+        title: "פרטי עובד עודכנו",
+        description: "הפרטים עודכנו בהצלחה",
+      });
     } catch (error) {
       console.error('Error updating team member:', error);
+      toast({
+        title: "שגיאה בעדכון פרטי עובד",
+        description: "אירעה שגיאה בעדכון הפרטים",
+        variant: "destructive",
+      });
     }
   };
 
@@ -101,6 +118,11 @@ const TeamMemberCard = ({
       onDelete();
     } catch (error) {
       console.error('Error deleting team member:', error);
+      toast({
+        title: "שגיאה במחיקת חבר צוות",
+        description: "אירעה שגיאה במחיקת חבר הצוות",
+        variant: "destructive",
+      });
     }
   };
 
@@ -114,77 +136,140 @@ const TeamMemberCard = ({
     }
   };
 
+  // Calculate completion percentage
+  const totalTasks = tasksData.open + tasksData.completed;
+  const completionPercentage = totalTasks > 0 
+    ? Math.round((tasksData.completed / totalTasks) * 100) 
+    : 0;
+
   return (
-    <div className="relative group">
+    <motion.div 
+      className="relative group"
+      whileHover={{ y: -5 }}
+      transition={{ type: "spring", stiffness: 300, damping: 20 }}
+    >
       <motion.div
-        whileHover={{ scale: 1.02 }}
-        whileTap={{ scale: 0.98 }}
         className="cursor-pointer"
         onClick={handleCardClick}
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.3 }}
       >
-        <Card className={`p-6 flex flex-col items-center gap-4 bg-gradient-to-br from-white/90 via-white/80 to-white/70 dark:from-gray-800/90 dark:via-gray-800/80 dark:to-gray-800/70 backdrop-blur-sm border-2 transition-all duration-300 ${
-          isEditMode 
+        <Card className={`p-6 flex flex-col items-center gap-4 overflow-hidden relative
+          ${isEditMode 
             ? 'border-red-500/50 dark:border-red-500/30 shadow-lg shadow-red-500/10' 
-            : 'border-transparent hover:border-primary/20 hover:shadow-xl hover:shadow-primary/5'
-        }`}>
+            : 'border-purple-100/50 dark:border-purple-800/30 shadow-lg hover:shadow-xl dark:shadow-gray-900/20'
+          } 
+          before:absolute before:inset-0 before:bg-gradient-to-br before:from-white/80 before:via-white/70 before:to-purple-50/40 before:dark:from-gray-800/80 before:dark:via-gray-800/70 before:dark:to-purple-900/10 before:backdrop-blur-sm before:z-0
+        `}>
+          
+          {/* Edit mode indicator */}
           {isEditMode && (
             <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="absolute top-2 right-2"
+              className="absolute top-2 right-2 z-20"
             >
               <AlertOctagon className="text-red-500/70 h-5 w-5 animate-pulse" />
             </motion.div>
           )}
-          <div className="relative">
+          
+          {/* Avatar section */}
+          <div className="relative z-10">
             <motion.div
               whileHover={{ scale: 1.05 }}
               transition={{ type: "spring", stiffness: 300, damping: 20 }}
+              className="relative"
             >
-              <Avatar className="h-24 w-24 ring-2 ring-offset-2 ring-offset-background transition-all duration-300 group-hover:ring-primary shadow-lg group-hover:shadow-xl">
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-300 to-blue-300 dark:from-purple-600 dark:to-blue-600 rounded-full blur-lg opacity-40 group-hover:opacity-60 transition-opacity"></div>
+              <Avatar className="h-24 w-24 ring-2 ring-offset-2 ring-offset-background ring-purple-200 dark:ring-purple-800 transition-all duration-300 group-hover:ring-primary shadow-lg group-hover:shadow-xl">
                 <AvatarImage src={avatarUrl} alt={name} className="object-cover" />
-                <AvatarFallback className="bg-gradient-to-br from-primary/20 to-primary/10">
+                <AvatarFallback className="bg-gradient-to-br from-purple-100 to-blue-100 dark:from-purple-900 dark:to-blue-900">
                   <UserRound className="h-12 w-12 text-primary/70" />
                 </AvatarFallback>
               </Avatar>
             </motion.div>
-            {openTasksCount > 0 && (
-              <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ type: "spring", stiffness: 500, damping: 30 }}
-              >
-                <Badge 
-                  variant="destructive"
-                  className="absolute -top-2 -right-2 animate-bounce shadow-lg"
+            
+            {/* Task badges */}
+            <div className="absolute -top-2 -right-2 flex flex-col gap-1 items-end">
+              {tasksData.open > 0 && (
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: "spring", stiffness: 500, damping: 30 }}
                 >
-                  {openTasksCount}
-                </Badge>
-              </motion.div>
-            )}
+                  <Badge 
+                    variant="destructive"
+                    className="animate-pulse shadow-lg"
+                  >
+                    {tasksData.open} פתוחות
+                  </Badge>
+                </motion.div>
+              )}
+              
+              {tasksData.completed > 0 && (
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: "spring", stiffness: 500, damping: 30, delay: 0.1 }}
+                >
+                  <Badge 
+                    className="bg-green-500 hover:bg-green-600 shadow-lg"
+                  >
+                    {tasksData.completed} הושלמו
+                  </Badge>
+                </motion.div>
+              )}
+            </div>
           </div>
+          
+          {/* Name and stats */}
           <motion.div 
-            className="flex flex-col items-center gap-1"
+            className="flex flex-col items-center gap-2 z-10"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
           >
-            <h3 className="text-xl font-semibold text-center bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+            <h3 className="text-xl font-semibold text-center bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent group-hover:scale-105 transition-transform">
               {name}
             </h3>
-            {openTasksCount > 0 && (
-              <span className="text-sm text-muted-foreground animate-pulse">
-                {openTasksCount} משימות פתוחות
-              </span>
+            
+            {/* Task progress bar */}
+            {totalTasks > 0 && (
+              <div className="w-full mt-2">
+                <div className="flex justify-between text-xs text-muted-foreground mb-1">
+                  <span>התקדמות</span>
+                  <span>{completionPercentage}%</span>
+                </div>
+                <div className="w-full bg-gray-200 dark:bg-gray-700 h-1.5 rounded-full overflow-hidden">
+                  <div 
+                    className="h-full bg-gradient-to-r from-purple-500 to-blue-500 transition-all duration-500 ease-out"
+                    style={{ width: `${completionPercentage}%` }}
+                  ></div>
+                </div>
+              </div>
+            )}
+            
+            {/* Completion checkmark for 100% */}
+            {completionPercentage === 100 && totalTasks > 0 && (
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: "spring", stiffness: 400, damping: 20 }}
+                className="mt-1"
+              >
+                <CheckCircle className="h-5 w-5 text-green-500" />
+              </motion.div>
             )}
           </motion.div>
         </Card>
       </motion.div>
       
+      {/* Edit controls */}
       {isEditMode && (
         <>
           <motion.div 
-            className="absolute top-6 right-6 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+            className="absolute top-6 right-6 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-20"
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             onClick={(e) => {
@@ -220,7 +305,7 @@ const TeamMemberCard = ({
               e.stopPropagation();
               setShowDeleteDialog(true);
             }}
-            className="absolute top-6 left-6 p-2 rounded-full bg-white/90 hover:bg-white dark:bg-gray-800/90 dark:hover:bg-gray-800 border border-red-500/50 hover:border-red-700 transition-all duration-200 opacity-0 group-hover:opacity-100 shadow-lg hover:shadow-xl"
+            className="absolute top-6 left-6 p-2 rounded-full bg-white/90 hover:bg-white dark:bg-gray-800/90 dark:hover:bg-gray-800 border border-red-500/50 hover:border-red-700 transition-all duration-200 opacity-0 group-hover:opacity-100 shadow-lg hover:shadow-xl z-20"
           >
             <TooltipProvider>
               <Tooltip>
@@ -255,7 +340,7 @@ const TeamMemberCard = ({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
+    </motion.div>
   );
 };
 
