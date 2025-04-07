@@ -1,42 +1,57 @@
+
 import { Flag } from "lucide-react";
 import { TaskPriority as Priority } from "@/types/task";
+import { cn } from "@/lib/utils";
 
 interface TaskPriorityProps {
   priority: Priority;
 }
 
 const TaskPriority = ({ priority }: TaskPriorityProps) => {
-  const getPriorityColor = (priority: Priority) => {
+  const getPriorityConfig = (priority: Priority) => {
     switch (priority) {
       case 'high':
-        return 'text-red-500 dark:text-red-400';
+        return {
+          color: 'text-red-500 dark:text-red-400',
+          bg: 'bg-red-100 dark:bg-red-900/20',
+          border: 'border-red-200 dark:border-red-800/30',
+          label: 'דחוף'
+        };
       case 'normal':
-        return 'text-yellow-500 dark:text-yellow-400';
+        return {
+          color: 'text-yellow-500 dark:text-yellow-400',
+          bg: 'bg-yellow-100 dark:bg-yellow-900/20',
+          border: 'border-yellow-200 dark:border-yellow-800/30',
+          label: 'רגיל'
+        };
       case 'low':
-        return 'text-green-500 dark:text-green-400';
+        return {
+          color: 'text-green-500 dark:text-green-400',
+          bg: 'bg-green-100 dark:bg-green-900/20',
+          border: 'border-green-200 dark:border-green-800/30',
+          label: 'נמוך'
+        };
       default:
-        return 'text-gray-500 dark:text-gray-400';
+        return {
+          color: 'text-gray-500 dark:text-gray-400',
+          bg: 'bg-gray-100 dark:bg-gray-800',
+          border: 'border-gray-200 dark:border-gray-700',
+          label: ''
+        };
     }
   };
 
-  const getPriorityText = (priority: Priority) => {
-    switch (priority) {
-      case 'high':
-        return 'דחוף';
-      case 'normal':
-        return 'רגיל';
-      case 'low':
-        return 'נמוך';
-      default:
-        return '';
-    }
-  };
+  const config = getPriorityConfig(priority);
 
   return (
-    <div className="flex items-center gap-2">
-      <Flag className={`h-4 w-4 ${getPriorityColor(priority)}`} />
-      <span className={`text-sm ${getPriorityColor(priority)}`}>
-        {getPriorityText(priority)}
+    <div className={cn(
+      "flex items-center gap-2 px-2 py-1 rounded-full border",
+      config.bg,
+      config.border
+    )}>
+      <Flag className={cn("h-3.5 w-3.5", config.color)} />
+      <span className={cn("text-xs font-medium", config.color)}>
+        {config.label}
       </span>
     </div>
   );

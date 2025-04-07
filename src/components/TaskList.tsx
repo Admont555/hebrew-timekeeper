@@ -1,9 +1,10 @@
 
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Task, TasksByDate, TaskPriority } from "@/types/task";
-import { useState, useRef } from "react";
+import { useRef } from "react";
 import { useToast } from "@/hooks/use-toast";
 import TaskListContent from "./task/TaskListContent";
+import { motion } from "framer-motion";
 
 interface TaskListProps {
   tasks: TasksByDate;
@@ -34,17 +35,27 @@ const TaskList = ({
   };
 
   return (
-    <ScrollArea ref={scrollAreaRef} className="flex-1 w-full rounded-lg p-6">
-      <TaskListContent
-        tasksByDate={tasks}
-        isLoading={isLoading}
-        onToggleTask={onToggleTask}
-        onTaskComplete={onTaskComplete}
-        onDeleteTask={onDeleteTask}
-        onEditTask={handleEditTask}
-        onDeleteAllTasksForDate={onDeleteAllTasksForDate}
-      />
-    </ScrollArea>
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+      className="w-full rounded-lg overflow-hidden"
+    >
+      <ScrollArea 
+        ref={scrollAreaRef} 
+        className="flex-1 w-full rounded-lg p-4 md:p-6 h-[65vh] md:h-[70vh]"
+      >
+        <TaskListContent
+          tasksByDate={tasks}
+          isLoading={isLoading}
+          onToggleTask={onToggleTask}
+          onTaskComplete={onTaskComplete}
+          onDeleteTask={onDeleteTask}
+          onEditTask={handleEditTask}
+          onDeleteAllTasksForDate={onDeleteAllTasksForDate}
+        />
+      </ScrollArea>
+    </motion.div>
   );
 };
 

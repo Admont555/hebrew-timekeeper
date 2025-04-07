@@ -153,6 +153,29 @@
   .z-dropdown {
     z-index: 1000;
   }
+
+  /* Beautiful gradients for various elements */
+  .bg-gradient-subtle {
+    @apply bg-gradient-to-br from-white to-purple-50 dark:from-gray-800 dark:to-gray-900;
+  }
+  
+  .bg-gradient-task {
+    @apply bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20;
+  }
+  
+  .bg-gradient-header {
+    @apply bg-gradient-to-r from-purple-100 to-indigo-100 dark:from-purple-900/40 dark:to-indigo-900/40;
+  }
+  
+  /* Card with shadow that looks good in both light and dark mode */
+  .card-with-shadow {
+    @apply bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300;
+  }
+  
+  /* Text with gradient for headers */
+  .text-gradient {
+    @apply bg-gradient-to-r from-purple-800 to-indigo-700 dark:from-purple-300 dark:to-indigo-400 bg-clip-text text-transparent;
+  }
 }
 
 @keyframes gradient {

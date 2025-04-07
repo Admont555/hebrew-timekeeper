@@ -18,6 +18,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { cn } from "@/lib/utils";
 
 interface TaskListContentProps {
   tasksByDate: TasksByDate;
@@ -59,16 +60,21 @@ const TaskListContent = ({
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-40">
-        <Loader2 className="h-8 w-8 animate-spin" />
+        <Loader2 className="h-8 w-8 animate-spin text-purple-500" />
       </div>
     );
   }
 
   if (Object.keys(reorderedTasks).length === 0) {
     return (
-      <div className="text-center py-8 text-gray-500">
-        לא נמצאו משימות
-      </div>
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="text-center py-16 text-gray-500 bg-gray-50/50 dark:bg-gray-800/30 rounded-lg"
+      >
+        <p className="text-lg font-medium">לא נמצאו משימות</p>
+        <p className="text-sm mt-2">התחל להוסיף משימות חדשות!</p>
+      </motion.div>
     );
   }
 
@@ -80,10 +86,13 @@ const TaskListContent = ({
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -20 }}
+          transition={{ duration: 0.4 }}
           className="space-y-4"
         >
-          <div className="sticky top-0 bg-purple-50/95 dark:bg-gray-800/95 backdrop-blur-sm border-b border-purple-100 dark:border-gray-700 shadow-sm z-10 py-3 flex justify-between items-center rounded-t-lg px-3">
-            <h2 className="text-lg font-semibold text-purple-800 dark:text-purple-300">{formatDate(date)}</h2>
+          <div className="sticky top-0 bg-purple-50/95 dark:bg-gray-800/95 backdrop-blur-xl border-b border-purple-100 dark:border-gray-700 shadow-sm z-10 py-3 rounded-t-lg px-4 flex justify-between items-center">
+            <h2 className="text-lg font-semibold bg-gradient-to-r from-purple-800 to-indigo-700 dark:from-purple-300 dark:to-indigo-400 bg-clip-text text-transparent">
+              {formatDate(date)}
+            </h2>
             <div className="flex items-center gap-3">
               <div className="text-xs text-muted-foreground">
                 {tasks.length > 1 && (
@@ -105,7 +114,7 @@ const TaskListContent = ({
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </AlertDialogTrigger>
-                  <AlertDialogContent>
+                  <AlertDialogContent className="sm:max-w-md">
                     <AlertDialogHeader>
                       <AlertDialogTitle>מחיקת כל המשימות</AlertDialogTitle>
                       <AlertDialogDescription>
@@ -118,7 +127,7 @@ const TaskListContent = ({
                       <AlertDialogCancel>ביטול</AlertDialogCancel>
                       <AlertDialogAction 
                         onClick={() => onDeleteAllTasksForDate(date)}
-                        className="bg-red-500 hover:bg-red-600"
+                        className="bg-red-500 hover:bg-red-600 text-white"
                       >
                         מחק הכל
                       </AlertDialogAction>
@@ -129,13 +138,13 @@ const TaskListContent = ({
             </div>
           </div>
           <AnimatePresence mode="popLayout">
-            <div className="space-y-2">
+            <div className="space-y-3 px-1">
               {tasks.length > 0 && (
                 <Reorder.Group 
                   axis="y" 
                   values={tasks} 
                   onReorder={(newOrder) => handleReorder(date, newOrder)}
-                  className="space-y-2"
+                  className="space-y-3"
                 >
                   {tasks.map((task) => (
                     <Reorder.Item
