@@ -1,4 +1,5 @@
-import { LogOut, Menu, Moon, Sun } from "lucide-react";
+
+import { LogOut, Menu, Moon, Sun, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "@/components/ThemeProvider";
 import { logout } from "@/utils/auth";
@@ -9,17 +10,31 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 
 export function NavMenu() {
-  const { theme, setTheme } = useTheme();
+  const { theme, setTheme, isAutoTheme, setAutoTheme } = useTheme();
   const location = useLocation();
   const isLoginPage = location.pathname === "/login";
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const toggleTheme = () => {
+    if (isAutoTheme) {
+      // If auto theme is enabled, turn it off first
+      setAutoTheme(false);
+    }
     setTheme(theme === "light" ? "dark" : "light");
+  };
+
+  const toggleAutoTheme = () => {
+    setAutoTheme(!isAutoTheme);
   };
 
   const handleToggleMenu = () => {
@@ -77,32 +92,45 @@ export function NavMenu() {
         className="fixed top-4 left-4 z-50 flex items-center gap-2"
       >
         <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={toggleTheme}
-                className="hover:bg-accent hover:scale-105 active:scale-95 transition-all duration-200"
-                aria-label={theme === "light" ? "הפעל מצב כהה" : "הפעל מצב בהיר"}
-              >
-                <motion.div
-                  initial={{ scale: 0.5, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  {theme === "dark" ? (
-                    <Moon className="h-5 w-5" />
-                  ) : (
-                    <Sun className="h-5 w-5" />
-                  )}
-                </motion.div>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="right">
-              <p>{theme === "light" ? "הפעל מצב כהה" : "הפעל מצב בהיר"}</p>
-            </TooltipContent>
-          </Tooltip>
+          <DropdownMenu>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="hover:bg-accent hover:scale-105 active:scale-95 transition-all duration-200"
+                    aria-label={isAutoTheme ? "מצב צבע אוטומטי" : (theme === "light" ? "הפעל מצב כהה" : "הפעל מצב בהיר")}
+                  >
+                    <motion.div
+                      initial={{ scale: 0.5, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      {isAutoTheme ? (
+                        <Clock className="h-5 w-5 text-primary" />
+                      ) : theme === "dark" ? (
+                        <Moon className="h-5 w-5" />
+                      ) : (
+                        <Sun className="h-5 w-5" />
+                      )}
+                    </motion.div>
+                  </Button>
+                </DropdownMenuTrigger>
+              </TooltipTrigger>
+              <TooltipContent side="right">
+                <p>{isAutoTheme ? "מצב צבע אוטומטי" : (theme === "light" ? "הפעל מצב כהה" : "הפעל מצב בהיר")}</p>
+              </TooltipContent>
+            </Tooltip>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={toggleTheme} disabled={isAutoTheme}>
+                {theme === "light" ? "הפעל מצב כהה" : "הפעל מצב בהיר"}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={toggleAutoTheme}>
+                {isAutoTheme ? "כבה מצב אוטומטי" : "הפעל מצב אוטומטי לפי שעה"}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </TooltipProvider>
         
         {!isLoginPage && (
