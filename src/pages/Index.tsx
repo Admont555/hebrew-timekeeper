@@ -9,7 +9,7 @@ import Header from "@/components/Header";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import TaskStats from "@/components/task/TaskStats";
 import TaskAnalytics from "@/components/task/TaskAnalytics";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useWorkerState } from "@/hooks/useWorkerState";
 import { useTaskMutations } from "@/hooks/useTaskMutations";
 import { motion } from "framer-motion";
@@ -28,6 +28,7 @@ const Index = () => {
   const [showConfetti, setShowConfetti] = useState(false);
   const { toast } = useToast();
   const isMobile = useIsMobile();
+  const queryClient = useQueryClient();
 
   const {
     currentWorker,
@@ -35,7 +36,6 @@ const Index = () => {
     workerNames,
   } = useWorkerState();
 
-  // Set the current worker based on the URL parameter
   if (currentWorker !== workerId && workerId) {
     setCurrentWorker(workerId);
   }
@@ -47,7 +47,6 @@ const Index = () => {
     toggleTaskMutation,
   } = useTaskMutations();
 
-  // Query to get the team member's name
   const { data: teamMember } = useQuery({
     queryKey: ['team-member', workerId],
     queryFn: async () => {
@@ -93,7 +92,6 @@ const Index = () => {
           tasksByDate[dateKey] = [];
         }
 
-        // Transform the attachments from Json[] to the expected format
         const transformedAttachments: Attachment[] = task.attachments?.map((attachment: any) => ({
           id: attachment.id || crypto.randomUUID(),
           name: attachment.name || '',
@@ -121,16 +119,13 @@ const Index = () => {
     },
   });
 
-  // New function to delete all tasks for a specific date
   const handleDeleteAllTasksForDate = async (date: string) => {
     try {
-      // Get all task IDs for the specified date
       const tasks = tasksByDate[date] || [];
       const taskIds = tasks.map(task => task.id);
       
       if (taskIds.length === 0) return;
       
-      // Delete all tasks with these IDs
       const { error } = await supabase
         .from("tasks")
         .delete()
@@ -139,7 +134,6 @@ const Index = () => {
       
       if (error) throw error;
       
-      // Invalidate the query to refresh the task list
       await queryClient.invalidateQueries({ queryKey: ['tasks'] });
       
       toast({
