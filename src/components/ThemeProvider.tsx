@@ -1,3 +1,4 @@
+
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
@@ -44,6 +45,7 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
 
   // Function to determine theme based on time of day
   const getTimeBasedTheme = (): Theme => {
+    // Use local system time
     const currentHour = new Date().getHours();
     // Set dark mode between 7PM (19) and 7AM (7)
     return (currentHour >= 19 || currentHour < 7) ? "dark" : "light";
