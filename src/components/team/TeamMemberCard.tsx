@@ -1,7 +1,7 @@
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card } from "@/components/ui/card";
-import { UserRound, XOctagon, AlertOctagon, CheckCircle } from "lucide-react";
+import { UserRound, XOctagon, AlertOctagon, CheckCircle, Lock } from "lucide-react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import WorkerNameEditor from "@/components/WorkerNameEditor";
@@ -26,6 +26,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useWorkerState } from "@/hooks/useWorkerState";
 
 interface TeamMemberCardProps {
   id: string;
@@ -34,6 +35,7 @@ interface TeamMemberCardProps {
   isEditMode: boolean;
   onDelete: () => void;
   workerId: string;
+  isCurrentWorker?: boolean;
 }
 
 const TeamMemberCard = ({ 
@@ -42,13 +44,17 @@ const TeamMemberCard = ({
   avatarUrl: initialAvatarUrl, 
   isEditMode, 
   onDelete,
-  workerId 
+  workerId,
+  isCurrentWorker = false
 }: TeamMemberCardProps) => {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [name, setName] = useState(initialName);
   const [avatarUrl, setAvatarUrl] = useState(initialAvatarUrl);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { hasEditPermission } = useWorkerState();
+  
+  const canEdit = hasEditPermission(workerId);
 
   const { data: tasksData = { open: 0, completed: 0 } } = useQuery({
     queryKey: ['tasks-summary', workerId],
@@ -71,6 +77,15 @@ const TeamMemberCard = ({
   });
 
   const handleNameChange = async (workerId: string, newName: string, newAvatarUrl?: string) => {
+    if (!canEdit) {
+      toast({
+        title: "אין הרשאה",
+        description: "אין לך הרשאה לערוך פרטי עובד זה",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     try {
       const { error } = await supabase
         .from('team_members')
@@ -102,6 +117,15 @@ const TeamMemberCard = ({
   };
 
   const handleDelete = async () => {
+    if (!canEdit) {
+      toast({
+        title: "אין הרשאה",
+        description: "אין לך הרשאה למחוק עובד זה",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     try {
       const { error } = await supabase
         .from('team_members')
@@ -158,9 +182,15 @@ const TeamMemberCard = ({
         <Card className={`p-6 flex flex-col items-center gap-4 overflow-hidden relative
           ${isEditMode 
             ? 'border-red-500/50 dark:border-red-500/30 shadow-lg shadow-red-500/10' 
-            : 'border-purple-100/50 dark:border-purple-800/30 shadow-lg hover:shadow-xl dark:shadow-gray-900/20'
+            : isCurrentWorker
+              ? 'border-green-500/50 dark:border-green-500/30 shadow-lg shadow-green-500/10'
+              : 'border-purple-100/50 dark:border-purple-800/30 shadow-lg hover:shadow-xl dark:shadow-gray-900/20'
           } 
-          before:absolute before:inset-0 before:bg-gradient-to-br before:from-white/80 before:via-white/70 before:to-purple-50/40 before:dark:from-gray-800/80 before:dark:via-gray-800/70 before:dark:to-purple-900/10 before:backdrop-blur-sm before:z-0
+          before:absolute before:inset-0 before:bg-gradient-to-br before:from-white/80 before:via-white/70 
+          ${isCurrentWorker 
+            ? 'before:to-green-50/40 before:dark:from-gray-800/80 before:dark:via-gray-800/70 before:dark:to-green-900/10' 
+            : 'before:to-purple-50/40 before:dark:from-gray-800/80 before:dark:via-gray-800/70 before:dark:to-purple-900/10'} 
+          before:backdrop-blur-sm before:z-0
         `}>
           
           {/* Edit mode indicator */}
@@ -170,7 +200,24 @@ const TeamMemberCard = ({
               animate={{ opacity: 1, scale: 1 }}
               className="absolute top-2 right-2 z-20"
             >
-              <AlertOctagon className="text-red-500/70 h-5 w-5 animate-pulse" />
+              {canEdit ? (
+                <AlertOctagon className="text-red-500/70 h-5 w-5 animate-pulse" />
+              ) : (
+                <Lock className="text-gray-500/70 h-5 w-5" />
+              )}
+            </motion.div>
+          )}
+          
+          {/* Current user indicator */}
+          {isCurrentWorker && !isEditMode && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="absolute top-2 right-2 z-20"
+            >
+              <Badge variant="outline" className="border-green-500 text-green-600 dark:text-green-400">
+                עובד נוכחי
+              </Badge>
             </motion.div>
           )}
           
@@ -181,10 +228,23 @@ const TeamMemberCard = ({
               transition={{ type: "spring", stiffness: 300, damping: 20 }}
               className="relative"
             >
-              <div className="absolute inset-0 bg-gradient-to-br from-purple-300 to-blue-300 dark:from-purple-600 dark:to-blue-600 rounded-full blur-lg opacity-40 group-hover:opacity-60 transition-opacity"></div>
-              <Avatar className="h-24 w-24 ring-2 ring-offset-2 ring-offset-background ring-purple-200 dark:ring-purple-800 transition-all duration-300 group-hover:ring-primary shadow-lg group-hover:shadow-xl">
+              <div className={`absolute inset-0 rounded-full blur-lg opacity-40 group-hover:opacity-60 transition-opacity 
+                ${isCurrentWorker 
+                  ? 'bg-gradient-to-br from-green-300 to-blue-300 dark:from-green-600 dark:to-blue-600' 
+                  : 'bg-gradient-to-br from-purple-300 to-blue-300 dark:from-purple-600 dark:to-blue-600'
+                }`}></div>
+              <Avatar className={`h-24 w-24 ring-2 ring-offset-2 ring-offset-background 
+                ${isCurrentWorker 
+                  ? 'ring-green-200 dark:ring-green-800' 
+                  : 'ring-purple-200 dark:ring-purple-800'
+                } 
+                transition-all duration-300 group-hover:ring-primary shadow-lg group-hover:shadow-xl`}>
                 <AvatarImage src={avatarUrl} alt={name} className="object-cover" />
-                <AvatarFallback className="bg-gradient-to-br from-purple-100 to-blue-100 dark:from-purple-900 dark:to-blue-900">
+                <AvatarFallback className={`
+                  ${isCurrentWorker 
+                    ? 'bg-gradient-to-br from-green-100 to-blue-100 dark:from-green-900 dark:to-blue-900' 
+                    : 'bg-gradient-to-br from-purple-100 to-blue-100 dark:from-purple-900 dark:to-blue-900'
+                  }`}>
                   <UserRound className="h-12 w-12 text-primary/70" />
                 </AvatarFallback>
               </Avatar>
@@ -268,56 +328,79 @@ const TeamMemberCard = ({
       {/* Edit controls */}
       {isEditMode && (
         <>
-          <motion.div 
-            className="absolute top-6 right-6 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-20"
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-            }}
-            data-prevent-navigation="true"
-          >
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <div>
-                    <WorkerNameEditor
-                      currentName={name}
-                      currentAvatarUrl={avatarUrl}
-                      workerId={workerId}
-                      onNameChange={handleNameChange}
-                    />
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent side="left">
-                  <p>ערוך פרטי עובד</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </motion.div>
-          <motion.button
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            whileHover={{ scale: 1.1 }}
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              setShowDeleteDialog(true);
-            }}
-            className="absolute top-6 left-6 p-2 rounded-full bg-white/90 hover:bg-white dark:bg-gray-800/90 dark:hover:bg-gray-800 border border-red-500/50 hover:border-red-700 transition-all duration-200 opacity-0 group-hover:opacity-100 shadow-lg hover:shadow-xl z-20"
-          >
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <XOctagon className="h-4 w-4 text-red-500" />
-                </TooltipTrigger>
-                <TooltipContent side="right">
-                  <p>מחק עובד</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </motion.button>
+          {canEdit ? (
+            <>
+              <motion.div 
+                className="absolute top-6 right-6 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-20"
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                }}
+                data-prevent-navigation="true"
+              >
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div>
+                        <WorkerNameEditor
+                          currentName={name}
+                          currentAvatarUrl={avatarUrl}
+                          workerId={workerId}
+                          onNameChange={handleNameChange}
+                        />
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent side="left">
+                      <p>ערוך פרטי עובד</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </motion.div>
+              <motion.button
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                whileHover={{ scale: 1.1 }}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setShowDeleteDialog(true);
+                }}
+                className="absolute top-6 left-6 p-2 rounded-full bg-white/90 hover:bg-white dark:bg-gray-800/90 dark:hover:bg-gray-800 border border-red-500/50 hover:border-red-700 transition-all duration-200 opacity-0 group-hover:opacity-100 shadow-lg hover:shadow-xl z-20"
+              >
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <XOctagon className="h-4 w-4 text-red-500" />
+                    </TooltipTrigger>
+                    <TooltipContent side="right">
+                      <p>מחק עובד</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </motion.button>
+            </>
+          ) : (
+            <motion.div 
+              className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-20"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+            >
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="p-3 rounded-full bg-black/40 dark:bg-white/10 backdrop-blur-sm">
+                      <Lock className="h-6 w-6 text-white" />
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>אין לך הרשאה לערוך עובד זה</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </motion.div>
+          )}
         </>
       )}
 
