@@ -1,4 +1,3 @@
-
 import { LogOut, Menu, Moon, Sun, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "@/components/ThemeProvider";
@@ -59,12 +58,12 @@ export function NavMenu() {
 
   return (
     <>
-      {/* Menu Icon with proper background */}
+      {/* Menu Icon with background only on mobile */}
       <motion.div 
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
-        className={`fixed top-0 right-0 ${isMenuOpen ? 'z-[40]' : 'z-50'} w-full sm:w-auto p-4 safe-area-top safe-area-right glass-effect`}
+        className={`fixed top-0 right-0 ${isMenuOpen ? 'z-[40]' : 'z-50'} w-full sm:w-auto p-4 safe-area-top safe-area-right ${isMobile ? 'glass-effect' : ''}`}
       >
         <TooltipProvider>
           <Tooltip>
@@ -86,12 +85,12 @@ export function NavMenu() {
         </TooltipProvider>
       </motion.div>
 
-      {/* Other Icons with proper background */}
+      {/* Other Icons with background only on mobile */}
       <motion.div 
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
-        className="fixed top-0 left-0 z-50 flex items-center gap-2 p-4 safe-area-top safe-area-left glass-effect"
+        className={`fixed top-0 left-0 z-50 flex items-center gap-2 p-4 safe-area-top safe-area-left ${isMobile ? 'glass-effect' : ''}`}
       >
         <TooltipProvider>
           <DropdownMenu>
