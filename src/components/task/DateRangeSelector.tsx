@@ -1,3 +1,4 @@
+
 import { format } from "date-fns";
 import { he } from "date-fns/locale";
 import { Calendar } from "@/components/ui/calendar";
@@ -10,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { CalendarIcon, ArrowLeft, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { addDays, subDays } from "date-fns";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface DateRangeSelectorProps {
   date: Date | undefined;
@@ -17,6 +19,8 @@ interface DateRangeSelectorProps {
 }
 
 const DateRangeSelector = ({ date, onDateChange }: DateRangeSelectorProps) => {
+  const isMobile = useIsMobile();
+  
   const handlePreviousDay = () => {
     if (date) {
       const newDate = subDays(date, 1);
@@ -36,10 +40,13 @@ const DateRangeSelector = ({ date, onDateChange }: DateRangeSelectorProps) => {
   };
 
   const today = new Date();
+  
+  // Format date differently for mobile
+  const dateFormat = isMobile ? "d בMMMM" : "EEEE, d בMMMM yyyy";
 
   return (
     <div className="w-full max-w-xl mx-auto mb-8 px-4 sm:px-0" dir="rtl">
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex items-center justify-between gap-2 sm:gap-4">
         <Button
           variant="outline"
           size="icon"
@@ -54,15 +61,17 @@ const DateRangeSelector = ({ date, onDateChange }: DateRangeSelectorProps) => {
             <Button
               variant="outline"
               className={cn(
-                "w-full h-12 px-6 relative glass hover:glass-dark transition-all duration-300",
+                "w-full h-10 sm:h-12 px-3 sm:px-6 relative glass hover:glass-dark transition-all duration-300",
                 "flex items-center justify-between gap-2 rounded-xl border border-white/20",
-                "text-lg font-medium shadow-lg hover:shadow-xl",
+                "text-sm sm:text-lg font-medium shadow-lg hover:shadow-xl",
                 !date && "text-muted-foreground"
               )}
             >
-              <span className="flex items-center gap-3">
-                <CalendarIcon className="h-5 w-5" />
-                {date ? format(date, "EEEE, d בMMMM yyyy", { locale: he }) : format(today, "EEEE, d בMMMM yyyy", { locale: he })}
+              <span className="flex items-center gap-2 sm:gap-3 truncate">
+                <CalendarIcon className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
+                <span className="truncate">
+                  {date ? format(date, dateFormat, { locale: he }) : format(today, dateFormat, { locale: he })}
+                </span>
               </span>
               <span className="absolute inset-0 rounded-xl bg-gradient-to-r from-purple-500/10 via-transparent to-blue-500/10 opacity-0 hover:opacity-100 transition-opacity duration-300" />
             </Button>

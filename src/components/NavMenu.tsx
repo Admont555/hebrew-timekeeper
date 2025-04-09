@@ -1,4 +1,3 @@
-
 import { LogOut, Menu, Moon, Sun, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "@/components/ThemeProvider";
@@ -18,12 +17,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export function NavMenu() {
   const { theme, setTheme, isAutoTheme, setAutoTheme } = useTheme();
   const location = useLocation();
   const isLoginPage = location.pathname === "/login";
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const isMobile = useIsMobile();
 
   const toggleTheme = () => {
     if (isAutoTheme) {
@@ -62,7 +63,7 @@ export function NavMenu() {
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
-        className={`fixed top-4 right-4 ${isMenuOpen ? 'z-[40]' : 'z-50'}`}
+        className={`fixed top-4 right-4 ${isMenuOpen ? 'z-[40]' : 'z-50'} safe-area-top safe-area-right`}
       >
         <TooltipProvider>
           <Tooltip>
@@ -77,7 +78,7 @@ export function NavMenu() {
                 <Menu className="h-5 w-5" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent side="left">
+            <TooltipContent side={isMobile ? "bottom" : "left"}>
               <p>פתח תפריט</p>
             </TooltipContent>
           </Tooltip>
@@ -89,7 +90,7 @@ export function NavMenu() {
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
-        className="fixed top-4 left-4 z-50 flex items-center gap-2"
+        className="fixed top-4 left-4 z-50 flex items-center gap-2 safe-area-top safe-area-left"
       >
         <TooltipProvider>
           <DropdownMenu>
@@ -118,7 +119,7 @@ export function NavMenu() {
                   </Button>
                 </DropdownMenuTrigger>
               </TooltipTrigger>
-              <TooltipContent side="right">
+              <TooltipContent side={isMobile ? "bottom" : "right"}>
                 <p>{isAutoTheme ? "מצב צבע אוטומטי" : (theme === "light" ? "הפעל מצב כהה" : "הפעל מצב בהיר")}</p>
               </TooltipContent>
             </Tooltip>
@@ -147,7 +148,7 @@ export function NavMenu() {
                   <LogOut className="h-5 w-5" />
                 </Button>
               </TooltipTrigger>
-              <TooltipContent side="right">
+              <TooltipContent side={isMobile ? "bottom" : "right"}>
                 <p>התנתק מהמערכת</p>
               </TooltipContent>
             </Tooltip>

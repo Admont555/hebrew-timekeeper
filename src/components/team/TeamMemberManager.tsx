@@ -8,6 +8,7 @@ import { UserPlus, Upload, User } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { motion } from "framer-motion";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface TeamMemberManagerProps {
   onMemberAdded: () => void;
@@ -19,6 +20,7 @@ const TeamMemberManager = ({ onMemberAdded }: TeamMemberManagerProps) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const { toast } = useToast();
+  const isMobile = useIsMobile();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -101,13 +103,14 @@ const TeamMemberManager = ({ onMemberAdded }: TeamMemberManagerProps) => {
           <Button 
             variant="default"
             className="flex items-center gap-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white shadow-md hover:shadow-lg transition-all duration-300"
+            size={isMobile ? "sm" : "default"}
           >
             <UserPlus className="h-4 w-4" />
-            הוסף חבר צוות
+            {isMobile ? "הוסף" : "הוסף חבר צוות"}
           </Button>
         </motion.div>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className={`sm:max-w-md ${isMobile ? 'p-4' : 'p-6'}`}>
         <DialogHeader>
           <DialogTitle className="text-xl font-bold">הוספת חבר צוות חדש</DialogTitle>
         </DialogHeader>
@@ -126,7 +129,7 @@ const TeamMemberManager = ({ onMemberAdded }: TeamMemberManagerProps) => {
             <label className="text-sm font-medium">תמונת פרופיל</label>
             <div className="flex flex-col gap-4">
               <label className="cursor-pointer">
-                <div className="flex items-center gap-2 p-2 border border-dashed border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                <div className="flex items-center justify-center gap-2 p-2 border border-dashed border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors min-h-12">
                   <Upload className="h-5 w-5 text-muted-foreground" />
                   <span className="text-sm text-muted-foreground">בחר תמונת פרופיל</span>
                 </div>
@@ -165,6 +168,7 @@ const TeamMemberManager = ({ onMemberAdded }: TeamMemberManagerProps) => {
               variant="outline" 
               onClick={() => setIsAddOpen(false)}
               disabled={isUploading}
+              size={isMobile ? "sm" : "default"}
             >
               ביטול
             </Button>
@@ -172,6 +176,7 @@ const TeamMemberManager = ({ onMemberAdded }: TeamMemberManagerProps) => {
               type="submit" 
               disabled={isUploading} 
               className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+              size={isMobile ? "sm" : "default"}
             >
               {isUploading ? "מוסיף..." : "הוסף"}
             </Button>

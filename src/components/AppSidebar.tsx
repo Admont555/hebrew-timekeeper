@@ -4,10 +4,12 @@ import { Menu, ListChecks } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useLocation, Link } from "react-router-dom";
 import { Button } from "./ui/button";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export function AppSidebar() {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     const handleToggle = () => {
@@ -20,6 +22,13 @@ export function AppSidebar() {
       window.removeEventListener('toggleSidebar', handleToggle);
     };
   }, []);
+
+  useEffect(() => {
+    // Close sidebar on route change for mobile
+    if (isMobile) {
+      setIsOpen(false);
+    }
+  }, [location.pathname, isMobile]);
 
   const toggleSidebar = () => {
     setIsOpen(!isOpen);
@@ -50,7 +59,7 @@ export function AppSidebar() {
         initial={{ x: "100%" }}
         animate={{ x: isOpen ? "0%" : "100%" }}
         transition={{ type: "spring", bounce: 0, duration: 0.4 }}
-        className="fixed top-0 right-0 h-full w-[280px] bg-sidebar text-sidebar-foreground border-l border-sidebar-border shadow-lg z-50 overflow-hidden"
+        className="fixed top-0 right-0 h-full w-[280px] bg-sidebar text-sidebar-foreground border-l border-sidebar-border shadow-lg z-50 overflow-hidden safe-area-top safe-area-right safe-area-bottom"
       >
         <div className="flex flex-col h-full p-4">
           <div className="flex items-center justify-between mb-6">
@@ -71,7 +80,7 @@ export function AppSidebar() {
               <Link
                 key={item.path}
                 to={item.path}
-                className={`flex items-center px-4 py-2 rounded-lg transition-colors ${
+                className={`flex items-center px-4 py-3 rounded-lg transition-colors ${
                   location.pathname === item.path
                     ? "bg-sidebar-accent text-sidebar-accent-foreground"
                     : "hover:bg-sidebar-accent/50"
