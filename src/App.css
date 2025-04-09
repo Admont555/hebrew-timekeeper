@@ -1,4 +1,3 @@
-
 * {
   margin: 0;
   padding: 0;
@@ -81,6 +80,18 @@ html {
   /* Apply consistent scroll container for all mobile content */
   .scroll-container {
     padding-top: 60px !important;
+    padding-bottom: 20px !important; /* Add padding to the bottom so content isn't cut off */
+  }
+  
+  /* Added padding to content container on mobile */
+  .mobile-content-container {
+    padding-top: 70px;
+    padding-bottom: 30px;
+  }
+  
+  /* Improved mobile spacing for headers and main content */
+  .mobile-header-spacing {
+    margin-bottom: 20px;
   }
 }
 
@@ -148,6 +159,7 @@ html {
   /* Mobile header spacing - increased to prevent overlap */
   .mobile-header-spacer {
     padding-top: 84px;
+    padding-bottom: 16px; /* Added bottom padding */
   }
   
   /* Improved section spacing on mobile */
@@ -180,7 +192,7 @@ html {
     bottom: 0;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
-    padding-bottom: env(safe-area-inset-bottom);
+    padding-bottom: calc(env(safe-area-inset-bottom) + 30px); /* Increased bottom padding */
     padding-top: 84px; /* Space for fixed header */
   }
 
@@ -226,6 +238,7 @@ html {
     
     .scroll-container {
       padding-top: calc(84px + env(safe-area-inset-top));
+      padding-bottom: calc(env(safe-area-inset-bottom) + 30px); /* Increased padding */
     }
   }
 }
@@ -328,5 +341,3 @@ html {
     overflow: visible;
   }
 }
-
-/* ... keep existing code (animations, dark mode, and other existing CSS) */
