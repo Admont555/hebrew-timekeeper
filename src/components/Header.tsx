@@ -8,7 +8,7 @@ const Header = () => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="flex flex-col items-center mb-8 pt-20 mt-2 md:pt-12"
+      className="flex flex-col items-center mb-8 pt-24 sm:pt-28 md:pt-16 mt-4 sm:mt-6"
     >
       <img 
         src="https://beeu.co.il/wp-content/uploads/2024/03/אייקון-ביו-מקורי-1.svg" 
