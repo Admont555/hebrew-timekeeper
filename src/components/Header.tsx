@@ -11,7 +11,7 @@ const Header = () => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className={`flex flex-col items-center mb-8 ${isMobile ? 'mt-24 pt-6 pb-4 content-spacing mobile-header-spacing' : 'pt-24 sm:pt-28 md:pt-16 mt-4 sm:mt-6'}`}
+      className={`flex flex-col items-center mb-8 ${isMobile ? 'mt-16 pt-4 pb-2' : 'pt-20 sm:pt-24 md:pt-12 mt-2 sm:mt-4'}`}
     >
       <img 
         src="https://beeu.co.il/wp-content/uploads/2024/03/אייקון-ביו-מקורי-1.svg" 

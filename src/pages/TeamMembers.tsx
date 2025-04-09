@@ -53,12 +53,12 @@ const TeamMembers = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50/80 via-white to-purple-50/80 dark:from-gray-900 dark:via-gray-800/90 dark:to-gray-900 bg-fixed">
       <NavMenu />
-      <div className={`container mx-auto px-4 py-8 md:py-12 ${isMobile ? 'pt-24' : ''}`}>
+      <div className={`container mx-auto px-4 py-8 md:py-12 ${isMobile ? 'pt-16' : ''}`}>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className={`text-center mb-12 ${isMobile ? 'mt-10' : ''}`}
+          className={`text-center mb-12 ${isMobile ? 'mt-6' : ''}`}
         >
           <div className="flex items-center justify-center gap-3 mb-4">
             <motion.div

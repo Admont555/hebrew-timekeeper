@@ -12,6 +12,8 @@ import WorkflowStep from "@/components/workflow/WorkflowStep";
 import { generatePDF } from "@/components/workflow/workflow-utils";
 import EditStepDialog from "@/components/workflow/EditStepDialog";
 import DeleteStepDialog from "@/components/workflow/DeleteStepDialog";
+import { NavMenu } from "@/components/NavMenu";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const MotionDiv = motion.div;
 
@@ -19,6 +21,7 @@ function WorkflowCreator() {
   const { workflowId } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const isMobile = useIsMobile();
   const {
     isLoading,
     steps,
@@ -114,7 +117,8 @@ function WorkflowCreator() {
       className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 px-6 py-8"
       dir="rtl"
     >
-      <div className="max-w-7xl mx-auto space-y-8">
+      <NavMenu />
+      <div className={`max-w-7xl mx-auto space-y-8 ${isMobile ? 'pt-12 mt-4' : ''}`}>
         <WorkflowHeader
           workflowId={workflowId}
           onBack={() => navigate(-1)}
