@@ -21,5 +21,8 @@
     }
   ],
   "orientation": "portrait",
-  "display_override": ["standalone", "window-controls-overlay"]
+  "display_override": ["standalone", "window-controls-overlay"],
+  "related_applications": [],
+  "prefer_related_applications": false,
+  "categories": ["productivity", "utilities"]
 }
