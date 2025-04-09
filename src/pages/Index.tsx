@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { useState } from "react";
 import { useParams, Navigate, useNavigate } from "react-router-dom";
@@ -169,7 +170,7 @@ const Index = () => {
       >
         <NavMenu />
         <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 max-w-4xl">
-          <div className="flex items-center justify-between mb-4 sm:mb-6">
+          <div className="flex items-center justify-between mb-4 sm:mb-6 mt-4 sm:mt-0">
             <Button 
               variant="outline" 
               onClick={() => navigate('/')}
@@ -196,7 +197,7 @@ const Index = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.5 }}
-            className="bg-white/80 backdrop-blur-sm dark:bg-gray-800/80 rounded-xl shadow-lg p-3 sm:p-4 mb-4 sm:mb-6 hover:shadow-xl transition-shadow duration-300"
+            className="bg-white/80 dark:bg-gray-800/80 rounded-xl shadow-lg p-3 sm:p-4 mb-4 sm:mb-6 hover:shadow-xl transition-shadow duration-300"
           >
             <TaskForm onAddTask={(title, duration, priority) => 
               addTaskMutation.mutate({ title, duration, priority, worker: workerId })} 
@@ -207,7 +208,7 @@ const Index = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4, duration: 0.5 }}
-            className="bg-white/80 backdrop-blur-sm dark:bg-gray-800/80 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300"
+            className="bg-white/80 dark:bg-gray-800/80 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300"
           >
             <TaskList 
               tasks={tasksByDate}

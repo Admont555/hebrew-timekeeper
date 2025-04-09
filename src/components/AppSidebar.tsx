@@ -1,6 +1,6 @@
 
 import { motion } from "framer-motion";
-import { Menu, X, ListChecks } from "lucide-react";
+import { Menu, X, ListChecks, Home, Settings, Table2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useLocation, Link } from "react-router-dom";
 import { Button } from "./ui/button";
@@ -8,8 +8,12 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import {
   Drawer,
   DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
   DrawerOverlay,
   DrawerTrigger,
+  DrawerClose,
+  DrawerFooter,
 } from "@/components/ui/drawer";
 
 export function AppSidebar() {
@@ -41,43 +45,44 @@ export function AppSidebar() {
   };
 
   const menuItems = [
-    { name: "משימות", path: "/" },
-    { name: "טבלאות", path: "/tables" },
-    { name: "זרימות עבודה", path: "/workflows", icon: <ListChecks className="h-4 w-4 ml-2" /> },
-    { name: "הגדרות", path: "/settings" },
+    { name: "צוות העבודה", path: "/", icon: <Home className="h-5 w-5 ml-2" /> },
+    { name: "טבלאות", path: "/tables", icon: <Table2 className="h-5 w-5 ml-2" /> },
+    { name: "זרימות עבודה", path: "/workflows", icon: <ListChecks className="h-5 w-5 ml-2" /> },
+    { name: "הגדרות", path: "/settings", icon: <Settings className="h-5 w-5 ml-2" /> },
   ];
 
   // Mobile uses a drawer, desktop uses a sidebar
   if (isMobile) {
     return (
       <Drawer open={isOpen} onOpenChange={setIsOpen} direction="right">
-        <DrawerOverlay className="bg-background/80 backdrop-blur-sm" />
-        <DrawerContent className="h-full w-full max-w-none bg-sidebar text-sidebar-foreground border-l border-sidebar-border shadow-lg rtl pt-safe-top">
-          <div className="flex flex-col h-full p-4 safe-area-right safe-area-bottom safe-area-top">
-            <div className="flex items-center justify-between mb-8 mt-6">
-              <h2 className="text-xl font-semibold">תפריט</h2>
+        <DrawerOverlay className="bg-background/80 backdrop-blur-sm z-40" />
+        <DrawerContent className="h-full w-[85%] max-w-[300px] bg-sidebar text-sidebar-foreground border-l border-sidebar-border shadow-lg rtl pt-safe-top z-50">
+          <DrawerHeader className="px-4 pt-6 pb-2">
+            <DrawerTitle className="text-xl font-semibold">תפריט</DrawerTitle>
+            <DrawerClose asChild>
               <Button
-                onClick={toggleSidebar}
                 variant="ghost"
                 size="icon"
-                className="h-10 w-10 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground rounded-full"
+                className="absolute left-4 top-4 h-10 w-10 rounded-full hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                 aria-label="סגור תפריט"
               >
                 <X className="h-5 w-5" />
               </Button>
-            </div>
-
-            <nav className="space-y-2">
+            </DrawerClose>
+          </DrawerHeader>
+          
+          <div className="flex flex-col h-full px-4 py-2 overflow-y-auto safe-area-right safe-area-bottom safe-area-top">
+            <nav className="space-y-1 mt-4">
               {menuItems.map((item) => (
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`flex items-center px-4 py-5 rounded-lg transition-colors text-lg ${
+                  className={`flex items-center px-4 py-4 rounded-lg transition-colors text-base ${
                     location.pathname === item.path
-                      ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                      ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
                       : "hover:bg-sidebar-accent/50"
                   }`}
-                  onClick={toggleSidebar}
+                  onClick={() => setIsOpen(false)}
                 >
                   {item.icon}
                   {item.name}
@@ -85,6 +90,10 @@ export function AppSidebar() {
               ))}
             </nav>
           </div>
+          
+          <DrawerFooter className="px-4 py-4 border-t border-sidebar-border">
+            <p className="text-xs text-sidebar-foreground/70 text-center">גרסה 1.0.0</p>
+          </DrawerFooter>
         </DrawerContent>
       </Drawer>
     );

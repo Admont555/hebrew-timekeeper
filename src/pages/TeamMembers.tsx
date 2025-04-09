@@ -59,24 +59,24 @@ const TeamMembers = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className={`text-center mb-12 ${isMobile ? 'mt-6' : ''}`}
+          className={`text-center mb-8 md:mb-12 ${isMobile ? 'mt-6' : ''}`}
         >
-          <div className="flex items-center justify-center gap-3 mb-4">
+          <div className="flex items-center justify-center gap-2 mb-4">
             <motion.div
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ delay: 0.1, duration: 0.5 }}
             >
-              <Users className="h-10 w-10 text-primary bg-primary/10 p-2 rounded-full" />
+              <Users className="h-8 w-8 md:h-10 md:w-10 text-primary bg-primary/10 p-2 rounded-full" />
             </motion.div>
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">צוות העבודה שלנו</h1>
+            <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">צוות העבודה שלנו</h1>
           </div>
           
           <motion.p 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2 }}
-            className="text-muted-foreground mb-8 max-w-lg mx-auto"
+            className="text-muted-foreground mb-8 max-w-lg mx-auto px-2"
           >
             ברוכים הבאים למערכת ניהול המשימות. בחר חבר צוות כדי לצפות ולנהל את המשימות שלו.
           </motion.p>
@@ -90,16 +90,16 @@ const TeamMembers = () => {
               className="max-w-md mx-auto mb-8"
             >
               <Tabs defaultValue="team" className="w-full">
-                <TabsList className="grid grid-cols-3 mb-2">
-                  <TabsTrigger value="team" className="flex items-center gap-1">
+                <TabsList className="grid grid-cols-3 mb-2 h-auto py-2">
+                  <TabsTrigger value="team" className="flex items-center gap-1 h-auto py-2 px-2">
                     <Users className="h-4 w-4" />
                     <span className="hidden sm:inline">צוות</span>
                   </TabsTrigger>
-                  <TabsTrigger value="tasks" className="flex items-center gap-1">
+                  <TabsTrigger value="tasks" className="flex items-center gap-1 h-auto py-2 px-2">
                     <ListChecks className="h-4 w-4" />
                     <span className="hidden sm:inline">משימות</span>
                   </TabsTrigger>
-                  <TabsTrigger value="progress" className="flex items-center gap-1">
+                  <TabsTrigger value="progress" className="flex items-center gap-1 h-auto py-2 px-2">
                     <BarChart className="h-4 w-4" />
                     <span className="hidden sm:inline">התקדמות</span>
                   </TabsTrigger>
@@ -187,14 +187,15 @@ const TeamMembers = () => {
             </motion.div>
           )}
 
-          <div className="flex justify-center gap-4 mb-8">
+          <div className="flex flex-wrap justify-center gap-3 md:gap-4 mb-8">
             <TeamMemberManager 
               onMemberAdded={refetch}
             />
             <Button
               variant={isEditMode ? "destructive" : "outline"}
               onClick={() => setIsEditMode(!isEditMode)}
-              className="gap-2"
+              className="gap-2 h-10 md:h-auto text-sm md:text-base"
+              size={isMobile ? "sm" : "default"}
             >
               <Edit2 className="h-4 w-4" />
               {isEditMode ? "סיום עריכה" : "ערוך חברי צוות"}
@@ -206,7 +207,7 @@ const TeamMembers = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.4 }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 max-w-5xl mx-auto"
         >
           {teamMembers.map((member, index) => (
             <motion.div
