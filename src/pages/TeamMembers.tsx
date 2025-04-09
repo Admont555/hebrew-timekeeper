@@ -18,7 +18,7 @@ import { useToast } from "@/hooks/use-toast";
 const TeamMembers = () => {
   const [isEditMode, setIsEditMode] = useState(false);
   const isMobile = useIsMobile();
-  const { currentWorker, hasEditPermission } = useWorkerState();
+  const { currentWorker, hasEditPermission, canCreateTeamMembers, isSuperAdmin } = useWorkerState();
   const { toast } = useToast();
   
   const { data: teamMembers = [], refetch } = useQuery({
@@ -95,6 +95,11 @@ const TeamMembers = () => {
             {currentWorker && (
               <span className="block mt-2 font-medium text-primary">
                 מחובר כ: {teamMembers.find(m => m.worker_id === currentWorker)?.name || currentWorker}
+              </span>
+            )}
+            {isSuperAdmin && (
+              <span className="block mt-1 font-medium text-green-500">
+                (מנהל מערכת)
               </span>
             )}
           </motion.p>
@@ -206,7 +211,7 @@ const TeamMembers = () => {
           )}
 
           <div className="flex flex-wrap justify-center gap-3 md:gap-4 mb-8">
-            {hasEditPermission(currentWorker) && (
+            {canCreateTeamMembers() && (
               <TeamMemberManager 
                 onMemberAdded={refetch}
               />
@@ -216,7 +221,7 @@ const TeamMembers = () => {
               onClick={() => setIsEditMode(!isEditMode)}
               className="gap-2 h-10 md:h-auto text-sm md:text-base"
               size={isMobile ? "sm" : "default"}
-              disabled={!hasEditPermission(currentWorker)}
+              disabled={!isSuperAdmin && !hasEditPermission(currentWorker)}
             >
               <Edit2 className="h-4 w-4" />
               {isEditMode ? "סיום עריכה" : "ערוך חברי צוות"}
@@ -242,7 +247,7 @@ const TeamMembers = () => {
                 workerId={member.worker_id}
                 name={member.name}
                 avatarUrl={member.avatar_url}
-                isEditMode={isEditMode && hasEditPermission(currentWorker)}
+                isEditMode={isEditMode && (isSuperAdmin || hasEditPermission(member.worker_id))}
                 onDelete={refetch}
                 isCurrentWorker={member.worker_id === currentWorker}
               />
