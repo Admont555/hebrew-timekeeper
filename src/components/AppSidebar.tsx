@@ -52,10 +52,10 @@ export function AppSidebar() {
     return (
       <Drawer open={isOpen} onOpenChange={setIsOpen} direction="right">
         <DrawerOverlay className="bg-background/80 backdrop-blur-sm" />
-        <DrawerContent className="bg-sidebar text-sidebar-foreground border-l border-sidebar-border shadow-lg rtl pt-20">
-          <div className="flex flex-col h-full p-4 safe-area-right safe-area-bottom">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-lg font-semibold">תפריט</h2>
+        <DrawerContent className="h-full w-full max-w-none bg-sidebar text-sidebar-foreground border-l border-sidebar-border shadow-lg rtl pt-safe-top">
+          <div className="flex flex-col h-full p-4 safe-area-right safe-area-bottom safe-area-top">
+            <div className="flex items-center justify-between mb-8 mt-6">
+              <h2 className="text-xl font-semibold">תפריט</h2>
               <Button
                 onClick={toggleSidebar}
                 variant="ghost"
@@ -67,12 +67,12 @@ export function AppSidebar() {
               </Button>
             </div>
 
-            <nav className="space-y-1">
+            <nav className="space-y-2">
               {menuItems.map((item) => (
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`flex items-center px-4 py-4 rounded-lg transition-colors ${
+                  className={`flex items-center px-4 py-5 rounded-lg transition-colors text-lg ${
                     location.pathname === item.path
                       ? "bg-sidebar-accent text-sidebar-accent-foreground"
                       : "hover:bg-sidebar-accent/50"

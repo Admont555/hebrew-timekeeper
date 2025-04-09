@@ -1,3 +1,4 @@
+
 * {
   margin: 0;
   padding: 0;
@@ -74,18 +75,18 @@ html {
   
   /* Content spacing to prevent navigation overlap */
   .content-spacing {
-    padding-top: 0px; /* Removed additional padding */
+    padding-top: 0px; /* No additional padding */
   }
   
   /* Apply consistent scroll container for all mobile content */
   .scroll-container {
-    padding-top: 70px !important; /* Adjusted for proper spacing */
+    padding-top: 80px !important; /* Increased for proper spacing */
     padding-bottom: 20px !important; /* Add padding to the bottom so content isn't cut off */
   }
   
   /* Added padding to content container on mobile */
   .mobile-content-container {
-    padding-top: 70px;
+    padding-top: 80px;
     padding-bottom: 30px;
   }
   
@@ -158,7 +159,7 @@ html {
 
   /* Mobile header spacing - increased to prevent overlap */
   .mobile-header-spacer {
-    padding-top: 70px; /* Reduced from 84px */
+    padding-top: 80px; /* Increased from 70px */
     padding-bottom: 16px; /* Added bottom padding */
   }
   
@@ -193,7 +194,7 @@ html {
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     padding-bottom: calc(env(safe-area-inset-bottom) + 30px); /* Increased bottom padding */
-    padding-top: 70px; /* Adjusted space for fixed header */
+    padding-top: 80px; /* Increased space for fixed header */
   }
 
   /* Improved mobile menu positioning */
@@ -237,7 +238,7 @@ html {
     }
     
     .scroll-container {
-      padding-top: calc(70px + env(safe-area-inset-top)); /* Adjusted from 84px */
+      padding-top: calc(80px + env(safe-area-inset-top)); /* Increased from 70px */
       padding-bottom: calc(env(safe-area-inset-bottom) + 30px); /* Increased padding */
     }
   }
