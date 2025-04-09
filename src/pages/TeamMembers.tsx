@@ -11,6 +11,7 @@ import { NavMenu } from "@/components/NavMenu";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const TeamMembers = () => {
   const [isEditMode, setIsEditMode] = useState(false);
@@ -49,6 +50,17 @@ const TeamMembers = () => {
   const completionPercentage = tasksStats.total > 0 
     ? Math.round((tasksStats.completed / tasksStats.total) * 100) 
     : 0;
+
+  // Split team members into groups of 3 for mobile tabs
+  const getMemberGroups = () => {
+    const groups = [];
+    for (let i = 0; i < teamMembers.length; i += 3) {
+      groups.push(teamMembers.slice(i, i + 3));
+    }
+    return groups;
+  };
+
+  const memberGroups = getMemberGroups();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50/80 via-white to-purple-50/80 dark:from-gray-900 dark:via-gray-800/90 dark:to-gray-900 bg-fixed">
@@ -136,30 +148,75 @@ const TeamMembers = () => {
           </div>
         </motion.div>
 
-        <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.4 }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto"
-        >
-          {teamMembers.map((member, index) => (
-            <motion.div
-              key={member.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 + index * 0.1 }}
-            >
-              <TeamMemberCard
-                id={member.id}
-                workerId={member.worker_id}
-                name={member.name}
-                avatarUrl={member.avatar_url}
-                isEditMode={isEditMode}
-                onDelete={refetch}
-              />
-            </motion.div>
-          ))}
-        </motion.div>
+        {isMobile ? (
+          // Mobile view with tabs
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.4 }}
+            className="max-w-md mx-auto"
+          >
+            <Tabs defaultValue="0" className="w-full">
+              <TabsList className="w-full mb-4 flex justify-center">
+                {memberGroups.map((_, index) => (
+                  <TabsTrigger key={index} value={index.toString()} className="flex-1">
+                    {index + 1}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+              
+              {memberGroups.map((group, groupIndex) => (
+                <TabsContent key={groupIndex} value={groupIndex.toString()} className="mt-0">
+                  <div className="grid grid-cols-1 gap-6">
+                    {group.map((member, index) => (
+                      <motion.div
+                        key={member.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.1 + index * 0.1 }}
+                      >
+                        <TeamMemberCard
+                          id={member.id}
+                          workerId={member.worker_id}
+                          name={member.name}
+                          avatarUrl={member.avatar_url}
+                          isEditMode={isEditMode}
+                          onDelete={refetch}
+                        />
+                      </motion.div>
+                    ))}
+                  </div>
+                </TabsContent>
+              ))}
+            </Tabs>
+          </motion.div>
+        ) : (
+          // Desktop view with grid
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.4 }}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto"
+          >
+            {teamMembers.map((member, index) => (
+              <motion.div
+                key={member.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 + index * 0.1 }}
+              >
+                <TeamMemberCard
+                  id={member.id}
+                  workerId={member.worker_id}
+                  name={member.name}
+                  avatarUrl={member.avatar_url}
+                  isEditMode={isEditMode}
+                  onDelete={refetch}
+                />
+              </motion.div>
+            ))}
+          </motion.div>
+        )}
       </div>
     </div>
   );
