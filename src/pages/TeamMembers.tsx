@@ -52,7 +52,7 @@ const TeamMembers = () => {
     : 0;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50/80 via-white to-purple-50/80 dark:from-gray-900 dark:via-gray-800/90 dark:to-gray-900 bg-fixed">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50/80 via-white to-purple-50/80 dark:from-gray-900 dark:via-gray-800/90 dark:to-gray-900">
       <NavMenu />
       <div className={`container mx-auto px-4 py-8 md:py-12 ${isMobile ? 'pt-16' : ''}`}>
         <motion.div
@@ -81,7 +81,7 @@ const TeamMembers = () => {
             ברוכים הבאים למערכת ניהול המשימות. בחר חבר צוות כדי לצפות ולנהל את המשימות שלו.
           </motion.p>
 
-          {/* Dashboard summary cards */}
+          {/* Dashboard summary cards - Safari compatible implementation */}
           {isMobile ? (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -106,7 +106,7 @@ const TeamMembers = () => {
                 </TabsList>
                 
                 <TabsContent value="team" className="mt-2">
-                  <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow p-4 border border-purple-100 dark:border-gray-700">
+                  <Card className="bg-white dark:bg-gray-800 shadow-md p-4 border border-purple-100 dark:border-gray-700">
                     <div className="flex flex-col items-center">
                       <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-full mb-4">
                         <Users className="h-6 w-6 text-blue-600 dark:text-blue-400" />
@@ -118,7 +118,7 @@ const TeamMembers = () => {
                 </TabsContent>
                 
                 <TabsContent value="tasks" className="mt-2">
-                  <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow p-4 border border-purple-100 dark:border-gray-700">
+                  <Card className="bg-white dark:bg-gray-800 shadow-md p-4 border border-purple-100 dark:border-gray-700">
                     <div className="flex flex-col items-center">
                       <div className="p-3 bg-purple-100 dark:bg-purple-900/30 rounded-full mb-4">
                         <ListChecks className="h-6 w-6 text-purple-600 dark:text-purple-400" />
@@ -130,7 +130,7 @@ const TeamMembers = () => {
                 </TabsContent>
                 
                 <TabsContent value="progress" className="mt-2">
-                  <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow p-4 border border-purple-100 dark:border-gray-700">
+                  <Card className="bg-white dark:bg-gray-800 shadow-md p-4 border border-purple-100 dark:border-gray-700">
                     <div className="flex flex-col items-center">
                       <p className="text-muted-foreground mb-2">התקדמות משימות</p>
                       <div className="flex justify-between w-full mb-2">
@@ -152,7 +152,7 @@ const TeamMembers = () => {
               transition={{ delay: 0.3, duration: 0.6 }}
               className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto mb-10"
             >
-              <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg hover:shadow-xl transition duration-300 p-6 border border-purple-100 dark:border-gray-700">
+              <Card className="bg-white dark:bg-gray-800 shadow-lg hover:shadow-xl transition duration-300 p-6 border border-purple-100 dark:border-gray-700">
                 <div className="flex flex-col items-center">
                   <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-full mb-4">
                     <Users className="h-6 w-6 text-blue-600 dark:text-blue-400" />
@@ -162,7 +162,7 @@ const TeamMembers = () => {
                 </div>
               </Card>
               
-              <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg hover:shadow-xl transition duration-300 p-6 border border-purple-100 dark:border-gray-700">
+              <Card className="bg-white dark:bg-gray-800 shadow-lg hover:shadow-xl transition duration-300 p-6 border border-purple-100 dark:border-gray-700">
                 <div className="flex flex-col items-center">
                   <div className="p-3 bg-purple-100 dark:bg-purple-900/30 rounded-full mb-4">
                     <BarChart className="h-6 w-6 text-purple-600 dark:text-purple-400" />
@@ -172,7 +172,7 @@ const TeamMembers = () => {
                 </div>
               </Card>
               
-              <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg hover:shadow-xl transition duration-300 p-6 border border-purple-100 dark:border-gray-700">
+              <Card className="bg-white dark:bg-gray-800 shadow-lg hover:shadow-xl transition duration-300 p-6 border border-purple-100 dark:border-gray-700">
                 <div className="flex flex-col items-center">
                   <p className="text-muted-foreground mb-2">התקדמות משימות</p>
                   <div className="flex justify-between w-full mb-2">
