@@ -46,7 +46,7 @@ const TaskList = ({
         className="w-full rounded-lg overflow-hidden"
       >
         <div 
-          className="flex-1 w-full rounded-lg p-4 md:p-6 h-[65vh] md:h-[70vh] overflow-y-auto"
+          className="flex-1 w-full rounded-lg p-4 md:p-6 h-[60vh] md:h-[65vh] overflow-y-auto"
           style={{ 
             WebkitOverflowScrolling: 'touch',
             overscrollBehavior: 'contain',
@@ -78,7 +78,7 @@ const TaskList = ({
     >
       <ScrollArea 
         ref={scrollAreaRef} 
-        className="flex-1 w-full rounded-lg p-4 md:p-6 h-[65vh] md:h-[70vh]"
+        className="flex-1 w-full rounded-lg p-4 md:p-6 h-[60vh] md:h-[65vh]"
       >
         <TaskListContent
           tasksByDate={tasks}

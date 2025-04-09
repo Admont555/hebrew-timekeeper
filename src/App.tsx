@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -17,6 +18,7 @@ import { supabase } from "./integrations/supabase/client";
 import { useToast } from "./hooks/use-toast";
 import { AppSidebar } from "./components/AppSidebar";
 import { NavMenu } from "./components/NavMenu";
+import Footer from "./components/Footer";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -110,42 +112,47 @@ const App = () => {
           <Toaster />
           <Sonner />
           <BrowserRouter>
-            <NavMenu />
-            {isAuthenticated && <AppSidebar />}
-            <Routes>
-              <Route 
-                path="/login" 
-                element={isAuthenticated ? <Navigate to="/" /> : <Login />} 
-              />
-              <Route 
-                path="/" 
-                element={isAuthenticated ? <TeamMembers /> : <Navigate to="/login" />} 
-              />
-              <Route 
-                path="/member/:workerId" 
-                element={isAuthenticated ? <Index /> : <Navigate to="/login" />} 
-              />
-              <Route 
-                path="/tables" 
-                element={isAuthenticated ? <Tables /> : <Navigate to="/login" />} 
-              />
-              <Route 
-                path="/tables/:tableId" 
-                element={isAuthenticated ? <TableView /> : <Navigate to="/login" />} 
-              />
-              <Route 
-                path="/settings" 
-                element={isAuthenticated ? <Settings /> : <Navigate to="/login" />} 
-              />
-              <Route 
-                path="/workflows" 
-                element={isAuthenticated ? <Workflows /> : <Navigate to="/login" />} 
-              />
-              <Route 
-                path="/workflows/:workflowId" 
-                element={isAuthenticated ? <WorkflowCreator /> : <Navigate to="/login" />} 
-              />
-            </Routes>
+            <div className="flex flex-col min-h-screen">
+              <NavMenu />
+              {isAuthenticated && <AppSidebar />}
+              <main className="flex-1">
+                <Routes>
+                  <Route 
+                    path="/login" 
+                    element={isAuthenticated ? <Navigate to="/" /> : <Login />} 
+                  />
+                  <Route 
+                    path="/" 
+                    element={isAuthenticated ? <TeamMembers /> : <Navigate to="/login" />} 
+                  />
+                  <Route 
+                    path="/member/:workerId" 
+                    element={isAuthenticated ? <Index /> : <Navigate to="/login" />} 
+                  />
+                  <Route 
+                    path="/tables" 
+                    element={isAuthenticated ? <Tables /> : <Navigate to="/login" />} 
+                  />
+                  <Route 
+                    path="/tables/:tableId" 
+                    element={isAuthenticated ? <TableView /> : <Navigate to="/login" />} 
+                  />
+                  <Route 
+                    path="/settings" 
+                    element={isAuthenticated ? <Settings /> : <Navigate to="/login" />} 
+                  />
+                  <Route 
+                    path="/workflows" 
+                    element={isAuthenticated ? <Workflows /> : <Navigate to="/login" />} 
+                  />
+                  <Route 
+                    path="/workflows/:workflowId" 
+                    element={isAuthenticated ? <WorkflowCreator /> : <Navigate to="/login" />} 
+                  />
+                </Routes>
+              </main>
+              <Footer />
+            </div>
           </BrowserRouter>
         </TooltipProvider>
       </ThemeProvider>
