@@ -7,7 +7,7 @@ import { componentTagger } from "lovable-tagger";
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
   server: {
-    host: "0.0.0.0",
+    host: "::",
     port: 8080,
   },
   plugins: [
@@ -22,5 +22,14 @@ export default defineConfig(({ mode }) => ({
   build: {
     outDir: 'dist',
     sourcemap: true,
+    // Ensure that we minimize correctly for mobile and desktop
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        // Avoid issues with mobile Safari
+        drop_console: false,
+        pure_funcs: ['console.debug']
+      }
+    }
   }
 }));
