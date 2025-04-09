@@ -11,9 +11,9 @@ const Footer = () => {
       transition={{ duration: 0.4, delay: 0.2 }}
     >
       <div className="flex items-center justify-center gap-1 text-xs text-gray-400 dark:text-gray-500">
-        <span>Made by</span>
+        <span>Made By</span>
         <a 
-          href="https://beeu.co.il" 
+          href="https://beeu.co.il/" 
           target="_blank" 
           rel="noopener noreferrer"
           className="hover:text-purple-500 dark:hover:text-purple-400 transition-colors"
