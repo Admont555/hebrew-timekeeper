@@ -230,4 +230,103 @@ html {
   }
 }
 
+/* Responsive tablet adjustments */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .tablet-column {
+    flex-direction: column !important;
+  }
+  
+  .tablet-grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+  
+  .tablet-py-2 {
+    padding-top: 0.5rem !important;
+    padding-bottom: 0.5rem !important;
+  }
+  
+  .tablet-px-4 {
+    padding-left: 1rem !important; 
+    padding-right: 1rem !important;
+  }
+  
+  .tablet-text-base {
+    font-size: 1rem !important;
+  }
+}
+
+/* Responsive desktop large adjustments */
+@media (min-width: 1536px) {
+  .container {
+    max-width: 1400px !important;
+  }
+  
+  .xxl-text-lg {
+    font-size: 1.125rem !important;
+  }
+  
+  .xxl-grid-cols-4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+  
+  .xxl-gap-6 {
+    gap: 1.5rem !important;
+  }
+}
+
+/* Responsive landscape mode adjustments for mobile */
+@media (max-width: 768px) and (orientation: landscape) {
+  .landscape-flex-row {
+    flex-direction: row !important;
+  }
+  
+  .landscape-h-auto {
+    height: auto !important;
+  }
+  
+  .landscape-py-2 {
+    padding-top: 0.5rem !important;
+    padding-bottom: 0.5rem !important;
+  }
+  
+  .nav-mobile-header {
+    height: 50px !important;
+  }
+  
+  .content-spacing {
+    padding-top: 50px !important;
+  }
+  
+  .scroll-container {
+    padding-top: 50px !important;
+  }
+}
+
+/* Print styles - for when users want to print the app */
+@media print {
+  body {
+    position: static;
+    overflow: visible;
+    height: auto;
+    background: white !important;
+  }
+  
+  .no-print {
+    display: none !important;
+  }
+  
+  .print-break-inside-avoid {
+    break-inside: avoid;
+  }
+  
+  .print-black {
+    color: black !important;
+  }
+  
+  html, body {
+    height: auto;
+    overflow: visible;
+  }
+}
+
 /* ... keep existing code (animations, dark mode, and other existing CSS) */
