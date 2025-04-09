@@ -53,7 +53,7 @@ export function AppSidebar() {
       <Drawer open={isOpen} onOpenChange={setIsOpen} direction="right">
         <DrawerOverlay className="bg-background/80 backdrop-blur-sm" />
         <DrawerContent className="bg-sidebar text-sidebar-foreground border-l border-sidebar-border shadow-lg rtl">
-          <div className="flex flex-col h-full p-4 pt-8 safe-area-top safe-area-right safe-area-bottom">
+          <div className="flex flex-col h-full p-4 pt-20 safe-area-top safe-area-right safe-area-bottom">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-lg font-semibold">תפריט</h2>
               <Button
@@ -111,7 +111,7 @@ export function AppSidebar() {
         transition={{ type: "spring", bounce: 0, duration: 0.4 }}
         className="fixed top-0 right-0 h-full w-[280px] bg-sidebar text-sidebar-foreground border-l border-sidebar-border shadow-lg z-50 overflow-hidden safe-area-top safe-area-right safe-area-bottom"
       >
-        <div className="flex flex-col h-full p-4">
+        <div className="flex flex-col h-full p-4 pt-20">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-lg font-semibold">תפריט</h2>
             <Button

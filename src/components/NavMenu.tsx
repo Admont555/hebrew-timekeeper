@@ -58,12 +58,12 @@ export function NavMenu() {
 
   return (
     <>
-      {/* Menu Icon - Top right corner with improved touch target */}
+      {/* Menu Icon with proper background */}
       <motion.div 
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
-        className={`fixed top-2 right-2 ${isMenuOpen ? 'z-[40]' : 'z-50'} safe-area-top safe-area-right`}
+        className={`fixed top-0 right-0 ${isMenuOpen ? 'z-[40]' : 'z-50'} p-4 safe-area-top safe-area-right glass-effect`}
       >
         <TooltipProvider>
           <Tooltip>
@@ -85,12 +85,12 @@ export function NavMenu() {
         </TooltipProvider>
       </motion.div>
 
-      {/* Other Icons - Top left with improved spacing and touch targets */}
+      {/* Other Icons with proper background */}
       <motion.div 
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
-        className="fixed top-2 left-2 z-50 flex items-center gap-2 safe-area-top safe-area-left"
+        className="fixed top-0 left-0 z-50 flex items-center gap-2 p-4 safe-area-top safe-area-left glass-effect"
       >
         <TooltipProvider>
           <DropdownMenu>
