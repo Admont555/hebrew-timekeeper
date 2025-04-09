@@ -10,9 +10,11 @@ import { Button } from "@/components/ui/button";
 import { NavMenu } from "@/components/NavMenu";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const TeamMembers = () => {
   const [isEditMode, setIsEditMode] = useState(false);
+  const isMobile = useIsMobile();
   
   const { data: teamMembers = [], refetch } = useQuery({
     queryKey: ['team-members'],
@@ -51,12 +53,12 @@ const TeamMembers = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50/80 via-white to-purple-50/80 dark:from-gray-900 dark:via-gray-800/90 dark:to-gray-900 bg-fixed">
       <NavMenu />
-      <div className="container mx-auto px-4 py-8 md:py-12">
+      <div className={`container mx-auto px-4 py-8 md:py-12 ${isMobile ? 'pt-24' : ''}`}>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="text-center mb-12"
+          className={`text-center mb-12 ${isMobile ? 'mt-10' : ''}`}
         >
           <div className="flex items-center justify-center gap-3 mb-4">
             <motion.div
