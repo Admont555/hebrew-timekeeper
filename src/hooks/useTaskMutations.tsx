@@ -2,17 +2,6 @@ import { useQueryClient, useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { TaskPriority } from "@/types/task";
 import { useToast } from "@/hooks/use-toast";
-import { Json } from "@/integrations/supabase/types";
-
-interface TableRowData {
-  [key: string]: any;
-  attachments?: Array<{
-    name: string;
-    url: string;
-    type: string;
-    size: number;
-  }>;
-}
 
 export const useTaskMutations = () => {
   const { toast } = useToast();
@@ -26,71 +15,76 @@ export const useTaskMutations = () => {
       worker?: string;
       _file?: File;
     }) => {
-      let newTaskId;
-      
-      if (title || duration || priority || worker) {
-        const now = new Date();
-        const dateStr = now.toISOString().split("T")[0];
+      try {
+        let newTaskId;
         
-        const newTask = {
-          title,
-          timestamp: now.toISOString(),
-          completed: false,
-          date: dateStr,
-          duration,
-          priority,
-          worker,
-        };
+        if (title || duration || priority || worker) {
+          const now = new Date();
+          const dateStr = now.toISOString().split("T")[0];
+          
+          const newTask = {
+            title,
+            timestamp: now.toISOString(),
+            completed: false,
+            date: dateStr,
+            duration,
+            priority,
+            worker,
+          };
 
-        const { data: taskData, error } = await supabase
-          .from("tasks")
-          .insert(newTask)
-          .select()
-          .single();
+          const { data: taskData, error } = await supabase
+            .from("tasks")
+            .insert(newTask)
+            .select()
+            .single();
 
-        if (error) throw error;
-        newTaskId = taskData.id;
-      }
-
-      if (_file) {
-        try {
-          const timestamp = new Date().getTime();
-          const fileExt = _file.name.split('.').pop();
-          const fileName = `${newTaskId || timestamp}/${timestamp}.${fileExt}`;
-
-          const { data: uploadData, error: uploadError } = await supabase.storage
-            .from('table-attachments')
-            .upload(fileName, _file, {
-              cacheControl: '3600',
-              upsert: false
-            });
-
-          if (uploadError) {
-            console.error('Upload error:', uploadError);
-            throw new Error('Failed to upload file');
-          }
-
-          const { data: { publicUrl } } = supabase.storage
-            .from('table-attachments')
-            .getPublicUrl(fileName);
-
-          const { error: updateError } = await supabase
-            .from('tasks')
-            .update({
-              attachments: [{
-                name: _file.name,
-                url: publicUrl,
-                type: _file.type,
-                size: _file.size,
-              }]
-            })
-            .eq('id', newTaskId);
-
-          if (updateError) throw updateError;
-        } catch (error) {
-          console.error('File upload error:', error);
-          throw error;
+          if (error) throw error;
+          newTaskId = taskData.id;
         }
+
+        if (_file) {
+          try {
+            const timestamp = new Date().getTime();
+            const fileExt = _file.name.split('.').pop();
+            const fileName = `${newTaskId || timestamp}/${timestamp}.${fileExt}`;
+
+            const { data: uploadData, error: uploadError } = await supabase.storage
+              .from('table-attachments')
+              .upload(fileName, _file, {
+                cacheControl: '3600',
+                upsert: false
+              });
+
+            if (uploadError) {
+              console.error('Upload error:', uploadError);
+              throw new Error('Failed to upload file');
+            }
+
+            const { data: { publicUrl } } = supabase.storage
+              .from('table-attachments')
+              .getPublicUrl(fileName);
+
+            const { error: updateError } = await supabase
+              .from('tasks')
+              .update({
+                attachments: [{
+                  name: _file.name,
+                  url: publicUrl,
+                  type: _file.type,
+                  size: _file.size,
+                }]
+              })
+              .eq('id', newTaskId);
+
+            if (updateError) throw updateError;
+          } catch (error) {
+            console.error('File upload error:', error);
+            throw error;
+          }
+        }
+      } catch (error: any) {
+        console.error('Task creation error:', error);
+        throw error;
       }
     },
     onSuccess: () => {
@@ -100,10 +94,11 @@ export const useTaskMutations = () => {
         description: "המשימה החדשה נוספה בהצלחה",
       });
     },
-    onError: (error) => {
+    onError: (error: any) => {
+      console.error('Error in addTaskMutation:', error);
       toast({
         title: "שגיאה בהוספת משימה",
-        description: error.message,
+        description: error.message || "אירעה שגיאה בלתי צפויה",
         variant: "destructive",
       });
     },
