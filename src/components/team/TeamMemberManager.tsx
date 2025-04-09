@@ -9,7 +9,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { motion } from "framer-motion";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useWorkerState } from "@/hooks/useWorkerState";
 
 interface TeamMemberManagerProps {
   onMemberAdded: () => void;
@@ -18,12 +17,10 @@ interface TeamMemberManagerProps {
 const TeamMemberManager = ({ onMemberAdded }: TeamMemberManagerProps) => {
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [newMemberName, setNewMemberName] = useState("");
-  const [newMemberWorkerId, setNewMemberWorkerId] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const { toast } = useToast();
   const isMobile = useIsMobile();
-  const { canCreateTeamMembers } = useWorkerState();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -37,24 +34,6 @@ const TeamMemberManager = ({ onMemberAdded }: TeamMemberManagerProps) => {
       toast({
         title: "שם חבר צוות נדרש",
         description: "אנא הכנס שם לחבר הצוות",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (!newMemberWorkerId.trim()) {
-      toast({
-        title: "מזהה עובד נדרש",
-        description: "אנא הכנס מזהה לחבר הצוות (email)",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (!canCreateTeamMembers()) {
-      toast({
-        title: "אין הרשאה",
-        description: "רק מנהל מערכת יכול להוסיף חברי צוות חדשים",
         variant: "destructive",
       });
       return;
@@ -82,11 +61,12 @@ const TeamMemberManager = ({ onMemberAdded }: TeamMemberManagerProps) => {
         avatarUrl = publicUrl;
       }
 
+      const workerId = `worker${Date.now()}`;
       const { error } = await supabase
         .from('team_members')
         .insert({
           name: newMemberName,
-          worker_id: newMemberWorkerId,
+          worker_id: workerId,
           avatar_url: avatarUrl
         });
 
@@ -94,7 +74,6 @@ const TeamMemberManager = ({ onMemberAdded }: TeamMemberManagerProps) => {
 
       setIsAddOpen(false);
       setNewMemberName("");
-      setNewMemberWorkerId("");
       setSelectedFile(null);
       onMemberAdded();
       
@@ -113,10 +92,6 @@ const TeamMemberManager = ({ onMemberAdded }: TeamMemberManagerProps) => {
       setIsUploading(false);
     }
   };
-
-  if (!canCreateTeamMembers()) {
-    return null;
-  }
 
   return (
     <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
@@ -147,17 +122,6 @@ const TeamMemberManager = ({ onMemberAdded }: TeamMemberManagerProps) => {
               onChange={(e) => setNewMemberName(e.target.value)}
               placeholder="הכנס שם חבר צוות"
               className="text-right"
-            />
-          </div>
-          
-          <div className="space-y-2">
-            <label className="text-sm font-medium">מזהה עובד (email)</label>
-            <Input
-              value={newMemberWorkerId}
-              onChange={(e) => setNewMemberWorkerId(e.target.value)}
-              placeholder="הכנס מזהה עובד (email)"
-              className="text-right"
-              type="email"
             />
           </div>
           

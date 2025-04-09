@@ -12,14 +12,10 @@ import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useWorkerState } from "@/hooks/useWorkerState";
-import { useToast } from "@/hooks/use-toast";
 
 const TeamMembers = () => {
   const [isEditMode, setIsEditMode] = useState(false);
   const isMobile = useIsMobile();
-  const { currentWorker, hasEditPermission, canCreateTeamMembers, isSuperAdmin } = useWorkerState();
-  const { toast } = useToast();
   
   const { data: teamMembers = [], refetch } = useQuery({
     queryKey: ['team-members'],
@@ -55,15 +51,6 @@ const TeamMembers = () => {
     ? Math.round((tasksStats.completed / tasksStats.total) * 100) 
     : 0;
 
-  const handleSetCurrentWorker = (workerId: string) => {
-    // This function could be implemented to allow a user to switch their active worker identity
-    // For now, we'll show a toast explaining this isn't allowed
-    toast({
-      title: "מידע",
-      description: "כדי לערוך או לנהל פרטים של עובד אחר, התחבר עם החשבון שלו.",
-    });
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50/80 via-white to-purple-50/80 dark:from-gray-900 dark:via-gray-800/90 dark:to-gray-900">
       <NavMenu />
@@ -92,16 +79,6 @@ const TeamMembers = () => {
             className="text-muted-foreground mb-8 max-w-lg mx-auto px-2"
           >
             ברוכים הבאים למערכת ניהול המשימות. בחר חבר צוות כדי לצפות ולנהל את המשימות שלו.
-            {currentWorker && (
-              <span className="block mt-2 font-medium text-primary">
-                מחובר כ: {teamMembers.find(m => m.worker_id === currentWorker)?.name || currentWorker}
-              </span>
-            )}
-            {isSuperAdmin && (
-              <span className="block mt-1 font-medium text-green-500">
-                (מנהל מערכת)
-              </span>
-            )}
           </motion.p>
 
           {/* Dashboard summary cards - Safari compatible implementation */}
@@ -211,17 +188,14 @@ const TeamMembers = () => {
           )}
 
           <div className="flex flex-wrap justify-center gap-3 md:gap-4 mb-8">
-            {canCreateTeamMembers() && (
-              <TeamMemberManager 
-                onMemberAdded={refetch}
-              />
-            )}
+            <TeamMemberManager 
+              onMemberAdded={refetch}
+            />
             <Button
               variant={isEditMode ? "destructive" : "outline"}
               onClick={() => setIsEditMode(!isEditMode)}
               className="gap-2 h-10 md:h-auto text-sm md:text-base"
               size={isMobile ? "sm" : "default"}
-              disabled={!isSuperAdmin && !hasEditPermission(currentWorker)}
             >
               <Edit2 className="h-4 w-4" />
               {isEditMode ? "סיום עריכה" : "ערוך חברי צוות"}
@@ -247,9 +221,8 @@ const TeamMembers = () => {
                 workerId={member.worker_id}
                 name={member.name}
                 avatarUrl={member.avatar_url}
-                isEditMode={isEditMode && (isSuperAdmin || hasEditPermission(member.worker_id))}
+                isEditMode={isEditMode}
                 onDelete={refetch}
-                isCurrentWorker={member.worker_id === currentWorker}
               />
             </motion.div>
           ))}
