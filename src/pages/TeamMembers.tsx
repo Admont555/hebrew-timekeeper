@@ -48,7 +48,7 @@ const TeamMembers = () => {
   });
 
   const completionPercentage = tasksStats.total > 0 
-    ? Math.round((tasksData.completed / tasksStats.total) * 100) 
+    ? Math.round((tasksStats.completed / tasksStats.total) * 100) 
     : 0;
 
   return (
