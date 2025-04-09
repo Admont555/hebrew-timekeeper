@@ -7,6 +7,7 @@ import { Loader2, MoveVertical, Trash2 } from "lucide-react";
 import TaskItem from "../TaskItem";
 import { Button } from "../ui/button";
 import { useState, useEffect } from "react";
+import { useIsMobile } from "@/hooks/use-mobile";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -40,6 +41,7 @@ const TaskListContent = ({
   onDeleteAllTasksForDate,
 }: TaskListContentProps) => {
   const [reorderedTasks, setReorderedTasks] = useState<TasksByDate>(tasksByDate);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     setReorderedTasks(tasksByDate);
@@ -95,7 +97,7 @@ const TaskListContent = ({
             </h2>
             <div className="flex items-center gap-3">
               <div className="text-xs text-muted-foreground">
-                {tasks.length > 1 && (
+                {tasks.length > 1 && !isMobile && (
                   <div className="flex items-center gap-1">
                     <MoveVertical className="h-3 w-3" />
                     <span>גרור כדי לסדר מחדש</span>
@@ -140,29 +142,48 @@ const TaskListContent = ({
           <AnimatePresence mode="popLayout">
             <div className="space-y-3 px-1">
               {tasks.length > 0 && (
-                <Reorder.Group 
-                  axis="y" 
-                  values={tasks} 
-                  onReorder={(newOrder) => handleReorder(date, newOrder)}
-                  className="space-y-3"
-                >
-                  {tasks.map((task) => (
-                    <Reorder.Item
-                      key={task.id}
-                      value={task}
-                      className="cursor-move touch-none"
-                    >
-                      <TaskItem
+                isMobile ? (
+                  // On mobile, just render the tasks without Reorder to improve compatibility
+                  <div className="space-y-3">
+                    {tasks.map((task) => (
+                      <div key={task.id}>
+                        <TaskItem
+                          key={task.id}
+                          task={task}
+                          onToggleTask={onToggleTask}
+                          onTaskComplete={onTaskComplete}
+                          onDeleteTask={onDeleteTask}
+                          onEdit={onEditTask}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  // On desktop, use Reorder for drag and drop functionality
+                  <Reorder.Group 
+                    axis="y" 
+                    values={tasks} 
+                    onReorder={(newOrder) => handleReorder(date, newOrder)}
+                    className="space-y-3"
+                  >
+                    {tasks.map((task) => (
+                      <Reorder.Item
                         key={task.id}
-                        task={task}
-                        onToggleTask={onToggleTask}
-                        onTaskComplete={onTaskComplete}
-                        onDeleteTask={onDeleteTask}
-                        onEdit={onEditTask}
-                      />
-                    </Reorder.Item>
-                  ))}
-                </Reorder.Group>
+                        value={task}
+                        className="cursor-move touch-none"
+                      >
+                        <TaskItem
+                          key={task.id}
+                          task={task}
+                          onToggleTask={onToggleTask}
+                          onTaskComplete={onTaskComplete}
+                          onDeleteTask={onDeleteTask}
+                          onEdit={onEditTask}
+                        />
+                      </Reorder.Item>
+                    ))}
+                  </Reorder.Group>
+                )
               )}
             </div>
           </AnimatePresence>

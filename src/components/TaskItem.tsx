@@ -11,6 +11,7 @@ import { Checkbox } from "./ui/checkbox";
 import { Check } from "lucide-react";
 import TaskForm from "./TaskForm";
 import { cn } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface TaskItemProps {
   task: Task;
@@ -24,6 +25,7 @@ const TaskItem = ({ task, onToggleTask, onTaskComplete, onDeleteTask, onEdit }: 
   const [showComments, setShowComments] = useState(false);
   const [showAttachments, setShowAttachments] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const isMobile = useIsMobile();
 
   const formatTime = (timestamp: string) => {
     return new Date(timestamp).toLocaleTimeString("he-IL", {
@@ -170,18 +172,36 @@ const TaskItem = ({ task, onToggleTask, onTaskComplete, onDeleteTask, onEdit }: 
                 className="flex items-center justify-center"
                 onClick={handleCheckboxChange}
               >
-                <Checkbox 
-                  id={`task-${task.id}`}
-                  checked={task.completed}
-                  onCheckedChange={() => onToggleTask(task.id)}
-                  className={cn(
-                    "h-6 w-6 min-h-[24px] min-w-[24px] rounded-md border-2 transition-colors duration-300",
-                    task.completed 
-                      ? "border-purple-500 bg-purple-500 text-white" 
-                      : "border-purple-300 dark:border-purple-700"
-                  )}
-                  aria-label="סמן משימה כהושלמה"
-                />
+                {isMobile ? (
+                  // Use a regular button for mobile to improve touch interactions
+                  <button
+                    type="button"
+                    onClick={() => onToggleTask(task.id)}
+                    className={cn(
+                      "h-10 w-10 min-h-[44px] min-w-[44px] rounded-md border-2 transition-colors duration-300 flex items-center justify-center",
+                      task.completed 
+                        ? "border-purple-500 bg-purple-500 text-white" 
+                        : "border-purple-300 dark:border-purple-700"
+                    )}
+                    aria-label="סמן משימה כהושלמה"
+                  >
+                    {task.completed && <Check className="h-6 w-6" />}
+                  </button>
+                ) : (
+                  // Use Checkbox component for desktop
+                  <Checkbox 
+                    id={`task-${task.id}`}
+                    checked={task.completed}
+                    onCheckedChange={() => onToggleTask(task.id)}
+                    className={cn(
+                      "h-6 w-6 min-h-[24px] min-w-[24px] rounded-md border-2 transition-colors duration-300",
+                      task.completed 
+                        ? "border-purple-500 bg-purple-500 text-white" 
+                        : "border-purple-300 dark:border-purple-700"
+                    )}
+                    aria-label="סמן משימה כהושלמה"
+                  />
+                )}
               </div>
             </div>
           </motion.div>

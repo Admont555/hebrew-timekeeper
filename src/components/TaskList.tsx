@@ -5,6 +5,7 @@ import { useRef } from "react";
 import { useToast } from "@/hooks/use-toast";
 import TaskListContent from "./task/TaskListContent";
 import { motion } from "framer-motion";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface TaskListProps {
   tasks: TasksByDate;
@@ -27,12 +28,42 @@ const TaskList = ({
 }: TaskListProps) => {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+  const isMobile = useIsMobile();
 
   // Pass the onEditTask function directly to TaskListContent
   const handleEditTask = (task: Task) => {
     onEditTask(task.id, task.title, task.duration || 0, task.priority);
   };
 
+  // For mobile browsers, use a regular div with overflow instead of ScrollArea
+  // to avoid compatibility issues with some mobile browsers
+  if (isMobile) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        className="w-full rounded-lg overflow-hidden"
+      >
+        <div 
+          className="flex-1 w-full rounded-lg p-4 md:p-6 h-[65vh] md:h-[70vh] overflow-y-auto webkit-scroll"
+          style={{ overscrollBehavior: 'contain' }}
+        >
+          <TaskListContent
+            tasksByDate={tasks}
+            isLoading={isLoading}
+            onToggleTask={onToggleTask}
+            onTaskComplete={onTaskComplete}
+            onDeleteTask={onDeleteTask}
+            onEditTask={handleEditTask}
+            onDeleteAllTasksForDate={onDeleteAllTasksForDate}
+          />
+        </div>
+      </motion.div>
+    );
+  }
+
+  // Use ScrollArea for desktop browsers
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -42,8 +73,7 @@ const TaskList = ({
     >
       <ScrollArea 
         ref={scrollAreaRef} 
-        className="flex-1 w-full rounded-lg p-4 md:p-6 h-[65vh] md:h-[70vh] -webkit-overflow-scrolling-touch"
-        style={{ WebkitOverflowScrolling: 'touch' }}
+        className="flex-1 w-full rounded-lg p-4 md:p-6 h-[65vh] md:h-[70vh]"
       >
         <TaskListContent
           tasksByDate={tasks}

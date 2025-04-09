@@ -56,7 +56,7 @@ export function AppSidebar() {
     return (
       <Drawer open={isOpen} onOpenChange={setIsOpen} direction="right">
         <DrawerOverlay className="bg-background/80 z-40" />
-        <DrawerContent className="h-full w-[85%] max-w-[300px] bg-sidebar text-sidebar-foreground border-l border-sidebar-border shadow-lg rtl pt-safe-top z-50">
+        <DrawerContent className="h-full w-[85%] max-w-[300px] bg-sidebar text-sidebar-foreground border-l border-sidebar-border shadow-lg pt-safe-top z-50">
           <DrawerHeader className="px-4 pt-6 pb-2">
             <DrawerTitle className="text-xl font-semibold">תפריט</DrawerTitle>
             <DrawerClose asChild>
@@ -71,7 +71,7 @@ export function AppSidebar() {
             </DrawerClose>
           </DrawerHeader>
           
-          <div className="flex flex-col h-full px-4 py-2 overflow-y-auto safe-area-right safe-area-bottom safe-area-top -webkit-overflow-scrolling-touch" style={{ WebkitOverflowScrolling: 'touch' }}>
+          <div className="flex flex-col h-full px-4 py-2 overflow-y-auto webkit-scroll" style={{ overscrollBehavior: 'contain' }}>
             <nav className="space-y-1 mt-4">
               {menuItems.map((item) => (
                 <Link
@@ -118,7 +118,7 @@ export function AppSidebar() {
         initial={{ x: "100%" }}
         animate={{ x: isOpen ? "0%" : "100%" }}
         transition={{ type: "spring", bounce: 0, duration: 0.4 }}
-        className="fixed top-0 right-0 h-full w-[280px] bg-sidebar text-sidebar-foreground border-l border-sidebar-border shadow-lg z-50 overflow-hidden safe-area-right safe-area-bottom"
+        className="fixed top-0 right-0 h-full w-[280px] bg-sidebar text-sidebar-foreground border-l border-sidebar-border shadow-lg z-50 overflow-hidden"
       >
         <div className="flex flex-col h-full p-4 pt-24">
           <div className="flex items-center justify-between mb-6">
