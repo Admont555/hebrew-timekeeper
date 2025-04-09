@@ -1,3 +1,4 @@
+
 export const playNotificationSound = () => {
   const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
   const oscillator = audioContext.createOscillator();
@@ -18,20 +19,22 @@ export const playNotificationSound = () => {
     audioContext.close();
   }, 1000);
 
-  // Show browser notification
-  if (Notification.permission === "granted") {
-    new Notification("זמן המשימה הסתיים!", {
-      body: "הגיע הזמן לעבור למשימה הבאה",
-      icon: "/favicon.ico"
-    });
-  } else if (Notification.permission !== "denied") {
-    Notification.requestPermission().then(permission => {
-      if (permission === "granted") {
-        new Notification("זמן המשימה הסתיים!", {
-          body: "הגיע הזמן לעבור למשימה הבאה",
-          icon: "/favicon.ico"
-        });
-      }
-    });
+  // Safely check if Notification API is available before using it
+  if (typeof Notification !== 'undefined') {
+    if (Notification.permission === "granted") {
+      new Notification("זמן המשימה הסתיים!", {
+        body: "הגיע הזמן לעבור למשימה הבאה",
+        icon: "/favicon.ico"
+      });
+    } else if (Notification.permission !== "denied") {
+      Notification.requestPermission().then(permission => {
+        if (permission === "granted") {
+          new Notification("זמן המשימה הסתיים!", {
+            body: "הגיע הזמן לעבור למשימה הבאה",
+            icon: "/favicon.ico"
+          });
+        }
+      });
+    }
   }
 };

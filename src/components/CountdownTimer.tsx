@@ -1,3 +1,4 @@
+
 import { useEffect, useState, useRef } from "react";
 import { Button } from "./ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -23,7 +24,8 @@ const CountdownTimer = ({ duration, startTime, isCompleted, onComplete }: Countd
   const durationRef = useRef<number>(0);
 
   useEffect(() => {
-    if (Notification.permission === "default") {
+    // Safely check if Notification API is available
+    if (typeof Notification !== 'undefined' && Notification.permission === "default") {
       Notification.requestPermission();
     }
 
