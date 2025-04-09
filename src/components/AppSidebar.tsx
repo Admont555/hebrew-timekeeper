@@ -1,10 +1,16 @@
 
 import { motion } from "framer-motion";
-import { Menu, ListChecks } from "lucide-react";
+import { Menu, X, ListChecks } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useLocation, Link } from "react-router-dom";
 import { Button } from "./ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerOverlay,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
 
 export function AppSidebar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -41,6 +47,50 @@ export function AppSidebar() {
     { name: "הגדרות", path: "/settings" },
   ];
 
+  // Mobile uses a drawer, desktop uses a sidebar
+  if (isMobile) {
+    return (
+      <Drawer open={isOpen} onOpenChange={setIsOpen} direction="right">
+        <DrawerOverlay className="bg-background/80 backdrop-blur-sm" />
+        <DrawerContent className="bg-sidebar text-sidebar-foreground border-l border-sidebar-border shadow-lg rtl">
+          <div className="flex flex-col h-full p-4 pt-8 safe-area-top safe-area-right safe-area-bottom">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-lg font-semibold">תפריט</h2>
+              <Button
+                onClick={toggleSidebar}
+                variant="ghost"
+                size="icon"
+                className="h-10 w-10 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground rounded-full"
+                aria-label="סגור תפריט"
+              >
+                <X className="h-5 w-5" />
+              </Button>
+            </div>
+
+            <nav className="space-y-1">
+              {menuItems.map((item) => (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={`flex items-center px-4 py-4 rounded-lg transition-colors ${
+                    location.pathname === item.path
+                      ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                      : "hover:bg-sidebar-accent/50"
+                  }`}
+                  onClick={toggleSidebar}
+                >
+                  {item.icon}
+                  {item.name}
+                </Link>
+              ))}
+            </nav>
+          </div>
+        </DrawerContent>
+      </Drawer>
+    );
+  }
+
+  // Desktop sidebar
   return (
     <>
       {/* Overlay */}
@@ -71,7 +121,7 @@ export function AppSidebar() {
               className="hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
               aria-label="סגור תפריט"
             >
-              <Menu className="h-5 w-5" />
+              <X className="h-5 w-5" />
             </Button>
           </div>
 
