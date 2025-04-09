@@ -55,7 +55,7 @@ export function AppSidebar() {
   if (isMobile) {
     return (
       <Drawer open={isOpen} onOpenChange={setIsOpen} direction="right">
-        <DrawerOverlay className="bg-background/80 backdrop-blur-sm z-40" />
+        <DrawerOverlay className="bg-background/80 z-40" />
         <DrawerContent className="h-full w-[85%] max-w-[300px] bg-sidebar text-sidebar-foreground border-l border-sidebar-border shadow-lg rtl pt-safe-top z-50">
           <DrawerHeader className="px-4 pt-6 pb-2">
             <DrawerTitle className="text-xl font-semibold">תפריט</DrawerTitle>
@@ -63,7 +63,7 @@ export function AppSidebar() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="absolute left-4 top-4 h-10 w-10 rounded-full hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                className="absolute left-4 top-4 h-10 w-10 rounded-full hover:bg-sidebar-accent hover:text-sidebar-accent-foreground min-h-[44px] min-w-[44px]"
                 aria-label="סגור תפריט"
               >
                 <X className="h-5 w-5" />
@@ -71,13 +71,13 @@ export function AppSidebar() {
             </DrawerClose>
           </DrawerHeader>
           
-          <div className="flex flex-col h-full px-4 py-2 overflow-y-auto safe-area-right safe-area-bottom safe-area-top">
+          <div className="flex flex-col h-full px-4 py-2 overflow-y-auto safe-area-right safe-area-bottom safe-area-top -webkit-overflow-scrolling-touch" style={{ WebkitOverflowScrolling: 'touch' }}>
             <nav className="space-y-1 mt-4">
               {menuItems.map((item) => (
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`flex items-center px-4 py-4 rounded-lg transition-colors text-base ${
+                  className={`flex items-center px-4 py-4 rounded-lg transition-colors text-base min-h-[44px] ${
                     location.pathname === item.path
                       ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
                       : "hover:bg-sidebar-accent/50"
@@ -109,7 +109,7 @@ export function AppSidebar() {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={toggleSidebar}
-          className="fixed inset-0 bg-background/80 backdrop-blur-sm z-40"
+          className="fixed inset-0 bg-background/80 z-40"
         />
       )}
 
@@ -127,7 +127,7 @@ export function AppSidebar() {
               onClick={toggleSidebar}
               variant="ghost"
               size="icon"
-              className="hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+              className="hover:bg-sidebar-accent hover:text-sidebar-accent-foreground min-h-[44px] min-w-[44px]"
               aria-label="סגור תפריט"
             >
               <X className="h-5 w-5" />
@@ -139,7 +139,7 @@ export function AppSidebar() {
               <Link
                 key={item.path}
                 to={item.path}
-                className={`flex items-center px-4 py-3 rounded-lg transition-colors ${
+                className={`flex items-center px-4 py-3 rounded-lg transition-colors min-h-[44px] ${
                   location.pathname === item.path
                     ? "bg-sidebar-accent text-sidebar-accent-foreground"
                     : "hover:bg-sidebar-accent/50"

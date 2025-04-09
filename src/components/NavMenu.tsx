@@ -63,7 +63,7 @@ export function NavMenu() {
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
-        className={`fixed top-0 right-0 ${isMenuOpen ? 'z-[40]' : 'z-50'} w-full sm:w-auto p-2 sm:p-4 safe-area-top safe-area-right ${isMobile ? 'bg-white/90 dark:bg-gray-900/90 border-b border-gray-200 dark:border-gray-800' : ''}`}
+        className={`fixed top-0 right-0 ${isMenuOpen ? 'z-[40]' : 'z-50'} w-full sm:w-auto p-2 sm:p-4 safe-area-top safe-area-right ${isMobile ? 'bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800' : ''}`}
       >
         <TooltipProvider>
           <Tooltip>
@@ -72,7 +72,7 @@ export function NavMenu() {
                 variant="outline"
                 size="icon"
                 onClick={handleToggleMenu}
-                className="menu-button h-10 w-10 md:h-10 md:w-10 rounded-full shadow-md hover:bg-accent hover:scale-105 active:scale-95 transition-all duration-200 float-right"
+                className="menu-button h-12 w-12 md:h-10 md:w-10 rounded-full shadow-md hover:bg-accent hover:scale-105 active:scale-95 transition-all duration-200 float-right min-h-[48px] min-w-[48px]"
                 aria-label="פתח תפריט"
               >
                 <Menu className="h-5 w-5" />
@@ -90,7 +90,7 @@ export function NavMenu() {
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
-        className={`fixed top-0 left-0 z-50 flex items-center gap-2 p-2 sm:p-4 safe-area-top safe-area-left ${isMobile ? 'bg-white/90 dark:bg-gray-900/90 border-b border-gray-200 dark:border-gray-800' : ''}`}
+        className={`fixed top-0 left-0 z-50 flex items-center gap-2 p-2 sm:p-4 safe-area-top safe-area-left ${isMobile ? 'bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800' : ''}`}
       >
         <TooltipProvider>
           <DropdownMenu>
@@ -100,7 +100,7 @@ export function NavMenu() {
                   <Button
                     variant="outline"
                     size="icon"
-                    className="h-10 w-10 md:h-10 md:w-10 rounded-full shadow-md hover:bg-accent hover:scale-105 active:scale-95 transition-all duration-200"
+                    className="h-12 w-12 md:h-10 md:w-10 rounded-full shadow-md hover:bg-accent hover:scale-105 active:scale-95 transition-all duration-200 min-h-[48px] min-w-[48px]"
                     aria-label={isAutoTheme ? "מצב צבע אוטומטי" : (theme === "light" ? "הפעל מצב כהה" : "הפעל מצב בהיר")}
                   >
                     <motion.div
@@ -124,10 +124,10 @@ export function NavMenu() {
               </TooltipContent>
             </Tooltip>
             <DropdownMenuContent align="end" className="min-w-[180px]">
-              <DropdownMenuItem onClick={toggleTheme} disabled={isAutoTheme}>
+              <DropdownMenuItem onClick={toggleTheme} disabled={isAutoTheme} className="min-h-[44px]">
                 {theme === "light" ? "הפעל מצב כהה" : "הפעל מצב בהיר"}
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={toggleAutoTheme}>
+              <DropdownMenuItem onClick={toggleAutoTheme} className="min-h-[44px]">
                 {isAutoTheme ? "כבה מצב אוטומטי" : "הפעל מצב אוטומטי לפי שעה"}
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -142,7 +142,7 @@ export function NavMenu() {
                   variant="outline"
                   size="icon"
                   onClick={logout}
-                  className="h-10 w-10 md:h-10 md:w-10 rounded-full shadow-md hover:bg-destructive/10 hover:scale-105 active:scale-95 transition-all duration-200"
+                  className="h-12 w-12 md:h-10 md:w-10 rounded-full shadow-md hover:bg-destructive/10 hover:scale-105 active:scale-95 transition-all duration-200 min-h-[48px] min-w-[48px]"
                   aria-label="התנתק מהמערכת"
                 >
                   <LogOut className="h-5 w-5" />

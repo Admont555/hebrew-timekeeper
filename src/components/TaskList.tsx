@@ -25,7 +25,6 @@ const TaskList = ({
   onEditTask,
   onDeleteAllTasksForDate,
 }: TaskListProps) => {
-  const activeTaskRef = useRef<HTMLDivElement>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
@@ -43,7 +42,8 @@ const TaskList = ({
     >
       <ScrollArea 
         ref={scrollAreaRef} 
-        className="flex-1 w-full rounded-lg p-4 md:p-6 h-[65vh] md:h-[70vh]"
+        className="flex-1 w-full rounded-lg p-4 md:p-6 h-[65vh] md:h-[70vh] -webkit-overflow-scrolling-touch"
+        style={{ WebkitOverflowScrolling: 'touch' }}
       >
         <TaskListContent
           tasksByDate={tasks}

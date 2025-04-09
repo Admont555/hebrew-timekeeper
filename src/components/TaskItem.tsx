@@ -87,6 +87,12 @@ const TaskItem = ({ task, onToggleTask, onTaskComplete, onDeleteTask, onEdit }: 
     setIsEditing(false);
   };
 
+  const handleCheckboxChange = (e: React.MouseEvent) => {
+    // Prevent event propagation to avoid conflicts with Reorder drag functionality
+    e.stopPropagation();
+    onToggleTask(task.id);
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -160,13 +166,16 @@ const TaskItem = ({ task, onToggleTask, onTaskComplete, onDeleteTask, onEdit }: 
                 isCompleted={task.completed}
                 onComplete={() => onTaskComplete(task.id)}
               />
-              <div className="flex items-center justify-center">
+              <div 
+                className="flex items-center justify-center"
+                onClick={handleCheckboxChange}
+              >
                 <Checkbox 
                   id={`task-${task.id}`}
                   checked={task.completed}
                   onCheckedChange={() => onToggleTask(task.id)}
                   className={cn(
-                    "h-6 w-6 rounded-md border-2 transition-colors duration-300",
+                    "h-6 w-6 min-h-[24px] min-w-[24px] rounded-md border-2 transition-colors duration-300",
                     task.completed 
                       ? "border-purple-500 bg-purple-500 text-white" 
                       : "border-purple-300 dark:border-purple-700"

@@ -89,7 +89,7 @@ const TaskListContent = ({
           transition={{ duration: 0.4 }}
           className="space-y-4"
         >
-          <div className="sticky top-0 bg-purple-50/95 dark:bg-gray-800/95 backdrop-blur-xl border-b border-purple-100 dark:border-gray-700 shadow-sm z-10 py-3 rounded-t-lg px-4 flex justify-between items-center">
+          <div className="sticky top-0 bg-purple-50 dark:bg-gray-800 border-b border-purple-100 dark:border-gray-700 shadow-sm z-10 py-3 rounded-t-lg px-4 flex justify-between items-center">
             <h2 className="text-lg font-semibold bg-gradient-to-r from-purple-800 to-indigo-700 dark:from-purple-300 dark:to-indigo-400 bg-clip-text text-transparent">
               {formatDate(date)}
             </h2>
@@ -109,7 +109,7 @@ const TaskListContent = ({
                     <Button 
                       variant="ghost" 
                       size="sm"
-                      className="text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
+                      className="text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 min-h-[44px] min-w-[44px]"
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
@@ -124,10 +124,10 @@ const TaskListContent = ({
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                      <AlertDialogCancel>ביטול</AlertDialogCancel>
+                      <AlertDialogCancel className="min-h-[44px]">ביטול</AlertDialogCancel>
                       <AlertDialogAction 
                         onClick={() => onDeleteAllTasksForDate(date)}
-                        className="bg-red-500 hover:bg-red-600 text-white"
+                        className="bg-red-500 hover:bg-red-600 text-white min-h-[44px]"
                       >
                         מחק הכל
                       </AlertDialogAction>
@@ -150,7 +150,7 @@ const TaskListContent = ({
                     <Reorder.Item
                       key={task.id}
                       value={task}
-                      className="cursor-move touch-manipulation"
+                      className="cursor-move touch-none"
                     >
                       <TaskItem
                         key={task.id}
