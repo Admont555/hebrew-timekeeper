@@ -2,7 +2,7 @@
 import { motion } from "framer-motion";
 import TeamMemberCard from "@/components/team/TeamMemberCard";
 import TeamMemberManager from "@/components/team/TeamMemberManager";
-import { Users, Edit2, BarChart } from "lucide-react";
+import { Users, Edit2, BarChart, ListChecks } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
@@ -11,6 +11,7 @@ import { NavMenu } from "@/components/NavMenu";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const TeamMembers = () => {
   const [isEditMode, setIsEditMode] = useState(false);
@@ -47,7 +48,7 @@ const TeamMembers = () => {
   });
 
   const completionPercentage = tasksStats.total > 0 
-    ? Math.round((tasksStats.completed / tasksStats.total) * 100) 
+    ? Math.round((tasksData.completed / tasksStats.total) * 100) 
     : 0;
 
   return (
@@ -81,45 +82,110 @@ const TeamMembers = () => {
           </motion.p>
 
           {/* Dashboard summary cards */}
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3, duration: 0.6 }}
-            className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto mb-10"
-          >
-            <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg hover:shadow-xl transition duration-300 p-6 border border-purple-100 dark:border-gray-700">
-              <div className="flex flex-col items-center">
-                <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-full mb-4">
-                  <Users className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+          {isMobile ? (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3, duration: 0.6 }}
+              className="max-w-md mx-auto mb-8"
+            >
+              <Tabs defaultValue="team" className="w-full">
+                <TabsList className="grid grid-cols-3 mb-2">
+                  <TabsTrigger value="team" className="flex items-center gap-1">
+                    <Users className="h-4 w-4" />
+                    <span className="hidden sm:inline">צוות</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="tasks" className="flex items-center gap-1">
+                    <ListChecks className="h-4 w-4" />
+                    <span className="hidden sm:inline">משימות</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="progress" className="flex items-center gap-1">
+                    <BarChart className="h-4 w-4" />
+                    <span className="hidden sm:inline">התקדמות</span>
+                  </TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="team" className="mt-2">
+                  <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow p-4 border border-purple-100 dark:border-gray-700">
+                    <div className="flex flex-col items-center">
+                      <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-full mb-4">
+                        <Users className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                      </div>
+                      <h3 className="text-2xl font-bold text-blue-600 dark:text-blue-400">{teamMembers.length}</h3>
+                      <p className="text-muted-foreground">חברי צוות</p>
+                    </div>
+                  </Card>
+                </TabsContent>
+                
+                <TabsContent value="tasks" className="mt-2">
+                  <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow p-4 border border-purple-100 dark:border-gray-700">
+                    <div className="flex flex-col items-center">
+                      <div className="p-3 bg-purple-100 dark:bg-purple-900/30 rounded-full mb-4">
+                        <ListChecks className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+                      </div>
+                      <h3 className="text-2xl font-bold text-purple-600 dark:text-purple-400">{tasksStats.total}</h3>
+                      <p className="text-muted-foreground">סך הכל משימות</p>
+                    </div>
+                  </Card>
+                </TabsContent>
+                
+                <TabsContent value="progress" className="mt-2">
+                  <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow p-4 border border-purple-100 dark:border-gray-700">
+                    <div className="flex flex-col items-center">
+                      <p className="text-muted-foreground mb-2">התקדמות משימות</p>
+                      <div className="flex justify-between w-full mb-2">
+                        <span className="text-sm text-muted-foreground">{completionPercentage}%</span>
+                        <span className="text-sm text-muted-foreground">
+                          {tasksStats.completed}/{tasksStats.total}
+                        </span>
+                      </div>
+                      <Progress value={completionPercentage} className="h-2 w-full" />
+                    </div>
+                  </Card>
+                </TabsContent>
+              </Tabs>
+            </motion.div>
+          ) : (
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3, duration: 0.6 }}
+              className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto mb-10"
+            >
+              <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg hover:shadow-xl transition duration-300 p-6 border border-purple-100 dark:border-gray-700">
+                <div className="flex flex-col items-center">
+                  <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-full mb-4">
+                    <Users className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-blue-600 dark:text-blue-400">{teamMembers.length}</h3>
+                  <p className="text-muted-foreground">חברי צוות</p>
                 </div>
-                <h3 className="text-2xl font-bold text-blue-600 dark:text-blue-400">{teamMembers.length}</h3>
-                <p className="text-muted-foreground">חברי צוות</p>
-              </div>
-            </Card>
-            
-            <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg hover:shadow-xl transition duration-300 p-6 border border-purple-100 dark:border-gray-700">
-              <div className="flex flex-col items-center">
-                <div className="p-3 bg-purple-100 dark:bg-purple-900/30 rounded-full mb-4">
-                  <BarChart className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+              </Card>
+              
+              <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg hover:shadow-xl transition duration-300 p-6 border border-purple-100 dark:border-gray-700">
+                <div className="flex flex-col items-center">
+                  <div className="p-3 bg-purple-100 dark:bg-purple-900/30 rounded-full mb-4">
+                    <BarChart className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-purple-600 dark:text-purple-400">{tasksStats.total}</h3>
+                  <p className="text-muted-foreground">סך הכל משימות</p>
                 </div>
-                <h3 className="text-2xl font-bold text-purple-600 dark:text-purple-400">{tasksStats.total}</h3>
-                <p className="text-muted-foreground">סך הכל משימות</p>
-              </div>
-            </Card>
-            
-            <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg hover:shadow-xl transition duration-300 p-6 border border-purple-100 dark:border-gray-700">
-              <div className="flex flex-col items-center">
-                <p className="text-muted-foreground mb-2">התקדמות משימות</p>
-                <div className="flex justify-between w-full mb-2">
-                  <span className="text-sm text-muted-foreground">{completionPercentage}%</span>
-                  <span className="text-sm text-muted-foreground">
-                    {tasksStats.completed}/{tasksStats.total}
-                  </span>
+              </Card>
+              
+              <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg hover:shadow-xl transition duration-300 p-6 border border-purple-100 dark:border-gray-700">
+                <div className="flex flex-col items-center">
+                  <p className="text-muted-foreground mb-2">התקדמות משימות</p>
+                  <div className="flex justify-between w-full mb-2">
+                    <span className="text-sm text-muted-foreground">{completionPercentage}%</span>
+                    <span className="text-sm text-muted-foreground">
+                      {tasksStats.completed}/{tasksStats.total}
+                    </span>
+                  </div>
+                  <Progress value={completionPercentage} className="h-2 w-full" />
                 </div>
-                <Progress value={completionPercentage} className="h-2 w-full" />
-              </div>
-            </Card>
-          </motion.div>
+              </Card>
+            </motion.div>
+          )}
 
           <div className="flex justify-center gap-4 mb-8">
             <TeamMemberManager 
