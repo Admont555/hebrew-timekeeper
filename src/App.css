@@ -65,6 +65,23 @@ html {
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     box-shadow: 0 4px 15px 0 rgba(0, 0, 0, 0.3);
   }
+  
+  /* Mobile navigation header adjustments */
+  .nav-mobile-header {
+    height: 60px;
+    display: flex;
+    align-items: center;
+  }
+  
+  /* Content spacing to prevent navigation overlap */
+  .content-spacing {
+    padding-top: 60px;
+  }
+  
+  /* Apply consistent scroll container for all mobile content */
+  .scroll-container {
+    padding-top: 60px !important;
+  }
 }
 
 /* For non-mobile screens, override to remove glass effect */

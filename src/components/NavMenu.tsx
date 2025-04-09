@@ -63,7 +63,7 @@ export function NavMenu() {
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
-        className={`fixed top-0 right-0 ${isMenuOpen ? 'z-[40]' : 'z-50'} w-full sm:w-auto p-4 safe-area-top safe-area-right ${isMobile ? 'glass-effect' : ''}`}
+        className={`fixed top-0 right-0 ${isMenuOpen ? 'z-[40]' : 'z-50'} w-full sm:w-auto p-4 safe-area-top safe-area-right ${isMobile ? 'glass-effect nav-mobile-header' : ''}`}
       >
         <TooltipProvider>
           <Tooltip>
@@ -90,7 +90,7 @@ export function NavMenu() {
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
-        className={`fixed top-0 left-0 z-50 flex items-center gap-2 p-4 safe-area-top safe-area-left ${isMobile ? 'glass-effect' : ''}`}
+        className={`fixed top-0 left-0 z-50 flex items-center gap-2 p-4 safe-area-top safe-area-left ${isMobile ? 'glass-effect nav-mobile-header' : ''}`}
       >
         <TooltipProvider>
           <DropdownMenu>

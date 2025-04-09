@@ -52,7 +52,7 @@ export function AppSidebar() {
     return (
       <Drawer open={isOpen} onOpenChange={setIsOpen} direction="right">
         <DrawerOverlay className="bg-background/80 backdrop-blur-sm" />
-        <DrawerContent className="bg-sidebar text-sidebar-foreground border-l border-sidebar-border shadow-lg rtl pt-16">
+        <DrawerContent className="bg-sidebar text-sidebar-foreground border-l border-sidebar-border shadow-lg rtl pt-20">
           <div className="flex flex-col h-full p-4 safe-area-right safe-area-bottom">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-lg font-semibold">תפריט</h2>
