@@ -1,9 +1,9 @@
 
 import { Toaster } from "@/components/ui/toaster";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, Navigate, useNavigate } from "react-router-dom";
 import RandomQuote from "@/components/RandomQuote";
-import { TasksByDate, TaskPriority, Task, Attachment } from "@/types/task";
+import { TasksByDate, TaskPriority, Task } from "@/types/task";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
@@ -13,9 +13,10 @@ import TaskAnalytics from "@/components/task/TaskAnalytics";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useWorkerState } from "@/hooks/useWorkerState";
 import { useTaskMutations } from "@/hooks/useTaskMutations";
+import { useTaskShortcuts } from "@/hooks/useTaskShortcuts";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Keyboard } from "lucide-react";
 import TaskForm from "@/components/TaskForm";
 import TaskList from "@/components/TaskList";
 import DateRangeSelector from "@/components/task/DateRangeSelector";
@@ -30,6 +31,7 @@ const Index = () => {
   const { toast } = useToast();
   const isMobile = useIsMobile();
   const queryClient = useQueryClient();
+  const [isAddingTask, setIsAddingTask] = useState(false);
 
   const {
     currentWorker,
@@ -46,6 +48,9 @@ const Index = () => {
     deleteTaskMutation,
     editTaskMutation,
     toggleTaskMutation,
+    updateTaskProgressMutation,
+    updateTaskDependenciesMutation,
+    reorderTasksMutation
   } = useTaskMutations();
 
   const { data: teamMember } = useQuery({
@@ -93,7 +98,7 @@ const Index = () => {
           tasksByDate[dateKey] = [];
         }
 
-        const transformedAttachments: Attachment[] = task.attachments?.map((attachment: any) => ({
+        const transformedAttachments = task.attachments?.map((attachment: any) => ({
           id: attachment.id || crypto.randomUUID(),
           name: attachment.name || '',
           url: attachment.url || '',
@@ -112,12 +117,36 @@ const Index = () => {
           comments: task.comments || [],
           attachments: transformedAttachments,
           worker: task.worker,
-          assigned_to: task.assigned_to || []
+          assigned_to: task.assigned_to || [],
+          progress: task.progress || 0,
+          dependencies: task.dependencies || []
         });
       });
 
       return tasksByDate;
     },
+  });
+
+  // Setup keyboard shortcuts
+  const { showKeyboardShortcuts } = useTaskShortcuts({
+    onAddTask: () => setIsAddingTask(true),
+    onToggleFilterCompleted: () => {
+      toast({
+        title: "קיצור מקלדת",
+        description: "סינון משימות לפי סטטוס",
+      });
+    },
+    onSearch: () => {
+      const searchInput = document.querySelector('input[type="search"]');
+      if (searchInput) {
+        (searchInput as HTMLInputElement).focus();
+      } else {
+        toast({
+          title: "חיפוש",
+          description: "לחץ על כפתור החיפוש להפעלת חיפוש",
+        });
+      }
+    }
   });
 
   const handleDeleteAllTasksForDate = async (date: string) => {
@@ -157,6 +186,28 @@ const Index = () => {
     setTimeout(() => setShowConfetti(false), 3000);
   };
 
+  const handleReorderTasks = (date: string, tasks: Task[]) => {
+    // Update the local state first for instant feedback
+    const updatedTasksByDate = { ...tasksByDate };
+    updatedTasksByDate[date] = tasks;
+    
+    // Then sync with the server
+    reorderTasksMutation.mutate({ tasks });
+  };
+
+  const handleUpdateTaskDependencies = (taskId: string, dependencies: string[]) => {
+    updateTaskDependenciesMutation.mutate({ taskId, dependencies });
+  };
+
+  const handleUpdateTaskProgress = (taskId: string, progress: number) => {
+    updateTaskProgressMutation.mutate({ taskId, progress });
+  };
+
+  const handleAddTask = (title: string, duration: number, priority: TaskPriority) => {
+    addTaskMutation.mutate({ title, duration, priority, worker: workerId });
+    setIsAddingTask(false); // Close the form after submission
+  };
+
   if (!workerId) {
     return <Navigate to="/" />;
   }
@@ -183,6 +234,15 @@ const Index = () => {
             <h1 className="text-xl sm:text-2xl font-bold truncate max-w-[200px] sm:max-w-none">
               {teamMember?.name || 'Loading...'}
             </h1>
+            <Button 
+              variant="ghost" 
+              onClick={showKeyboardShortcuts}
+              className="text-sm flex items-center gap-1"
+              size="sm"
+            >
+              <Keyboard className="h-4 w-4" />
+              <span className="hidden sm:inline">קיצורי מקלדת</span>
+            </Button>
           </div>
 
           <Header />
@@ -199,8 +259,10 @@ const Index = () => {
             transition={{ delay: 0.3, duration: 0.5 }}
             className="bg-white/80 dark:bg-gray-800/80 rounded-xl shadow-lg p-3 sm:p-4 mb-4 sm:mb-6 hover:shadow-xl transition-shadow duration-300"
           >
-            <TaskForm onAddTask={(title, duration, priority) => 
-              addTaskMutation.mutate({ title, duration, priority, worker: workerId })} 
+            <TaskForm 
+              onAddTask={handleAddTask} 
+              isOpen={isAddingTask}
+              onOpenChange={setIsAddingTask}
             />
           </motion.div>
 
@@ -219,6 +281,9 @@ const Index = () => {
               onEditTask={(taskId, newTitle, newDuration, newPriority) => 
                 editTaskMutation.mutate({ taskId, newTitle, newDuration, newPriority, worker: workerId })}
               onDeleteAllTasksForDate={handleDeleteAllTasksForDate}
+              onReorderTasks={handleReorderTasks}
+              onUpdateTaskDependencies={handleUpdateTaskDependencies}
+              onUpdateTaskProgress={handleUpdateTaskProgress}
             />
           </motion.div>
           

@@ -1,15 +1,34 @@
 
 import { Button } from "@/components/ui/button";
-import { Pencil, Trash2, MessageSquare, Paperclip } from "lucide-react";
-import { Task } from "@/types/task";
-import TaskShare from "./TaskShare";
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { cn } from "@/lib/utils";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Task } from "@/types/task";
+import {
+  MoreVertical,
+  Edit2,
+  Trash2,
+  MessageSquare,
+  Paperclip,
+  Copy,
+  Link2
+} from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 interface TaskActionsProps {
   task: Task;
@@ -17,143 +36,106 @@ interface TaskActionsProps {
   onEdit: () => void;
   onToggleComments: () => void;
   onToggleAttachments: () => void;
+  onToggleDependencies?: () => void;
   showAttachments: boolean;
+  showDependencies?: boolean;
 }
 
-const TaskActions = ({ 
-  task, 
-  onDelete, 
-  onEdit, 
-  onToggleComments, 
+const TaskActions = ({
+  task,
+  onDelete,
+  onEdit,
+  onToggleComments,
   onToggleAttachments,
-  showAttachments 
+  onToggleDependencies,
+  showAttachments,
+  showDependencies = false,
 }: TaskActionsProps) => {
-  const handleAssigneesUpdate = (newAssignees: string[]) => {
-    task.assigned_to = newAssignees;
-  };
+  const { toast } = useToast();
 
-  const buttonVariants = {
-    trash: "hover:bg-red-100 dark:hover:bg-red-900/30 text-red-500 hover:text-red-600",
-    edit: "hover:bg-blue-100 dark:hover:bg-blue-900/30 text-blue-500 hover:text-blue-600",
-    paperclip: "hover:bg-purple-100 dark:hover:bg-purple-900/30 text-purple-500 hover:text-purple-600",
-    message: "hover:bg-purple-100 dark:hover:bg-purple-900/30 text-purple-500 hover:text-purple-600",
+  const handleCopyToClipboard = () => {
+    navigator.clipboard.writeText(task.title);
+    toast({
+      title: "הועתק ללוח",
+      description: "תוכן המשימה הועתק ללוח",
+    });
   };
 
   return (
-    <div className="flex gap-2">
-      <TooltipProvider delayDuration={300}>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => onDelete(task.id)}
-              className={cn(
-                "h-8 w-8 transition-all duration-200 rounded-full",
-                buttonVariants.trash
-              )}
-              aria-label="מחק משימה"
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent side="bottom" className="bg-white dark:bg-gray-800 shadow-lg">
-            <p>מחק משימה</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
+    <div className="flex items-center space-x-2 rtl:space-x-reverse">
+      <Button
+        variant={showAttachments ? "default" : "ghost"}
+        size="icon"
+        className="h-8 w-8"
+        onClick={onToggleAttachments}
+      >
+        <Paperclip className="h-4 w-4" />
+        <span className="sr-only">קבצים מצורפים</span>
+      </Button>
 
-      <TooltipProvider delayDuration={300}>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={onEdit}
-              className={cn(
-                "h-8 w-8 transition-all duration-200 rounded-full",
-                buttonVariants.edit
-              )}
-              aria-label="ערוך משימה"
-            >
-              <Pencil className="h-4 w-4" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent side="bottom" className="bg-white dark:bg-gray-800 shadow-lg">
-            <p>ערוך משימה</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
+      <Button
+        variant="ghost"
+        size="icon"
+        className="h-8 w-8"
+        onClick={onToggleComments}
+      >
+        <MessageSquare className="h-4 w-4" />
+        <span className="sr-only">תגובות</span>
+      </Button>
 
-      <TooltipProvider delayDuration={300}>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={onToggleAttachments}
-              className={cn(
-                "h-8 w-8 transition-all duration-200 rounded-full",
-                buttonVariants.paperclip,
-                showAttachments && "bg-purple-100 dark:bg-purple-900/30"
-              )}
-              aria-label="צרף קובץ"
-            >
-              <Paperclip className="h-4 w-4" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent side="bottom" className="bg-white dark:bg-gray-800 shadow-lg">
-            <p>צרף קובץ</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
+      {onToggleDependencies && (
+        <Button
+          variant={showDependencies ? "default" : "ghost"}
+          size="icon"
+          className="h-8 w-8"
+          onClick={onToggleDependencies}
+        >
+          <Link2 className="h-4 w-4" />
+          <span className="sr-only">תלויות</span>
+        </Button>
+      )}
 
-      <TooltipProvider delayDuration={300}>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <div className="relative">
-              <TaskShare
-                taskId={task.id}
-                currentAssignees={task.assigned_to || []}
-                onAssigneesUpdate={handleAssigneesUpdate}
-              />
-            </div>
-          </TooltipTrigger>
-          <TooltipContent side="bottom" className="bg-white dark:bg-gray-800 shadow-lg">
-            <p>שתף משימה</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
-
-      <TooltipProvider delayDuration={300}>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <div className="relative">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={onToggleComments}
-                className={cn(
-                  "h-8 w-8 transition-all duration-200 rounded-full",
-                  buttonVariants.message,
-                  task.comments && task.comments.length > 0 && "bg-purple-100 dark:bg-purple-900/30"
-                )}
-                aria-label="הצג/הסתר תגובות"
-              >
-                <MessageSquare className="h-4 w-4" />
-              </Button>
-              {task.comments && task.comments.length > 0 && (
-                <span className="absolute -top-1 left-5 bg-purple-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
-                  {task.comments.length}
-                </span>
-              )}
-            </div>
-          </TooltipTrigger>
-          <TooltipContent side="bottom" className="bg-white dark:bg-gray-800 shadow-lg">
-            <p>הצג/הסתר תגובות</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" size="icon" className="h-8 w-8">
+            <MoreVertical className="h-4 w-4" />
+            <span className="sr-only">אפשרויות נוספות</span>
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem onClick={onEdit}>
+            <Edit2 className="ml-2 h-4 w-4" />
+            <span>עריכה</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={handleCopyToClipboard}>
+            <Copy className="ml-2 h-4 w-4" />
+            <span>העתק</span>
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                <Trash2 className="ml-2 h-4 w-4" />
+                <span>מחק</span>
+              </DropdownMenuItem>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>האם אתה בטוח?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  פעולה זו תמחק את המשימה לצמיתות ולא ניתן יהיה לשחזר אותה.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>ביטול</AlertDialogCancel>
+                <AlertDialogAction onClick={() => onDelete(task.id)}>
+                  מחק
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   );
 };

@@ -20,6 +20,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
 
 interface TaskListContentProps {
   tasksByDate: TasksByDate;
@@ -29,6 +30,9 @@ interface TaskListContentProps {
   onDeleteTask: (taskId: string) => void;
   onEditTask: (task: Task) => void;
   onDeleteAllTasksForDate?: (date: string) => void;
+  onReorderTasks?: (date: string, tasks: Task[]) => void;
+  onUpdateTaskDependencies?: (taskId: string, dependencies: string[]) => void;
+  onUpdateTaskProgress?: (taskId: string, progress: number) => void;
 }
 
 const TaskListContent = ({
@@ -39,9 +43,17 @@ const TaskListContent = ({
   onDeleteTask,
   onEditTask,
   onDeleteAllTasksForDate,
+  onReorderTasks,
+  onUpdateTaskDependencies,
+  onUpdateTaskProgress,
 }: TaskListContentProps) => {
   const [reorderedTasks, setReorderedTasks] = useState<TasksByDate>(tasksByDate);
   const isMobile = useIsMobile();
+  const [activeDragDate, setActiveDragDate] = useState<string | null>(null);
+  const { toast } = useToast();
+
+  // Collect all tasks in a flat array for dependency lookups
+  const allTasks: Task[] = Object.values(tasksByDate).flat();
 
   useEffect(() => {
     setReorderedTasks(tasksByDate);
@@ -57,6 +69,25 @@ const TaskListContent = ({
       ...prev,
       [date]: newOrder
     }));
+
+    // Only call the parent handler if this feature is enabled
+    if (onReorderTasks) {
+      onReorderTasks(date, newOrder);
+    }
+  };
+
+  // Handle drag start to highlight the active date section
+  const handleDragStart = (date: string) => {
+    setActiveDragDate(date);
+  };
+
+  // Handle drag end to clear highlighting and show toast notification
+  const handleDragEnd = () => {
+    setActiveDragDate(null);
+    toast({
+      title: "סדר המשימות עודכן",
+      description: "סדר המשימות החדש נשמר בהצלחה",
+    });
   };
 
   if (isLoading) {
@@ -86,10 +117,17 @@ const TaskListContent = ({
         <motion.div
           key={date}
           initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+          animate={{ 
+            opacity: 1, 
+            y: 0,
+            scale: activeDragDate === date ? 1.01 : 1
+          }}
           exit={{ opacity: 0, y: -20 }}
           transition={{ duration: 0.4 }}
-          className="space-y-4"
+          className={cn(
+            "space-y-4 rounded-lg",
+            activeDragDate === date ? "bg-purple-50/50 dark:bg-purple-900/10 shadow-lg" : ""
+          )}
         >
           <div className="sticky top-0 bg-purple-50 dark:bg-gray-800 border-b border-purple-100 dark:border-gray-700 shadow-sm z-10 py-3 rounded-t-lg px-4 flex justify-between items-center">
             <h2 className="text-lg font-semibold bg-gradient-to-r from-purple-800 to-indigo-700 dark:from-purple-300 dark:to-indigo-400 bg-clip-text text-transparent">
@@ -150,10 +188,13 @@ const TaskListContent = ({
                         <TaskItem
                           key={task.id}
                           task={task}
+                          allTasks={allTasks}
                           onToggleTask={onToggleTask}
                           onTaskComplete={onTaskComplete}
                           onDeleteTask={onDeleteTask}
                           onEdit={onEditTask}
+                          onUpdateDependencies={onUpdateTaskDependencies}
+                          onUpdateProgress={onUpdateTaskProgress}
                         />
                       </div>
                     ))}
@@ -165,20 +206,26 @@ const TaskListContent = ({
                     values={tasks} 
                     onReorder={(newOrder) => handleReorder(date, newOrder)}
                     className="space-y-3"
+                    onDragStart={() => handleDragStart(date)}
+                    onDragEnd={handleDragEnd}
                   >
                     {tasks.map((task) => (
                       <Reorder.Item
                         key={task.id}
                         value={task}
-                        className="cursor-move touch-none"
+                        className="touch-none"
+                        layoutId={task.id}
                       >
                         <TaskItem
                           key={task.id}
                           task={task}
+                          allTasks={allTasks}
                           onToggleTask={onToggleTask}
                           onTaskComplete={onTaskComplete}
                           onDeleteTask={onDeleteTask}
                           onEdit={onEditTask}
+                          onUpdateDependencies={onUpdateTaskDependencies}
+                          onUpdateProgress={onUpdateTaskProgress}
                         />
                       </Reorder.Item>
                     ))}

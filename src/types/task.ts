@@ -21,6 +21,8 @@ export interface Task {
   attachments?: Attachment[];
   worker: string;
   assigned_to: string[];
+  progress?: number; // Progress percentage (0-100)
+  dependencies?: string[]; // IDs of tasks that this task depends on
 }
 
 export interface TasksByDate {

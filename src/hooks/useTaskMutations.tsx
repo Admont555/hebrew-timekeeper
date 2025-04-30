@@ -1,6 +1,7 @@
+
 import { useQueryClient, useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { TaskPriority } from "@/types/task";
+import { Task, TaskPriority } from "@/types/task";
 import { useToast } from "@/hooks/use-toast";
 
 export const useTaskMutations = () => {
@@ -30,6 +31,8 @@ export const useTaskMutations = () => {
             duration,
             priority,
             worker,
+            progress: 0, // Initialize with 0% progress
+            dependencies: [], // Initialize with empty dependencies array
           };
 
           const { data: taskData, error } = await supabase
@@ -130,7 +133,7 @@ export const useTaskMutations = () => {
   });
 
   const editTaskMutation = useMutation({
-    mutationFn: async ({ taskId, newTitle, newDuration, newPriority, worker, _file, attachments }: { 
+    mutationFn: async ({ taskId, newTitle, newDuration, newPriority, worker, _file, attachments, progress, dependencies }: { 
       taskId: string; 
       newTitle?: string; 
       newDuration?: number; 
@@ -143,6 +146,8 @@ export const useTaskMutations = () => {
         type: string;
         size: number;
       }>;
+      progress?: number;
+      dependencies?: string[];
     }) => {
       if (_file) {
         try {
@@ -196,27 +201,42 @@ export const useTaskMutations = () => {
           console.error('File upload error:', error);
           throw error;
         }
-      } else if (attachments !== undefined) {
-        const { error: updateError } = await supabase
-          .from('tasks')
-          .update({ 
-            attachments
-          })
-          .eq('id', taskId);
-
-        if (updateError) throw updateError;
-      } else if (newTitle || newDuration || newPriority) {
-        const { error } = await supabase
-          .from("tasks")
-          .update({ 
-            title: newTitle, 
-            duration: newDuration,
-            priority: newPriority
-          })
-          .eq("id", taskId)
-          .eq('worker', worker);
-
-        if (error) throw error;
+      } else {
+        // Use an object to collect all the updates
+        const updates: Record<string, any> = {};
+        
+        if (attachments !== undefined) {
+          updates.attachments = attachments;
+        }
+        
+        if (newTitle !== undefined) {
+          updates.title = newTitle;
+        }
+        
+        if (newDuration !== undefined) {
+          updates.duration = newDuration;
+        }
+        
+        if (newPriority !== undefined) {
+          updates.priority = newPriority;
+        }
+        
+        if (progress !== undefined) {
+          updates.progress = progress;
+        }
+        
+        if (dependencies !== undefined) {
+          updates.dependencies = dependencies;
+        }
+        
+        if (Object.keys(updates).length > 0) {
+          const { error } = await supabase
+            .from("tasks")
+            .update(updates)
+            .eq("id", taskId);
+  
+          if (error) throw error;
+        }
       }
     },
     onSuccess: () => {
@@ -245,12 +265,16 @@ export const useTaskMutations = () => {
         .single();
       
       if (!tasks) throw new Error("Task not found");
+      
+      // When completing a task, set progress to 100%
+      const progress = !tasks.completed ? 100 : tasks.progress || 0;
 
       const { error } = await supabase
         .from("tasks")
         .update({ 
           completed: !tasks.completed,
-          start_time: !tasks.start_time && !tasks.completed ? new Date().toISOString() : tasks.start_time
+          start_time: !tasks.start_time && !tasks.completed ? new Date().toISOString() : tasks.start_time,
+          progress: progress
         })
         .eq("id", taskId)
         .eq('worker', worker);
@@ -269,10 +293,94 @@ export const useTaskMutations = () => {
     },
   });
 
+  const updateTaskProgressMutation = useMutation({
+    mutationFn: async ({ taskId, progress }: { taskId: string; progress: number }) => {
+      // Ensure progress is between 0 and 100
+      const normalizedProgress = Math.max(0, Math.min(100, progress));
+      
+      // If progress is 100%, also mark the task as completed
+      const updates: { progress: number; completed?: boolean } = { 
+        progress: normalizedProgress 
+      };
+      
+      if (normalizedProgress === 100) {
+        updates.completed = true;
+      }
+      
+      const { error } = await supabase
+        .from("tasks")
+        .update(updates)
+        .eq("id", taskId);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      toast({
+        title: "התקדמות עודכנה",
+        description: "התקדמות המשימה עודכנה בהצלחה",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "שגיאה בעדכון התקדמות",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const updateTaskDependenciesMutation = useMutation({
+    mutationFn: async ({ taskId, dependencies }: { taskId: string; dependencies: string[] }) => {
+      const { error } = await supabase
+        .from("tasks")
+        .update({ dependencies })
+        .eq("id", taskId);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      toast({
+        title: "תלויות עודכנו",
+        description: "תלויות המשימה עודכנו בהצלחה",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "שגיאה בעדכון תלויות",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const reorderTasksMutation = useMutation({
+    mutationFn: async ({ tasks }: { tasks: Task[] }) => {
+      // In a real implementation, you might want to update task positions in the database
+      // For now, we'll just invalidate the cache since we're managing order in the client
+      return Promise.resolve();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tasks'] });
+    },
+    onError: (error) => {
+      toast({
+        title: "שגיאה בארגון משימות",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   return {
     addTaskMutation,
     deleteTaskMutation,
     editTaskMutation,
     toggleTaskMutation,
+    updateTaskProgressMutation,
+    updateTaskDependenciesMutation,
+    reorderTasksMutation,
   };
 };
+

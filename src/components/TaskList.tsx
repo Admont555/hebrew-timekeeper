@@ -1,11 +1,12 @@
 
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Task, TasksByDate, TaskPriority } from "@/types/task";
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import TaskListContent from "./task/TaskListContent";
 import { motion } from "framer-motion";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useTaskShortcuts } from "@/hooks/useTaskShortcuts";
 
 interface TaskListProps {
   tasks: TasksByDate;
@@ -15,6 +16,9 @@ interface TaskListProps {
   onDeleteTask: (taskId: string) => void;
   onEditTask: (taskId: string, newTitle: string, newDuration: number, newPriority: TaskPriority) => void;
   onDeleteAllTasksForDate?: (date: string) => void;
+  onReorderTasks?: (date: string, tasks: Task[]) => void;
+  onUpdateTaskDependencies?: (taskId: string, dependencies: string[]) => void;
+  onUpdateTaskProgress?: (taskId: string, progress: number) => void;
 }
 
 const TaskList = ({
@@ -25,6 +29,9 @@ const TaskList = ({
   onDeleteTask,
   onEditTask,
   onDeleteAllTasksForDate,
+  onReorderTasks,
+  onUpdateTaskDependencies,
+  onUpdateTaskProgress,
 }: TaskListProps) => {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
@@ -34,6 +41,37 @@ const TaskList = ({
   const handleEditTask = (task: Task) => {
     onEditTask(task.id, task.title, task.duration || 0, task.priority);
   };
+
+  // Configure keyboard shortcuts
+  const { showKeyboardShortcuts } = useTaskShortcuts({
+    onToggleFilterCompleted: () => {
+      toast({
+        title: "קיצור מקלדת הופעל",
+        description: "סינון משימות לפי סטטוס",
+      });
+    },
+    onSearch: () => {
+      // Focus on search input if available
+      const searchInput = document.querySelector('input[type="search"]');
+      if (searchInput) {
+        (searchInput as HTMLInputElement).focus();
+      }
+    }
+  });
+
+  // Show keyboard shortcuts on initial render
+  useEffect(() => {
+    // Short delay to show the shortcuts toast after the component has mounted
+    const timer = setTimeout(() => {
+      toast({
+        title: "קיצורי מקלדת זמינים",
+        description: "לחץ F1 להצגת רשימת הקיצורים",
+        duration: 5000,
+      });
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, [toast]);
 
   // For mobile browsers, use a regular div with overflow instead of ScrollArea
   // to avoid compatibility issues with some mobile browsers
@@ -62,6 +100,9 @@ const TaskList = ({
             onDeleteTask={onDeleteTask}
             onEditTask={handleEditTask}
             onDeleteAllTasksForDate={onDeleteAllTasksForDate}
+            onReorderTasks={onReorderTasks}
+            onUpdateTaskDependencies={onUpdateTaskDependencies}
+            onUpdateTaskProgress={onUpdateTaskProgress}
           />
         </div>
       </motion.div>
@@ -88,6 +129,9 @@ const TaskList = ({
           onDeleteTask={onDeleteTask}
           onEditTask={handleEditTask}
           onDeleteAllTasksForDate={onDeleteAllTasksForDate}
+          onReorderTasks={onReorderTasks}
+          onUpdateTaskDependencies={onUpdateTaskDependencies}
+          onUpdateTaskProgress={onUpdateTaskProgress}
         />
       </ScrollArea>
     </motion.div>

@@ -7,25 +7,41 @@ import TaskComments from "./TaskComments";
 import TaskActions from "./task/TaskActions";
 import TaskPriorityComponent from "./task/TaskPriority";
 import TaskAttachments from "./task/TaskAttachments";
+import TaskProgressBar from "./task/TaskProgressBar";
+import TaskDependencies from "./task/TaskDependencies";
 import { Checkbox } from "./ui/checkbox";
-import { Check } from "lucide-react";
+import { Check, GripVertical } from "lucide-react";
 import TaskForm from "./TaskForm";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 interface TaskItemProps {
   task: Task;
+  allTasks: Task[];
   onToggleTask: (taskId: string) => void;
   onTaskComplete: (taskId: string) => void;
   onDeleteTask: (taskId: string) => void;
   onEdit: (task: Task) => void;
+  onUpdateDependencies?: (taskId: string, dependencies: string[]) => void;
+  onUpdateProgress?: (taskId: string, progress: number) => void;
 }
 
-const TaskItem = ({ task, onToggleTask, onTaskComplete, onDeleteTask, onEdit }: TaskItemProps) => {
+const TaskItem = ({ 
+  task, 
+  allTasks, 
+  onToggleTask, 
+  onTaskComplete, 
+  onDeleteTask, 
+  onEdit,
+  onUpdateDependencies,
+  onUpdateProgress
+}: TaskItemProps) => {
   const [showComments, setShowComments] = useState(false);
   const [showAttachments, setShowAttachments] = useState(false);
+  const [showDependencies, setShowDependencies] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const isMobile = useIsMobile();
+  const [isDragging, setIsDragging] = useState(false);
 
   const formatTime = (timestamp: string) => {
     return new Date(timestamp).toLocaleTimeString("he-IL", {
@@ -95,20 +111,56 @@ const TaskItem = ({ task, onToggleTask, onTaskComplete, onDeleteTask, onEdit }: 
     onToggleTask(task.id);
   };
 
+  // Toggle task dependencies view
+  const handleToggleDependencies = () => {
+    setShowDependencies(!showDependencies);
+  };
+
+  // Update task progress
+  const handleProgressUpdate = (progress: number) => {
+    if (onUpdateProgress) {
+      onUpdateProgress(task.id, progress);
+    }
+  };
+
+  // Check if task can be completed (all dependencies must be completed)
+  const canCompleteTask = () => {
+    if (!task.dependencies?.length) return true;
+    
+    // Check if all dependency tasks are completed
+    return task.dependencies.every(depId => {
+      const depTask = allTasks.find(t => t.id === depId);
+      return depTask?.completed === true;
+    });
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
+      animate={{ 
+        opacity: 1, 
+        y: 0,
+        scale: isDragging ? 1.02 : 1,
+        boxShadow: isDragging ? "0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)" : "none"
+      }}
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.3 }}
       className={cn(
-        "flex flex-col gap-4 p-5 rounded-lg border shadow-sm",
+        "flex flex-col gap-4 p-5 rounded-lg border shadow-sm relative",
         task.completed 
           ? "bg-gray-50/80 dark:bg-gray-800/50 border-gray-200 dark:border-gray-700 opacity-75" 
           : `${getPriorityBgColor(task.priority)} ${getPriorityBorderColor(task.priority)}`,
-        "hover:shadow-md transition-all duration-300"
+        "hover:shadow-md transition-all duration-300",
+        isDragging ? "cursor-grabbing" : "cursor-grab"
       )}
+      onDragStart={() => setIsDragging(true)}
+      onDragEnd={() => setIsDragging(false)}
     >
+      {/* Drag handle indicator */}
+      <div className="absolute left-2 top-1/2 -translate-y-1/2 flex items-center h-full py-4 opacity-30 hover:opacity-100 transition-opacity">
+        <GripVertical className="h-5 w-5 text-gray-500" />
+      </div>
+
       <AnimatePresence mode="wait">
         {isEditing ? (
           <motion.div
@@ -142,7 +194,9 @@ const TaskItem = ({ task, onToggleTask, onTaskComplete, onDeleteTask, onEdit }: 
                   onEdit={handleEditClick}
                   onToggleComments={() => setShowComments(!showComments)}
                   onToggleAttachments={() => setShowAttachments(!showAttachments)}
+                  onToggleDependencies={handleToggleDependencies}
                   showAttachments={showAttachments}
+                  showDependencies={showDependencies}
                 />
                 <TaskPriorityComponent priority={task.priority} />
               </div>
@@ -161,7 +215,16 @@ const TaskItem = ({ task, onToggleTask, onTaskComplete, onDeleteTask, onEdit }: 
               </div>
             </div>
 
-            <div className="flex items-center justify-between gap-4 mt-2">
+            {/* Progress bar */}
+            <div className="mt-3">
+              <TaskProgressBar 
+                progress={task.progress || 0} 
+                size="sm" 
+                className="w-full" 
+              />
+            </div>
+
+            <div className="flex items-center justify-between gap-4 mt-3">
               <CountdownTimer
                 duration={task.duration}
                 startTime={task.startTime}
@@ -179,11 +242,14 @@ const TaskItem = ({ task, onToggleTask, onTaskComplete, onDeleteTask, onEdit }: 
                     onClick={() => onToggleTask(task.id)}
                     className={cn(
                       "h-10 w-10 min-h-[44px] min-w-[44px] rounded-md border-2 transition-colors duration-300 flex items-center justify-center",
-                      task.completed 
-                        ? "border-purple-500 bg-purple-500 text-white" 
-                        : "border-purple-300 dark:border-purple-700"
+                      !canCompleteTask() && !task.completed
+                        ? "border-gray-300 bg-gray-100 text-gray-400 opacity-60 cursor-not-allowed"
+                        : task.completed 
+                          ? "border-purple-500 bg-purple-500 text-white" 
+                          : "border-purple-300 dark:border-purple-700"
                     )}
                     aria-label="סמן משימה כהושלמה"
+                    disabled={!canCompleteTask() && !task.completed}
                   >
                     {task.completed && <Check className="h-6 w-6" />}
                   </button>
@@ -195,15 +261,43 @@ const TaskItem = ({ task, onToggleTask, onTaskComplete, onDeleteTask, onEdit }: 
                     onCheckedChange={() => onToggleTask(task.id)}
                     className={cn(
                       "h-6 w-6 min-h-[24px] min-w-[24px] rounded-md border-2 transition-colors duration-300",
-                      task.completed 
-                        ? "border-purple-500 bg-purple-500 text-white" 
-                        : "border-purple-300 dark:border-purple-700"
+                      !canCompleteTask() && !task.completed
+                        ? "border-gray-300 bg-gray-100 text-gray-400 opacity-60 cursor-not-allowed"
+                        : task.completed 
+                          ? "border-purple-500 bg-purple-500 text-white" 
+                          : "border-purple-300 dark:border-purple-700"
                     )}
                     aria-label="סמן משימה כהושלמה"
+                    disabled={!canCompleteTask() && !task.completed}
                   />
                 )}
               </div>
             </div>
+
+            {/* Warning if dependencies are not complete */}
+            {!canCompleteTask() && !task.completed && (
+              <div className="mt-2 text-xs text-amber-600 dark:text-amber-400">
+                לא ניתן לסמן כבוצע - יש להשלים את המשימות הקשורות תחילה
+              </div>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showDependencies && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.3 }}
+            className="border-t pt-3 mt-2"
+          >
+            <TaskDependencies
+              task={task}
+              allTasks={allTasks}
+              onUpdateDependencies={onUpdateDependencies || ((_, __) => {})}
+            />
           </motion.div>
         )}
       </AnimatePresence>
