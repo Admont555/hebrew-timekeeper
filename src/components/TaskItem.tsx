@@ -157,7 +157,7 @@ const TaskItem = ({
       onDragEnd={() => setIsDragging(false)}
     >
       {/* Drag handle indicator */}
-      <div className="absolute left-2 top-1/2 -translate-y-1/2 flex items-center h-full py-4 opacity-30 hover:opacity-100 transition-opacity">
+      <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center h-full py-4 opacity-30 hover:opacity-100 transition-opacity">
         <GripVertical className="h-5 w-5 text-gray-500" />
       </div>
 
@@ -200,7 +200,7 @@ const TaskItem = ({
                 />
                 <TaskPriorityComponent priority={task.priority} />
               </div>
-              <div className="flex flex-col items-end gap-1 order-1 sm:order-2">
+              <div className="flex flex-col items-start gap-1 order-1 sm:order-2 mr-6">
                 <span className={cn(
                   "text-lg font-medium",
                   task.completed 
@@ -225,12 +225,6 @@ const TaskItem = ({
             </div>
 
             <div className="flex items-center justify-between gap-4 mt-3">
-              <CountdownTimer
-                duration={task.duration}
-                startTime={task.startTime}
-                isCompleted={task.completed}
-                onComplete={() => onTaskComplete(task.id)}
-              />
               <div 
                 className="flex items-center justify-center"
                 onClick={handleCheckboxChange}
@@ -272,6 +266,13 @@ const TaskItem = ({
                   />
                 )}
               </div>
+              
+              <CountdownTimer
+                duration={task.duration}
+                startTime={task.startTime}
+                isCompleted={task.completed}
+                onComplete={() => onTaskComplete(task.id)}
+              />
             </div>
 
             {/* Warning if dependencies are not complete */}

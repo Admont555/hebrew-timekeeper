@@ -121,6 +121,42 @@
       min-width: 44px;
     }
   }
+  
+  /* RTL-specific styles */
+  html[dir="rtl"] {
+    text-align: right;
+  }
+  
+  /* RTL fonts optimization for Hebrew */
+  @font-face {
+    font-family: 'Heebo';
+    font-style: normal;
+    font-weight: 400;
+    src: url(https://fonts.gstatic.com/s/heebo/v21/NGSpv5_NC0k9P_v6ZUCbLRAHxK1EiSysdUmj.woff2) format('woff2');
+    unicode-range: U+0590-05FF, U+200C-2010, U+20AA, U+25CC, U+FB1D-FB4F;
+  }
+  
+  html[dir="rtl"] body {
+    font-family: 'Heebo', sans-serif;
+  }
+  
+  /* RTL layout fixes */
+  html[dir="rtl"] .flex-row {
+    flex-direction: row-reverse;
+  }
+  
+  html[dir="rtl"] .text-left {
+    text-align: right;
+  }
+  
+  html[dir="rtl"] .text-right {
+    text-align: left;
+  }
+  
+  /* RTL-specific dropdown menu positioning */
+  html[dir="rtl"] [data-radix-popper-content-wrapper] {
+    transform-origin: right top !important;
+  }
 }
 
 @layer utilities {
@@ -195,6 +231,42 @@
   /* Animated gradient border */
   .gradient-border {
     @apply relative after:absolute after:inset-0 after:p-[1px] after:rounded-lg after:bg-gradient-to-r after:from-purple-500 after:to-blue-500 after:opacity-50 after:-z-10;
+  }
+  
+  /* RTL-specific utilities */
+  .rtl-flip {
+    transform: scaleX(-1);
+  }
+  
+  .rtl-space-x-reverse {
+    --tw-space-x-reverse: 1;
+  }
+  
+  .rtl-rotate-180 {
+    transform: rotate(180deg);
+  }
+  
+  /* Fix RTL margins */
+  html[dir="rtl"] .mr-1, 
+  html[dir="rtl"] .mr-2,
+  html[dir="rtl"] .mr-3,
+  html[dir="rtl"] .mr-4 {
+    margin-right: 0;
+    margin-left: 0.25rem;
+    margin-left: 0.5rem;
+    margin-left: 0.75rem;
+    margin-left: 1rem;
+  }
+  
+  html[dir="rtl"] .ml-1,
+  html[dir="rtl"] .ml-2,
+  html[dir="rtl"] .ml-3,
+  html[dir="rtl"] .ml-4 {
+    margin-left: 0;
+    margin-right: 0.25rem;
+    margin-right: 0.5rem;
+    margin-right: 0.75rem;
+    margin-right: 1rem;
   }
 }
 
