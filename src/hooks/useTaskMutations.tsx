@@ -1,4 +1,3 @@
-
 import { useQueryClient, useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Task, TaskPriority } from "@/types/task";
@@ -265,24 +264,16 @@ export const useTaskMutations = () => {
         .single();
       
       if (!tasks) throw new Error("Task not found");
-      
+
       // When completing a task, set progress to 100%
-      // Check if progress column exists before trying to access it
       let progressValue = tasks.completed ? 0 : 100;
-      if (tasks.hasOwnProperty('progress')) {
-        progressValue = !tasks.completed ? 100 : (tasks.progress as number || 0);
-      }
 
       const updates: Record<string, any> = {
         completed: !tasks.completed,
         start_time: !tasks.start_time && !tasks.completed ? new Date().toISOString() : tasks.start_time,
+        progress: progressValue, // Always update progress
       };
       
-      // Only add progress to updates if the column exists in the table
-      if (tasks.hasOwnProperty('progress')) {
-        updates.progress = progressValue;
-      }
-
       const { error } = await supabase
         .from("tasks")
         .update(updates)
@@ -311,7 +302,7 @@ export const useTaskMutations = () => {
       // If progress is 100%, also mark the task as completed
       const updates: Record<string, any> = {}; 
       
-      // Add progress to updates if the column exists
+      // Add progress to updates
       updates.progress = normalizedProgress;
       
       if (normalizedProgress === 100) {

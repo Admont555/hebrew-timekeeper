@@ -83,7 +83,7 @@ const Index = () => {
 
       if (error) {
         toast({
-          title: "שגיאה בטעינת משימות",
+          title: "שגי��ה בטעינת משימות",
           description: error.message,
           variant: "destructive",
         });
@@ -118,7 +118,18 @@ const Index = () => {
           worker: task.worker,
           assigned_to: task.assigned_to || [],
           progress: task.hasOwnProperty('progress') ? task.progress : 0,
-          dependencies: task.hasOwnProperty('dependencies') ? task.dependencies : []
+          dependencies: task.hasOwnProperty('dependencies') ? task.dependencies : [],
+          archived_at: task.archived_at,
+          archived_by: task.archived_by,
+          category_id: task.category_id,
+          due_date: task.due_date,
+          notification_time: task.notification_time,
+          offline_id: task.offline_id,
+          order_index: task.order_index,
+          reminder_time: task.reminder_time,
+          sync_status: task.sync_status,
+          tags: task.tags,
+          voice_note: task.voice_note
         });
       });
 

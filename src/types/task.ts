@@ -1,4 +1,3 @@
-
 import { Json } from "@/integrations/supabase/types";
 
 export type TaskPriority = "low" | "normal" | "high";
@@ -18,6 +17,17 @@ export interface Task {
   assigned_to?: string[];
   progress: number;
   dependencies: string[];
+  archived_at?: string;
+  archived_by?: string;
+  category_id?: string;
+  due_date?: string;
+  notification_time?: string;
+  offline_id?: string;
+  order_index?: number;
+  reminder_time?: string;
+  sync_status?: string;
+  tags?: string[];
+  voice_note?: string;
 }
 
 export interface Attachment {
