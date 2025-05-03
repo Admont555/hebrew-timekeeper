@@ -267,15 +267,25 @@ export const useTaskMutations = () => {
       if (!tasks) throw new Error("Task not found");
       
       // When completing a task, set progress to 100%
-      const progress = !tasks.completed ? 100 : tasks.progress || 0;
+      // Check if progress column exists before trying to access it
+      let progressValue = tasks.completed ? 0 : 100;
+      if (tasks.hasOwnProperty('progress')) {
+        progressValue = !tasks.completed ? 100 : (tasks.progress as number || 0);
+      }
+
+      const updates: Record<string, any> = {
+        completed: !tasks.completed,
+        start_time: !tasks.start_time && !tasks.completed ? new Date().toISOString() : tasks.start_time,
+      };
+      
+      // Only add progress to updates if the column exists in the table
+      if (tasks.hasOwnProperty('progress')) {
+        updates.progress = progressValue;
+      }
 
       const { error } = await supabase
         .from("tasks")
-        .update({ 
-          completed: !tasks.completed,
-          start_time: !tasks.start_time && !tasks.completed ? new Date().toISOString() : tasks.start_time,
-          progress: progress
-        })
+        .update(updates)
         .eq("id", taskId)
         .eq('worker', worker);
 
@@ -299,9 +309,10 @@ export const useTaskMutations = () => {
       const normalizedProgress = Math.max(0, Math.min(100, progress));
       
       // If progress is 100%, also mark the task as completed
-      const updates: { progress: number; completed?: boolean } = { 
-        progress: normalizedProgress 
-      };
+      const updates: Record<string, any> = {}; 
+      
+      // Add progress to updates if the column exists
+      updates.progress = normalizedProgress;
       
       if (normalizedProgress === 100) {
         updates.completed = true;
@@ -332,9 +343,14 @@ export const useTaskMutations = () => {
 
   const updateTaskDependenciesMutation = useMutation({
     mutationFn: async ({ taskId, dependencies }: { taskId: string; dependencies: string[] }) => {
+      // Create a safe update object that only includes the dependencies
+      const updates: Record<string, any> = {
+        dependencies
+      };
+      
       const { error } = await supabase
         .from("tasks")
-        .update({ dependencies })
+        .update(updates)
         .eq("id", taskId);
 
       if (error) throw error;
@@ -383,4 +399,3 @@ export const useTaskMutations = () => {
     reorderTasksMutation,
   };
 };
-

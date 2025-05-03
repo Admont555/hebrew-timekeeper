@@ -1,4 +1,3 @@
-
 import { Task, Attachment } from "@/types/task";
 import CountdownTimer from "./CountdownTimer";
 import { motion, AnimatePresence } from "framer-motion";
@@ -14,6 +13,7 @@ import { Check, GripVertical } from "lucide-react";
 import TaskForm from "./TaskForm";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
 
 interface TaskItemProps {
   task: Task;
@@ -157,9 +157,18 @@ const TaskItem = ({
       onDragEnd={() => setIsDragging(false)}
     >
       {/* Drag handle indicator */}
-      <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center h-full py-4 opacity-30 hover:opacity-100 transition-opacity">
-        <GripVertical className="h-5 w-5 text-gray-500" />
-      </div>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div className="absolute left-2 top-1/2 -translate-y-1/2 flex items-center h-full py-4 opacity-30 hover:opacity-100 transition-opacity">
+              <GripVertical className="h-5 w-5 text-gray-500" />
+            </div>
+          </TooltipTrigger>
+          <TooltipContent side="bottom">
+            <p>גרור לשינוי סדר</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
 
       <AnimatePresence mode="wait">
         {isEditing ? (
@@ -187,7 +196,7 @@ const TaskItem = ({
             exit={{ opacity: 0 }}
           >
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div className="flex items-center gap-4 order-2 sm:order-1">
+              <div className="flex items-center gap-4 order-1 sm:order-1">
                 <TaskActions
                   task={task}
                   onDelete={onDeleteTask}
@@ -200,9 +209,9 @@ const TaskItem = ({
                 />
                 <TaskPriorityComponent priority={task.priority} />
               </div>
-              <div className="flex flex-col items-start gap-1 order-1 sm:order-2 mr-6">
+              <div className="flex flex-col items-end gap-1 order-2 sm:order-2 ml-6">
                 <span className={cn(
-                  "text-lg font-medium",
+                  "text-lg font-medium text-right",
                   task.completed 
                     ? "line-through text-gray-400 dark:text-gray-500" 
                     : "text-gray-800 dark:text-gray-200"
@@ -225,47 +234,56 @@ const TaskItem = ({
             </div>
 
             <div className="flex items-center justify-between gap-4 mt-3">
-              <div 
-                className="flex items-center justify-center"
-                onClick={handleCheckboxChange}
-              >
-                {isMobile ? (
-                  // Use a regular button for mobile to improve touch interactions
-                  <button
-                    type="button"
-                    onClick={() => onToggleTask(task.id)}
-                    className={cn(
-                      "h-10 w-10 min-h-[44px] min-w-[44px] rounded-md border-2 transition-colors duration-300 flex items-center justify-center",
-                      !canCompleteTask() && !task.completed
-                        ? "border-gray-300 bg-gray-100 text-gray-400 opacity-60 cursor-not-allowed"
-                        : task.completed 
-                          ? "border-purple-500 bg-purple-500 text-white" 
-                          : "border-purple-300 dark:border-purple-700"
-                    )}
-                    aria-label="סמן משימה כהושלמה"
-                    disabled={!canCompleteTask() && !task.completed}
-                  >
-                    {task.completed && <Check className="h-6 w-6" />}
-                  </button>
-                ) : (
-                  // Use Checkbox component for desktop
-                  <Checkbox 
-                    id={`task-${task.id}`}
-                    checked={task.completed}
-                    onCheckedChange={() => onToggleTask(task.id)}
-                    className={cn(
-                      "h-6 w-6 min-h-[24px] min-w-[24px] rounded-md border-2 transition-colors duration-300",
-                      !canCompleteTask() && !task.completed
-                        ? "border-gray-300 bg-gray-100 text-gray-400 opacity-60 cursor-not-allowed"
-                        : task.completed 
-                          ? "border-purple-500 bg-purple-500 text-white" 
-                          : "border-purple-300 dark:border-purple-700"
-                    )}
-                    aria-label="סמן משימה כהושלמה"
-                    disabled={!canCompleteTask() && !task.completed}
-                  />
-                )}
-              </div>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div 
+                      className="flex items-center justify-center"
+                      onClick={handleCheckboxChange}
+                    >
+                      {isMobile ? (
+                        // Use a regular button for mobile to improve touch interactions
+                        <button
+                          type="button"
+                          onClick={() => onToggleTask(task.id)}
+                          className={cn(
+                            "h-10 w-10 min-h-[44px] min-w-[44px] rounded-md border-2 transition-colors duration-300 flex items-center justify-center",
+                            !canCompleteTask() && !task.completed
+                              ? "border-gray-300 bg-gray-100 text-gray-400 opacity-60 cursor-not-allowed"
+                              : task.completed 
+                                ? "border-purple-500 bg-purple-500 text-white" 
+                                : "border-purple-300 dark:border-purple-700"
+                          )}
+                          aria-label="סמן משימה כהושלמה"
+                          disabled={!canCompleteTask() && !task.completed}
+                        >
+                          {task.completed && <Check className="h-6 w-6" />}
+                        </button>
+                      ) : (
+                        // Use Checkbox component for desktop
+                        <Checkbox 
+                          id={`task-${task.id}`}
+                          checked={task.completed}
+                          onCheckedChange={() => onToggleTask(task.id)}
+                          className={cn(
+                            "h-6 w-6 min-h-[24px] min-w-[24px] rounded-md border-2 transition-colors duration-300",
+                            !canCompleteTask() && !task.completed
+                              ? "border-gray-300 bg-gray-100 text-gray-400 opacity-60 cursor-not-allowed"
+                              : task.completed 
+                                ? "border-purple-500 bg-purple-500 text-white" 
+                                : "border-purple-300 dark:border-purple-700"
+                          )}
+                          aria-label="סמן משימה כהושלמה"
+                          disabled={!canCompleteTask() && !task.completed}
+                        />
+                      )}
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent side="left">
+                    <p>סמן כמושלם</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
               
               <CountdownTimer
                 duration={task.duration}
@@ -277,7 +295,7 @@ const TaskItem = ({
 
             {/* Warning if dependencies are not complete */}
             {!canCompleteTask() && !task.completed && (
-              <div className="mt-2 text-xs text-amber-600 dark:text-amber-400">
+              <div className="mt-2 text-xs text-amber-600 dark:text-amber-400 text-right">
                 לא ניתן לסמן כבוצע - יש להשלים את המשימות הקשורות תחילה
               </div>
             )}

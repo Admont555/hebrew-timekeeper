@@ -1,12 +1,7 @@
 
-export type TaskPriority = 'low' | 'normal' | 'high';
+import { Json } from "@/integrations/supabase/types";
 
-export interface Attachment {
-  id: string;
-  name: string;
-  url: string;
-  type: string;
-}
+export type TaskPriority = "low" | "normal" | "high";
 
 export interface Task {
   id: string;
@@ -14,15 +9,23 @@ export interface Task {
   timestamp: string;
   completed: boolean;
   date: string;
-  duration: number;
+  duration?: number;
   startTime?: string;
-  priority: TaskPriority;
   comments?: string[];
   attachments?: Attachment[];
-  worker: string;
-  assigned_to: string[];
-  progress?: number; // Progress percentage (0-100)
-  dependencies?: string[]; // IDs of tasks that this task depends on
+  priority: TaskPriority;
+  worker?: string;
+  assigned_to?: string[];
+  progress: number;
+  dependencies: string[];
+}
+
+export interface Attachment {
+  id: string;
+  name: string;
+  url: string;
+  type: string;
+  size?: number;
 }
 
 export interface TasksByDate {

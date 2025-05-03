@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { useState, useEffect } from "react";
 import { useParams, Navigate, useNavigate } from "react-router-dom";
@@ -118,8 +117,8 @@ const Index = () => {
           attachments: transformedAttachments,
           worker: task.worker,
           assigned_to: task.assigned_to || [],
-          progress: task.progress || 0,
-          dependencies: task.dependencies || []
+          progress: task.hasOwnProperty('progress') ? task.progress : 0,
+          dependencies: task.hasOwnProperty('dependencies') ? task.dependencies : []
         });
       });
 
