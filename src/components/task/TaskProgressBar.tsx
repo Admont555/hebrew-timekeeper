@@ -40,8 +40,7 @@ const TaskProgressBar = ({
     <div className={cn("w-full space-y-1", className)}>
       <Progress 
         value={normalizedProgress} 
-        className={cn(getHeight(), "bg-gray-200 dark:bg-gray-700")}
-        indicatorClassName={getColorClass()}
+        className={cn(getHeight(), "bg-gray-200 dark:bg-gray-700", getColorClass())}
         aria-label="התקדמות המשימה"
       />
       {showLabel && (
