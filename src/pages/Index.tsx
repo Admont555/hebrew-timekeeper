@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { useState, useEffect } from "react";
 import { useParams, Navigate, useNavigate } from "react-router-dom";
@@ -83,7 +84,7 @@ const Index = () => {
 
       if (error) {
         toast({
-          title: "שגי��ה בטעינת משימות",
+          title: "שגיאה בטעינת משימות",
           description: error.message,
           variant: "destructive",
         });
@@ -117,8 +118,9 @@ const Index = () => {
           attachments: transformedAttachments,
           worker: task.worker,
           assigned_to: task.assigned_to || [],
-          progress: task.hasOwnProperty('progress') ? task.progress : 0,
-          dependencies: task.hasOwnProperty('dependencies') ? task.dependencies : [],
+          // Explicitly check and provide default values for progress and dependencies
+          progress: typeof task.progress === 'number' ? task.progress : 0,
+          dependencies: Array.isArray(task.dependencies) ? task.dependencies : [],
           archived_at: task.archived_at,
           archived_by: task.archived_by,
           category_id: task.category_id,

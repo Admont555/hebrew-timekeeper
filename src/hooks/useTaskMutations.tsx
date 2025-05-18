@@ -1,3 +1,4 @@
+
 import { useQueryClient, useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Task, TaskPriority } from "@/types/task";
@@ -266,7 +267,7 @@ export const useTaskMutations = () => {
       if (!tasks) throw new Error("Task not found");
 
       // When completing a task, set progress to 100%
-      let progressValue = tasks.completed ? 0 : 100;
+      const progressValue = tasks.completed ? 0 : 100;
 
       const updates: Record<string, any> = {
         completed: !tasks.completed,
