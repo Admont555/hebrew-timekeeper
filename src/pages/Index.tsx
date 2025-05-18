@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { useState, useEffect } from "react";
 import { useParams, Navigate, useNavigate } from "react-router-dom";
@@ -216,7 +215,14 @@ const Index = () => {
   };
 
   const handleAddTask = (title: string, duration: number, priority: TaskPriority) => {
-    addTaskMutation.mutate({ title, duration, priority, worker: workerId });
+    if (!title.trim()) return;
+    
+    addTaskMutation.mutate({ 
+      title, 
+      duration: duration || 0, 
+      priority: priority || "normal", 
+      worker: workerId 
+    });
     setIsAddingTask(false); // Close the form after submission
   };
 

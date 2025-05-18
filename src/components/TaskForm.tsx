@@ -60,7 +60,7 @@ const TaskForm = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (title.trim()) {
-      onAddTask(title, duration, priority);
+      onAddTask(title, duration || 0, priority || "normal");
       setTitle("");
       setDuration(0);
       setPriority("normal");

@@ -31,8 +31,8 @@ export const useTaskMutations = () => {
             duration,
             priority,
             worker,
-            progress: 0, // Initialize with 0% progress
-            dependencies: [], // Initialize with empty dependencies array
+            progress: 0, // Explicitly initialize progress to 0
+            dependencies: [], // Explicitly initialize dependencies as empty array
           };
 
           const { data: taskData, error } = await supabase
