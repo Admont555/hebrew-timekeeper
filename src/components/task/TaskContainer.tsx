@@ -54,7 +54,7 @@ const TaskContainer = ({
       <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Avatar className="h-12 w-12 border-2 border-purple-200 dark:border-purple-800">
-            <AvatarImage src={teamMember?.avatar_url} alt={teamMember?.name} />
+            <AvatarImage src={teamMember?.avatar_url || ''} alt={teamMember?.name || 'Team Member'} />
             <AvatarFallback>
               <User className="h-6 w-6 text-gray-400" />
             </AvatarFallback>

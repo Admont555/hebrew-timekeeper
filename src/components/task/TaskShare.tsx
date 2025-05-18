@@ -18,6 +18,12 @@ interface TaskShareProps {
   onAssigneesUpdate: (newAssignees: string[]) => void;
 }
 
+interface TeamMember {
+  worker_id: string;
+  name: string;
+  avatar_url?: string;
+}
+
 const TaskShare = ({ taskId, currentAssignees, onAssigneesUpdate }: TaskShareProps) => {
   const { toast } = useToast();
   const [isUpdating, setIsUpdating] = useState(false);
@@ -31,7 +37,7 @@ const TaskShare = ({ taskId, currentAssignees, onAssigneesUpdate }: TaskSharePro
         .order('name');
 
       if (error) throw error;
-      return data;
+      return data as TeamMember[];
     },
   });
 
