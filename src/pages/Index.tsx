@@ -118,7 +118,7 @@ const Index = () => {
           attachments: transformedAttachments,
           worker: task.worker,
           assigned_to: task.assigned_to || [],
-          // Explicitly check and provide default values for progress and dependencies
+          // Ensure progress and dependencies are properly initialized
           progress: typeof task.progress === 'number' ? task.progress : 0,
           dependencies: Array.isArray(task.dependencies) ? task.dependencies : [],
           archived_at: task.archived_at,
