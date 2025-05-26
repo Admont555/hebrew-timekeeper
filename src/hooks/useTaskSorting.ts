@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Task, TasksByDate } from '@/types/task';
 
@@ -20,6 +21,11 @@ export const useTaskSorting = (tasks: TasksByDate) => {
 
   const sortTasks = (tasksArray: Task[]) => {
     return [...tasksArray].sort((a, b) => {
+      // Always prioritize unchecked tasks at the top
+      if (!a.completed && b.completed) return -1;
+      if (a.completed && !b.completed) return 1;
+
+      // If both are unchecked or both are completed, apply secondary sorting
       if (sortBy === 'priority') {
         const priorityOrder = { high: 0, normal: 1, low: 2 };
         return (priorityOrder[a.priority] || 1) - (priorityOrder[b.priority] || 1);
@@ -29,10 +35,7 @@ export const useTaskSorting = (tasks: TasksByDate) => {
         return b.duration - a.duration;
       }
 
-      // Default date-based sorting
-      if (!a.completed && b.completed) return -1;
-      if (a.completed && !b.completed) return 1;
-
+      // Default date-based sorting for tasks with same completion status
       if (!a.completed && !b.completed) {
         const aRemaining = getRemainingTime(a);
         const bRemaining = getRemainingTime(b);
