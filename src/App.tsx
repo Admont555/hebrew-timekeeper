@@ -30,13 +30,18 @@ const queryClient = new QueryClient({
 });
 
 const App = () => {
+  console.log("App component starting to render");
+  
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
   useEffect(() => {
+    console.log("App useEffect - starting auth initialization");
+    
     const initAuth = async () => {
       try {
+        console.log("Getting session...");
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (error) {
@@ -44,10 +49,12 @@ const App = () => {
           throw error;
         }
 
+        console.log("Session data:", !!session);
         setIsAuthenticated(!!session);
 
         // Attempt to refresh the session if it exists
         if (session) {
+          console.log("Refreshing session...");
           const { error: refreshError } = await supabase.auth.refreshSession();
           if (refreshError) {
             console.error('Session refresh error:', refreshError);
@@ -65,6 +72,7 @@ const App = () => {
         console.error('Auth initialization error:', error);
         setIsAuthenticated(false);
       } finally {
+        console.log("Auth initialization complete, setting loading to false");
         setIsLoading(false);
       }
     };
@@ -97,13 +105,18 @@ const App = () => {
     };
   }, []);
 
+  console.log("App render state - isLoading:", isLoading, "isAuthenticated:", isAuthenticated);
+
   if (isLoading) {
+    console.log("Showing loading spinner");
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 dark:border-white" />
       </div>
     );
   }
+
+  console.log("App rendering main content");
 
   return (
     <QueryClientProvider client={queryClient}>
