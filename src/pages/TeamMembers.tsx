@@ -1,8 +1,8 @@
-
 import { motion } from "framer-motion";
 import TeamMemberCard from "@/components/team/TeamMemberCard";
 import TeamMemberManager from "@/components/team/TeamMemberManager";
-import { Users, Edit2, BarChart, ListChecks } from "lucide-react";
+import DuplicateResolver from "@/components/team/DuplicateResolver";
+import { Users, Edit2, BarChart, ListChecks, AlertTriangle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
@@ -17,6 +17,7 @@ import { useToast } from "@/hooks/use-toast";
 
 const TeamMembers = () => {
   const [isEditMode, setIsEditMode] = useState(false);
+  const [showDuplicateResolver, setShowDuplicateResolver] = useState(false);
   const isMobile = useIsMobile();
   const { currentWorker, hasEditPermission } = useWorkerState();
   const { toast } = useToast();
@@ -99,112 +100,6 @@ const TeamMembers = () => {
             )}
           </motion.p>
 
-          {/* Dashboard summary cards - Safari compatible implementation */}
-          {isMobile ? (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3, duration: 0.6 }}
-              className="max-w-md mx-auto mb-8"
-            >
-              <Tabs defaultValue="team" className="w-full">
-                <TabsList className="grid grid-cols-3 mb-2 h-auto py-2">
-                  <TabsTrigger value="team" className="flex items-center gap-1 h-auto py-2 px-2">
-                    <Users className="h-4 w-4" />
-                    <span className="hidden sm:inline">צוות</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="tasks" className="flex items-center gap-1 h-auto py-2 px-2">
-                    <ListChecks className="h-4 w-4" />
-                    <span className="hidden sm:inline">משימות</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="progress" className="flex items-center gap-1 h-auto py-2 px-2">
-                    <BarChart className="h-4 w-4" />
-                    <span className="hidden sm:inline">התקדמות</span>
-                  </TabsTrigger>
-                </TabsList>
-                
-                <TabsContent value="team" className="mt-2">
-                  <Card className="bg-white dark:bg-gray-800 shadow-md p-4 border border-purple-100 dark:border-gray-700">
-                    <div className="flex flex-col items-center">
-                      <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-full mb-4">
-                        <Users className="h-6 w-6 text-blue-600 dark:text-blue-400" />
-                      </div>
-                      <h3 className="text-2xl font-bold text-blue-600 dark:text-blue-400">{teamMembers.length}</h3>
-                      <p className="text-muted-foreground">חברי צוות</p>
-                    </div>
-                  </Card>
-                </TabsContent>
-                
-                <TabsContent value="tasks" className="mt-2">
-                  <Card className="bg-white dark:bg-gray-800 shadow-md p-4 border border-purple-100 dark:border-gray-700">
-                    <div className="flex flex-col items-center">
-                      <div className="p-3 bg-purple-100 dark:bg-purple-900/30 rounded-full mb-4">
-                        <ListChecks className="h-6 w-6 text-purple-600 dark:text-purple-400" />
-                      </div>
-                      <h3 className="text-2xl font-bold text-purple-600 dark:text-purple-400">{tasksStats.total}</h3>
-                      <p className="text-muted-foreground">סך הכל משימות</p>
-                    </div>
-                  </Card>
-                </TabsContent>
-                
-                <TabsContent value="progress" className="mt-2">
-                  <Card className="bg-white dark:bg-gray-800 shadow-md p-4 border border-purple-100 dark:border-gray-700">
-                    <div className="flex flex-col items-center">
-                      <p className="text-muted-foreground mb-2">התקדמות משימות</p>
-                      <div className="flex justify-between w-full mb-2">
-                        <span className="text-sm text-muted-foreground">{completionPercentage}%</span>
-                        <span className="text-sm text-muted-foreground">
-                          {tasksStats.completed}/{tasksStats.total}
-                        </span>
-                      </div>
-                      <Progress value={completionPercentage} className="h-2 w-full" />
-                    </div>
-                  </Card>
-                </TabsContent>
-              </Tabs>
-            </motion.div>
-          ) : (
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3, duration: 0.6 }}
-              className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto mb-10"
-            >
-              <Card className="bg-white dark:bg-gray-800 shadow-lg hover:shadow-xl transition duration-300 p-6 border border-purple-100 dark:border-gray-700">
-                <div className="flex flex-col items-center">
-                  <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-full mb-4">
-                    <Users className="h-6 w-6 text-blue-600 dark:text-blue-400" />
-                  </div>
-                  <h3 className="text-2xl font-bold text-blue-600 dark:text-blue-400">{teamMembers.length}</h3>
-                  <p className="text-muted-foreground">חברי צוות</p>
-                </div>
-              </Card>
-              
-              <Card className="bg-white dark:bg-gray-800 shadow-lg hover:shadow-xl transition duration-300 p-6 border border-purple-100 dark:border-gray-700">
-                <div className="flex flex-col items-center">
-                  <div className="p-3 bg-purple-100 dark:bg-purple-900/30 rounded-full mb-4">
-                    <BarChart className="h-6 w-6 text-purple-600 dark:text-purple-400" />
-                  </div>
-                  <h3 className="text-2xl font-bold text-purple-600 dark:text-purple-400">{tasksStats.total}</h3>
-                  <p className="text-muted-foreground">סך הכל משימות</p>
-                </div>
-              </Card>
-              
-              <Card className="bg-white dark:bg-gray-800 shadow-lg hover:shadow-xl transition duration-300 p-6 border border-purple-100 dark:border-gray-700">
-                <div className="flex flex-col items-center">
-                  <p className="text-muted-foreground mb-2">התקדמות משימות</p>
-                  <div className="flex justify-between w-full mb-2">
-                    <span className="text-sm text-muted-foreground">{completionPercentage}%</span>
-                    <span className="text-sm text-muted-foreground">
-                      {tasksStats.completed}/{tasksStats.total}
-                    </span>
-                  </div>
-                  <Progress value={completionPercentage} className="h-2 w-full" />
-                </div>
-              </Card>
-            </motion.div>
-          )}
-
           <div className="flex flex-wrap justify-center gap-3 md:gap-4 mb-8">
             {hasEditPermission(currentWorker) && (
               <TeamMemberManager 
@@ -221,8 +116,29 @@ const TeamMembers = () => {
               <Edit2 className="h-4 w-4" />
               {isEditMode ? "סיום עריכה" : "ערוך חברי צוות"}
             </Button>
+            
+            <Button
+              variant="outline"
+              onClick={() => setShowDuplicateResolver(!showDuplicateResolver)}
+              className="gap-2 h-10 md:h-auto text-sm md:text-base"
+              size={isMobile ? "sm" : "default"}
+            >
+              <AlertTriangle className="h-4 w-4" />
+              {showDuplicateResolver ? "הסתר" : "בדוק כפילויות"}
+            </Button>
           </div>
         </motion.div>
+
+        {showDuplicateResolver && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="mb-8"
+          >
+            <DuplicateResolver />
+          </motion.div>
+        )}
 
         <motion.div 
           initial={{ opacity: 0 }}
