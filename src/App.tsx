@@ -13,6 +13,8 @@ import Index from "./pages/Index";
 import Login from "./pages/Login";
 import WorkflowCreator from "./pages/WorkflowCreator";
 import Workflows from "./pages/Workflows";
+import Projects from "./pages/Projects";
+import ProjectDetails from "./pages/ProjectDetails";
 import { useEffect, useState } from "react";
 import { supabase } from "./integrations/supabase/client";
 import { useToast } from "./hooks/use-toast";
@@ -149,6 +151,14 @@ const App = () => {
                   <Route 
                     path="/tables/:tableId" 
                     element={isAuthenticated ? <TableView /> : <Navigate to="/login" />} 
+                  />
+                  <Route 
+                    path="/projects" 
+                    element={isAuthenticated ? <Projects /> : <Navigate to="/login" />} 
+                  />
+                  <Route 
+                    path="/projects/:projectId" 
+                    element={isAuthenticated ? <ProjectDetails /> : <Navigate to="/login" />} 
                   />
                   <Route 
                     path="/settings" 

@@ -1,0 +1,325 @@
+
+import { useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ArrowRight, Edit, Trash2, Upload, Download, FileText } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import ProjectForm from "@/components/project/ProjectForm";
+import FileUpload from "@/components/project/FileUpload";
+import { useToast } from "@/hooks/use-toast";
+import { format } from "date-fns";
+import { he } from "date-fns/locale";
+
+const ProjectDetails = () => {
+  const { projectId } = useParams();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+
+  const { data: project, isLoading } = useQuery({
+    queryKey: ["project", projectId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("projects")
+        .select("*")
+        .eq("id", projectId)
+        .single();
+
+      if (error) {
+        console.error("Error fetching project:", error);
+        throw error;
+      }
+
+      return data;
+    },
+  });
+
+  const { data: projectFiles } = useQuery({
+    queryKey: ["project-files", projectId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("project_files")
+        .select("*")
+        .eq("project_id", projectId)
+        .order("uploaded_at", { ascending: false });
+
+      if (error) {
+        console.error("Error fetching project files:", error);
+        throw error;
+      }
+
+      return data;
+    },
+  });
+
+  const deleteProjectMutation = useMutation({
+    mutationFn: async () => {
+      const { error } = await supabase
+        .from("projects")
+        .delete()
+        .eq("id", projectId);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast({
+        title: "פרויקט נמחק בהצלחה",
+        description: "הפרויקט הוסר מהמערכת",
+      });
+      navigate("/projects");
+    },
+    onError: (error) => {
+      console.error("Error deleting project:", error);
+      toast({
+        title: "שגיאה",
+        description: "אירעה שגיאה במחיקת הפרויקט",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleProjectUpdated = () => {
+    setIsEditDialogOpen(false);
+    queryClient.invalidateQueries({ queryKey: ["project", projectId] });
+    toast({
+      title: "פרויקט עודכן בהצלחה",
+      description: "השינויים נשמרו",
+    });
+  };
+
+  const handleFilesUpdated = () => {
+    queryClient.invalidateQueries({ queryKey: ["project-files", projectId] });
+  };
+
+  const downloadFile = async (file: any) => {
+    try {
+      const { data, error } = await supabase.storage
+        .from("project-files")
+        .download(file.file_path);
+
+      if (error) throw error;
+
+      const url = URL.createObjectURL(data);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = file.file_name;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error downloading file:", error);
+      toast({
+        title: "שגיאה",
+        description: "אירעה שגיאה בהורדת הקובץ",
+        variant: "destructive",
+      });
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 dark:border-white" />
+      </div>
+    );
+  }
+
+  if (!project) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+            פרויקט לא נמצא
+          </h1>
+          <Button onClick={() => navigate("/projects")}>
+            <ArrowRight className="h-4 w-4 ml-2" />
+            חזור לרשימת הפרויקטים
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "active":
+        return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300";
+      case "completed":
+        return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300";
+      case "paused":
+        return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300";
+      case "cancelled":
+        return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300";
+      default:
+        return "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300";
+    }
+  };
+
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case "active":
+        return "פעיל";
+      case "completed":
+        return "הושלם";
+      case "paused":
+        return "מושהה";
+      case "cancelled":
+        return "בוטל";
+      default:
+        return status;
+    }
+  };
+
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <div className="flex items-center justify-between mb-6">
+        <Button variant="outline" onClick={() => navigate("/projects")}>
+          <ArrowRight className="h-4 w-4 ml-2" />
+          חזור לפרויקטים
+        </Button>
+        <div className="flex gap-2">
+          <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline">
+                <Edit className="h-4 w-4 ml-2" />
+                עריכה
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl">
+              <DialogHeader>
+                <DialogTitle>עריכת פרויקט</DialogTitle>
+              </DialogHeader>
+              <ProjectForm project={project} onSuccess={handleProjectUpdated} />
+            </DialogContent>
+          </Dialog>
+          <Button
+            variant="destructive"
+            onClick={() => deleteProjectMutation.mutate()}
+            disabled={deleteProjectMutation.isPending}
+          >
+            <Trash2 className="h-4 w-4 ml-2" />
+            מחק פרויקט
+          </Button>
+        </div>
+      </div>
+
+      <Card className="mb-8">
+        <CardHeader>
+          <div className="flex justify-between items-start">
+            <CardTitle className="text-3xl font-bold text-right">
+              {project.title}
+            </CardTitle>
+            <Badge className={getStatusColor(project.status)}>
+              {getStatusText(project.status)}
+            </Badge>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {project.description && (
+            <p className="text-gray-600 dark:text-gray-400 text-right mb-4 text-lg">
+              {project.description}
+            </p>
+          )}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+            <div>
+              <span className="font-semibold">תאריך יצירה:</span>
+              <br />
+              {format(new Date(project.created_at), "dd/MM/yyyy HH:mm", { locale: he })}
+            </div>
+            {project.due_date && (
+              <div>
+                <span className="font-semibold">תאריך יעד:</span>
+                <br />
+                {format(new Date(project.due_date), "dd/MM/yyyy", { locale: he })}
+              </div>
+            )}
+            <div>
+              <span className="font-semibold">עדיפות:</span>
+              <br />
+              {project.priority === "high" ? "גבוהה" : project.priority === "medium" ? "בינונית" : "נמוכה"}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Tabs defaultValue="files" className="w-full">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="files">קבצים</TabsTrigger>
+          <TabsTrigger value="details">פרטים נוספים</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="files" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between">
+                קבצי הפרויקט
+                <FileUpload projectId={projectId!} onFilesUpdated={handleFilesUpdated} />
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {projectFiles && projectFiles.length > 0 ? (
+                <div className="space-y-2">
+                  {projectFiles.map((file) => (
+                    <div
+                      key={file.id}
+                      className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800"
+                    >
+                      <div className="flex items-center gap-3">
+                        <FileText className="h-5 w-5 text-blue-500" />
+                        <div>
+                          <p className="font-medium">{file.file_name}</p>
+                          <p className="text-sm text-gray-500">
+                            הועלה: {format(new Date(file.uploaded_at), "dd/MM/yyyy HH:mm", { locale: he })}
+                            {file.file_size && ` • ${Math.round(file.file_size / 1024)} KB`}
+                          </p>
+                        </div>
+                      </div>
+                      <Button variant="outline" size="sm" onClick={() => downloadFile(file)}>
+                        <Download className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-center text-gray-500 dark:text-gray-400 py-8">
+                  אין קבצים מצורפים לפרויקט זה
+                </p>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="details">
+          <Card>
+            <CardHeader>
+              <CardTitle>פרטים נוספים על הפרויקט</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div>
+                  <span className="font-semibold">נוצר על ידי:</span> {project.created_by}
+                </div>
+                <div>
+                  <span className="font-semibold">עדכון אחרון:</span>{" "}
+                  {format(new Date(project.updated_at), "dd/MM/yyyy HH:mm", { locale: he })}
+                </div>
+                <div>
+                  <span className="font-semibold">מזהה פרויקט:</span> {project.id}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+};
+
+export default ProjectDetails;
