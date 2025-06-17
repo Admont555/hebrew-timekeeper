@@ -1,16 +1,16 @@
 
 export const navItems = [
   {
+    title: "צוות",
+    url: "/team",
+  },
+  {
     title: "משימות",
     url: "/",
   },
   {
     title: "פרויקטים", 
     url: "/projects",
-  },
-  {
-    title: "צוות",
-    url: "/team",
   },
   {
     title: "טבלאות",

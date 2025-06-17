@@ -1,5 +1,6 @@
+
 import { motion } from "framer-motion";
-import { Menu, X, ListChecks, Home, Settings, Table2, FolderOpen, Timer } from "lucide-react";
+import { Menu, X, ListChecks, Users, Settings, Table2, FolderOpen, Timer } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useLocation, Link } from "react-router-dom";
 import { Button } from "./ui/button";
@@ -44,7 +45,7 @@ export function AppSidebar() {
   };
 
   const menuItems = [
-    { name: "צוות העבודה", path: "/", icon: <Home className="h-5 w-5 ml-2" /> },
+    { name: "צוות העבודה", path: "/team", icon: <Users className="h-5 w-5 ml-2" /> },
     { name: "פרויקטים", path: "/projects", icon: <FolderOpen className="h-5 w-5 ml-2" /> },
     { name: "טבלאות", path: "/tables", icon: <Table2 className="h-5 w-5 ml-2" /> },
     { name: "זרימות עבודה", path: "/workflows", icon: <ListChecks className="h-5 w-5 ml-2" /> },
