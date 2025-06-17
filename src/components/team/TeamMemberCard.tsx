@@ -485,7 +485,6 @@ const TeamMemberCard = ({
               פעולה זו היא בלתי הפיכה. חבר הצוות יימחק לצמיתות.
               <br /><br />
               <strong>פרטי העובד:</strong>
-              <br />ID: {id}
               <br />Worker ID: {workerId}
               <br />משימות פתוחות: {tasksData.open}
               <br />משימות שהושלמו: {tasksData.completed}
