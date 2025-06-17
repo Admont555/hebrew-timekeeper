@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { TaskPriority } from "@/types/task";
@@ -127,6 +126,7 @@ const TaskForm = ({
                   className="text-right"
                   autoComplete="off"
                   required
+                  dir="rtl"
                 />
               </div>
               
@@ -142,6 +142,7 @@ const TaskForm = ({
                   min={0}
                   step={5}
                   className="text-right"
+                  dir="rtl"
                 />
               </div>
               
@@ -153,7 +154,7 @@ const TaskForm = ({
                   value={priority} 
                   onValueChange={(value) => setPriority(value as TaskPriority)}
                 >
-                  <SelectTrigger id="priority" className="w-full text-right">
+                  <SelectTrigger id="priority" className="w-full text-right" dir="rtl">
                     <SelectValue placeholder="בחר עדיפות" />
                   </SelectTrigger>
                   <SelectContent position="popper" className="w-full">
