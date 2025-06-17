@@ -159,19 +159,19 @@ const TaskForm = ({
                     <SelectValue placeholder="בחר עדיפות" />
                   </SelectTrigger>
                   <SelectContent position="popper" className="w-full">
-                    <SelectItem value="low" className="text-right">
+                    <SelectItem value="low" className="text-right justify-end">
                       <div className="flex items-center gap-2 w-full justify-end">
                         <span>נמוכה</span>
                         <span className="h-2 w-2 rounded-full bg-green-500"></span>
                       </div>
                     </SelectItem>
-                    <SelectItem value="normal" className="text-right">
+                    <SelectItem value="normal" className="text-right justify-end">
                       <div className="flex items-center gap-2 w-full justify-end">
                         <span>רגילה</span>
                         <span className="h-2 w-2 rounded-full bg-yellow-500"></span>
                       </div>
                     </SelectItem>
-                    <SelectItem value="high" className="text-right">
+                    <SelectItem value="high" className="text-right justify-end">
                       <div className="flex items-center gap-2 w-full justify-end">
                         <span>גבוהה</span>
                         <span className="h-2 w-2 rounded-full bg-red-500"></span>
