@@ -1,4 +1,3 @@
-
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card } from "@/components/ui/card";
 import { UserRound, XOctagon, AlertOctagon, CheckCircle, Lock } from "lucide-react";
@@ -127,24 +126,93 @@ const TeamMemberCard = ({
     }
     
     try {
-      const { error } = await supabase
+      console.log('=== ATTEMPTING TO DELETE TEAM MEMBER ===');
+      console.log('Member ID:', id);
+      console.log('Member Name:', name);
+      console.log('Worker ID:', workerId);
+      console.log('Current Worker:', isCurrentWorker);
+      
+      // First, check if member has any tasks
+      const { count: taskCount, error: taskCountError } = await supabase
+        .from('tasks')
+        .select('*', { count: 'exact', head: true })
+        .eq('worker', workerId);
+
+      if (taskCountError) {
+        console.error('Error checking tasks:', taskCountError);
+        throw new Error(`שגיאה בבדיקת משימות: ${taskCountError.message}`);
+      }
+
+      console.log(`Member has ${taskCount} tasks`);
+
+      if (taskCount && taskCount > 0) {
+        throw new Error(`לא ניתן למחוק את ${name} כי יש לו ${taskCount} משימות פעילות`);
+      }
+
+      // Check if member is referenced in other tables
+      const { count: timeLogCount, error: timeLogError } = await supabase
+        .from('time_logs')
+        .select('*', { count: 'exact', head: true })
+        .eq('worker', workerId);
+
+      if (timeLogError) {
+        console.error('Error checking time logs:', timeLogError);
+      } else {
+        console.log(`Member has ${timeLogCount} time logs`);
+      }
+
+      // Check if member is assigned to tasks
+      const { count: assignedTaskCount, error: assignedError } = await supabase
+        .from('tasks')
+        .select('*', { count: 'exact', head: true })
+        .contains('assigned_to', [workerId]);
+
+      if (assignedError) {
+        console.error('Error checking assigned tasks:', assignedError);
+      } else {
+        console.log(`Member is assigned to ${assignedTaskCount} tasks`);
+      }
+
+      // Try to delete by ID first
+      console.log('Attempting delete by ID...');
+      const { error: deleteByIdError } = await supabase
         .from('team_members')
         .delete()
-        .eq('worker_id', workerId);
+        .eq('id', id);
 
-      if (error) throw error;
+      if (deleteByIdError) {
+        console.error('Delete by ID failed:', deleteByIdError);
+        
+        // Try to delete by worker_id
+        console.log('Attempting delete by worker_id...');
+        const { error: deleteByWorkerError } = await supabase
+          .from('team_members')
+          .delete()
+          .eq('worker_id', workerId);
+
+        if (deleteByWorkerError) {
+          console.error('Delete by worker_id also failed:', deleteByWorkerError);
+          throw new Error(`שגיאה במחיקת העובד: ${deleteByWorkerError.message}`);
+        }
+      }
+
+      console.log('Successfully deleted member:', name);
       
       toast({
         title: "חבר צוות נמחק",
-        description: "חבר הצוות נמחק בהצלחה",
+        description: `${name} נמחק בהצלחה`,
       });
       
       onDelete();
-    } catch (error) {
-      console.error('Error deleting team member:', error);
+    } catch (error: any) {
+      console.error('=== DELETE ERROR ===');
+      console.error('Error object:', error);
+      console.error('Error message:', error.message);
+      console.error('Error stack:', error.stack);
+      
       toast({
         title: "שגיאה במחיקת חבר צוות",
-        description: "אירעה שגיאה במחיקת חבר הצוות",
+        description: error.message || `לא ניתן למחוק את ${name}`,
         variant: "destructive",
       });
     }
@@ -192,6 +260,11 @@ const TeamMemberCard = ({
             : 'before:to-purple-50/40 before:dark:from-gray-800/80 before:dark:via-gray-800/70 before:dark:to-purple-900/10'} 
           before:backdrop-blur-sm before:z-0
         `}>
+          
+          {/* Debug info badge for this specific member */}
+          <div className="absolute top-2 left-2 z-20 text-xs bg-black/50 text-white p-1 rounded">
+            ID: {id.slice(-8)}
+          </div>
           
           {/* Edit mode indicator */}
           {isEditMode && (
@@ -375,7 +448,7 @@ const TeamMemberCard = ({
                       <XOctagon className="h-4 w-4 text-red-500" />
                     </TooltipTrigger>
                     <TooltipContent side="right">
-                      <p>מחק עובד</p>
+                      <p>מחק עובד - {name}</p>
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
@@ -407,9 +480,15 @@ const TeamMemberCard = ({
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent className="sm:max-w-[425px]">
           <AlertDialogHeader>
-            <AlertDialogTitle>האם אתה בטוח שברצונך למחוק את חבר הצוות?</AlertDialogTitle>
+            <AlertDialogTitle>האם אתה בטוח שברצונך למחוק את {name}?</AlertDialogTitle>
             <AlertDialogDescription>
               פעולה זו היא בלתי הפיכה. חבר הצוות יימחק לצמיתות.
+              <br /><br />
+              <strong>פרטי העובד:</strong>
+              <br />ID: {id}
+              <br />Worker ID: {workerId}
+              <br />משימות פתוחות: {tasksData.open}
+              <br />משימות שהושלמו: {tasksData.completed}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -418,7 +497,7 @@ const TeamMemberCard = ({
               onClick={handleDelete}
               className="bg-red-500 hover:bg-red-600 text-white"
             >
-              מחק
+              מחק את {name}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
