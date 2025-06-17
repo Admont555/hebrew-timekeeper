@@ -1,4 +1,3 @@
-
 import { Task, Attachment } from "@/types/task";
 import CountdownTimer from "./CountdownTimer";
 import { motion, AnimatePresence } from "framer-motion";
@@ -189,20 +188,7 @@ const TaskItem = ({
             exit={{ opacity: 0 }}
           >
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div className="flex items-center gap-4 order-1 sm:order-1">
-                <TaskActions
-                  task={task}
-                  onDelete={onDeleteTask}
-                  onEdit={handleEditClick}
-                  onToggleComments={() => setShowComments(!showComments)}
-                  onToggleAttachments={() => setShowAttachments(!showAttachments)}
-                  onToggleDependencies={handleToggleProject}
-                  showAttachments={showAttachments}
-                  showDependencies={showProject}
-                />
-                <TaskPriorityComponent priority={task.priority} />
-              </div>
-              <div className="flex flex-col items-end gap-1 order-2 sm:order-2 ml-6">
+              <div className="flex flex-col items-end gap-1 order-2 sm:order-1 mr-6">
                 <span className={cn(
                   "text-lg font-medium text-right",
                   task.completed 
@@ -214,6 +200,19 @@ const TaskItem = ({
                 <span className="text-sm text-gray-500 dark:text-gray-400">
                   {formatTime(task.timestamp)}
                 </span>
+              </div>
+              <div className="flex items-center gap-4 order-1 sm:order-2">
+                <TaskPriorityComponent priority={task.priority} />
+                <TaskActions
+                  task={task}
+                  onDelete={onDeleteTask}
+                  onEdit={handleEditClick}
+                  onToggleComments={() => setShowComments(!showComments)}
+                  onToggleAttachments={() => setShowAttachments(!showAttachments)}
+                  onToggleDependencies={handleToggleProject}
+                  showAttachments={showAttachments}
+                  showDependencies={showProject}
+                />
               </div>
             </div>
 
