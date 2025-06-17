@@ -132,31 +132,31 @@ const TaskActions = ({
               <p>אפשרויות נוספות</p>
             </TooltipContent>
           </Tooltip>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={onEdit} className="flex flex-row-reverse justify-between">
-              <Edit2 className="mr-2 h-4 w-4" />
+          <DropdownMenuContent align="end" dir="rtl" className="text-right">
+            <DropdownMenuItem onClick={onEdit} className="flex items-center justify-end gap-2">
               <span>עריכה</span>
+              <Edit2 className="h-4 w-4" />
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={handleCopyToClipboard} className="flex flex-row-reverse justify-between">
-              <Copy className="mr-2 h-4 w-4" />
+            <DropdownMenuItem onClick={handleCopyToClipboard} className="flex items-center justify-end gap-2">
               <span>העתק</span>
+              <Copy className="h-4 w-4" />
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="flex flex-row-reverse justify-between">
-                  <Trash2 className="mr-2 h-4 w-4" />
+                <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="flex items-center justify-end gap-2">
                   <span>מחק</span>
+                  <Trash2 className="h-4 w-4" />
                 </DropdownMenuItem>
               </AlertDialogTrigger>
-              <AlertDialogContent>
+              <AlertDialogContent dir="rtl" className="text-right">
                 <AlertDialogHeader>
                   <AlertDialogTitle>האם אתה בטוח?</AlertDialogTitle>
                   <AlertDialogDescription>
                     פעולה זו תמחק את המשימה לצמיתות ולא ניתן יהיה לשחזר אותה.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
-                <AlertDialogFooter>
+                <AlertDialogFooter className="flex-row-reverse">
                   <AlertDialogCancel>ביטול</AlertDialogCancel>
                   <AlertDialogAction onClick={() => onDelete(task.id)}>
                     מחק
