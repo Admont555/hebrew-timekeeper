@@ -62,12 +62,18 @@ const ProjectTasks = () => {
         duration: task.duration || 0,
         startTime: task.start_time,
         comments: task.comments || [],
-        attachments: task.attachments || [],
+        attachments: (task.attachments || []).map((att: any) => ({
+          id: att.id || '',
+          name: att.name || '',
+          url: att.url || '',
+          type: att.type || '',
+          size: att.size || 0,
+        })),
         priority: task.priority as "low" | "normal" | "high",
         worker: task.worker,
         assigned_to: task.assigned_to || [],
-        progress: task.progress || 0,
-        dependencies: task.dependencies || [],
+        progress: 0, // Default value since it doesn't exist in database yet
+        dependencies: [], // Default value since it doesn't exist in database yet
         archived_at: task.archived_at,
         archived_by: task.archived_by,
         category_id: task.category_id,
