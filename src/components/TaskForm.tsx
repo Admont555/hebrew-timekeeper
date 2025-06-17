@@ -1,3 +1,4 @@
+
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { TaskPriority } from "@/types/task";
@@ -123,10 +124,10 @@ const TaskForm = ({
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="מה צריך לעשות?"
-                  className="text-right"
+                  className="text-right rtl:text-right [&]:text-right"
+                  style={{ textAlign: 'right', direction: 'rtl' }}
                   autoComplete="off"
                   required
-                  dir="rtl"
                 />
               </div>
               
@@ -141,8 +142,8 @@ const TaskForm = ({
                   onChange={(e) => setDuration(Number(e.target.value))}
                   min={0}
                   step={5}
-                  className="text-right"
-                  dir="rtl"
+                  className="text-right rtl:text-right [&]:text-right"
+                  style={{ textAlign: 'right', direction: 'rtl' }}
                 />
               </div>
               
@@ -154,7 +155,7 @@ const TaskForm = ({
                   value={priority} 
                   onValueChange={(value) => setPriority(value as TaskPriority)}
                 >
-                  <SelectTrigger id="priority" className="w-full text-right" dir="rtl">
+                  <SelectTrigger id="priority" className="w-full text-right">
                     <SelectValue placeholder="בחר עדיפות" />
                   </SelectTrigger>
                   <SelectContent position="popper" className="w-full">
