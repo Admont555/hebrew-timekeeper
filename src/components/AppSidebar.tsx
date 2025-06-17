@@ -1,6 +1,5 @@
-
 import { motion } from "framer-motion";
-import { Menu, X, ListChecks, Home, Settings, Table2, FolderOpen } from "lucide-react";
+import { Menu, X, ListChecks, Home, Settings, Table2, FolderOpen, Timer } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useLocation, Link } from "react-router-dom";
 import { Button } from "./ui/button";
@@ -49,6 +48,7 @@ export function AppSidebar() {
     { name: "פרויקטים", path: "/projects", icon: <FolderOpen className="h-5 w-5 ml-2" /> },
     { name: "טבלאות", path: "/tables", icon: <Table2 className="h-5 w-5 ml-2" /> },
     { name: "זרימות עבודה", path: "/workflows", icon: <ListChecks className="h-5 w-5 ml-2" /> },
+    { name: "ניהול זמן", path: "/time-tracking", icon: <Timer className="h-5 w-5 ml-2" /> },
     { name: "הגדרות", path: "/settings", icon: <Settings className="h-5 w-5 ml-2" /> },
   ];
 

@@ -16,6 +16,7 @@ import ProjectTasks from "./pages/ProjectTasks";
 import TeamMembers from "./pages/TeamMembers";
 import WorkflowCreator from "./pages/WorkflowCreator";
 import Workflows from "./pages/Workflows";
+import TimeTracking from "./pages/TimeTracking";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { ThemeProvider } from "@/components/ThemeProvider";
@@ -46,6 +47,7 @@ const App = () => (
                   <Route path="/team" element={<TeamMembers />} />
                   <Route path="/workflows" element={<Workflows />} />
                   <Route path="/workflow/:workflowId" element={<WorkflowCreator />} />
+                  <Route path="/time-tracking" element={<TimeTracking />} />
                 </Routes>
               </main>
             </div>

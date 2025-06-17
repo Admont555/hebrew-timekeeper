@@ -21,6 +21,10 @@ export const navItems = [
     url: "/workflows",
   },
   {
+    title: "ניהול זמן",
+    url: "/time-tracking",
+  },
+  {
     title: "הגדרות",
     url: "/settings",
   },
