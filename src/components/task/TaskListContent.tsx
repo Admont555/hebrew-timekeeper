@@ -33,6 +33,7 @@ interface TaskListContentProps {
   onReorderTasks?: (date: string, tasks: Task[]) => void;
   onUpdateTaskDependencies?: (taskId: string, dependencies: string[]) => void;
   onUpdateTaskProgress?: (taskId: string, progress: number) => void;
+  onUpdateTaskProject?: (taskId: string, projectId: string | null) => void;
 }
 
 const TaskListContent = ({
@@ -46,13 +47,13 @@ const TaskListContent = ({
   onReorderTasks,
   onUpdateTaskDependencies,
   onUpdateTaskProgress,
+  onUpdateTaskProject,
 }: TaskListContentProps) => {
   const [reorderedTasks, setReorderedTasks] = useState<TasksByDate>(tasksByDate);
   const isMobile = useIsMobile();
   const [activeDragDate, setActiveDragDate] = useState<string | null>(null);
   const { toast } = useToast();
 
-  // Collect all tasks in a flat array for dependency lookups
   const allTasks: Task[] = Object.values(tasksByDate).flat();
 
   useEffect(() => {
@@ -70,18 +71,15 @@ const TaskListContent = ({
       [date]: newOrder
     }));
 
-    // Only call the parent handler if this feature is enabled
     if (onReorderTasks) {
       onReorderTasks(date, newOrder);
     }
   };
 
-  // Handle drag start to highlight the active date section
   const handleDragStart = (date: string) => {
     setActiveDragDate(date);
   };
 
-  // Handle drag end to clear highlighting and show toast notification
   const handleDragEnd = () => {
     setActiveDragDate(null);
     toast({
@@ -181,7 +179,6 @@ const TaskListContent = ({
             <div className="space-y-3 px-1">
               {tasks.length > 0 && (
                 isMobile ? (
-                  // On mobile, just render the tasks without Reorder to improve compatibility
                   <div className="space-y-3">
                     {tasks.map((task) => (
                       <div key={task.id}>
@@ -195,12 +192,12 @@ const TaskListContent = ({
                           onEdit={onEditTask}
                           onUpdateDependencies={onUpdateTaskDependencies}
                           onUpdateProgress={onUpdateTaskProgress}
+                          onUpdateProject={onUpdateTaskProject}
                         />
                       </div>
                     ))}
                   </div>
                 ) : (
-                  // On desktop, use Reorder for drag and drop functionality
                   <Reorder.Group 
                     axis="y" 
                     values={tasks} 
@@ -226,6 +223,7 @@ const TaskListContent = ({
                           onEdit={onEditTask}
                           onUpdateDependencies={onUpdateTaskDependencies}
                           onUpdateProgress={onUpdateTaskProgress}
+                          onUpdateProject={onUpdateTaskProject}
                         />
                       </Reorder.Item>
                     ))}
