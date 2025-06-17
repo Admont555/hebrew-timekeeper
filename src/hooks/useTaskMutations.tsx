@@ -16,6 +16,8 @@ export const useTaskMutations = () => {
       _file?: File;
       projectId?: string;
     }) => {
+      console.log('Adding task with params:', { title, duration, priority, worker, projectId });
+      
       try {
         let newTaskId;
         
@@ -31,10 +33,12 @@ export const useTaskMutations = () => {
             duration,
             priority,
             worker,
-            project_id: projectId, // Add project_id to the task
+            project_id: projectId,
             progress: 0,
             dependencies: [],
           };
+
+          console.log('Inserting task:', newTask);
 
           const { data: taskData, error } = await supabase
             .from("tasks")
@@ -42,7 +46,12 @@ export const useTaskMutations = () => {
             .select()
             .single();
 
-          if (error) throw error;
+          if (error) {
+            console.error('Task insert error:', error);
+            throw error;
+          }
+          
+          console.log('Task inserted successfully:', taskData);
           newTaskId = taskData.id;
         }
 
@@ -92,6 +101,7 @@ export const useTaskMutations = () => {
       }
     },
     onSuccess: () => {
+      console.log('Task added successfully, invalidating queries');
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
       queryClient.invalidateQueries({ queryKey: ['project-tasks'] });
       toast({
@@ -111,12 +121,19 @@ export const useTaskMutations = () => {
 
   const deleteTaskMutation = useMutation({
     mutationFn: async (taskId: string) => {
+      console.log('Deleting task:', taskId);
+      
       const { error } = await supabase
         .from("tasks")
         .delete()
         .eq("id", taskId);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Delete task error:', error);
+        throw error;
+      }
+      
+      console.log('Task deleted successfully');
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
@@ -127,6 +144,7 @@ export const useTaskMutations = () => {
       });
     },
     onError: (error) => {
+      console.error('Delete task mutation error:', error);
       toast({
         title: "שגיאה במחיקת משימה",
         description: error.message,
@@ -152,6 +170,8 @@ export const useTaskMutations = () => {
       progress?: number;
       dependencies?: string[];
     }) => {
+      console.log('Editing task:', { taskId, newTitle, newDuration, newPriority, progress, dependencies });
+      
       if (_file) {
         try {
           const timestamp = new Date().getTime();
@@ -231,17 +251,25 @@ export const useTaskMutations = () => {
           updates.dependencies = dependencies;
         }
         
+        console.log('Applying updates:', updates);
+        
         if (Object.keys(updates).length > 0) {
           const { error } = await supabase
             .from("tasks")
             .update(updates)
             .eq("id", taskId);
   
-          if (error) throw error;
+          if (error) {
+            console.error('Task update error:', error);
+            throw error;
+          }
+          
+          console.log('Task updated successfully');
         }
       }
     },
     onSuccess: () => {
+      console.log('Edit task mutation successful, invalidating queries');
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
       queryClient.invalidateQueries({ queryKey: ['project-tasks'] });
       toast({
@@ -261,13 +289,20 @@ export const useTaskMutations = () => {
 
   const toggleTaskMutation = useMutation({
     mutationFn: async ({ taskId, worker }: { taskId: string; worker: string }) => {
+      console.log('Toggling task:', { taskId, worker });
+      
       const { data: tasks } = await supabase
         .from("tasks")
         .select("*")
         .eq("id", taskId)
         .single();
       
-      if (!tasks) throw new Error("Task not found");
+      if (!tasks) {
+        console.error('Task not found:', taskId);
+        throw new Error("Task not found");
+      }
+
+      console.log('Current task state:', { completed: tasks.completed, progress: tasks.progress });
 
       const progressValue = tasks.completed ? 0 : 100;
 
@@ -277,19 +312,27 @@ export const useTaskMutations = () => {
         progress: progressValue,
       };
       
+      console.log('Toggle updates:', updates);
+      
       const { error } = await supabase
         .from("tasks")
         .update(updates)
-        .eq("id", taskId)
-        .eq('worker', worker);
+        .eq("id", taskId);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Toggle task error:', error);
+        throw error;
+      }
+      
+      console.log('Task toggled successfully');
     },
     onSuccess: () => {
+      console.log('Toggle task mutation successful');
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
       queryClient.invalidateQueries({ queryKey: ['project-tasks'] });
     },
     onError: (error) => {
+      console.error('Toggle task mutation error:', error);
       toast({
         title: "שגיאה בעדכון משימה",
         description: error.message,
@@ -300,6 +343,8 @@ export const useTaskMutations = () => {
 
   const updateTaskProgressMutation = useMutation({
     mutationFn: async ({ taskId, progress }: { taskId: string; progress: number }) => {
+      console.log('Updating task progress:', { taskId, progress });
+      
       const normalizedProgress = Math.max(0, Math.min(100, progress));
       
       const updates: Record<string, any> = {}; 
@@ -310,12 +355,19 @@ export const useTaskMutations = () => {
         updates.completed = true;
       }
       
+      console.log('Progress updates:', updates);
+      
       const { error } = await supabase
         .from("tasks")
         .update(updates)
         .eq("id", taskId);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Update progress error:', error);
+        throw error;
+      }
+      
+      console.log('Progress updated successfully');
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
@@ -326,6 +378,7 @@ export const useTaskMutations = () => {
       });
     },
     onError: (error) => {
+      console.error('Update progress mutation error:', error);
       toast({
         title: "שגיאה בעדכון התקדמות",
         description: error.message,
@@ -336,6 +389,8 @@ export const useTaskMutations = () => {
 
   const updateTaskDependenciesMutation = useMutation({
     mutationFn: async ({ taskId, dependencies }: { taskId: string; dependencies: string[] }) => {
+      console.log('Updating task dependencies:', { taskId, dependencies });
+      
       const updates: Record<string, any> = {
         dependencies
       };
@@ -345,7 +400,12 @@ export const useTaskMutations = () => {
         .update(updates)
         .eq("id", taskId);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Update dependencies error:', error);
+        throw error;
+      }
+      
+      console.log('Dependencies updated successfully');
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
@@ -356,6 +416,7 @@ export const useTaskMutations = () => {
       });
     },
     onError: (error) => {
+      console.error('Update dependencies mutation error:', error);
       toast({
         title: "שגיאה בעדכון תלויות",
         description: error.message,
@@ -366,6 +427,7 @@ export const useTaskMutations = () => {
 
   const reorderTasksMutation = useMutation({
     mutationFn: async ({ tasks }: { tasks: Task[] }) => {
+      console.log('Reordering tasks:', tasks.length);
       return Promise.resolve();
     },
     onSuccess: () => {
@@ -373,6 +435,7 @@ export const useTaskMutations = () => {
       queryClient.invalidateQueries({ queryKey: ['project-tasks'] });
     },
     onError: (error) => {
+      console.error('Reorder tasks mutation error:', error);
       toast({
         title: "שגיאה בארגון משימות",
         description: error.message,
