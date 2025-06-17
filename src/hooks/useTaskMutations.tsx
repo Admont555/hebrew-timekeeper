@@ -1,3 +1,4 @@
+
 import { useQueryClient, useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Task, TaskPriority } from "@/types/task";
@@ -302,7 +303,7 @@ export const useTaskMutations = () => {
         throw new Error("Task not found");
       }
 
-      console.log('Current task state:', { completed: tasks.completed, progress: tasks.progress });
+      console.log('Current task state:', { completed: tasks.completed });
 
       const progressValue = tasks.completed ? 0 : 100;
 
