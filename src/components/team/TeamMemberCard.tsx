@@ -1,3 +1,4 @@
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card } from "@/components/ui/card";
 import { UserRound, XOctagon, AlertOctagon, CheckCircle, Lock } from "lucide-react";
@@ -260,11 +261,6 @@ const TeamMemberCard = ({
             : 'before:to-purple-50/40 before:dark:from-gray-800/80 before:dark:via-gray-800/70 before:dark:to-purple-900/10'} 
           before:backdrop-blur-sm before:z-0
         `}>
-          
-          {/* Debug info badge for this specific member */}
-          <div className="absolute top-2 left-2 z-20 text-xs bg-black/50 text-white p-1 rounded">
-            ID: {id.slice(-8)}
-          </div>
           
           {/* Edit mode indicator */}
           {isEditMode && (
