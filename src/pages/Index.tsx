@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { useState, useEffect } from "react";
 import { useParams, Navigate, useNavigate } from "react-router-dom";
@@ -37,6 +38,44 @@ const Index = () => {
     setCurrentWorker,
     workerNames,
   } = useWorkerState();
+
+  // If no workerId is provided, show team members list instead
+  if (!workerId) {
+    return (
+      <ErrorBoundary>
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="scroll-container safe-area-top safe-area-bottom min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300"
+        >
+          <NavMenu />
+          <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 max-w-4xl">
+            <Header />
+            
+            <div className="mb-4 sm:mb-6 max-w-2xl mx-auto">
+              <RandomQuote />
+            </div>
+
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3, duration: 0.5 }}
+              className="bg-white/80 dark:bg-gray-800/80 rounded-xl shadow-lg p-6 text-center"
+            >
+              <h2 className="text-2xl font-bold mb-4">בחר חבר צוות</h2>
+              <p className="text-gray-600 dark:text-gray-400 mb-6">
+                לחץ על "צוות" בתפריט כדי לראות את חברי הצוות ולבחור עבור מי לנהל משימות
+              </p>
+              <Button onClick={() => navigate('/team')} className="mx-auto">
+                עבור לצוות
+              </Button>
+            </motion.div>
+          </div>
+          <Toaster />
+        </motion.div>
+      </ErrorBoundary>
+    );
+  }
 
   if (currentWorker !== workerId && workerId) {
     setCurrentWorker(workerId);
