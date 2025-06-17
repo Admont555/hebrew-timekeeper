@@ -11,7 +11,7 @@ import TaskForm from "@/components/TaskForm";
 import TaskList from "@/components/TaskList";
 import { useTaskMutations } from "@/hooks/useTaskMutations";
 import { useToast } from "@/hooks/use-toast";
-import { TasksByDate } from "@/types/task";
+import { TasksByDate, Task } from "@/types/task";
 
 const ProjectTasks = () => {
   const { projectId } = useParams();
@@ -52,13 +52,49 @@ const ProjectTasks = () => {
         throw error;
       }
 
-      return data;
+      // Transform the data to match our Task interface
+      const transformedTasks: Task[] = (data || []).map(task => ({
+        id: task.id,
+        title: task.title,
+        timestamp: task.timestamp,
+        completed: task.completed,
+        date: task.date,
+        duration: task.duration || 0,
+        startTime: task.start_time,
+        comments: task.comments || [],
+        attachments: task.attachments || [],
+        priority: task.priority as "low" | "normal" | "high",
+        worker: task.worker,
+        assigned_to: task.assigned_to || [],
+        progress: task.progress || 0,
+        dependencies: task.dependencies || [],
+        archived_at: task.archived_at,
+        archived_by: task.archived_by,
+        category_id: task.category_id,
+        due_date: task.due_date,
+        notification_time: task.notification_time,
+        offline_id: task.offline_id,
+        order_index: task.order_index,
+        reminder_time: task.reminder_time,
+        sync_status: task.sync_status,
+        tags: task.tags || [],
+        voice_note: task.voice_note,
+        project_id: task.project_id,
+      }));
+
+      return transformedTasks;
     },
   });
 
-  const handleTaskCreated = () => {
+  const handleTaskCreated = (title: string, duration: number, priority: "low" | "normal" | "high") => {
+    addTaskMutation.mutate({ 
+      title, 
+      duration, 
+      priority, 
+      worker: "worker1",
+      projectId 
+    });
     setIsCreateDialogOpen(false);
-    refetch();
     toast({
       title: "משימה נוספה לפרויקט",
       description: "המשימה החדשה נוספה בהצלחה לפרויקט",
@@ -137,8 +173,7 @@ const ProjectTasks = () => {
               <DialogTitle>יצירת משימה חדשה לפרויקט</DialogTitle>
             </DialogHeader>
             <TaskForm 
-              projectId={projectId}
-              onTaskCreated={handleTaskCreated}
+              onAddTask={handleTaskCreated}
             />
           </DialogContent>
         </Dialog>
