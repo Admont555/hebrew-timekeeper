@@ -420,6 +420,7 @@ export type Database = {
           offline_id: string | null
           order_index: number | null
           priority: string | null
+          project_id: string | null
           reminder_time: string | null
           start_time: string | null
           sync_status: string | null
@@ -445,6 +446,7 @@ export type Database = {
           offline_id?: string | null
           order_index?: number | null
           priority?: string | null
+          project_id?: string | null
           reminder_time?: string | null
           start_time?: string | null
           sync_status?: string | null
@@ -470,6 +472,7 @@ export type Database = {
           offline_id?: string | null
           order_index?: number | null
           priority?: string | null
+          project_id?: string | null
           reminder_time?: string | null
           start_time?: string | null
           sync_status?: string | null
@@ -485,6 +488,13 @@ export type Database = {
             columns: ["category_id"]
             isOneToOne: false
             referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tasks_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
             referencedColumns: ["id"]
           },
         ]

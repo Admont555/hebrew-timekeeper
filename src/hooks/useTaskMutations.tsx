@@ -1,4 +1,3 @@
-
 import { useQueryClient, useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Task, TaskPriority } from "@/types/task";
@@ -9,17 +8,18 @@ export const useTaskMutations = () => {
   const queryClient = useQueryClient();
 
   const addTaskMutation = useMutation({
-    mutationFn: async ({ title, duration, priority, worker, _file }: { 
+    mutationFn: async ({ title, duration, priority, worker, _file, projectId }: { 
       title?: string; 
       duration?: number; 
       priority?: TaskPriority;
       worker?: string;
       _file?: File;
+      projectId?: string;
     }) => {
       try {
         let newTaskId;
         
-        if (title || duration || priority || worker) {
+        if (title || duration || priority || worker || projectId) {
           const now = new Date();
           const dateStr = now.toISOString().split("T")[0];
           
@@ -31,8 +31,9 @@ export const useTaskMutations = () => {
             duration,
             priority,
             worker,
-            progress: 0, // Explicitly initialize progress to 0
-            dependencies: [], // Explicitly initialize dependencies as empty array
+            project_id: projectId, // Add project_id to the task
+            progress: 0,
+            dependencies: [],
           };
 
           const { data: taskData, error } = await supabase
@@ -92,6 +93,7 @@ export const useTaskMutations = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      queryClient.invalidateQueries({ queryKey: ['project-tasks'] });
       toast({
         title: "משימה נוספה",
         description: "המשימה החדשה נוספה בהצלחה",
@@ -118,6 +120,7 @@ export const useTaskMutations = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      queryClient.invalidateQueries({ queryKey: ['project-tasks'] });
       toast({
         title: "משימה נמחקה",
         description: "המשימה נמחקה בהצלחה",
@@ -202,7 +205,6 @@ export const useTaskMutations = () => {
           throw error;
         }
       } else {
-        // Use an object to collect all the updates
         const updates: Record<string, any> = {};
         
         if (attachments !== undefined) {
@@ -241,6 +243,7 @@ export const useTaskMutations = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      queryClient.invalidateQueries({ queryKey: ['project-tasks'] });
       toast({
         title: "עודכן בהצלחה",
         description: "השינויים נשמרו בהצלחה",
@@ -266,13 +269,12 @@ export const useTaskMutations = () => {
       
       if (!tasks) throw new Error("Task not found");
 
-      // When completing a task, set progress to 100%
       const progressValue = tasks.completed ? 0 : 100;
 
       const updates: Record<string, any> = {
         completed: !tasks.completed,
         start_time: !tasks.start_time && !tasks.completed ? new Date().toISOString() : tasks.start_time,
-        progress: progressValue, // Always update progress
+        progress: progressValue,
       };
       
       const { error } = await supabase
@@ -285,6 +287,7 @@ export const useTaskMutations = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      queryClient.invalidateQueries({ queryKey: ['project-tasks'] });
     },
     onError: (error) => {
       toast({
@@ -297,13 +300,10 @@ export const useTaskMutations = () => {
 
   const updateTaskProgressMutation = useMutation({
     mutationFn: async ({ taskId, progress }: { taskId: string; progress: number }) => {
-      // Ensure progress is between 0 and 100
       const normalizedProgress = Math.max(0, Math.min(100, progress));
       
-      // If progress is 100%, also mark the task as completed
       const updates: Record<string, any> = {}; 
       
-      // Add progress to updates
       updates.progress = normalizedProgress;
       
       if (normalizedProgress === 100) {
@@ -319,6 +319,7 @@ export const useTaskMutations = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      queryClient.invalidateQueries({ queryKey: ['project-tasks'] });
       toast({
         title: "התקדמות עודכנה",
         description: "התקדמות המשימה עודכנה בהצלחה",
@@ -335,7 +336,6 @@ export const useTaskMutations = () => {
 
   const updateTaskDependenciesMutation = useMutation({
     mutationFn: async ({ taskId, dependencies }: { taskId: string; dependencies: string[] }) => {
-      // Create a safe update object that only includes the dependencies
       const updates: Record<string, any> = {
         dependencies
       };
@@ -349,6 +349,7 @@ export const useTaskMutations = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      queryClient.invalidateQueries({ queryKey: ['project-tasks'] });
       toast({
         title: "תלויות עודכנו",
         description: "תלויות המשימה עודכנו בהצלחה",
@@ -365,12 +366,11 @@ export const useTaskMutations = () => {
 
   const reorderTasksMutation = useMutation({
     mutationFn: async ({ tasks }: { tasks: Task[] }) => {
-      // In a real implementation, you might want to update task positions in the database
-      // For now, we'll just invalidate the cache since we're managing order in the client
       return Promise.resolve();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      queryClient.invalidateQueries({ queryKey: ['project-tasks'] });
     },
     onError: (error) => {
       toast({

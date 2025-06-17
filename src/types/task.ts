@@ -29,6 +29,7 @@ export interface Task {
   sync_status?: string;
   tags?: string[];
   voice_note?: string;
+  project_id?: string; // Added project_id field
 }
 
 export interface Attachment {
