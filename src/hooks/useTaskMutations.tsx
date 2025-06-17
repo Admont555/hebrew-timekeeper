@@ -35,8 +35,6 @@ export const useTaskMutations = () => {
             priority,
             worker,
             project_id: projectId,
-            progress: 0,
-            dependencies: [],
           };
 
           console.log('Inserting task:', newTask);
@@ -171,7 +169,7 @@ export const useTaskMutations = () => {
       progress?: number;
       dependencies?: string[];
     }) => {
-      console.log('Editing task:', { taskId, newTitle, newDuration, newPriority, progress, dependencies });
+      console.log('Editing task:', { taskId, newTitle, newDuration, newPriority });
       
       if (_file) {
         try {
@@ -244,14 +242,6 @@ export const useTaskMutations = () => {
           updates.priority = newPriority;
         }
         
-        if (progress !== undefined) {
-          updates.progress = progress;
-        }
-        
-        if (dependencies !== undefined) {
-          updates.dependencies = dependencies;
-        }
-        
         console.log('Applying updates:', updates);
         
         if (Object.keys(updates).length > 0) {
@@ -305,12 +295,9 @@ export const useTaskMutations = () => {
 
       console.log('Current task state:', { completed: tasks.completed });
 
-      const progressValue = tasks.completed ? 0 : 100;
-
       const updates: Record<string, any> = {
         completed: !tasks.completed,
         start_time: !tasks.start_time && !tasks.completed ? new Date().toISOString() : tasks.start_time,
-        progress: progressValue,
       };
       
       console.log('Toggle updates:', updates);
@@ -350,25 +337,25 @@ export const useTaskMutations = () => {
       
       const updates: Record<string, any> = {}; 
       
-      updates.progress = normalizedProgress;
-      
       if (normalizedProgress === 100) {
         updates.completed = true;
       }
       
       console.log('Progress updates:', updates);
       
-      const { error } = await supabase
-        .from("tasks")
-        .update(updates)
-        .eq("id", taskId);
+      if (Object.keys(updates).length > 0) {
+        const { error } = await supabase
+          .from("tasks")
+          .update(updates)
+          .eq("id", taskId);
 
-      if (error) {
-        console.error('Update progress error:', error);
-        throw error;
+        if (error) {
+          console.error('Update progress error:', error);
+          throw error;
+        }
+        
+        console.log('Progress updated successfully');
       }
-      
-      console.log('Progress updated successfully');
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
@@ -392,21 +379,8 @@ export const useTaskMutations = () => {
     mutationFn: async ({ taskId, dependencies }: { taskId: string; dependencies: string[] }) => {
       console.log('Updating task dependencies:', { taskId, dependencies });
       
-      const updates: Record<string, any> = {
-        dependencies
-      };
-      
-      const { error } = await supabase
-        .from("tasks")
-        .update(updates)
-        .eq("id", taskId);
-
-      if (error) {
-        console.error('Update dependencies error:', error);
-        throw error;
-      }
-      
-      console.log('Dependencies updated successfully');
+      // Since dependencies column doesn't exist, we'll just log this for now
+      console.log('Dependencies updated successfully (no-op)');
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tasks'] });

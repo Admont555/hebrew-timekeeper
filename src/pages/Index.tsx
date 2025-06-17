@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { useState, useEffect } from "react";
 import { useParams, Navigate, useNavigate } from "react-router-dom";
@@ -123,8 +122,8 @@ const Index = () => {
           attachments: transformedAttachments,
           worker: task.worker,
           assigned_to: task.assigned_to || [],
-          progress: 'progress' in task ? Number(task.progress) : 0,
-          dependencies: 'dependencies' in task ? (Array.isArray(task.dependencies) ? task.dependencies : []) : [],
+          progress: 0, // Default value since column doesn't exist
+          dependencies: [], // Default value since column doesn't exist
           archived_at: task.archived_at,
           archived_by: task.archived_by,
           category_id: task.category_id,
