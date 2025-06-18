@@ -192,14 +192,22 @@
   }
 
   .quill-container .ql-editor {
-    @apply text-gray-900 dark:text-gray-100;
+    color: #1f2937 !important; /* Dark gray for light mode */
     font-size: 18px !important;
     line-height: 1.6 !important;
   }
 
+  .dark .quill-container .ql-editor {
+    color: #ffffff !important; /* Pure white for dark mode */
+  }
+
   .quill-container .ql-editor.ql-blank::before {
-    @apply text-gray-500 dark:text-gray-400;
+    color: #6b7280 !important; /* Gray placeholder in light mode */
     font-size: 18px !important;
+  }
+
+  .dark .quill-container .ql-editor.ql-blank::before {
+    color: #9ca3af !important; /* Lighter gray placeholder in dark mode */
   }
 
   .quill-container .ql-editor p {
