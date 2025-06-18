@@ -501,10 +501,10 @@ const ProjectDetails = () => {
                 <Accordion type="multiple" className="w-full" dir="rtl">
                   {projectNotes.map((note) => (
                     <AccordionItem key={note.id} value={note.id}>
-                      <AccordionTrigger className="text-right hover:no-underline">
-                        <div className="flex items-center gap-2 flex-1">
-                          <StickyNote className="h-5 w-5 text-yellow-500" />
+                      <AccordionTrigger className="text-right hover:no-underline justify-end">
+                        <div className="flex items-center gap-2 flex-1 justify-end">
                           <span className="font-medium text-lg">{note.title}</span>
+                          <StickyNote className="h-5 w-5 text-yellow-500" />
                         </div>
                       </AccordionTrigger>
                       <AccordionContent>
