@@ -230,60 +230,57 @@
     line-height: 1.4 !important;
   }
 
-  /* Dynamic RTL/LTR support based on dir attribute */
-  .quill-container[dir="rtl"] .ql-editor {
+  /* Dynamic RTL/LTR and text alignment support based on data attributes */
+  .quill-container[data-direction="rtl"] .ql-editor {
     direction: rtl !important;
-    text-align: right !important;
   }
 
-  .quill-container[dir="ltr"] .ql-editor {
+  .quill-container[data-direction="ltr"] .ql-editor {
     direction: ltr !important;
-    text-align: left !important;
   }
 
-  /* Dynamic text alignment support */
-  .quill-container[style*="text-align: right"] .ql-editor,
-  .quill-container[style*="text-align: right"] .ql-editor p,
-  .quill-container[style*="text-align: right"] .ql-editor h1,
-  .quill-container[style*="text-align: right"] .ql-editor h2,
-  .quill-container[style*="text-align: right"] .ql-editor h3,
-  .quill-container[style*="text-align: right"] .ql-editor h4,
-  .quill-container[style*="text-align: right"] .ql-editor h5,
-  .quill-container[style*="text-align: right"] .ql-editor h6 {
+  .quill-container[data-text-align="right"] .ql-editor,
+  .quill-container[data-text-align="right"] .ql-editor p,
+  .quill-container[data-text-align="right"] .ql-editor h1,
+  .quill-container[data-text-align="right"] .ql-editor h2,
+  .quill-container[data-text-align="right"] .ql-editor h3,
+  .quill-container[data-text-align="right"] .ql-editor h4,
+  .quill-container[data-text-align="right"] .ql-editor h5,
+  .quill-container[data-text-align="right"] .ql-editor h6 {
     text-align: right !important;
   }
 
-  .quill-container[style*="text-align: center"] .ql-editor,
-  .quill-container[style*="text-align: center"] .ql-editor p,
-  .quill-container[style*="text-align: center"] .ql-editor h1,
-  .quill-container[style*="text-align: center"] .ql-editor h2,
-  .quill-container[style*="text-align: center"] .ql-editor h3,
-  .quill-container[style*="text-align: center"] .ql-editor h4,
-  .quill-container[style*="text-align: center"] .ql-editor h5,
-  .quill-container[style*="text-align: center"] .ql-editor h6 {
+  .quill-container[data-text-align="center"] .ql-editor,
+  .quill-container[data-text-align="center"] .ql-editor p,
+  .quill-container[data-text-align="center"] .ql-editor h1,
+  .quill-container[data-text-align="center"] .ql-editor h2,
+  .quill-container[data-text-align="center"] .ql-editor h3,
+  .quill-container[data-text-align="center"] .ql-editor h4,
+  .quill-container[data-text-align="center"] .ql-editor h5,
+  .quill-container[data-text-align="center"] .ql-editor h6 {
     text-align: center !important;
   }
 
-  .quill-container[style*="text-align: left"] .ql-editor,
-  .quill-container[style*="text-align: left"] .ql-editor p,
-  .quill-container[style*="text-align: left"] .ql-editor h1,
-  .quill-container[style*="text-align: left"] .ql-editor h2,
-  .quill-container[style*="text-align: left"] .ql-editor h3,
-  .quill-container[style*="text-align: left"] .ql-editor h4,
-  .quill-container[style*="text-align: left"] .ql-editor h5,
-  .quill-container[style*="text-align: left"] .ql-editor h6 {
+  .quill-container[data-text-align="left"] .ql-editor,
+  .quill-container[data-text-align="left"] .ql-editor p,
+  .quill-container[data-text-align="left"] .ql-editor h1,
+  .quill-container[data-text-align="left"] .ql-editor h2,
+  .quill-container[data-text-align="left"] .ql-editor h3,
+  .quill-container[data-text-align="left"] .ql-editor h4,
+  .quill-container[data-text-align="left"] .ql-editor h5,
+  .quill-container[data-text-align="left"] .ql-editor h6 {
     text-align: left !important;
   }
 
   /* RTL list alignment */
-  .quill-container[dir="rtl"] .ql-editor ul,
-  .quill-container[dir="rtl"] .ql-editor ol {
+  .quill-container[data-direction="rtl"] .ql-editor ul,
+  .quill-container[data-direction="rtl"] .ql-editor ol {
     padding-right: 1.5em !important;
     padding-left: 0 !important;
   }
 
-  .quill-container[dir="ltr"] .ql-editor ul,
-  .quill-container[dir="ltr"] .ql-editor ol {
+  .quill-container[data-direction="ltr"] .ql-editor ul,
+  .quill-container[data-direction="ltr"] .ql-editor ol {
     padding-left: 1.5em !important;
     padding-right: 0 !important;
   }

@@ -141,9 +141,9 @@ const ProjectNoteForm = ({ projectId, onSuccess }: ProjectNoteFormProps) => {
           תוכן הפתק
         </label>
         <div 
-          className="quill-container bg-white dark:bg-gray-800 border rounded-md" 
-          dir={direction}
-          style={{ textAlign: textAlign }}
+          className="quill-container bg-white dark:bg-gray-800 border rounded-md"
+          data-direction={direction}
+          data-text-align={textAlign}
         >
           <ReactQuill
             theme="snow"
@@ -153,9 +153,7 @@ const ProjectNoteForm = ({ projectId, onSuccess }: ProjectNoteFormProps) => {
             formats={formats}
             placeholder="רשום כאן את תוכן המייל, פרטי הפגישה, או כל מידע רלוונטי אחר... אפשר להשתמש בעיצוב טקסט עשיר"
             style={{ 
-              minHeight: '200px',
-              direction: direction,
-              textAlign: textAlign
+              minHeight: '200px'
             }}
           />
         </div>
