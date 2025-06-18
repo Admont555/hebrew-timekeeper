@@ -4,6 +4,7 @@ import { useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
@@ -16,6 +17,8 @@ interface ProjectNoteFormProps {
 const ProjectNoteForm = ({ projectId, onSuccess }: ProjectNoteFormProps) => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [direction, setDirection] = useState<"rtl" | "ltr">("rtl");
+  const [textAlign, setTextAlign] = useState<"right" | "left" | "center">("right");
   const { toast } = useToast();
 
   const modules = {
@@ -99,12 +102,45 @@ const ProjectNoteForm = ({ projectId, onSuccess }: ProjectNoteFormProps) => {
           required
         />
       </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium mb-2">
+            כיוון כתיבה
+          </label>
+          <Select value={direction} onValueChange={(value: "rtl" | "ltr") => setDirection(value)}>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="rtl">עברית (ימין לשמאל)</SelectItem>
+              <SelectItem value="ltr">אנגלית (שמאל לימין)</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-2">
+            יישור טקסט
+          </label>
+          <Select value={textAlign} onValueChange={(value: "right" | "left" | "center") => setTextAlign(value)}>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="right">ימין</SelectItem>
+              <SelectItem value="center">מרכז</SelectItem>
+              <SelectItem value="left">שמאל</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
       
       <div>
         <label htmlFor="content" className="block text-sm font-medium mb-2">
           תוכן הפתק
         </label>
-        <div className="bg-white dark:bg-gray-800 border rounded-md" dir="rtl">
+        <div className="bg-white dark:bg-gray-800 border rounded-md" dir={direction}>
           <ReactQuill
             theme="snow"
             value={content}
@@ -114,8 +150,8 @@ const ProjectNoteForm = ({ projectId, onSuccess }: ProjectNoteFormProps) => {
             placeholder="רשום כאן את תוכן המייל, פרטי הפגישה, או כל מידע רלוונטי אחר... אפשר להשתמש בעיצוב טקסט עשיר"
             style={{ 
               minHeight: '200px',
-              direction: 'rtl',
-              textAlign: 'right'
+              direction: direction,
+              textAlign: textAlign
             }}
           />
         </div>

@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -157,10 +158,15 @@
     transform-origin: right top !important;
   }
   
-  /* ReactQuill RTL Support */
+  /* ReactQuill RTL Support - Dynamic based on dir attribute */
   .ql-editor[dir="rtl"] {
     direction: rtl !important;
     text-align: right !important;
+  }
+
+  .ql-editor[dir="ltr"] {
+    direction: ltr !important;
+    text-align: left !important;
   }
 
   .ql-editor[dir="rtl"] p,
@@ -174,15 +180,68 @@
     direction: rtl !important;
   }
 
+  .ql-editor[dir="ltr"] p,
+  .ql-editor[dir="ltr"] h1,
+  .ql-editor[dir="ltr"] h2,
+  .ql-editor[dir="ltr"] h3,
+  .ql-editor[dir="ltr"] h4,
+  .ql-editor[dir="ltr"] h5,
+  .ql-editor[dir="ltr"] h6 {
+    text-align: left !important;
+    direction: ltr !important;
+  }
+
   .ql-editor[dir="rtl"] ul,
   .ql-editor[dir="rtl"] ol {
     padding-right: 1.5em !important;
     padding-left: 0 !important;
   }
 
+  .ql-editor[dir="ltr"] ul,
+  .ql-editor[dir="ltr"] ol {
+    padding-left: 1.5em !important;
+    padding-right: 0 !important;
+  }
+
   .ql-container[dir="rtl"] .ql-editor {
     direction: rtl !important;
     text-align: right !important;
+  }
+
+  .ql-container[dir="ltr"] .ql-editor {
+    direction: ltr !important;
+    text-align: left !important;
+  }
+
+  /* Dynamic text alignment support */
+  .ql-editor[style*="text-align: right"] p,
+  .ql-editor[style*="text-align: right"] h1,
+  .ql-editor[style*="text-align: right"] h2,
+  .ql-editor[style*="text-align: right"] h3,
+  .ql-editor[style*="text-align: right"] h4,
+  .ql-editor[style*="text-align: right"] h5,
+  .ql-editor[style*="text-align: right"] h6 {
+    text-align: right !important;
+  }
+
+  .ql-editor[style*="text-align: center"] p,
+  .ql-editor[style*="text-align: center"] h1,
+  .ql-editor[style*="text-align: center"] h2,
+  .ql-editor[style*="text-align: center"] h3,
+  .ql-editor[style*="text-align: center"] h4,
+  .ql-editor[style*="text-align: center"] h5,
+  .ql-editor[style*="text-align: center"] h6 {
+    text-align: center !important;
+  }
+
+  .ql-editor[style*="text-align: left"] p,
+  .ql-editor[style*="text-align: left"] h1,
+  .ql-editor[style*="text-align: left"] h2,
+  .ql-editor[style*="text-align: left"] h3,
+  .ql-editor[style*="text-align: left"] h4,
+  .ql-editor[style*="text-align: left"] h5,
+  .ql-editor[style*="text-align: left"] h6 {
+    text-align: left !important;
   }
 }
 
