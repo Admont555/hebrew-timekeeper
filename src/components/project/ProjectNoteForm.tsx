@@ -4,8 +4,9 @@ import { useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
 interface ProjectNoteFormProps {
   projectId: string;
@@ -16,6 +17,25 @@ const ProjectNoteForm = ({ projectId, onSuccess }: ProjectNoteFormProps) => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const { toast } = useToast();
+
+  const modules = {
+    toolbar: [
+      [{ 'header': [1, 2, 3, false] }],
+      ['bold', 'italic', 'underline', 'strike'],
+      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+      [{ 'color': [] }, { 'background': [] }],
+      ['link'],
+      ['clean']
+    ],
+  };
+
+  const formats = [
+    'header',
+    'bold', 'italic', 'underline', 'strike',
+    'list', 'bullet',
+    'color', 'background',
+    'link'
+  ];
 
   const createNoteMutation = useMutation({
     mutationFn: async () => {
@@ -84,14 +104,17 @@ const ProjectNoteForm = ({ projectId, onSuccess }: ProjectNoteFormProps) => {
         <label htmlFor="content" className="block text-sm font-medium mb-2">
           תוכן הפתק
         </label>
-        <Textarea
-          id="content"
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          placeholder="רשום כאן את תוכן המייל, פרטי הפגישה, או כל מידע רלוונטי אחר..."
-          rows={8}
-          required
-        />
+        <div className="bg-white dark:bg-gray-800 border rounded-md">
+          <ReactQuill
+            theme="snow"
+            value={content}
+            onChange={setContent}
+            modules={modules}
+            formats={formats}
+            placeholder="רשום כאן את תוכן המייל, פרטי הפגישה, או כל מידע רלוונטי אחר... אפשר להשתמש בעיצוב טקסט עשיר"
+            style={{ minHeight: '200px' }}
+          />
+        </div>
       </div>
 
       <div className="flex gap-2">

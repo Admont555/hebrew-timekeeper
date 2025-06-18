@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -17,6 +16,7 @@ import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { he } from "date-fns/locale";
 import { Task, TasksByDate, TaskPriority, Attachment } from "@/types/task";
+import 'react-quill/dist/quill.snow.css';
 
 const ProjectDetails = () => {
   const { projectId } = useParams();
@@ -477,7 +477,7 @@ const ProjectDetails = () => {
                       הוסף פתק
                     </Button>
                   </DialogTrigger>
-                  <DialogContent className="max-w-2xl">
+                  <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
                     <DialogHeader>
                       <DialogTitle>הוסף פתק חדש</DialogTitle>
                     </DialogHeader>
@@ -514,9 +514,10 @@ const ProjectDetails = () => {
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
-                      <p className="text-gray-600 dark:text-gray-400 whitespace-pre-wrap mb-3">
-                        {note.content}
-                      </p>
+                      <div 
+                        className="prose prose-sm max-w-none dark:prose-invert mb-3"
+                        dangerouslySetInnerHTML={{ __html: note.content }}
+                      />
                       <div className="text-sm text-gray-500">
                         נוצר: {format(new Date(note.created_at), "dd/MM/yyyy HH:mm", { locale: he })}
                         {note.updated_at !== note.created_at && (
