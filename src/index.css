@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -156,6 +155,34 @@
   /* RTL-specific dropdown menu positioning */
   html[dir="rtl"] [data-radix-popper-content-wrapper] {
     transform-origin: right top !important;
+  }
+  
+  /* ReactQuill RTL Support */
+  .ql-editor[dir="rtl"] {
+    direction: rtl !important;
+    text-align: right !important;
+  }
+
+  .ql-editor[dir="rtl"] p,
+  .ql-editor[dir="rtl"] h1,
+  .ql-editor[dir="rtl"] h2,
+  .ql-editor[dir="rtl"] h3,
+  .ql-editor[dir="rtl"] h4,
+  .ql-editor[dir="rtl"] h5,
+  .ql-editor[dir="rtl"] h6 {
+    text-align: right !important;
+    direction: rtl !important;
+  }
+
+  .ql-editor[dir="rtl"] ul,
+  .ql-editor[dir="rtl"] ol {
+    padding-right: 1.5em !important;
+    padding-left: 0 !important;
+  }
+
+  .ql-container[dir="rtl"] .ql-editor {
+    direction: rtl !important;
+    text-align: right !important;
   }
 }
 
