@@ -515,12 +515,13 @@ const ProjectDetails = () => {
                         </Button>
                       </div>
                       <div 
-                        className="prose prose-sm max-w-none dark:prose-invert mb-3 text-gray-900 dark:text-white"
+                        className="prose prose-sm max-w-none mb-3"
                         style={{ 
                           direction: 'rtl', 
                           textAlign: 'right',
                           fontSize: '18px',
-                          lineHeight: '1.6'
+                          lineHeight: '1.6',
+                          color: 'var(--foreground)'
                         }}
                         dangerouslySetInnerHTML={{ __html: note.content }}
                       />
