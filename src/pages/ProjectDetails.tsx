@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -11,9 +10,11 @@ import { ArrowRight, Edit, Trash2, Upload, Download, FileText } from "lucide-rea
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import ProjectForm from "@/components/project/ProjectForm";
 import FileUpload from "@/components/project/FileUpload";
+import TaskList from "@/components/TaskList";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { he } from "date-fns/locale";
+import { Task, TasksByDate, TaskPriority } from "@/types/task";
 
 const ProjectDetails = () => {
   const { projectId } = useParams();
@@ -57,6 +58,126 @@ const ProjectDetails = () => {
       return data;
     },
   });
+
+  const { data: projectTasks, isLoading: tasksLoading } = useQuery({
+    queryKey: ["project-tasks", projectId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("tasks")
+        .select("*")
+        .eq("project_id", projectId)
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        console.error("Error fetching project tasks:", error);
+        throw error;
+      }
+
+      return data as Task[];
+    },
+  });
+
+  // Group tasks by date
+  const tasksByDate: TasksByDate = {};
+  if (projectTasks) {
+    projectTasks.forEach((task) => {
+      const dateKey = task.date || format(new Date(task.timestamp || new Date()), "yyyy-MM-dd");
+      if (!tasksByDate[dateKey]) {
+        tasksByDate[dateKey] = [];
+      }
+      tasksByDate[dateKey].push(task);
+    });
+  }
+
+  const handleToggleTask = async (taskId: string) => {
+    const task = projectTasks?.find(t => t.id === taskId);
+    if (!task) return;
+
+    const { error } = await supabase
+      .from("tasks")
+      .update({ completed: !task.completed })
+      .eq("id", taskId);
+
+    if (error) {
+      console.error("Error updating task:", error);
+      toast({
+        title: "שגיאה",
+        description: "אירעה שגיאה בעדכון המשימה",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    queryClient.invalidateQueries({ queryKey: ["project-tasks", projectId] });
+  };
+
+  const handleTaskComplete = async (taskId: string) => {
+    const { error } = await supabase
+      .from("tasks")
+      .update({ completed: true })
+      .eq("id", taskId);
+
+    if (error) {
+      console.error("Error completing task:", error);
+      return;
+    }
+
+    queryClient.invalidateQueries({ queryKey: ["project-tasks", projectId] });
+    toast({
+      title: "משימה הושלמה!",
+      description: "המשימה סומנה כהושלמה",
+    });
+  };
+
+  const handleDeleteTask = async (taskId: string) => {
+    const { error } = await supabase
+      .from("tasks")
+      .delete()
+      .eq("id", taskId);
+
+    if (error) {
+      console.error("Error deleting task:", error);
+      toast({
+        title: "שגיאה",
+        description: "אירעה שגיאה במחיקת המשימה",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    queryClient.invalidateQueries({ queryKey: ["project-tasks", projectId] });
+    toast({
+      title: "משימה נמחקה",
+      description: "המשימה הוסרה בהצלחה",
+    });
+  };
+
+  const handleEditTask = async (taskId: string, newTitle: string, newDuration: number, newPriority: TaskPriority) => {
+    const { error } = await supabase
+      .from("tasks")
+      .update({ 
+        title: newTitle, 
+        duration: newDuration, 
+        priority: newPriority 
+      })
+      .eq("id", taskId);
+
+    if (error) {
+      console.error("Error updating task:", error);
+      toast({
+        title: "שגיאה",
+        description: "אירעה שגיאה בעדכון המשימה",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    queryClient.invalidateQueries({ queryKey: ["project-tasks", projectId] });
+    toast({
+      title: "משימה עודכנה",
+      description: "השינויים נשמרו בהצלחה",
+    });
+  };
 
   const deleteProjectMutation = useMutation({
     mutationFn: async () => {
@@ -249,11 +370,36 @@ const ProjectDetails = () => {
         </CardContent>
       </Card>
 
-      <Tabs defaultValue="files" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
+      <Tabs defaultValue="tasks" className="w-full">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="tasks">משימות</TabsTrigger>
           <TabsTrigger value="files">קבצים</TabsTrigger>
           <TabsTrigger value="details">פרטים נוספים</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="tasks" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>משימות הפרויקט</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {projectTasks && projectTasks.length > 0 ? (
+                <TaskList
+                  tasks={tasksByDate}
+                  isLoading={tasksLoading}
+                  onToggleTask={handleToggleTask}
+                  onTaskComplete={handleTaskComplete}
+                  onDeleteTask={handleDeleteTask}
+                  onEditTask={handleEditTask}
+                />
+              ) : (
+                <p className="text-center text-gray-500 dark:text-gray-400 py-8">
+                  אין משימות מקושרות לפרויקט זה
+                </p>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
 
         <TabsContent value="files" className="space-y-4">
           <Card>
