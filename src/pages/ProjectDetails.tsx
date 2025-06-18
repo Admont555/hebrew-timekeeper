@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -15,7 +16,7 @@ import ProjectNoteForm from "@/components/project/ProjectNoteForm";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { he } from "date-fns/locale";
-import { Task, TasksByDate, TaskPriority } from "@/types/task";
+import { Task, TasksByDate, TaskPriority, Attachment } from "@/types/task";
 
 const ProjectDetails = () => {
   const { projectId } = useParams();
@@ -68,7 +69,7 @@ const ProjectDetails = () => {
         .from("tasks")
         .select("*")
         .eq("project_id", projectId)
-        .order("created_at", { ascending: false });
+        .order("timestamp", { ascending: false });
 
       if (error) {
         console.error("Error fetching project tasks:", error);
@@ -78,8 +79,15 @@ const ProjectDetails = () => {
       // Transform the data to match the Task interface
       return (data || []).map(task => ({
         ...task,
-        progress: task.progress || 0,
-        dependencies: task.dependencies || []
+        progress: 0, // Default value since this column doesn't exist in database
+        dependencies: [], // Default value since this column doesn't exist in database
+        attachments: (task.attachments || []).map((att: any) => ({
+          id: att.id || crypto.randomUUID(),
+          name: att.name || '',
+          url: att.url || '',
+          type: att.type || '',
+          size: att.size
+        } as Attachment))
       })) as Task[];
     },
   });
