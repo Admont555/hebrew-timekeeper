@@ -118,12 +118,6 @@ const ProjectNoteForm = ({ projectId, onSuccess }: ProjectNoteFormProps) => {
               textAlign: 'right'
             }}
           />
-          <style jsx>{`
-            .ql-editor {
-              direction: rtl !important;
-              text-align: right !important;
-            }
-          `}</style>
         </div>
       </div>
 
