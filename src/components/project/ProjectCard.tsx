@@ -1,7 +1,8 @@
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar, FileText, Eye } from "lucide-react";
+import { Calendar, FileText, Eye, ListTodo } from "lucide-react";
 import { format } from "date-fns";
 import { he } from "date-fns/locale";
 import { Link } from "react-router-dom";
@@ -118,11 +119,17 @@ const ProjectCard = ({ project }: ProjectCardProps) => {
         </div>
       </CardContent>
       
-      <CardFooter>
-        <Link to={`/project/${project.id}`} className="w-full">
+      <CardFooter className="flex gap-2">
+        <Link to={`/project/${project.id}`} className="flex-1">
           <Button variant="outline" className="w-full flex items-center gap-2">
             <Eye className="h-4 w-4" />
             צפה בפרויקט
+          </Button>
+        </Link>
+        <Link to={`/project/${project.id}/tasks`} className="flex-1">
+          <Button variant="default" className="w-full flex items-center gap-2">
+            <ListTodo className="h-4 w-4" />
+            משימות
           </Button>
         </Link>
       </CardFooter>
