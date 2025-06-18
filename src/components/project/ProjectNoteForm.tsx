@@ -140,7 +140,11 @@ const ProjectNoteForm = ({ projectId, onSuccess }: ProjectNoteFormProps) => {
         <label htmlFor="content" className="block text-sm font-medium mb-2">
           תוכן הפתק
         </label>
-        <div className="bg-white dark:bg-gray-800 border rounded-md" dir={direction}>
+        <div 
+          className="quill-container bg-white dark:bg-gray-800 border rounded-md" 
+          dir={direction}
+          style={{ textAlign: textAlign }}
+        >
           <ReactQuill
             theme="snow"
             value={content}
