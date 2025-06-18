@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { ArrowRight, Edit, Trash2, Upload, Download, FileText, Plus, StickyNote } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
@@ -13,6 +14,7 @@ import ProjectForm from "@/components/project/ProjectForm";
 import FileUpload from "@/components/project/FileUpload";
 import TaskList from "@/components/TaskList";
 import ProjectNoteForm from "@/components/project/ProjectNoteForm";
+import ProjectNoteEditForm from "@/components/project/ProjectNoteEditForm";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { he } from "date-fns/locale";
@@ -26,6 +28,7 @@ const ProjectDetails = () => {
   const { toast } = useToast();
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isNoteDialogOpen, setIsNoteDialogOpen] = useState(false);
+  const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
 
   const { data: project, isLoading } = useQuery({
     queryKey: ["project", projectId],
@@ -495,76 +498,87 @@ const ProjectDetails = () => {
             </CardHeader>
             <CardContent>
               {projectNotes && projectNotes.length > 0 ? (
-                <Tabs className="w-full" dir="rtl">
-                  <TabsList className="grid w-full gap-1" style={{ gridTemplateColumns: `repeat(${projectNotes.length}, 1fr)` }}>
-                    {projectNotes.map((note, index) => (
-                      <TabsTrigger 
-                        key={note.id} 
-                        value={note.id}
-                        className="text-sm truncate max-w-[150px]"
-                        title={note.title}
-                      >
-                        {note.title}
-                      </TabsTrigger>
-                    ))}
-                  </TabsList>
+                <Accordion type="multiple" className="w-full" dir="rtl">
                   {projectNotes.map((note) => (
-                    <TabsContent key={note.id} value={note.id} className="mt-4">
-                      <div className="border rounded-lg p-4">
-                        <div className="flex items-start justify-between mb-4">
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                disabled={deleteNoteMutation.isPending}
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent dir="rtl" className="text-right">
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>האם אתה בטוח?</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                  פעולה זו תמחק את הפתק לצמיתות ולא ניתן יהיה לשחזר אותו.
-                                </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter className="flex-row-reverse">
-                                <AlertDialogCancel>ביטול</AlertDialogCancel>
-                                <AlertDialogAction onClick={() => deleteNoteMutation.mutate(note.id)}>
-                                  מחק
-                                </AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
-                          <div className="flex items-center gap-2">
-                            <StickyNote className="h-5 w-5 text-yellow-500" />
-                            <h4 className="font-medium text-lg">{note.title}</h4>
+                    <AccordionItem key={note.id} value={note.id}>
+                      <AccordionTrigger className="text-right hover:no-underline">
+                        <div className="flex items-center gap-2 flex-1">
+                          <StickyNote className="h-5 w-5 text-yellow-500" />
+                          <span className="font-medium text-lg">{note.title}</span>
+                        </div>
+                      </AccordionTrigger>
+                      <AccordionContent>
+                        {editingNoteId === note.id ? (
+                          <ProjectNoteEditForm
+                            note={note}
+                            onSuccess={() => {
+                              setEditingNoteId(null);
+                              handleNotesUpdated();
+                            }}
+                            onCancel={() => setEditingNoteId(null)}
+                          />
+                        ) : (
+                          <div className="border rounded-lg p-4">
+                            <div className="flex items-start justify-between mb-4">
+                              <div className="flex gap-2">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => setEditingNoteId(note.id)}
+                                >
+                                  <Edit className="h-4 w-4" />
+                                </Button>
+                                <AlertDialog>
+                                  <AlertDialogTrigger asChild>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      disabled={deleteNoteMutation.isPending}
+                                    >
+                                      <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                  </AlertDialogTrigger>
+                                  <AlertDialogContent dir="rtl" className="text-right">
+                                    <AlertDialogHeader>
+                                      <AlertDialogTitle>האם אתה בטוח?</AlertDialogTitle>
+                                      <AlertDialogDescription>
+                                        פעולה זו תמחק את הפתק לצמיתות ולא ניתן יהיה לשחזר אותו.
+                                      </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter className="flex-row-reverse">
+                                      <AlertDialogCancel>ביטול</AlertDialogCancel>
+                                      <AlertDialogAction onClick={() => deleteNoteMutation.mutate(note.id)}>
+                                        מחק
+                                      </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                  </AlertDialogContent>
+                                </AlertDialog>
+                              </div>
+                            </div>
+                            <div 
+                              className="prose prose-sm max-w-none mb-3 text-gray-900 dark:text-gray-100"
+                              style={{ 
+                                direction: 'rtl', 
+                                textAlign: 'right',
+                                fontSize: '18px',
+                                lineHeight: '1.6'
+                              }}
+                              dangerouslySetInnerHTML={{ __html: note.content }}
+                            />
+                            <div className="text-sm text-gray-500">
+                              נוצר: {format(new Date(note.created_at), "dd/MM/yyyy HH:mm", { locale: he })}
+                              {note.updated_at !== note.created_at && (
+                                <span className="mr-4">
+                                  • עודכן: {format(new Date(note.updated_at), "dd/MM/yyyy HH:mm", { locale: he })}
+                                </span>
+                              )}
+                            </div>
                           </div>
-                        </div>
-                        <div 
-                          className="prose prose-sm max-w-none mb-3"
-                          style={{ 
-                            direction: 'rtl', 
-                            textAlign: 'right',
-                            fontSize: '18px',
-                            lineHeight: '1.6',
-                            color: 'var(--foreground)'
-                          }}
-                          dangerouslySetInnerHTML={{ __html: note.content }}
-                        />
-                        <div className="text-sm text-gray-500">
-                          נוצר: {format(new Date(note.created_at), "dd/MM/yyyy HH:mm", { locale: he })}
-                          {note.updated_at !== note.created_at && (
-                            <span className="mr-4">
-                              • עודכן: {format(new Date(note.updated_at), "dd/MM/yyyy HH:mm", { locale: he })}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </TabsContent>
+                        )}
+                      </AccordionContent>
+                    </AccordionItem>
                   ))}
-                </Tabs>
+                </Accordion>
               ) : (
                 <p className="text-center text-gray-500 dark:text-gray-400 py-8">
                   אין פתקים לפרויקט זה
