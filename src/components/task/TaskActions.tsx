@@ -132,7 +132,7 @@ const TaskActions = ({
               <p>אפשרויות נוספות</p>
             </TooltipContent>
           </Tooltip>
-          <DropdownMenuContent align="end" dir="rtl" className="text-right">
+          <DropdownMenuContent align="end" className="text-right">
             <DropdownMenuItem onClick={onEdit} className="flex items-center justify-end gap-2">
               <span>עריכה</span>
               <Edit2 className="h-4 w-4" />
