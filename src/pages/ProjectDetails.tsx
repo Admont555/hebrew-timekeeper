@@ -6,11 +6,12 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowRight, Edit, Trash2, Upload, Download, FileText } from "lucide-react";
+import { ArrowRight, Edit, Trash2, Upload, Download, FileText, Plus, StickyNote } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import ProjectForm from "@/components/project/ProjectForm";
 import FileUpload from "@/components/project/FileUpload";
 import TaskList from "@/components/TaskList";
+import ProjectNoteForm from "@/components/project/ProjectNoteForm";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { he } from "date-fns/locale";
@@ -22,6 +23,7 @@ const ProjectDetails = () => {
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isNoteDialogOpen, setIsNoteDialogOpen] = useState(false);
 
   const { data: project, isLoading } = useQuery({
     queryKey: ["project", projectId],
@@ -73,7 +75,30 @@ const ProjectDetails = () => {
         throw error;
       }
 
-      return data as Task[];
+      // Transform the data to match the Task interface
+      return (data || []).map(task => ({
+        ...task,
+        progress: task.progress || 0,
+        dependencies: task.dependencies || []
+      })) as Task[];
+    },
+  });
+
+  const { data: projectNotes } = useQuery({
+    queryKey: ["project-notes", projectId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("project_notes")
+        .select("*")
+        .eq("project_id", projectId)
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        console.error("Error fetching project notes:", error);
+        throw error;
+      }
+
+      return data;
     },
   });
 
@@ -178,6 +203,36 @@ const ProjectDetails = () => {
       description: "השינויים נשמרו בהצלחה",
     });
   };
+
+  const handleNotesUpdated = () => {
+    queryClient.invalidateQueries({ queryKey: ["project-notes", projectId] });
+  };
+
+  const deleteNoteMutation = useMutation({
+    mutationFn: async (noteId: string) => {
+      const { error } = await supabase
+        .from("project_notes")
+        .delete()
+        .eq("id", noteId);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      handleNotesUpdated();
+      toast({
+        title: "פתק נמחק",
+        description: "הפתק הוסר בהצלחה",
+      });
+    },
+    onError: (error) => {
+      console.error("Error deleting note:", error);
+      toast({
+        title: "שגיאה",
+        description: "אירעה שגיאה במחיקת הפתק",
+        variant: "destructive",
+      });
+    },
+  });
 
   const deleteProjectMutation = useMutation({
     mutationFn: async () => {
@@ -371,8 +426,9 @@ const ProjectDetails = () => {
       </Card>
 
       <Tabs defaultValue="tasks" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="tasks">משימות</TabsTrigger>
+          <TabsTrigger value="notes">פתקים</TabsTrigger>
           <TabsTrigger value="files">קבצים</TabsTrigger>
           <TabsTrigger value="details">פרטים נוספים</TabsTrigger>
         </TabsList>
@@ -395,6 +451,78 @@ const ProjectDetails = () => {
               ) : (
                 <p className="text-center text-gray-500 dark:text-gray-400 py-8">
                   אין משימות מקושרות לפרויקט זה
+                </p>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="notes" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between">
+                פתקי הפרויקט
+                <Dialog open={isNoteDialogOpen} onOpenChange={setIsNoteDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button>
+                      <Plus className="h-4 w-4 ml-2" />
+                      הוסף פתק
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-2xl">
+                    <DialogHeader>
+                      <DialogTitle>הוסף פתק חדש</DialogTitle>
+                    </DialogHeader>
+                    <ProjectNoteForm 
+                      projectId={projectId!} 
+                      onSuccess={() => {
+                        setIsNoteDialogOpen(false);
+                        handleNotesUpdated();
+                      }} 
+                    />
+                  </DialogContent>
+                </Dialog>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {projectNotes && projectNotes.length > 0 ? (
+                <div className="space-y-4">
+                  {projectNotes.map((note) => (
+                    <div
+                      key={note.id}
+                      className="border rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-gray-800"
+                    >
+                      <div className="flex items-start justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <StickyNote className="h-5 w-5 text-yellow-500" />
+                          <h4 className="font-medium text-lg">{note.title}</h4>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => deleteNoteMutation.mutate(note.id)}
+                          disabled={deleteNoteMutation.isPending}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                      <p className="text-gray-600 dark:text-gray-400 whitespace-pre-wrap mb-3">
+                        {note.content}
+                      </p>
+                      <div className="text-sm text-gray-500">
+                        נוצר: {format(new Date(note.created_at), "dd/MM/yyyy HH:mm", { locale: he })}
+                        {note.updated_at !== note.created_at && (
+                          <span className="mr-4">
+                            • עודכן: {format(new Date(note.updated_at), "dd/MM/yyyy HH:mm", { locale: he })}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-center text-gray-500 dark:text-gray-400 py-8">
+                  אין פתקים לפרויקט זה
                 </p>
               )}
             </CardContent>

@@ -1,0 +1,109 @@
+
+import { useState } from "react";
+import { useMutation } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
+
+interface ProjectNoteFormProps {
+  projectId: string;
+  onSuccess: () => void;
+}
+
+const ProjectNoteForm = ({ projectId, onSuccess }: ProjectNoteFormProps) => {
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+  const { toast } = useToast();
+
+  const createNoteMutation = useMutation({
+    mutationFn: async () => {
+      const { error } = await supabase
+        .from("project_notes")
+        .insert({
+          project_id: projectId,
+          title: title.trim(),
+          content: content.trim(),
+          created_by: "current_user", // You can replace this with actual user info when auth is implemented
+        });
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast({
+        title: "פתק נוצר בהצלחה",
+        description: "הפתק נוסף לפרויקט",
+      });
+      setTitle("");
+      setContent("");
+      onSuccess();
+    },
+    onError: (error) => {
+      console.error("Error creating note:", error);
+      toast({
+        title: "שגיאה",
+        description: "אירעה שגיאה ביצירת הפתק",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!title.trim() || !content.trim()) {
+      toast({
+        title: "שגיאה",
+        description: "אנא מלא את כל השדות",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    createNoteMutation.mutate();
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div>
+        <label htmlFor="title" className="block text-sm font-medium mb-2">
+          כותרת הפתק
+        </label>
+        <Input
+          id="title"
+          type="text"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder="למשל: מייל מלקוח, פגישה, הערה חשובה..."
+          required
+        />
+      </div>
+      
+      <div>
+        <label htmlFor="content" className="block text-sm font-medium mb-2">
+          תוכן הפתק
+        </label>
+        <Textarea
+          id="content"
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+          placeholder="רשום כאן את תוכן המייל, פרטי הפגישה, או כל מידע רלוונטי אחר..."
+          rows={8}
+          required
+        />
+      </div>
+
+      <div className="flex gap-2">
+        <Button 
+          type="submit" 
+          disabled={createNoteMutation.isPending || !title.trim() || !content.trim()}
+        >
+          {createNoteMutation.isPending ? "שומר..." : "שמור פתק"}
+        </Button>
+      </div>
+    </form>
+  );
+};
+
+export default ProjectNoteForm;
