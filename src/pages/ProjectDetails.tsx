@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowRight, Edit, Trash2, Upload, Download, FileText, Plus, StickyNote } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import ProjectForm from "@/components/project/ProjectForm";
 import FileUpload from "@/components/project/FileUpload";
 import TaskList from "@/components/TaskList";
@@ -501,18 +502,35 @@ const ProjectDetails = () => {
                       className="border rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-gray-800"
                     >
                       <div className="flex items-start justify-between mb-2">
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              disabled={deleteNoteMutation.isPending}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent dir="rtl" className="text-right">
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>האם אתה בטוח?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                פעולה זו תמחק את הפתק לצמיתות ולא ניתן יהיה לשחזר אותו.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter className="flex-row-reverse">
+                              <AlertDialogCancel>ביטול</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => deleteNoteMutation.mutate(note.id)}>
+                                מחק
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                         <div className="flex items-center gap-2">
                           <StickyNote className="h-5 w-5 text-yellow-500" />
                           <h4 className="font-medium text-lg">{note.title}</h4>
                         </div>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => deleteNoteMutation.mutate(note.id)}
-                          disabled={deleteNoteMutation.isPending}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
                       </div>
                       <div 
                         className="prose prose-sm max-w-none mb-3"
