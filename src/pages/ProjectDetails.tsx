@@ -495,65 +495,76 @@ const ProjectDetails = () => {
             </CardHeader>
             <CardContent>
               {projectNotes && projectNotes.length > 0 ? (
-                <div className="space-y-4">
+                <Tabs className="w-full" dir="rtl">
+                  <TabsList className="grid w-full gap-1" style={{ gridTemplateColumns: `repeat(${projectNotes.length}, 1fr)` }}>
+                    {projectNotes.map((note, index) => (
+                      <TabsTrigger 
+                        key={note.id} 
+                        value={note.id}
+                        className="text-sm truncate max-w-[150px]"
+                        title={note.title}
+                      >
+                        {note.title}
+                      </TabsTrigger>
+                    ))}
+                  </TabsList>
                   {projectNotes.map((note) => (
-                    <div
-                      key={note.id}
-                      className="border rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-gray-800"
-                    >
-                      <div className="flex items-start justify-between mb-2">
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              disabled={deleteNoteMutation.isPending}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent dir="rtl" className="text-right">
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>האם אתה בטוח?</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                פעולה זו תמחק את הפתק לצמיתות ולא ניתן יהיה לשחזר אותו.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter className="flex-row-reverse">
-                              <AlertDialogCancel>ביטול</AlertDialogCancel>
-                              <AlertDialogAction onClick={() => deleteNoteMutation.mutate(note.id)}>
-                                מחק
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-                        <div className="flex items-center gap-2">
-                          <StickyNote className="h-5 w-5 text-yellow-500" />
-                          <h4 className="font-medium text-lg">{note.title}</h4>
+                    <TabsContent key={note.id} value={note.id} className="mt-4">
+                      <div className="border rounded-lg p-4">
+                        <div className="flex items-start justify-between mb-4">
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                disabled={deleteNoteMutation.isPending}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent dir="rtl" className="text-right">
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>האם אתה בטוח?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  פעולה זו תמחק את הפתק לצמיתות ולא ניתן יהיה לשחזר אותו.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter className="flex-row-reverse">
+                                <AlertDialogCancel>ביטול</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => deleteNoteMutation.mutate(note.id)}>
+                                  מחק
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                          <div className="flex items-center gap-2">
+                            <StickyNote className="h-5 w-5 text-yellow-500" />
+                            <h4 className="font-medium text-lg">{note.title}</h4>
+                          </div>
+                        </div>
+                        <div 
+                          className="prose prose-sm max-w-none mb-3"
+                          style={{ 
+                            direction: 'rtl', 
+                            textAlign: 'right',
+                            fontSize: '18px',
+                            lineHeight: '1.6',
+                            color: 'var(--foreground)'
+                          }}
+                          dangerouslySetInnerHTML={{ __html: note.content }}
+                        />
+                        <div className="text-sm text-gray-500">
+                          נוצר: {format(new Date(note.created_at), "dd/MM/yyyy HH:mm", { locale: he })}
+                          {note.updated_at !== note.created_at && (
+                            <span className="mr-4">
+                              • עודכן: {format(new Date(note.updated_at), "dd/MM/yyyy HH:mm", { locale: he })}
+                            </span>
+                          )}
                         </div>
                       </div>
-                      <div 
-                        className="prose prose-sm max-w-none mb-3"
-                        style={{ 
-                          direction: 'rtl', 
-                          textAlign: 'right',
-                          fontSize: '18px',
-                          lineHeight: '1.6',
-                          color: 'var(--foreground)'
-                        }}
-                        dangerouslySetInnerHTML={{ __html: note.content }}
-                      />
-                      <div className="text-sm text-gray-500">
-                        נוצר: {format(new Date(note.created_at), "dd/MM/yyyy HH:mm", { locale: he })}
-                        {note.updated_at !== note.created_at && (
-                          <span className="mr-4">
-                            • עודכן: {format(new Date(note.updated_at), "dd/MM/yyyy HH:mm", { locale: he })}
-                          </span>
-                        )}
-                      </div>
-                    </div>
+                    </TabsContent>
                   ))}
-                </div>
+                </Tabs>
               ) : (
                 <p className="text-center text-gray-500 dark:text-gray-400 py-8">
                   אין פתקים לפרויקט זה
