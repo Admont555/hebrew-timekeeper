@@ -30,6 +30,7 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import TaskExternalShare from "./TaskExternalShare";
 
 interface TaskActionsProps {
   task: Task;
@@ -134,6 +135,8 @@ const TaskActions = ({
             </TooltipContent>
           </Tooltip>
         )}
+
+        <TaskExternalShare task={task} />
 
         <DropdownMenu>
           <Tooltip>

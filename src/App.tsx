@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { navItems } from "./nav-items";
+import Dashboard from "./pages/Dashboard";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Settings from "./pages/Settings";
@@ -36,6 +37,7 @@ const App = () => (
               <main className="flex-1">
                 <Routes>
                   <Route path="/login" element={<Login />} />
+                  <Route path="/dashboard" element={<Dashboard />} />
                   <Route path="/" element={<Index />} />
                   <Route path="/member/:workerId" element={<Index />} />
                   <Route path="/settings" element={<Settings />} />

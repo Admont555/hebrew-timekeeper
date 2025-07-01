@@ -1,6 +1,10 @@
 
 export const navItems = [
   {
+    title: "לוח מצב",
+    url: "/dashboard",
+  },
+  {
     title: "צוות",
     url: "/team",
   },
