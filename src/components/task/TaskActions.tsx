@@ -102,12 +102,12 @@ const TaskActions = ({
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 hover:bg-primary/10"
+              variant="outline"
+              size="sm"
+              className="h-10 w-10 min-h-[44px] min-w-[44px] border-2 border-primary/30 hover:border-primary hover:bg-primary/10"
               onClick={onEdit}
             >
-              <Edit2 className="h-4 w-4" />
+              <Edit2 className="h-5 w-5" />
               <span className="sr-only">עריכת משימה</span>
             </Button>
           </TooltipTrigger>
