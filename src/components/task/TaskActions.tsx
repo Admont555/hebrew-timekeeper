@@ -99,6 +99,23 @@ const TaskActions = ({
           </TooltipContent>
         </Tooltip>
 
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 hover:bg-primary/10"
+              onClick={onEdit}
+            >
+              <Edit2 className="h-4 w-4" />
+              <span className="sr-only">עריכת משימה</span>
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>עריכת משימה</p>
+          </TooltipContent>
+        </Tooltip>
+
         {onToggleDependencies && (
           <Tooltip>
             <TooltipTrigger asChild>
@@ -133,10 +150,6 @@ const TaskActions = ({
             </TooltipContent>
           </Tooltip>
           <DropdownMenuContent align="end" className="text-right">
-            <DropdownMenuItem onClick={onEdit} className="flex items-center justify-end gap-2">
-              <span>עריכה</span>
-              <Edit2 className="h-4 w-4" />
-            </DropdownMenuItem>
             <DropdownMenuItem onClick={handleCopyToClipboard} className="flex items-center justify-end gap-2">
               <span>העתק</span>
               <Copy className="h-4 w-4" />
