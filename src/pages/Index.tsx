@@ -77,7 +77,7 @@ const Index = () => {
       let query = supabase
         .from("tasks")
         .select("*")
-        .or(`worker.eq.${workerId},assigned_to.cs.{${workerId}}`)
+        .eq("worker", workerId)
         .order("timestamp", { ascending: false });
 
       if (selectedDate) {
