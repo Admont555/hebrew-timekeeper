@@ -13,8 +13,9 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 222.2 47.4% 11.2%;
+    --primary: 262 83% 58%;
     --primary-foreground: 210 40% 98%;
+    --primary-glow: 262 83% 70%;
 
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
@@ -22,8 +23,8 @@
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 262 83% 96%;
+    --accent-foreground: 262 83% 15%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
@@ -61,8 +62,9 @@
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 210 40% 98%;
+    --primary: 262 83% 75%;
     --primary-foreground: 222.2 47.4% 11.2%;
+    --primary-glow: 262 83% 85%;
 
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
@@ -100,7 +102,24 @@
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    line-height: 1.7;
+    letter-spacing: 0.01em;
   }
+  
+  /* Enhanced Typography Scale */
+  h1 { @apply text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight tracking-tight mb-6; }
+  h2 { @apply text-2xl sm:text-3xl lg:text-4xl font-semibold leading-tight tracking-tight mb-5; }
+  h3 { @apply text-xl sm:text-2xl lg:text-3xl font-semibold leading-tight mb-4; }
+  h4 { @apply text-lg sm:text-xl lg:text-2xl font-medium leading-tight mb-3; }
+  h5 { @apply text-base sm:text-lg lg:text-xl font-medium leading-tight mb-3; }
+  h6 { @apply text-sm sm:text-base lg:text-lg font-medium leading-tight mb-2; }
+  
+  p { @apply text-base leading-relaxed mb-4; }
+  
+  /* Enhanced Spacing */
+  .container { @apply px-6 sm:px-8 lg:px-12; }
+  .section-spacing { @apply py-12 sm:py-16 lg:py-20; }
+  .card-spacing { @apply p-6 sm:p-8; }
 
   /* Fix iOS text size adjustment */
   input, textarea, select, button {
@@ -352,6 +371,14 @@
   
   .bg-gradient-header {
     @apply bg-gradient-to-r from-purple-100 to-indigo-100 dark:from-purple-900/40 dark:to-indigo-900/40;
+  }
+  
+  .bg-gradient-primary {
+    @apply bg-gradient-to-r from-primary to-primary-glow;
+  }
+  
+  .bg-gradient-vibrant {
+    @apply bg-gradient-to-br from-primary via-accent to-secondary;
   }
   
   /* Card with shadow that looks good in both light and dark mode */

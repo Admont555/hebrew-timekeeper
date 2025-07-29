@@ -21,6 +21,7 @@ import TaskList from "@/components/TaskList";
 import DateRangeSelector from "@/components/task/DateRangeSelector";
 import { NavMenu } from "@/components/NavMenu";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { FloatingActionButton } from "@/components/FloatingActionButton";
 
 const Index = () => {
   const { workerId } = useParams();
@@ -313,6 +314,7 @@ const Index = () => {
             <TaskAnalytics tasksByDate={tasksByDate} />
           </div>
         </div>
+        <FloatingActionButton />
         <Toaster />
       </motion.div>
     </ErrorBoundary>
