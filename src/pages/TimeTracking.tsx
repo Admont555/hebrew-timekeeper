@@ -2,10 +2,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { 
   Timer, 
   Play, 
@@ -13,19 +10,14 @@ import {
   Square, 
   Clock, 
   Calendar as CalendarIcon,
-  BarChart3,
-  Target,
-  TrendingUp,
   Coffee,
-  Award,
   Zap
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
-import { format, formatDistanceToNow, startOfDay, endOfDay, subDays, addHours } from "date-fns";
+import { format, startOfDay, endOfDay } from "date-fns";
 import { he } from "date-fns/locale";
-import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 
 interface Task {
@@ -46,24 +38,12 @@ interface TimeLog {
   tasks?: Task;
 }
 
-interface TimeStats {
-  todayTotal: number;
-  weekTotal: number;
-  averageDaily: number;
-  longestSession: number;
-  completedTasks: number;
-  productivity: number;
-}
-
 const TimeTracking = () => {
   const [activeTaskId, setActiveTaskId] = useState<string | null>(null);
   const [startTime, setStartTime] = useState<Date | null>(null);
   const [elapsedTime, setElapsedTime] = useState<number>(0);
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  const [filterBy, setFilterBy] = useState<string>("all");
-  const [dailyGoal, setDailyGoal] = useState<number>(8 * 3600); // 8 hours in seconds
   const [isBreakTime, setIsBreakTime] = useState<boolean>(false);
-  const [breakStartTime, setBreakStartTime] = useState<Date | null>(null);
+  const [filterBy, setFilterBy] = useState<string>("all");
   const { toast } = useToast();
 
   // Real-time timer update
@@ -83,10 +63,11 @@ const TimeTracking = () => {
   }, [activeTaskId, startTime, isBreakTime]);
 
   const { data: timeLogs, refetch: refetchTimeLogs } = useQuery({
-    queryKey: ['time-logs', selectedDate],
+    queryKey: ['time-logs'],
     queryFn: async () => {
-      const startOfSelectedDay = startOfDay(selectedDate);
-      const endOfSelectedDay = endOfDay(selectedDate);
+      const today = new Date();
+      const startOfToday = startOfDay(today);
+      const endOfToday = endOfDay(today);
       
       const { data, error } = await supabase
         .from('time_logs')
@@ -100,8 +81,8 @@ const TimeTracking = () => {
             priority
           )
         `)
-        .gte('start_time', startOfSelectedDay.toISOString())
-        .lte('start_time', endOfSelectedDay.toISOString())
+        .gte('start_time', startOfToday.toISOString())
+        .lte('start_time', endOfToday.toISOString())
         .order('start_time', { ascending: false });
 
       if (error) throw error;
@@ -116,50 +97,10 @@ const TimeTracking = () => {
         .from('tasks')
         .select('id, title, project_id, completed, priority')
         .eq('completed', false)
-        .order('priority', { ascending: false });
+        .order('title');
 
       if (error) throw error;
       return data as Task[];
-    },
-  });
-
-  const { data: timeStats } = useQuery({
-    queryKey: ['time-stats'],
-    queryFn: async (): Promise<TimeStats> => {
-      const today = new Date();
-      const weekAgo = subDays(today, 7);
-      
-      const { data: weekLogs, error } = await supabase
-        .from('time_logs')
-        .select('*')
-        .gte('start_time', weekAgo.toISOString())
-        .not('duration', 'is', null);
-
-      if (error) throw error;
-
-      const todayLogs = weekLogs.filter(log => 
-        startOfDay(new Date(log.start_time)).getTime() === startOfDay(today).getTime()
-      );
-
-      const todayTotal = todayLogs.reduce((sum, log) => sum + (log.duration || 0), 0);
-      const weekTotal = weekLogs.reduce((sum, log) => sum + (log.duration || 0), 0);
-      const averageDaily = weekTotal / 7;
-      const longestSession = Math.max(...weekLogs.map(log => log.duration || 0), 0);
-      const completedTasks = todayLogs.length;
-      
-      // Calculate productivity score (0-100)
-      const goalProgress = Math.min((todayTotal / dailyGoal) * 100, 100);
-      const consistency = weekLogs.length >= 5 ? 20 : (weekLogs.length * 4);
-      const productivity = Math.round((goalProgress * 0.7) + (consistency * 0.3));
-
-      return {
-        todayTotal,
-        weekTotal,
-        averageDaily,
-        longestSession,
-        completedTasks,
-        productivity
-      };
     },
   });
 
@@ -168,6 +109,7 @@ const TimeTracking = () => {
     setActiveTaskId(taskId);
     setStartTime(now);
     setElapsedTime(0);
+    setIsBreakTime(false);
 
     const { error } = await supabase
       .from('time_logs')
@@ -186,9 +128,10 @@ const TimeTracking = () => {
       });
     } else {
       refetchTimeLogs();
+      const taskTitle = tasks?.find(t => t.id === taskId)?.title;
       toast({
         title: "טיימר הופעל",
-        description: `התחיל מעקב זמן עבור: ${tasks?.find(t => t.id === taskId)?.title}`,
+        description: `התחיל מעקב זמן עבור: ${taskTitle}`,
       });
     }
   };
@@ -216,12 +159,13 @@ const TimeTracking = () => {
         variant: "destructive"
       });
     } else {
+      const taskTitle = tasks?.find(t => t.id === activeTaskId)?.title;
       setActiveTaskId(null);
       setStartTime(null);
       setElapsedTime(0);
+      setIsBreakTime(false);
       refetchTimeLogs();
       
-      const taskTitle = tasks?.find(t => t.id === activeTaskId)?.title;
       toast({
         title: "טיימר נעצר",
         description: `סיימת לעבוד על: ${taskTitle} (${formatDuration(duration)})`,
@@ -231,20 +175,14 @@ const TimeTracking = () => {
 
   const startBreak = () => {
     setIsBreakTime(true);
-    setBreakStartTime(new Date());
     toast({
       title: "הפסקה התחילה",
-      description: "זמן לנוח קצת! 🎯",
+      description: "זמן לנוח קצת! ☕",
     });
   };
 
   const endBreak = () => {
     setIsBreakTime(false);
-    setBreakStartTime(null);
-    if (startTime) {
-      const now = new Date();
-      setStartTime(addHours(startTime, 0)); // Resume from where we left off
-    }
     toast({
       title: "חזרת מההפסקה",
       description: "בואו נמשיך לעבוד! 💪",
@@ -271,96 +209,64 @@ const TimeTracking = () => {
     }
   };
 
+  const getPriorityText = (priority?: string) => {
+    switch (priority) {
+      case 'high': return 'גבוהה';
+      case 'medium': return 'בינונית';
+      case 'low': return 'נמוכה';
+      default: return 'רגילה';
+    }
+  };
+
   const filteredTasks = tasks?.filter(task => {
     if (filterBy === 'all') return true;
     return task.priority === filterBy;
   });
 
-  const goalProgress = timeStats ? Math.min((timeStats.todayTotal / dailyGoal) * 100, 100) : 0;
+  // Calculate today's total time
+  const todayTotal = timeLogs?.reduce((sum, log) => sum + (log.duration || 0), 0) || 0;
 
   return (
-    <div className="min-h-screen bg-gradient-subtle">
+    <div className="min-h-screen bg-background">
       <Header />
-      <div className="container mx-auto p-4 sm:p-6 pt-20 max-w-6xl">
-        <div className="flex items-center gap-3 mb-6">
-          <Timer className="h-8 w-8 text-primary" />
-          <h1 className="text-2xl sm:text-3xl font-bold text-gradient">ניהול זמן מתקדם</h1>
-        </div>
-
-        {/* Stats Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          <Card className="glass-effect">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-primary/10">
-                  <Target className="h-5 w-5 text-primary" />
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">יעד יומי</p>
-                  <p className="text-lg font-bold">{Math.round(goalProgress)}%</p>
-                </div>
+      <div className="container mx-auto p-6 pt-20">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <Timer className="h-8 w-8 text-primary" />
+            <h1 className="text-3xl font-bold">ניהול זמן</h1>
+          </div>
+          
+          {/* Today's Summary */}
+          <Card className="p-4">
+            <div className="flex items-center gap-2">
+              <CalendarIcon className="h-5 w-5 text-muted-foreground" />
+              <div className="text-center">
+                <p className="text-sm text-muted-foreground">היום</p>
+                <p className="text-lg font-bold">{formatDuration(todayTotal)}</p>
               </div>
-              <Progress value={goalProgress} className="mt-2" />
-            </CardContent>
-          </Card>
-
-          <Card className="glass-effect">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-green-100 dark:bg-green-900/20">
-                  <TrendingUp className="h-5 w-5 text-green-600" />
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">היום</p>
-                  <p className="text-lg font-bold">{formatDuration(timeStats?.todayTotal || 0)}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="glass-effect">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/20">
-                  <BarChart3 className="h-5 w-5 text-blue-600" />
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">ממוצע שבועי</p>
-                  <p className="text-lg font-bold">{formatDuration(timeStats?.averageDaily || 0)}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="glass-effect">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-purple-100 dark:bg-purple-900/20">
-                  <Award className="h-5 w-5 text-purple-600" />
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">פרודקטיביות</p>
-                  <p className="text-lg font-bold">{timeStats?.productivity || 0}/100</p>
-                </div>
-              </div>
-            </CardContent>
+            </div>
           </Card>
         </div>
 
         {/* Active Timer */}
         {activeTaskId && startTime && (
-          <Card className="mb-6 border-primary/20 bg-gradient-primary text-white soft-shadow">
+          <Card className="mb-6 border-primary/20 bg-primary/5">
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   {isBreakTime ? (
-                    <Coffee className="h-5 w-5" />
+                    <>
+                      <Coffee className="h-5 w-5 text-orange-500" />
+                      <span>הפסקה</span>
+                    </>
                   ) : (
-                    <Play className="h-5 w-5 text-green-400" />
+                    <>
+                      <Play className="h-5 w-5 text-green-500" />
+                      <span>טיימר פעיל</span>
+                    </>
                   )}
-                  {isBreakTime ? 'הפסקה' : 'טיימר פעיל'}
                 </div>
-                <div className="text-2xl font-mono">
+                <div className="text-2xl font-mono text-primary">
                   {formatDuration(elapsedTime)}
                 </div>
               </CardTitle>
@@ -368,17 +274,17 @@ const TimeTracking = () => {
             <CardContent>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-medium text-white/90">
+                  <p className="font-medium text-lg">
                     {tasks?.find(t => t.id === activeTaskId)?.title}
                   </p>
-                  <p className="text-sm text-white/70">
+                  <p className="text-sm text-muted-foreground">
                     התחיל: {format(startTime, 'HH:mm', { locale: he })}
                   </p>
                 </div>
                 <div className="flex gap-2">
                   {!isBreakTime ? (
                     <>
-                      <Button onClick={startBreak} variant="secondary" size="sm">
+                      <Button onClick={startBreak} variant="outline" size="sm">
                         <Coffee className="h-4 w-4 mr-2" />
                         הפסקה
                       </Button>
@@ -388,7 +294,7 @@ const TimeTracking = () => {
                       </Button>
                     </>
                   ) : (
-                    <Button onClick={endBreak} variant="secondary" size="sm">
+                    <Button onClick={endBreak} variant="default" size="sm">
                       <Zap className="h-4 w-4 mr-2" />
                       חזור לעבודה
                     </Button>
@@ -401,7 +307,7 @@ const TimeTracking = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Available Tasks */}
-          <Card className="glass-effect">
+          <Card>
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div>
@@ -409,7 +315,7 @@ const TimeTracking = () => {
                   <CardDescription>בחר משימה להתחלת מעקב זמן</CardDescription>
                 </div>
                 <Select value={filterBy} onValueChange={setFilterBy}>
-                  <SelectTrigger className="w-32">
+                  <SelectTrigger className="w-36">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -422,15 +328,15 @@ const TimeTracking = () => {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="space-y-3 max-h-96 overflow-y-auto">
+              <div className="space-y-3 max-h-80 overflow-y-auto">
                 {filteredTasks?.map((task) => (
-                  <div key={task.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-accent/50 transition-colors">
+                  <div key={task.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors">
                     <div className="flex-1">
                       <p className="font-medium">{task.title}</p>
                       <div className="flex items-center gap-2 mt-1">
                         {task.priority && (
                           <Badge variant={getPriorityColor(task.priority)} className="text-xs">
-                            {task.priority === 'high' ? 'גבוהה' : task.priority === 'medium' ? 'בינונית' : 'נמוכה'}
+                            {getPriorityText(task.priority)}
                           </Badge>
                         )}
                         {task.project_id && (
@@ -470,36 +376,17 @@ const TimeTracking = () => {
           </Card>
 
           {/* Time Logs History */}
-          <Card className="glass-effect">
+          <Card>
             <CardHeader>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Clock className="h-5 w-5" />
-                  <CardTitle>היסטוריית זמן</CardTitle>
-                </div>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button variant="outline" size="sm">
-                      <CalendarIcon className="h-4 w-4 mr-2" />
-                      {format(selectedDate, 'dd/MM')}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={selectedDate}
-                      onSelect={(date) => date && setSelectedDate(date)}
-                      initialFocus
-                      className="pointer-events-auto"
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
+              <CardTitle className="flex items-center gap-2">
+                <Clock className="h-5 w-5" />
+                היסטוריית זמן - היום
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-3 max-h-96 overflow-y-auto">
+              <div className="space-y-3 max-h-80 overflow-y-auto">
                 {timeLogs?.map((log) => (
-                  <div key={log.id} className="flex items-center justify-between p-3 border rounded-lg bg-card">
+                  <div key={log.id} className="flex items-center justify-between p-3 border rounded-lg">
                     <div className="flex-1">
                       <p className="font-medium">{log.tasks?.title || 'משימה לא זמינה'}</p>
                       <p className="text-sm text-muted-foreground">
@@ -522,7 +409,7 @@ const TimeTracking = () => {
                 ))}
                 {!timeLogs?.length && (
                   <p className="text-center text-muted-foreground py-8">
-                    אין רישומי זמן עבור תאריך זה
+                    אין רישומי זמן עדיין היום
                   </p>
                 )}
               </div>
