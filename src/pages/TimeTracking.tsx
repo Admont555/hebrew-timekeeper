@@ -305,117 +305,76 @@ const TimeTracking = () => {
           </Card>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Available Tasks */}
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle>משימות זמינות</CardTitle>
-                  <CardDescription>בחר משימה להתחלת מעקב זמן</CardDescription>
+        {/* Available Tasks - Full Width */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle>משימות זמינות</CardTitle>
+                <CardDescription>בחר משימה להתחלת מעקב זמן</CardDescription>
+              </div>
+              <Select value={filterBy} onValueChange={setFilterBy}>
+                <SelectTrigger className="w-36">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">הכל</SelectItem>
+                  <SelectItem value="high">עדיפות גבוהה</SelectItem>
+                  <SelectItem value="medium">עדיפות בינונית</SelectItem>
+                  <SelectItem value="low">עדיפות נמוכה</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredTasks?.map((task) => (
+                <div key={task.id} className="flex flex-col justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors h-full">
+                  <div className="flex-1">
+                    <p className="font-medium text-lg mb-2">{task.title}</p>
+                    <div className="flex items-center gap-2 mb-3">
+                      {task.priority && (
+                        <Badge variant={getPriorityColor(task.priority)} className="text-xs">
+                          {getPriorityText(task.priority)}
+                        </Badge>
+                      )}
+                      {task.project_id && (
+                        <Badge variant="outline" className="text-xs">
+                          פרויקט: {task.project_id}
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+                  <Button
+                    onClick={() => startTimer(task.id)}
+                    disabled={activeTaskId === task.id}
+                    variant={activeTaskId === task.id ? "secondary" : "default"}
+                    className="w-full"
+                  >
+                    {activeTaskId === task.id ? (
+                      <>
+                        <Pause className="h-4 w-4 mr-2" />
+                        פעיל
+                      </>
+                    ) : (
+                      <>
+                        <Play className="h-4 w-4 mr-2" />
+                        התחל מעקב זמן
+                      </>
+                    )}
+                  </Button>
                 </div>
-                <Select value={filterBy} onValueChange={setFilterBy}>
-                  <SelectTrigger className="w-36">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">הכל</SelectItem>
-                    <SelectItem value="high">עדיפות גבוהה</SelectItem>
-                    <SelectItem value="medium">עדיפות בינונית</SelectItem>
-                    <SelectItem value="low">עדיפות נמוכה</SelectItem>
-                  </SelectContent>
-                </Select>
+              ))}
+            </div>
+            {!filteredTasks?.length && (
+              <div className="text-center py-12">
+                <Timer className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                <p className="text-lg text-muted-foreground mb-2">אין משימות זמינות</p>
+                <p className="text-sm text-muted-foreground">צור משימות חדשות כדי להתחיל מעקב זמן</p>
               </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3 max-h-80 overflow-y-auto">
-                {filteredTasks?.map((task) => (
-                  <div key={task.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors">
-                    <div className="flex-1">
-                      <p className="font-medium">{task.title}</p>
-                      <div className="flex items-center gap-2 mt-1">
-                        {task.priority && (
-                          <Badge variant={getPriorityColor(task.priority)} className="text-xs">
-                            {getPriorityText(task.priority)}
-                          </Badge>
-                        )}
-                        {task.project_id && (
-                          <Badge variant="outline" className="text-xs">
-                            פרויקט: {task.project_id}
-                          </Badge>
-                        )}
-                      </div>
-                    </div>
-                    <Button
-                      onClick={() => startTimer(task.id)}
-                      disabled={activeTaskId === task.id}
-                      variant={activeTaskId === task.id ? "secondary" : "default"}
-                      size="sm"
-                    >
-                      {activeTaskId === task.id ? (
-                        <>
-                          <Pause className="h-4 w-4 mr-2" />
-                          פעיל
-                        </>
-                      ) : (
-                        <>
-                          <Play className="h-4 w-4 mr-2" />
-                          התחל
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                ))}
-                {!filteredTasks?.length && (
-                  <p className="text-center text-muted-foreground py-8">
-                    אין משימות זמינות
-                  </p>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Time Logs History */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Clock className="h-5 w-5" />
-                היסטוריית זמן - היום
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3 max-h-80 overflow-y-auto">
-                {timeLogs?.map((log) => (
-                  <div key={log.id} className="flex items-center justify-between p-3 border rounded-lg">
-                    <div className="flex-1">
-                      <p className="font-medium">{log.tasks?.title || 'משימה לא זמינה'}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {format(new Date(log.start_time), 'HH:mm', { locale: he })}
-                        {log.end_time && ` - ${format(new Date(log.end_time), 'HH:mm', { locale: he })}`}
-                      </p>
-                    </div>
-                    <div>
-                      {log.duration ? (
-                        <Badge variant="secondary" className="font-mono">
-                          {formatDuration(log.duration)}
-                        </Badge>
-                      ) : (
-                        <Badge variant="outline" className="animate-pulse">
-                          פעיל
-                        </Badge>
-                      )}
-                    </div>
-                  </div>
-                ))}
-                {!timeLogs?.length && (
-                  <p className="text-center text-muted-foreground py-8">
-                    אין רישומי זמן עדיין היום
-                  </p>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
