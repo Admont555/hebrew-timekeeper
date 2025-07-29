@@ -327,50 +327,63 @@ const TimeTracking = () => {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="space-y-4">
               {filteredTasks?.map((task) => (
-                <div key={task.id} className="flex flex-col justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors h-full">
+                <div key={task.id} className="flex items-center justify-between p-6 border-2 rounded-lg hover:border-primary/50 transition-all duration-200 bg-card">
                   <div className="flex-1">
-                    <p className="font-medium text-lg mb-2">{task.title}</p>
-                    <div className="flex items-center gap-2 mb-3">
+                    <div className="flex items-center gap-3 mb-2">
+                      <h3 className="font-semibold text-xl">{task.title}</h3>
                       {task.priority && (
-                        <Badge variant={getPriorityColor(task.priority)} className="text-xs">
+                        <Badge variant={getPriorityColor(task.priority)} className="font-medium">
                           {getPriorityText(task.priority)}
                         </Badge>
                       )}
+                    </div>
+                    
+                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
                       {task.project_id && (
-                        <Badge variant="outline" className="text-xs">
-                          פרויקט: {task.project_id}
-                        </Badge>
+                        <div className="flex items-center gap-1">
+                          <span>📁</span>
+                          <span>פרויקט: {task.project_id}</span>
+                        </div>
                       )}
+                      <div className="flex items-center gap-1">
+                        <span>⚖️</span>
+                        <span>משקל: {task.priority === 'high' ? 'כבד' : task.priority === 'medium' ? 'בינוני' : 'קל'}</span>
+                      </div>
                     </div>
                   </div>
-                  <Button
-                    onClick={() => startTimer(task.id)}
-                    disabled={activeTaskId === task.id}
-                    variant={activeTaskId === task.id ? "secondary" : "default"}
-                    className="w-full"
-                  >
-                    {activeTaskId === task.id ? (
-                      <>
-                        <Pause className="h-4 w-4 mr-2" />
-                        פעיל
-                      </>
-                    ) : (
-                      <>
-                        <Play className="h-4 w-4 mr-2" />
-                        התחל מעקב זמן
-                      </>
-                    )}
-                  </Button>
+                  
+                  <div className="ml-6">
+                    <Button
+                      onClick={() => startTimer(task.id)}
+                      disabled={activeTaskId === task.id}
+                      variant={activeTaskId === task.id ? "secondary" : "default"}
+                      size="lg"
+                      className="min-w-[140px]"
+                    >
+                      {activeTaskId === task.id ? (
+                        <>
+                          <Pause className="h-5 w-5 mr-2" />
+                          עובד כעת
+                        </>
+                      ) : (
+                        <>
+                          <Play className="h-5 w-5 mr-2" />
+                          התחל עבודה
+                        </>
+                      )}
+                    </Button>
+                  </div>
                 </div>
               ))}
             </div>
+            
             {!filteredTasks?.length && (
-              <div className="text-center py-12">
-                <Timer className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-                <p className="text-lg text-muted-foreground mb-2">אין משימות זמינות</p>
-                <p className="text-sm text-muted-foreground">צור משימות חדשות כדי להתחיל מעקב זמן</p>
+              <div className="text-center py-16">
+                <Timer className="h-20 w-20 text-muted-foreground mx-auto mb-6" />
+                <h3 className="text-xl font-semibold text-muted-foreground mb-2">אין משימות זמינות</h3>
+                <p className="text-muted-foreground">צור משימות חדשות כדי להתחיל מעקב זמן</p>
               </div>
             )}
           </CardContent>
