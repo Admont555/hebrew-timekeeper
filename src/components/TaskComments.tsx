@@ -5,7 +5,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Trash2 } from "lucide-react";
+import { Trash2, Copy, ExternalLink } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface TaskCommentsProps {
   taskId: string;
@@ -80,6 +81,63 @@ const TaskComments = ({
     }
   };
 
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      toast({
+        title: "הועתק",
+        description: "הלינק הועתק ללוח",
+      });
+    } catch (err) {
+      toast({
+        title: "שגיאה בהעתקה",
+        description: "לא ניתן להעתיק את הלינק",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const formatTextWithLinks = (text: string) => {
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    const parts = text.split(urlRegex);
+    
+    return parts.map((part, index) => {
+      if (part.match(urlRegex)) {
+        return (
+          <span key={index} className="inline-flex items-center gap-1">
+            <a
+              href={part}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline hover:no-underline transition-colors inline-flex items-center gap-1"
+            >
+              {part}
+              <ExternalLink className="h-3 w-3" />
+            </a>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-5 w-5 p-0 ml-1 hover:bg-blue-100 dark:hover:bg-blue-900"
+                    onClick={() => copyToClipboard(part)}
+                  >
+                    <Copy className="h-3 w-3" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>העתק לינק</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </span>
+        );
+      }
+      return part;
+    });
+  };
+
   const formatComment = (comment: string) => {
     // Split the comment by newlines
     return comment.split('\n').map((line, index) => {
@@ -105,11 +163,15 @@ const TaskComments = ({
         const content = trimmedLine.replace(/^[-*•⌑○●‣⁃]|\d+\.\s/, '').trim();
         return (
           <li key={index} className="list-disc mr-6">
-            {content}
+            {formatTextWithLinks(content)}
           </li>
         );
       }
-      return <p key={index}>{trimmedLine}</p>;
+      return (
+        <p key={index} className="leading-relaxed">
+          {formatTextWithLinks(trimmedLine)}
+        </p>
+      );
     });
   };
 
