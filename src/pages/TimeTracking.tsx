@@ -250,52 +250,87 @@ const TimeTracking = () => {
 
         {/* Active Timer */}
         {activeTaskId && startTime && (
-          <Card className="mb-6 border-primary/20 bg-primary/5">
-            <CardHeader>
+          <Card className="mb-6 border-2 border-primary/30 bg-gradient-to-r from-primary/10 to-primary/5 shadow-lg animate-fade-in">
+            <CardHeader className="pb-3">
               <CardTitle className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-3">
                   {isBreakTime ? (
                     <>
-                      <Coffee className="h-5 w-5 text-orange-500" />
-                      <span>הפסקה</span>
+                      <div className="p-2 rounded-full bg-orange-500/20 animate-pulse">
+                        <Coffee className="h-6 w-6 text-orange-500" />
+                      </div>
+                      <div>
+                        <span className="text-lg font-bold text-orange-500">הפסקה פעילה</span>
+                        <p className="text-sm text-muted-foreground">זמן לנוח ☕</p>
+                      </div>
                     </>
                   ) : (
                     <>
-                      <Play className="h-5 w-5 text-green-500" />
-                      <span>טיימר פעיל</span>
+                      <div className="p-2 rounded-full bg-green-500/20 animate-pulse">
+                        <Play className="h-6 w-6 text-green-500" />
+                      </div>
+                      <div>
+                        <span className="text-lg font-bold text-green-500">עובד כעת</span>
+                        <p className="text-sm text-muted-foreground">ממוקד ופרודוקטיבי 🚀</p>
+                      </div>
                     </>
                   )}
                 </div>
-                <div className="text-2xl font-mono text-primary">
-                  {formatDuration(elapsedTime)}
+                <div className="text-right">
+                  <div className="text-3xl font-mono font-bold text-primary animate-pulse">
+                    {formatDuration(elapsedTime)}
+                  </div>
+                  <p className="text-xs text-muted-foreground">זמן נוכחי</p>
                 </div>
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium text-lg">
+              <div className="flex items-center justify-between p-4 bg-card/50 rounded-lg border">
+                <div className="flex-1">
+                  <h3 className="font-bold text-xl mb-1">
                     {tasks?.find(t => t.id === activeTaskId)?.title}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    התחיל: {format(startTime, 'HH:mm', { locale: he })}
-                  </p>
+                  </h3>
+                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                    <div className="flex items-center gap-1">
+                      <Clock className="h-4 w-4" />
+                      <span>התחיל: {format(startTime, 'HH:mm', { locale: he })}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <span>⚖️</span>
+                      <span>משקל: {tasks?.find(t => t.id === activeTaskId)?.priority === 'high' ? 'כבד' : tasks?.find(t => t.id === activeTaskId)?.priority === 'medium' ? 'בינוני' : 'קל'}</span>
+                    </div>
+                  </div>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-3">
                   {!isBreakTime ? (
                     <>
-                      <Button onClick={startBreak} variant="outline" size="sm">
-                        <Coffee className="h-4 w-4 mr-2" />
+                      <Button 
+                        onClick={startBreak} 
+                        variant="outline" 
+                        size="lg"
+                        className="hover-scale transition-all duration-200"
+                      >
+                        <Coffee className="h-5 w-5 mr-2" />
                         הפסקה
                       </Button>
-                      <Button onClick={stopTimer} variant="destructive" size="sm">
-                        <Square className="h-4 w-4 mr-2" />
-                        עצור
+                      <Button 
+                        onClick={stopTimer} 
+                        variant="destructive" 
+                        size="lg"
+                        className="hover-scale transition-all duration-200"
+                      >
+                        <Square className="h-5 w-5 mr-2" />
+                        סיום
                       </Button>
                     </>
                   ) : (
-                    <Button onClick={endBreak} variant="default" size="sm">
-                      <Zap className="h-4 w-4 mr-2" />
+                    <Button 
+                      onClick={endBreak} 
+                      variant="default" 
+                      size="lg"
+                      className="hover-scale bg-green-600 hover:bg-green-700 transition-all duration-200"
+                    >
+                      <Zap className="h-5 w-5 mr-2" />
                       חזור לעבודה
                     </Button>
                   )}
@@ -328,55 +363,79 @@ const TimeTracking = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {filteredTasks?.map((task) => (
-                <div key={task.id} className="flex items-center justify-between p-6 border-2 rounded-lg hover:border-primary/50 transition-all duration-200 bg-card">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <h3 className="font-semibold text-xl">{task.title}</h3>
-                      {task.priority && (
-                        <Badge variant={getPriorityColor(task.priority)} className="font-medium">
-                          {getPriorityText(task.priority)}
-                        </Badge>
-                      )}
-                    </div>
-                    
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                      {task.project_id && (
-                        <div className="flex items-center gap-1">
-                          <span>📁</span>
-                          <span>פרויקט: {task.project_id}</span>
+              {filteredTasks?.map((task) => {
+                const isActive = activeTaskId === task.id;
+                return (
+                  <div 
+                    key={task.id} 
+                    className={`group flex items-center justify-between p-6 border-2 rounded-xl transition-all duration-300 hover-scale ${
+                      isActive 
+                        ? 'border-primary bg-primary/5 shadow-lg scale-[1.02]' 
+                        : 'border-border/50 hover:border-primary/50 bg-card hover:shadow-md'
+                    }`}
+                  >
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className={`w-3 h-3 rounded-full transition-colors ${
+                          isActive ? 'bg-primary animate-pulse' : 'bg-muted-foreground/30'
+                        }`} />
+                        <h3 className={`font-semibold text-xl transition-colors ${
+                          isActive ? 'text-primary' : 'text-foreground'
+                        }`}>
+                          {task.title}
+                        </h3>
+                        {task.priority && (
+                          <Badge 
+                            variant={getPriorityColor(task.priority)} 
+                            className="font-medium animate-fade-in"
+                          >
+                            {getPriorityText(task.priority)}
+                          </Badge>
+                        )}
+                      </div>
+                      
+                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                        {task.project_id && (
+                          <div className="flex items-center gap-1 transition-colors group-hover:text-foreground">
+                            <span>📁</span>
+                            <span>פרויקט: {task.project_id}</span>
+                          </div>
+                        )}
+                        <div className="flex items-center gap-1 transition-colors group-hover:text-foreground">
+                          <span>⚖️</span>
+                          <span>משקל: {task.priority === 'high' ? 'כבד' : task.priority === 'medium' ? 'בינוני' : 'קל'}</span>
                         </div>
-                      )}
-                      <div className="flex items-center gap-1">
-                        <span>⚖️</span>
-                        <span>משקל: {task.priority === 'high' ? 'כבד' : task.priority === 'medium' ? 'בינוני' : 'קל'}</span>
                       </div>
                     </div>
+                    
+                    <div className="ml-6">
+                      <Button
+                        onClick={() => startTimer(task.id)}
+                        disabled={isActive}
+                        variant={isActive ? "secondary" : "default"}
+                        size="lg"
+                        className={`min-w-[140px] font-semibold transition-all duration-300 ${
+                          isActive 
+                            ? 'bg-primary/20 text-primary border-primary/30 cursor-not-allowed' 
+                            : 'hover-scale shadow-sm hover:shadow-md'
+                        }`}
+                      >
+                        {isActive ? (
+                          <>
+                            <div className="h-5 w-5 mr-2 rounded-full bg-primary animate-pulse" />
+                            עובד כעת
+                          </>
+                        ) : (
+                          <>
+                            <Play className="h-5 w-5 mr-2 transition-transform group-hover:scale-110" />
+                            התחל עבודה
+                          </>
+                        )}
+                      </Button>
+                    </div>
                   </div>
-                  
-                  <div className="ml-6">
-                    <Button
-                      onClick={() => startTimer(task.id)}
-                      disabled={activeTaskId === task.id}
-                      variant={activeTaskId === task.id ? "secondary" : "default"}
-                      size="lg"
-                      className="min-w-[140px]"
-                    >
-                      {activeTaskId === task.id ? (
-                        <>
-                          <Pause className="h-5 w-5 mr-2" />
-                          עובד כעת
-                        </>
-                      ) : (
-                        <>
-                          <Play className="h-5 w-5 mr-2" />
-                          התחל עבודה
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
             
             {!filteredTasks?.length && (
