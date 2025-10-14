@@ -52,29 +52,18 @@ const TaskItem = ({
     });
   };
 
-  const getPriorityBgColor = (priority: 'low' | 'normal' | 'high') => {
+  const getTaskCardClass = (priority: 'low' | 'normal' | 'high', completed: boolean) => {
+    if (completed) return 'task-card task-card-completed';
+    
     switch (priority) {
       case 'high':
-        return 'bg-gradient-to-r from-red-50 to-red-50/50 dark:from-red-900/30 dark:to-red-900/10';
+        return 'task-card task-card-high';
       case 'normal':
-        return 'bg-gradient-to-r from-yellow-50 to-yellow-50/50 dark:from-yellow-900/30 dark:to-yellow-900/10';
+        return 'task-card task-card-normal';
       case 'low':
-        return 'bg-gradient-to-r from-green-50 to-green-50/50 dark:from-green-900/30 dark:to-green-900/10';
+        return 'task-card task-card-low';
       default:
-        return 'bg-gray-50 dark:bg-gray-800/50';
-    }
-  };
-
-  const getPriorityBorderColor = (priority: 'low' | 'normal' | 'high') => {
-    switch (priority) {
-      case 'high':
-        return 'border-red-200 dark:border-red-900/30';
-      case 'normal':
-        return 'border-yellow-200 dark:border-yellow-900/30';
-      case 'low':
-        return 'border-green-200 dark:border-green-900/30';
-      default:
-        return 'border-gray-200 dark:border-gray-700';
+        return 'task-card task-card-normal';
     }
   };
 
@@ -133,18 +122,18 @@ const TaskItem = ({
       animate={{ 
         opacity: 1, 
         y: 0,
-        scale: isDragging ? 1.02 : 1,
-        boxShadow: isDragging ? "0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)" : "none"
+        scale: isDragging ? 1.03 : 1,
       }}
-      exit={{ opacity: 0, y: -20 }}
-      transition={{ duration: 0.3 }}
+      exit={{ opacity: 0, scale: 0.95, y: -20 }}
+      transition={{ 
+        duration: 0.4,
+        ease: [0.4, 0, 0.2, 1]
+      }}
+      whileHover={{ scale: isDragging ? 1.03 : 1.01 }}
       className={cn(
-        "flex flex-col gap-4 p-5 rounded-lg border shadow-sm relative",
-        task.completed 
-          ? "bg-gray-50/80 dark:bg-gray-800/50 border-gray-200 dark:border-gray-700 opacity-75" 
-          : `${getPriorityBgColor(task.priority)} ${getPriorityBorderColor(task.priority)}`,
-        "hover:shadow-md transition-all duration-300",
-        isDragging ? "cursor-grabbing" : "cursor-grab"
+        "flex flex-col gap-5 p-6 relative group",
+        getTaskCardClass(task.priority, task.completed),
+        isDragging ? "cursor-grabbing shadow-2xl" : "cursor-grab"
       )}
       onDragStart={() => setIsDragging(true)}
       onDragEnd={() => setIsDragging(false)}
@@ -152,8 +141,8 @@ const TaskItem = ({
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
-            <div className="absolute left-2 top-1/2 -translate-y-1/2 flex items-center h-full py-4 opacity-30 hover:opacity-100 transition-opacity">
-              <GripVertical className="h-5 w-5 text-gray-500" />
+            <div className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center h-full py-4 opacity-0 group-hover:opacity-40 hover:!opacity-100 transition-opacity duration-200">
+              <GripVertical className="h-5 w-5 text-muted-foreground" />
             </div>
           </TooltipTrigger>
           <TooltipContent side="bottom">
@@ -166,10 +155,11 @@ const TaskItem = ({
         {isEditing ? (
           <motion.div
             key="editing"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="bg-white/90 dark:bg-gray-700/90 p-4 rounded-lg mb-2 shadow-inner"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ duration: 0.2 }}
+            className="bg-card/95 backdrop-blur-sm p-5 rounded-xl shadow-lg border border-border"
           >
             <TaskForm
               onAddTask={handleEditSubmit}
@@ -188,16 +178,14 @@ const TaskItem = ({
             exit={{ opacity: 0 }}
           >
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div className="flex flex-col items-end gap-1 order-2 sm:order-1 mr-6">
+              <div className="flex flex-col items-end gap-2 order-2 sm:order-1 mr-8">
                 <span className={cn(
-                  "text-lg font-medium text-right",
-                  task.completed 
-                    ? "line-through text-gray-400 dark:text-gray-500" 
-                    : "text-gray-800 dark:text-gray-200"
+                  "task-title text-right",
+                  task.completed && "task-title-completed"
                 )}>
                   {task.title}
                 </span>
-                <span className="text-sm text-gray-500 dark:text-gray-400">
+                <span className="text-sm text-muted-foreground font-medium">
                   {formatTime(task.timestamp)}
                 </span>
               </div>
@@ -216,15 +204,21 @@ const TaskItem = ({
               </div>
             </div>
 
-            <div className="mt-3">
-              <TaskProgressBar 
-                progress={task.progress || 0} 
-                size="sm" 
-                className="w-full" 
-              />
-            </div>
+            {(task.progress || 0) > 0 && (
+              <motion.div 
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                className="mt-4"
+              >
+                <TaskProgressBar 
+                  progress={task.progress || 0} 
+                  size="sm" 
+                  className="w-full" 
+                />
+              </motion.div>
+            )}
 
-            <div className="flex items-center justify-between gap-4 mt-3">
+            <div className="flex items-center justify-between gap-4 mt-4">
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -233,30 +227,34 @@ const TaskItem = ({
                       onClick={handleCheckboxChange}
                     >
                       {isMobile ? (
-                        <button
+                        <motion.button
                           type="button"
                           onClick={() => onToggleTask(task.id)}
+                          whileTap={{ scale: 0.9 }}
                           className={cn(
-                            "h-10 w-10 min-h-[44px] min-w-[44px] rounded-md border-2 transition-colors duration-300 flex items-center justify-center",
+                            "task-checkbox-mobile flex items-center justify-center",
                             task.completed 
-                              ? "border-purple-500 bg-purple-500 text-white" 
-                              : "border-purple-300 dark:border-purple-700"
+                              ? "bg-[hsl(var(--task-complete))] text-primary-foreground" 
+                              : "bg-background"
                           )}
                           aria-label="סמן משימה כהושלמה"
                         >
-                          {task.completed && <Check className="h-6 w-6" />}
-                        </button>
+                          {task.completed && (
+                            <motion.div
+                              initial={{ scale: 0, rotate: -180 }}
+                              animate={{ scale: 1, rotate: 0 }}
+                              transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                            >
+                              <Check className="h-6 w-6" />
+                            </motion.div>
+                          )}
+                        </motion.button>
                       ) : (
                         <Checkbox 
                           id={`task-${task.id}`}
                           checked={task.completed}
                           onCheckedChange={() => onToggleTask(task.id)}
-                          className={cn(
-                            "h-6 w-6 min-h-[24px] min-w-[24px] rounded-md border-2 transition-colors duration-300",
-                            task.completed 
-                              ? "border-purple-500 bg-purple-500 text-white" 
-                              : "border-purple-300 dark:border-purple-700"
-                          )}
+                          className="task-checkbox"
                           aria-label="סמן משימה כהושלמה"
                         />
                       )}
@@ -282,11 +280,11 @@ const TaskItem = ({
       <AnimatePresence>
         {showProject && (
           <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.3 }}
-            className="border-t pt-3 mt-2"
+            initial={{ opacity: 0, height: 0, marginTop: 0 }}
+            animate={{ opacity: 1, height: "auto", marginTop: 16 }}
+            exit={{ opacity: 0, height: 0, marginTop: 0 }}
+            transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+            className="border-t border-border pt-4"
           >
             <TaskProjectLink
               taskId={task.id}
@@ -300,10 +298,11 @@ const TaskItem = ({
       <AnimatePresence>
         {showAttachments && (
           <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.3 }}
+            initial={{ opacity: 0, height: 0, marginTop: 0 }}
+            animate={{ opacity: 1, height: "auto", marginTop: 16 }}
+            exit={{ opacity: 0, height: 0, marginTop: 0 }}
+            transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+            className="border-t border-border pt-4"
           >
             <TaskAttachments
               taskId={task.id}
@@ -318,10 +317,11 @@ const TaskItem = ({
       <AnimatePresence>
         {showComments && (
           <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.3 }}
+            initial={{ opacity: 0, height: 0, marginTop: 0 }}
+            animate={{ opacity: 1, height: "auto", marginTop: 16 }}
+            exit={{ opacity: 0, height: 0, marginTop: 0 }}
+            transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+            className="border-t border-border pt-4"
           >
             <TaskComments
               taskId={task.id}

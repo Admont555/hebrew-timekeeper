@@ -33,6 +33,20 @@ export default {
 					foreground: 'hsl(var(--primary-foreground))',
 					glow: 'hsl(var(--primary-glow))'
 				},
+				task: {
+					high: 'hsl(var(--task-priority-high))',
+					'high-bg': 'hsl(var(--task-priority-high-bg))',
+					'high-border': 'hsl(var(--task-priority-high-border))',
+					normal: 'hsl(var(--task-priority-normal))',
+					'normal-bg': 'hsl(var(--task-priority-normal-bg))',
+					'normal-border': 'hsl(var(--task-priority-normal-border))',
+					low: 'hsl(var(--task-priority-low))',
+					'low-bg': 'hsl(var(--task-priority-low-bg))',
+					'low-border': 'hsl(var(--task-priority-low-border))',
+					complete: 'hsl(var(--task-complete))',
+					'complete-hover': 'hsl(var(--task-complete-hover))',
+					'complete-bg': 'hsl(var(--task-complete-bg))'
+				},
 				secondary: {
 					DEFAULT: 'hsl(var(--secondary))',
 					foreground: 'hsl(var(--secondary-foreground))'
