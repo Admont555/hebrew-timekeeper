@@ -483,26 +483,34 @@
   
   /* Task-specific utility classes */
   .task-card {
-    @apply rounded-xl border-2 backdrop-blur-sm transition-all duration-300 hover:shadow-lg;
+    @apply rounded-2xl backdrop-blur-sm transition-all duration-300;
   }
   
   .task-card-high {
-    @apply bg-gradient-to-br from-[hsl(var(--task-priority-high-bg))] to-[hsl(var(--task-priority-high-bg))]/50 
-           border-[hsl(var(--task-priority-high-border))];
+    @apply bg-gradient-to-br from-[hsl(var(--task-priority-high-bg))] to-[hsl(var(--card))] 
+           border border-[hsl(var(--task-priority-high-border))]/30
+           shadow-[0_2px_8px_hsl(var(--task-priority-high)/0.08),0_1px_2px_hsl(var(--task-priority-high)/0.05)]
+           hover:shadow-[0_4px_16px_hsl(var(--task-priority-high)/0.15),0_2px_4px_hsl(var(--task-priority-high)/0.1)];
   }
   
   .task-card-normal {
-    @apply bg-gradient-to-br from-[hsl(var(--task-priority-normal-bg))] to-[hsl(var(--task-priority-normal-bg))]/50 
-           border-[hsl(var(--task-priority-normal-border))];
+    @apply bg-gradient-to-br from-[hsl(var(--task-priority-normal-bg))] to-[hsl(var(--card))] 
+           border border-[hsl(var(--task-priority-normal-border))]/30
+           shadow-[0_2px_8px_hsl(var(--task-priority-normal)/0.08),0_1px_2px_hsl(var(--task-priority-normal)/0.05)]
+           hover:shadow-[0_4px_16px_hsl(var(--task-priority-normal)/0.15),0_2px_4px_hsl(var(--task-priority-normal)/0.1)];
   }
   
   .task-card-low {
-    @apply bg-gradient-to-br from-[hsl(var(--task-priority-low-bg))] to-[hsl(var(--task-priority-low-bg))]/50 
-           border-[hsl(var(--task-priority-low-border))];
+    @apply bg-gradient-to-br from-[hsl(var(--task-priority-low-bg))] to-[hsl(var(--card))] 
+           border border-[hsl(var(--task-priority-low-border))]/30
+           shadow-[0_2px_8px_hsl(var(--task-priority-low)/0.08),0_1px_2px_hsl(var(--task-priority-low)/0.05)]
+           hover:shadow-[0_4px_16px_hsl(var(--task-priority-low)/0.15),0_2px_4px_hsl(var(--task-priority-low)/0.1)];
   }
   
   .task-card-completed {
-    @apply bg-muted/50 border-border opacity-75;
+    @apply bg-gradient-to-br from-[hsl(var(--task-complete-bg))] to-[hsl(var(--card))]/95
+           border border-border/30
+           shadow-[0_1px_4px_hsl(var(--muted)/0.1)] opacity-85;
   }
   
   .task-checkbox {

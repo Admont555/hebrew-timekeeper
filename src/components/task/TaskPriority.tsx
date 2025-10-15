@@ -12,30 +12,30 @@ const TaskPriority = ({ priority }: TaskPriorityProps) => {
     switch (priority) {
       case 'high':
         return {
-          color: 'text-red-500 dark:text-red-400',
-          bg: 'bg-red-100 dark:bg-red-900/20',
-          border: 'border-red-200 dark:border-red-800/30',
+          color: 'text-task-high',
+          bg: 'bg-task-high-bg',
+          border: 'border-task-high-border/40',
           label: 'דחוף'
         };
       case 'normal':
         return {
-          color: 'text-yellow-500 dark:text-yellow-400',
-          bg: 'bg-yellow-100 dark:bg-yellow-900/20',
-          border: 'border-yellow-200 dark:border-yellow-800/30',
+          color: 'text-task-normal',
+          bg: 'bg-task-normal-bg',
+          border: 'border-task-normal-border/40',
           label: 'רגיל'
         };
       case 'low':
         return {
-          color: 'text-green-500 dark:text-green-400',
-          bg: 'bg-green-100 dark:bg-green-900/20',
-          border: 'border-green-200 dark:border-green-800/30',
+          color: 'text-task-low',
+          bg: 'bg-task-low-bg',
+          border: 'border-task-low-border/40',
           label: 'נמוך'
         };
       default:
         return {
-          color: 'text-gray-500 dark:text-gray-400',
-          bg: 'bg-gray-100 dark:bg-gray-800',
-          border: 'border-gray-200 dark:border-gray-700',
+          color: 'text-muted-foreground',
+          bg: 'bg-muted',
+          border: 'border-border/40',
           label: ''
         };
     }
@@ -45,7 +45,7 @@ const TaskPriority = ({ priority }: TaskPriorityProps) => {
 
   return (
     <div className={cn(
-      "flex items-center gap-2 px-2 py-1 rounded-full border",
+      "flex items-center gap-2 px-3 py-1.5 rounded-full border backdrop-blur-sm shadow-sm transition-all duration-200 hover:shadow-md",
       config.bg,
       config.border
     )}>

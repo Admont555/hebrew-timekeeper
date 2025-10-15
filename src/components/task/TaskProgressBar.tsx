@@ -21,10 +21,18 @@ const TaskProgressBar = ({
   
   // Get color class based on progress
   const getColorClass = () => {
-    if (normalizedProgress < 25) return "bg-red-500";
-    if (normalizedProgress < 50) return "bg-orange-500";
-    if (normalizedProgress < 75) return "bg-yellow-500";
-    return "bg-green-500";
+    if (normalizedProgress < 25) return "bg-destructive";
+    if (normalizedProgress < 50) return "bg-task-normal";
+    if (normalizedProgress < 75) return "bg-task-normal";
+    return "bg-task-low";
+  };
+
+  // Get container class based on progress
+  const getContainerClass = () => {
+    if (normalizedProgress < 25) return "bg-destructive/10";
+    if (normalizedProgress < 50) return "bg-task-normal-bg";
+    if (normalizedProgress < 75) return "bg-task-normal-bg";
+    return "bg-task-low-bg";
   };
 
   // Get height based on size
@@ -40,12 +48,17 @@ const TaskProgressBar = ({
     <div className={cn("w-full space-y-1", className)}>
       <Progress 
         value={normalizedProgress} 
-        className={cn(getHeight(), "bg-gray-200 dark:bg-gray-700", getColorClass())}
+        className={cn(
+          getHeight(), 
+          getContainerClass(),
+          "overflow-hidden rounded-full border border-border/30 shadow-sm"
+        )}
+        indicatorClassName={getColorClass()}
         aria-label="התקדמות המשימה"
       />
       {showLabel && (
         <div className="flex justify-end">
-          <span className="text-xs text-gray-500 dark:text-gray-400">
+          <span className="text-xs text-muted-foreground font-medium">
             {normalizedProgress}%
           </span>
         </div>
