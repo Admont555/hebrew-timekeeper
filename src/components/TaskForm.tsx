@@ -1,9 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { TaskPriority } from "@/types/task";
-import { motion } from "framer-motion";
-import { Check, Plus, X } from "lucide-react";
-import { useForm } from "react-hook-form";
+import { motion, AnimatePresence } from "framer-motion";
+import { Check, Plus, X, Sparkles } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -44,12 +43,10 @@ const TaskForm = ({
   const titleInputRef = useRef<HTMLInputElement>(null);
   const isMobile = useIsMobile();
   
-  // Sync expanded state with isOpen prop
   useEffect(() => {
     setExpanded(isOpen);
   }, [isOpen]);
   
-  // Notify parent component when expanded state changes
   useEffect(() => {
     if (onOpenChange) {
       onOpenChange(expanded);
@@ -78,7 +75,6 @@ const TaskForm = ({
     }
   };
 
-  // Focus title input when form expands
   useEffect(() => {
     if (expanded && titleInputRef.current) {
       setTimeout(() => {
@@ -87,34 +83,72 @@ const TaskForm = ({
     }
   }, [expanded]);
 
-  const priorityDisplayName = {
-    low: "נמוכה",
-    normal: "רגילה",
-    high: "גבוהה",
+  const getPriorityGradient = () => {
+    switch (priority) {
+      case 'low':
+        return 'from-task-low to-emerald-500';
+      case 'normal':
+        return 'from-task-normal to-amber-500';
+      case 'high':
+        return 'from-task-high to-rose-500';
+      default:
+        return 'from-primary to-primary-glow';
+    }
   };
 
   return (
     <div className="w-full">
-      {!expanded ? (
-        <Button 
-          onClick={() => setExpanded(true)}
-          className="w-full bg-purple-50 hover:bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:hover:bg-purple-900/50 dark:text-purple-300 font-medium flex items-center gap-2 text-lg mb-2 border border-purple-200 dark:border-purple-800 shadow-sm hover:shadow-md transition-all"
-          size={isMobile ? "lg" : "default"}
-        >
-          <Plus className="h-5 w-5" /> הוסף משימה חדשה
-        </Button>
-      ) : (
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20 }}
-          className="shadow-md rounded-lg overflow-hidden bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700"
-        >
-          <form onSubmit={handleSubmit} className="p-4">
-            <div className="space-y-4">
-              <div className="flex flex-col space-y-2">
-                <Label htmlFor="title" className="text-right font-medium">
-                  כותרת
+      <AnimatePresence mode="wait">
+        {!expanded ? (
+          <motion.div
+            key="button"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+          >
+            <Button 
+              onClick={() => setExpanded(true)}
+              className={cn(
+                "w-full group relative overflow-hidden",
+                "bg-gradient-to-r from-primary/10 via-accent/50 to-primary/10",
+                "hover:from-primary/20 hover:via-accent hover:to-primary/20",
+                "text-primary dark:text-primary-foreground font-semibold",
+                "flex items-center justify-center gap-3 text-lg mb-3",
+                "border-2 border-dashed border-primary/30 hover:border-primary/60",
+                "rounded-2xl shadow-sm hover:shadow-lg hover:shadow-primary/10",
+                "transition-all duration-300"
+              )}
+              size={isMobile ? "lg" : "default"}
+            >
+              <motion.div
+                whileHover={{ rotate: 90 }}
+                transition={{ duration: 0.3 }}
+              >
+                <Plus className="h-6 w-6" />
+              </motion.div>
+              <span>הוסף משימה חדשה</span>
+              <Sparkles className="h-4 w-4 opacity-50 group-hover:opacity-100 transition-opacity" />
+            </Button>
+          </motion.div>
+        ) : (
+          <motion.div
+            key="form"
+            initial={{ opacity: 0, y: -20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -20, scale: 0.95 }}
+            transition={{ type: "spring", stiffness: 300, damping: 25 }}
+            className="relative overflow-hidden rounded-2xl shadow-xl border border-border/50 bg-card/98 backdrop-blur-md"
+          >
+            {/* Decorative gradient header */}
+            <div className={cn(
+              "h-2 bg-gradient-to-r",
+              getPriorityGradient()
+            )} />
+            
+            <form onSubmit={handleSubmit} className="p-5 space-y-5">
+              <div className="space-y-2">
+                <Label htmlFor="title" className="text-right font-medium text-foreground/80">
+                  כותרת המשימה
                 </Label>
                 <Input
                   ref={titleInputRef}
@@ -123,90 +157,103 @@ const TaskForm = ({
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="מה צריך לעשות?"
-                  className="text-right rtl:text-right [&]:text-right"
+                  className="text-right rtl:text-right h-12 text-lg border-2 border-border/50 focus:border-primary/50 rounded-xl bg-background/50 transition-all duration-300"
                   style={{ textAlign: 'right', direction: 'rtl' }}
                   autoComplete="off"
                   required
                 />
               </div>
               
-              <div className="flex flex-col space-y-2">
-                <Label htmlFor="duration" className="text-right font-medium">
-                  משך זמן (דקות)
-                </Label>
-                <Input
-                  id="duration"
-                  type="number"
-                  value={duration}
-                  onChange={(e) => setDuration(Number(e.target.value))}
-                  min={0}
-                  step={5}
-                  className="text-right rtl:text-right [&]:text-right"
-                  style={{ textAlign: 'right', direction: 'rtl' }}
-                />
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="duration" className="text-right font-medium text-foreground/80">
+                    משך זמן (דקות)
+                  </Label>
+                  <Input
+                    id="duration"
+                    type="number"
+                    value={duration}
+                    onChange={(e) => setDuration(Number(e.target.value))}
+                    min={0}
+                    step={5}
+                    className="text-right h-12 text-lg border-2 border-border/50 focus:border-primary/50 rounded-xl bg-background/50 transition-all duration-300"
+                    style={{ textAlign: 'right', direction: 'rtl' }}
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="priority" className="text-right font-medium text-foreground/80">
+                    עדיפות
+                  </Label>
+                  <Select 
+                    value={priority} 
+                    onValueChange={(value) => setPriority(value as TaskPriority)}
+                  >
+                    <SelectTrigger 
+                      id="priority" 
+                      className="w-full h-12 text-right border-2 border-border/50 focus:border-primary/50 rounded-xl bg-background/50 transition-all duration-300"
+                    >
+                      <SelectValue placeholder="בחר עדיפות" />
+                    </SelectTrigger>
+                    <SelectContent position="popper" className="w-full rounded-xl border-2" dir="rtl">
+                      <SelectItem value="low" className="text-right rounded-lg">
+                        <div className="flex items-center gap-3 w-full justify-end py-1">
+                          <span className="font-medium">נמוכה</span>
+                          <motion.span 
+                            className="h-3 w-3 rounded-full bg-task-low shadow-sm shadow-task-low/50"
+                            whileHover={{ scale: 1.2 }}
+                          />
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="normal" className="text-right rounded-lg">
+                        <div className="flex items-center gap-3 w-full justify-end py-1">
+                          <span className="font-medium">רגילה</span>
+                          <motion.span 
+                            className="h-3 w-3 rounded-full bg-task-normal shadow-sm shadow-task-normal/50"
+                            whileHover={{ scale: 1.2 }}
+                          />
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="high" className="text-right rounded-lg">
+                        <div className="flex items-center gap-3 w-full justify-end py-1">
+                          <span className="font-medium">גבוהה</span>
+                          <motion.span 
+                            className="h-3 w-3 rounded-full bg-task-high animate-pulse shadow-sm shadow-task-high/50"
+                            whileHover={{ scale: 1.2 }}
+                          />
+                        </div>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
               
-              <div className="flex flex-col space-y-2">
-                <Label htmlFor="priority" className="text-right font-medium">
-                  עדיפות
-                </Label>
-                <Select 
-                  value={priority} 
-                  onValueChange={(value) => setPriority(value as TaskPriority)}
-                >
-                  <SelectTrigger id="priority" className="w-full text-right">
-                    <SelectValue placeholder="בחר עדיפות" />
-                  </SelectTrigger>
-                  <SelectContent position="popper" className="w-full" dir="rtl">
-                    <SelectItem value="low" className="text-right">
-                      <div className="flex items-center gap-2 w-full justify-end">
-                        <span>נמוכה</span>
-                        <span className="h-2 w-2 rounded-full bg-green-500"></span>
-                      </div>
-                    </SelectItem>
-                    <SelectItem value="normal" className="text-right">
-                      <div className="flex items-center gap-2 w-full justify-end">
-                        <span>רגילה</span>
-                        <span className="h-2 w-2 rounded-full bg-yellow-500"></span>
-                      </div>
-                    </SelectItem>
-                    <SelectItem value="high" className="text-right">
-                      <div className="flex items-center gap-2 w-full justify-end">
-                        <span>גבוהה</span>
-                        <span className="h-2 w-2 rounded-full bg-red-500"></span>
-                      </div>
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div className="flex justify-between pt-2 gap-3">
+              <div className="flex gap-3 pt-2">
                 <Button 
                   type="button"
                   variant="outline" 
                   onClick={handleCancel}
-                  className="flex-1 flex items-center justify-center gap-1 border border-gray-300 dark:border-gray-600"
+                  className="flex-1 h-12 flex items-center justify-center gap-2 rounded-xl border-2 border-border/50 hover:border-destructive/50 hover:bg-destructive/5 hover:text-destructive transition-all duration-300"
                 >
-                  <X className="h-4 w-4" />
-                  <span>{onCancel ? "בטל" : "סגור"}</span>
+                  <X className="h-5 w-5" />
+                  <span className="font-medium">{onCancel ? "בטל" : "סגור"}</span>
                 </Button>
                 <Button 
                   type="submit" 
                   className={cn(
-                    "flex-1 flex items-center justify-center gap-1",
-                    priority === "low" && "bg-green-600 hover:bg-green-700",
-                    priority === "normal" && "bg-yellow-600 hover:bg-yellow-700",
-                    priority === "high" && "bg-red-600 hover:bg-red-700"
+                    "flex-1 h-12 flex items-center justify-center gap-2 rounded-xl font-medium text-primary-foreground shadow-lg transition-all duration-300 hover:shadow-xl",
+                    `bg-gradient-to-r ${getPriorityGradient()}`,
+                    "hover:opacity-90"
                   )}
                 >
-                  <Check className="h-4 w-4" />
+                  <Check className="h-5 w-5" />
                   <span>{submitLabel}</span>
                 </Button>
               </div>
-            </div>
-          </form>
-        </motion.div>
-      )}
+            </form>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
