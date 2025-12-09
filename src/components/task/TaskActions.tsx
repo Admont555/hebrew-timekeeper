@@ -88,15 +88,20 @@ const TaskActions = ({
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8"
+              className="h-8 w-8 relative"
               onClick={onToggleComments}
             >
               <MessageSquare className="h-4 w-4" />
+              {task.comments && task.comments.length > 0 && (
+                <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground animate-pulse">
+                  {task.comments.length > 9 ? '9+' : task.comments.length}
+                </span>
+              )}
               <span className="sr-only">תגובות</span>
             </Button>
           </TooltipTrigger>
           <TooltipContent>
-            <p>תגובות</p>
+            <p>תגובות {task.comments && task.comments.length > 0 ? `(${task.comments.length})` : ''}</p>
           </TooltipContent>
         </Tooltip>
 
