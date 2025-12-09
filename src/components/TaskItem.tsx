@@ -8,8 +8,7 @@ import TaskPriorityComponent from "./task/TaskPriority";
 import TaskAttachments from "./task/TaskAttachments";
 import TaskProgressBar from "./task/TaskProgressBar";
 import TaskProjectLink from "./task/TaskProjectLink";
-import { Checkbox } from "./ui/checkbox";
-import { Check, GripVertical } from "lucide-react";
+import { Check, GripVertical, Sparkles } from "lucide-react";
 import TaskForm from "./TaskForm";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -116,36 +115,68 @@ const TaskItem = ({
     }
   };
 
+  // Priority indicator dot with pulse animation for high priority
+  const PriorityIndicator = () => {
+    const dotClass = cn(
+      "w-3 h-3 rounded-full absolute -top-1 -right-1",
+      task.priority === 'high' && "bg-task-high animate-pulse",
+      task.priority === 'normal' && "bg-task-normal",
+      task.priority === 'low' && "bg-task-low"
+    );
+    
+    return (
+      <motion.div 
+        className={dotClass}
+        initial={{ scale: 0 }}
+        animate={{ scale: 1 }}
+        transition={{ type: "spring", stiffness: 500, damping: 25 }}
+      />
+    );
+  };
+
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 20, scale: 0.95 }}
       animate={{ 
         opacity: 1, 
         y: 0,
-        scale: isDragging ? 1.03 : 1,
+        scale: isDragging ? 1.02 : 1,
       }}
-      exit={{ opacity: 0, scale: 0.95, y: -20 }}
+      exit={{ opacity: 0, scale: 0.9, y: -30 }}
       transition={{ 
         duration: 0.4,
-        ease: [0.4, 0, 0.2, 1]
+        ease: [0.25, 0.46, 0.45, 0.94]
       }}
-      whileHover={{ scale: isDragging ? 1.03 : 1.01 }}
+      whileHover={{ 
+        scale: isDragging ? 1.02 : 1.01,
+        y: isDragging ? 0 : -2,
+      }}
       className={cn(
-        "flex flex-col gap-5 p-6 relative group",
+        "flex flex-col gap-5 p-6 relative group overflow-hidden",
         getTaskCardClass(task.priority, task.completed),
-        isDragging ? "cursor-grabbing shadow-2xl" : "cursor-grab"
+        isDragging ? "cursor-grabbing shadow-2xl z-50" : "cursor-grab"
       )}
       onDragStart={() => setIsDragging(true)}
       onDragEnd={() => setIsDragging(false)}
     >
+      {/* Decorative gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-primary/5 pointer-events-none" />
+      
+      {/* Priority indicator dot */}
+      <PriorityIndicator />
+
+      {/* Drag handle */}
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
-            <div className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center h-full py-4 opacity-0 group-hover:opacity-40 hover:!opacity-100 transition-opacity duration-200">
+            <motion.div 
+              className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center h-full py-4 opacity-0 group-hover:opacity-60 hover:!opacity-100 transition-all duration-300"
+              whileHover={{ scale: 1.1 }}
+            >
               <GripVertical className="h-5 w-5 text-muted-foreground" />
-            </div>
+            </motion.div>
           </TooltipTrigger>
-          <TooltipContent side="bottom">
+          <TooltipContent side="bottom" className="bg-popover/95 backdrop-blur-sm">
             <p>גרור לשינוי סדר</p>
           </TooltipContent>
         </Tooltip>
@@ -155,11 +186,11 @@ const TaskItem = ({
         {isEditing ? (
           <motion.div
             key="editing"
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            transition={{ duration: 0.2 }}
-            className="bg-card/95 backdrop-blur-sm p-5 rounded-xl shadow-lg border border-border"
+            initial={{ opacity: 0, scale: 0.95, rotateX: -10 }}
+            animate={{ opacity: 1, scale: 1, rotateX: 0 }}
+            exit={{ opacity: 0, scale: 0.95, rotateX: 10 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+            className="bg-card/98 backdrop-blur-md p-5 rounded-xl shadow-xl border border-border/50"
           >
             <TaskForm
               onAddTask={handleEditSubmit}
@@ -176,20 +207,33 @@ const TaskItem = ({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            className="relative z-10"
           >
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex flex-col items-end gap-2 order-2 sm:order-1 mr-8">
                 <span className={cn(
-                  "task-title text-right",
+                  "task-title text-right transition-all duration-300",
                   task.completed && "task-title-completed"
                 )}>
                   {task.title}
                 </span>
-                <span className="text-sm text-muted-foreground font-medium">
-                  {formatTime(task.timestamp)}
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground font-medium bg-muted/50 px-2 py-0.5 rounded-md">
+                    {formatTime(task.timestamp)}
+                  </span>
+                  {task.completed && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="flex items-center gap-1 text-xs text-task-complete bg-task-complete-bg px-2 py-0.5 rounded-md"
+                    >
+                      <Sparkles className="w-3 h-3" />
+                      <span>הושלם</span>
+                    </motion.div>
+                  )}
+                </div>
               </div>
-              <div className="flex items-center gap-4 order-1 sm:order-2">
+              <div className="flex items-center gap-3 order-1 sm:order-2">
                 <TaskPriorityComponent priority={task.priority} />
                 <TaskActions
                   task={task}
@@ -208,60 +252,53 @@ const TaskItem = ({
               <motion.div 
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: "auto" }}
-                className="mt-4"
+                className="mt-5"
               >
                 <TaskProgressBar 
                   progress={task.progress || 0} 
-                  size="sm" 
+                  size="md" 
                   className="w-full" 
                 />
               </motion.div>
             )}
 
-            <div className="flex items-center justify-between gap-4 mt-4">
+            <div className="flex items-center justify-between gap-4 mt-5">
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <div 
-                      className="flex items-center justify-center"
+                    <motion.button
+                      type="button"
                       onClick={handleCheckboxChange}
-                    >
-                      {isMobile ? (
-                        <motion.button
-                          type="button"
-                          onClick={() => onToggleTask(task.id)}
-                          whileTap={{ scale: 0.9 }}
-                          className={cn(
-                            "task-checkbox-mobile flex items-center justify-center",
-                            task.completed 
-                              ? "bg-[hsl(var(--task-complete))] text-primary-foreground" 
-                              : "bg-background"
-                          )}
-                          aria-label="סמן משימה כהושלמה"
-                        >
-                          {task.completed && (
-                            <motion.div
-                              initial={{ scale: 0, rotate: -180 }}
-                              animate={{ scale: 1, rotate: 0 }}
-                              transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                            >
-                              <Check className="h-6 w-6" />
-                            </motion.div>
-                          )}
-                        </motion.button>
-                      ) : (
-                        <Checkbox 
-                          id={`task-${task.id}`}
-                          checked={task.completed}
-                          onCheckedChange={() => onToggleTask(task.id)}
-                          className="task-checkbox"
-                          aria-label="סמן משימה כהושלמה"
-                        />
+                      whileTap={{ scale: 0.9 }}
+                      whileHover={{ scale: 1.05 }}
+                      className={cn(
+                        "relative flex items-center justify-center rounded-xl border-2 transition-all duration-300 shadow-sm",
+                        isMobile ? "h-12 w-12" : "h-8 w-8",
+                        task.completed 
+                          ? "bg-gradient-to-br from-task-complete to-primary border-task-complete shadow-task-complete/30" 
+                          : "bg-background/80 border-task-complete/50 hover:border-task-complete hover:shadow-lg hover:shadow-task-complete/20"
                       )}
-                    </div>
+                      aria-label="סמן משימה כהושלמה"
+                    >
+                      <AnimatePresence>
+                        {task.completed && (
+                          <motion.div
+                            initial={{ scale: 0, rotate: -180 }}
+                            animate={{ scale: 1, rotate: 0 }}
+                            exit={{ scale: 0, rotate: 180 }}
+                            transition={{ type: "spring", stiffness: 400, damping: 15 }}
+                          >
+                            <Check className={cn(
+                              "text-primary-foreground",
+                              isMobile ? "h-7 w-7" : "h-5 w-5"
+                            )} />
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </motion.button>
                   </TooltipTrigger>
-                  <TooltipContent side="left">
-                    <p>סמן כמושלם</p>
+                  <TooltipContent side="left" className="bg-popover/95 backdrop-blur-sm">
+                    <p>{task.completed ? "סמן כלא מושלם" : "סמן כמושלם"}</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
@@ -284,7 +321,7 @@ const TaskItem = ({
             animate={{ opacity: 1, height: "auto", marginTop: 16 }}
             exit={{ opacity: 0, height: 0, marginTop: 0 }}
             transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
-            className="border-t border-border pt-4"
+            className="border-t border-border/50 pt-4"
           >
             <TaskProjectLink
               taskId={task.id}
@@ -302,7 +339,7 @@ const TaskItem = ({
             animate={{ opacity: 1, height: "auto", marginTop: 16 }}
             exit={{ opacity: 0, height: 0, marginTop: 0 }}
             transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
-            className="border-t border-border pt-4"
+            className="border-t border-border/50 pt-4"
           >
             <TaskAttachments
               taskId={task.id}
@@ -321,7 +358,7 @@ const TaskItem = ({
             animate={{ opacity: 1, height: "auto", marginTop: 16 }}
             exit={{ opacity: 0, height: 0, marginTop: 0 }}
             transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
-            className="border-t border-border pt-4"
+            className="border-t border-border/50 pt-4"
           >
             <TaskComments
               taskId={task.id}
