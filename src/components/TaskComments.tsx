@@ -1,12 +1,13 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Trash2, Copy, ExternalLink } from "lucide-react";
+import { Trash2, Copy, ExternalLink, Send, MessageCircle, Clock } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { motion, AnimatePresence } from "framer-motion";
+import { cn } from "@/lib/utils";
 
 interface TaskCommentsProps {
   taskId: string;
@@ -104,15 +105,15 @@ const TaskComments = ({
     return parts.map((part, index) => {
       if (part.match(urlRegex)) {
         return (
-          <span key={index} className="inline-flex items-center gap-1">
+          <span key={index} className="inline-flex items-center gap-1 flex-wrap">
             <a
               href={part}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline hover:no-underline transition-colors inline-flex items-center gap-1"
+              className="text-primary hover:text-primary/80 underline decoration-primary/30 hover:decoration-primary transition-all inline-flex items-center gap-1 break-all"
             >
-              {part}
-              <ExternalLink className="h-3 w-3" />
+              <span className="max-w-[200px] truncate">{part}</span>
+              <ExternalLink className="h-3 w-3 flex-shrink-0" />
             </a>
             <TooltipProvider>
               <Tooltip>
@@ -120,10 +121,10 @@ const TaskComments = ({
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="h-5 w-5 p-0 ml-1 hover:bg-blue-100 dark:hover:bg-blue-900"
+                    className="h-6 w-6 p-0 hover:bg-primary/10 rounded-full"
                     onClick={() => copyToClipboard(part)}
                   >
-                    <Copy className="h-3 w-3" />
+                    <Copy className="h-3 w-3 text-muted-foreground" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
@@ -139,15 +140,9 @@ const TaskComments = ({
   };
 
   const formatComment = (comment: string) => {
-    // Split the comment by newlines
     return comment.split('\n').map((line, index) => {
       const trimmedLine = line.trim();
       
-      // Check for various bullet point formats:
-      // - Standard bullet points (-, *, •)
-      // - Numbered lists (1., 2., etc.)
-      // - Unicode bullet points (•, ‣, ⁃, ⌑, ○, ●, etc.)
-      // - Copy-pasted bullet points from various sources
       if (
         trimmedLine.startsWith('-') || 
         trimmedLine.startsWith('*') || 
@@ -157,66 +152,167 @@ const TaskComments = ({
         trimmedLine.startsWith('●') ||
         trimmedLine.startsWith('‣') ||
         trimmedLine.startsWith('⁃') ||
-        /^\d+\.\s/.test(trimmedLine) // Matches numbered lists
+        /^\d+\.\s/.test(trimmedLine)
       ) {
-        // Remove the bullet point or number and any leading whitespace
         const content = trimmedLine.replace(/^[-*•⌑○●‣⁃]|\d+\.\s/, '').trim();
         return (
-          <li key={index} className="list-disc mr-6">
+          <li key={index} className="list-disc mr-6 text-foreground/90 leading-relaxed">
             {formatTextWithLinks(content)}
           </li>
         );
       }
       return (
-        <p key={index} className="leading-relaxed">
+        <p key={index} className="leading-relaxed text-foreground/90">
           {formatTextWithLinks(trimmedLine)}
         </p>
       );
     });
   };
 
+  const formatTimeAgo = (index: number) => {
+    // Simulate time ago based on index (most recent first would be index 0 from end)
+    const reverseIndex = comments.length - 1 - index;
+    if (reverseIndex === 0) return "עכשיו";
+    if (reverseIndex < 5) return `לפני ${reverseIndex} דקות`;
+    return `תגובה ${index + 1}`;
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+      handleAddComment();
+    }
+  };
+
   return (
     <div className="space-y-4" dir="rtl">
-      <ScrollArea className={`rounded-md border p-4 ${comments.length > 0 ? 'max-h-[40vh] min-h-[100px]' : 'h-[100px]'}`}>
-        {comments.length === 0 ? (
-          <p className="text-gray-500 dark:text-gray-400">אין תגובות עדיין</p>
-        ) : (
-          <div className="space-y-2">
-            {comments.map((comment, index) => (
-              <div
-                key={index}
-                className="bg-purple-50 dark:bg-gray-800 p-2 rounded-lg text-right group relative"
-              >
-                <div className="absolute left-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleDeleteComment(index)}
-                    className="h-6 w-6 text-red-500 hover:text-red-700 hover:bg-red-100 dark:hover:bg-red-900"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-                {formatComment(comment)}
-              </div>
-            ))}
-          </div>
+      {/* Header */}
+      <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+        <MessageCircle className="h-4 w-4 text-primary" />
+        <span>תגובות</span>
+        {comments.length > 0 && (
+          <span className="bg-primary/10 text-primary text-xs px-2 py-0.5 rounded-full font-bold">
+            {comments.length}
+          </span>
         )}
+      </div>
+
+      {/* Comments List */}
+      <ScrollArea className={cn(
+        "rounded-xl border border-border/50 bg-muted/30 backdrop-blur-sm",
+        comments.length > 0 ? 'max-h-[300px] min-h-[120px]' : 'h-[100px]'
+      )}>
+        <div className="p-4">
+          {comments.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-[70px] text-center">
+              <MessageCircle className="h-8 w-8 text-muted-foreground/30 mb-2" />
+              <p className="text-muted-foreground text-sm">אין תגובות עדיין</p>
+              <p className="text-muted-foreground/60 text-xs">הוסף תגובה ראשונה למשימה</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              <AnimatePresence>
+                {comments.map((comment, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, y: 10, scale: 0.98 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, x: 50, scale: 0.95 }}
+                    transition={{ duration: 0.2, delay: index * 0.05 }}
+                    className="group relative"
+                  >
+                    <div className="bg-card/80 backdrop-blur-sm rounded-xl p-4 shadow-sm border border-border/30 hover:border-primary/30 hover:shadow-md transition-all duration-200">
+                      {/* Comment Header */}
+                      <div className="flex items-center justify-between mb-2 gap-2">
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                          <div className="w-6 h-6 rounded-full bg-gradient-to-br from-primary/20 to-primary/40 flex items-center justify-center">
+                            <span className="text-[10px] font-bold text-primary">{index + 1}</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Clock className="h-3 w-3" />
+                            <span>{formatTimeAgo(index)}</span>
+                          </div>
+                        </div>
+                        
+                        {/* Delete Button */}
+                        <motion.div
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          whileHover={{ scale: 1.1 }}
+                          className="opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => handleDeleteComment(index)}
+                                  className="h-7 w-7 text-destructive/70 hover:text-destructive hover:bg-destructive/10 rounded-full"
+                                >
+                                  <Trash2 className="h-3.5 w-3.5" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>מחק תגובה</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        </motion.div>
+                      </div>
+                      
+                      {/* Comment Content */}
+                      <div className="text-sm space-y-1">
+                        {formatComment(comment)}
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </div>
+          )}
+        </div>
       </ScrollArea>
-      <div className="flex gap-2">
-        <Button
-          onClick={handleAddComment}
-          className="bg-purple-600 hover:bg-purple-700"
-        >
-          הוסף
-        </Button>
-        <Textarea
-          value={newComment}
-          onChange={(e) => setNewComment(e.target.value)}
-          placeholder="הוסף תגובה..."
-          className="flex-grow text-right"
-          dir="rtl"
-        />
+
+      {/* Add Comment Form */}
+      <div className="flex gap-2 items-end">
+        <div className="flex-grow relative">
+          <Textarea
+            value={newComment}
+            onChange={(e) => setNewComment(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="הוסף תגובה... (Ctrl+Enter לשליחה)"
+            className="min-h-[80px] resize-none text-right bg-card/50 backdrop-blur-sm border-border/50 focus:border-primary/50 rounded-xl pr-4 pl-4 py-3 text-sm placeholder:text-muted-foreground/50"
+            dir="rtl"
+          />
+          <div className="absolute bottom-2 left-2 text-[10px] text-muted-foreground/50">
+            Ctrl+Enter
+          </div>
+        </div>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <Button
+                  onClick={handleAddComment}
+                  disabled={!newComment.trim()}
+                  className={cn(
+                    "h-[80px] w-12 rounded-xl transition-all duration-200",
+                    newComment.trim() 
+                      ? "bg-gradient-to-br from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg shadow-primary/20" 
+                      : "bg-muted"
+                  )}
+                >
+                  <Send className={cn(
+                    "h-5 w-5 transition-transform",
+                    newComment.trim() && "rotate-180"
+                  )} />
+                </Button>
+              </motion.div>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>שלח תגובה</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </div>
     </div>
   );

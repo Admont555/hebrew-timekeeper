@@ -151,8 +151,9 @@ const TaskItem = ({
         scale: isDragging ? 1.02 : 1.01,
         y: isDragging ? 0 : -2,
       }}
+      dir="rtl"
       className={cn(
-        "flex flex-col gap-5 p-6 relative group overflow-hidden",
+        "flex flex-col gap-5 p-4 sm:p-6 relative group overflow-hidden",
         getTaskCardClass(task.priority, task.completed),
         isDragging ? "cursor-grabbing shadow-2xl z-50" : "cursor-grab"
       )}
@@ -165,12 +166,12 @@ const TaskItem = ({
       {/* Priority indicator dot */}
       <PriorityIndicator />
 
-      {/* Drag handle */}
+      {/* Drag handle - positioned for RTL */}
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
             <motion.div 
-              className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center h-full py-4 opacity-0 group-hover:opacity-60 hover:!opacity-100 transition-all duration-300"
+              className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center h-full py-4 opacity-0 group-hover:opacity-60 hover:!opacity-100 transition-all duration-300"
               whileHover={{ scale: 1.1 }}
             >
               <GripVertical className="h-5 w-5 text-muted-foreground" />
@@ -190,7 +191,7 @@ const TaskItem = ({
             animate={{ opacity: 1, scale: 1, rotateX: 0 }}
             exit={{ opacity: 0, scale: 0.95, rotateX: 10 }}
             transition={{ duration: 0.3, ease: "easeOut" }}
-            className="bg-card/98 backdrop-blur-md p-5 rounded-xl shadow-xl border border-border/50"
+            className="bg-card/98 backdrop-blur-md p-4 sm:p-5 rounded-xl shadow-xl border border-border/50"
           >
             <TaskForm
               onAddTask={handleEditSubmit}
@@ -209,16 +210,18 @@ const TaskItem = ({
             exit={{ opacity: 0 }}
             className="relative z-10"
           >
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div className="flex flex-col items-end gap-2 order-2 sm:order-1 mr-8">
+            {/* Main content - RTL optimized layout */}
+            <div className="flex flex-col gap-4">
+              {/* Top row: Title and Time */}
+              <div className="flex flex-col gap-2 pr-8">
                 <span className={cn(
-                  "task-title text-right transition-all duration-300",
+                  "task-title text-right text-base sm:text-lg transition-all duration-300 leading-relaxed",
                   task.completed && "task-title-completed"
                 )}>
                   {task.title}
                 </span>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-muted-foreground font-medium bg-muted/50 px-2 py-0.5 rounded-md">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-xs sm:text-sm text-muted-foreground font-medium bg-muted/50 px-2 py-0.5 rounded-md">
                     {formatTime(task.timestamp)}
                   </span>
                   {task.completed && (
@@ -233,8 +236,12 @@ const TaskItem = ({
                   )}
                 </div>
               </div>
-              <div className="flex items-center gap-3 order-1 sm:order-2">
-                <TaskPriorityComponent priority={task.priority} />
+              
+              {/* Actions row */}
+              <div className="flex items-center justify-between gap-2 flex-wrap">
+                <div className="flex items-center gap-2">
+                  <TaskPriorityComponent priority={task.priority} />
+                </div>
                 <TaskActions
                   task={task}
                   onDelete={onDeleteTask}
@@ -273,7 +280,7 @@ const TaskItem = ({
                       whileHover={{ scale: 1.05 }}
                       className={cn(
                         "relative flex items-center justify-center rounded-xl border-2 transition-all duration-300 shadow-sm",
-                        isMobile ? "h-12 w-12" : "h-8 w-8",
+                        isMobile ? "h-12 w-12 min-h-[48px] min-w-[48px]" : "h-10 w-10",
                         task.completed 
                           ? "bg-gradient-to-br from-task-complete to-primary border-task-complete shadow-task-complete/30" 
                           : "bg-background/80 border-task-complete/50 hover:border-task-complete hover:shadow-lg hover:shadow-task-complete/20"
@@ -297,7 +304,7 @@ const TaskItem = ({
                       </AnimatePresence>
                     </motion.button>
                   </TooltipTrigger>
-                  <TooltipContent side="left" className="bg-popover/95 backdrop-blur-sm">
+                  <TooltipContent side="right" className="bg-popover/95 backdrop-blur-sm">
                     <p>{task.completed ? "סמן כלא מושלם" : "סמן כמושלם"}</p>
                   </TooltipContent>
                 </Tooltip>
