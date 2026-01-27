@@ -73,7 +73,7 @@ const DateRangeSelector = ({ date, onDateChange }: DateRangeSelectorProps) => {
                   {date ? format(date, dateFormat, { locale: he }) : format(today, dateFormat, { locale: he })}
                 </span>
               </span>
-              <span className="absolute inset-0 rounded-xl bg-gradient-to-r from-purple-500/10 via-transparent to-blue-500/10 opacity-0 hover:opacity-100 transition-opacity duration-300" />
+              
             </Button>
           </PopoverTrigger>
           <PopoverContent 
