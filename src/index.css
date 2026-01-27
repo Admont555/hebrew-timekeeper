@@ -4,166 +4,167 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Core Colors - Light Mode */
+    --background: 240 20% 99%;
+    --foreground: 240 10% 10%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 240 10% 10%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 240 10% 10%;
 
-    --primary: 262 83% 58%;
-    --primary-foreground: 210 40% 98%;
-    --primary-glow: 262 83% 70%;
+    /* Primary - Rich Violet */
+    --primary: 262 80% 55%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 270 75% 65%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Secondary - Soft Lavender */
+    --secondary: 250 30% 95%;
+    --secondary-foreground: 250 25% 25%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    /* Muted - Subtle Gray */
+    --muted: 240 15% 95%;
+    --muted-foreground: 240 10% 45%;
 
-    --accent: 262 83% 96%;
-    --accent-foreground: 262 83% 15%;
+    /* Accent - Vibrant Indigo */
+    --accent: 245 60% 95%;
+    --accent-foreground: 245 60% 30%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    /* Destructive - Warm Red */
+    --destructive: 0 75% 55%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    /* Success - Fresh Green */
+    --success: 152 70% 42%;
+    --success-foreground: 0 0% 100%;
 
-    --radius: 0.5rem;
+    /* Warning - Golden Amber */
+    --warning: 38 95% 50%;
+    --warning-foreground: 38 95% 15%;
 
-    --sidebar-background: 0 0% 98%;
+    /* Info - Sky Blue */
+    --info: 205 85% 55%;
+    --info-foreground: 0 0% 100%;
 
-    --sidebar-foreground: 240 5.3% 26.1%;
+    --border: 240 15% 90%;
+    --input: 240 15% 90%;
+    --ring: 262 80% 55%;
 
-    --sidebar-primary: 240 5.9% 10%;
+    --radius: 0.75rem;
 
-    --sidebar-primary-foreground: 0 0% 98%;
+    /* Sidebar */
+    --sidebar-background: 240 20% 98%;
+    --sidebar-foreground: 240 10% 30%;
+    --sidebar-primary: 262 80% 55%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 250 30% 95%;
+    --sidebar-accent-foreground: 250 25% 25%;
+    --sidebar-border: 240 15% 92%;
+    --sidebar-ring: 262 80% 55%;
 
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* Task Priority Colors - Light Mode */
+    --task-priority-high: 0 75% 55%;
+    --task-priority-high-bg: 0 85% 97%;
+    --task-priority-high-border: 0 70% 85%;
+    
+    --task-priority-normal: 38 90% 50%;
+    --task-priority-normal-bg: 40 90% 97%;
+    --task-priority-normal-border: 40 80% 80%;
+    
+    --task-priority-low: 152 70% 40%;
+    --task-priority-low-bg: 150 70% 97%;
+    --task-priority-low-border: 150 60% 78%;
+    
+    /* Task Completion Colors - Light Mode */
+    --task-complete: 262 75% 55%;
+    --task-complete-hover: 262 80% 62%;
+    --task-complete-bg: 262 80% 97%;
+    
+    /* Glass Effect Colors */
+    --glass-bg: 0 0% 100% / 0.85;
+    --glass-border: 0 0% 100% / 0.3;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    /* Core Colors - Dark Mode */
+    --background: 240 15% 8%;
+    --foreground: 0 0% 95%;
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --card: 240 15% 11%;
+    --card-foreground: 0 0% 95%;
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 240 15% 11%;
+    --popover-foreground: 0 0% 95%;
 
-    --primary: 262 83% 75%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --primary-glow: 262 83% 85%;
+    /* Primary - Bright Violet */
+    --primary: 262 75% 70%;
+    --primary-foreground: 240 15% 8%;
+    --primary-glow: 270 70% 78%;
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    /* Secondary - Deep Slate */
+    --secondary: 240 12% 18%;
+    --secondary-foreground: 0 0% 90%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    /* Muted - Dark Slate */
+    --muted: 240 12% 16%;
+    --muted-foreground: 240 10% 60%;
 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    /* Accent - Rich Indigo */
+    --accent: 245 40% 20%;
+    --accent-foreground: 245 60% 85%;
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    /* Destructive - Soft Red */
+    --destructive: 0 65% 50%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
-    
-    /* Task Priority Colors */
-    --task-priority-high: 0 84% 60%;
-    --task-priority-high-bg: 0 100% 97%;
-    --task-priority-high-border: 0 79% 86%;
-    
-    --task-priority-normal: 45 93% 47%;
-    --task-priority-normal-bg: 48 100% 96%;
-    --task-priority-normal-border: 48 96% 89%;
-    
-    --task-priority-low: 142 76% 36%;
-    --task-priority-low-bg: 138 76% 97%;
-    --task-priority-low-border: 142 77% 73%;
-    
-    /* Task Completion Colors */
-    --task-complete: 262 83% 58%;
-    --task-complete-hover: 262 83% 65%;
-    --task-complete-bg: 262 90% 97%;
-  }
+    /* Success - Soft Green */
+    --success: 152 60% 48%;
+    --success-foreground: 0 0% 100%;
 
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    /* Warning - Warm Amber */
+    --warning: 38 85% 55%;
+    --warning-foreground: 38 95% 10%;
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    /* Info - Bright Blue */
+    --info: 205 80% 60%;
+    --info-foreground: 0 0% 100%;
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --border: 240 12% 20%;
+    --input: 240 12% 20%;
+    --ring: 262 75% 70%;
 
-    --primary: 262 83% 75%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --primary-glow: 262 83% 85%;
-
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* Sidebar - Dark Mode */
+    --sidebar-background: 240 15% 10%;
+    --sidebar-foreground: 0 0% 90%;
+    --sidebar-primary: 262 75% 70%;
+    --sidebar-primary-foreground: 240 15% 8%;
+    --sidebar-accent: 245 40% 18%;
+    --sidebar-accent-foreground: 245 60% 85%;
+    --sidebar-border: 240 12% 18%;
+    --sidebar-ring: 262 75% 70%;
     
     /* Task Priority Colors - Dark Mode */
-    --task-priority-high: 0 84% 60%;
-    --task-priority-high-bg: 0 90% 15%;
-    --task-priority-high-border: 0 79% 35%;
+    --task-priority-high: 0 70% 58%;
+    --task-priority-high-bg: 0 50% 12%;
+    --task-priority-high-border: 0 60% 35%;
     
-    --task-priority-normal: 48 96% 53%;
-    --task-priority-normal-bg: 48 90% 15%;
-    --task-priority-normal-border: 48 90% 40%;
+    --task-priority-normal: 40 85% 55%;
+    --task-priority-normal-bg: 40 50% 12%;
+    --task-priority-normal-border: 40 70% 38%;
     
-    --task-priority-low: 142 71% 45%;
-    --task-priority-low-bg: 142 76% 15%;
-    --task-priority-low-border: 142 77% 35%;
+    --task-priority-low: 152 60% 50%;
+    --task-priority-low-bg: 152 50% 12%;
+    --task-priority-low-border: 152 50% 35%;
     
     /* Task Completion Colors - Dark Mode */
-    --task-complete: 262 83% 75%;
-    --task-complete-hover: 262 83% 80%;
-    --task-complete-bg: 262 90% 15%;
+    --task-complete: 262 70% 72%;
+    --task-complete-hover: 262 75% 78%;
+    --task-complete-bg: 262 60% 15%;
+    
+    /* Glass Effect Colors - Dark Mode */
+    --glass-bg: 240 15% 12% / 0.9;
+    --glass-border: 0 0% 100% / 0.1;
   }
 }
 
@@ -435,17 +436,17 @@
     z-index: 1000;
   }
 
-  /* Beautiful gradients for various elements */
+  /* Enhanced Gradients */
   .bg-gradient-subtle {
-    @apply bg-gradient-to-br from-white to-purple-50 dark:from-gray-800 dark:to-gray-900;
+    @apply bg-gradient-to-br from-background via-secondary/30 to-accent/20;
   }
   
   .bg-gradient-task {
-    @apply bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20;
+    @apply bg-gradient-to-r from-primary/5 via-accent/10 to-secondary/5;
   }
   
   .bg-gradient-header {
-    @apply bg-gradient-to-r from-purple-100 to-indigo-100 dark:from-purple-900/40 dark:to-indigo-900/40;
+    @apply bg-gradient-to-r from-primary/10 via-accent/15 to-primary/5;
   }
   
   .bg-gradient-primary {
@@ -456,14 +457,43 @@
     @apply bg-gradient-to-br from-primary via-accent to-secondary;
   }
   
-  /* Card with shadow that looks good in both light and dark mode */
-  .card-with-shadow {
-    @apply bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300;
+  .bg-gradient-glow {
+    @apply bg-gradient-to-br from-primary/20 via-transparent to-primary-glow/20;
   }
   
-  /* Text with gradient for headers */
+  /* Glass Effect - Modern Glassmorphism */
+  .glass {
+    @apply backdrop-blur-md bg-card/80 border border-border/50 shadow-lg;
+  }
+  
+  .glass-dark {
+    @apply backdrop-blur-md bg-card/90 border border-border/60 shadow-xl;
+  }
+  
+  .glass-subtle {
+    @apply backdrop-blur-sm bg-card/70 border border-border/30;
+  }
+  
+  /* Enhanced Card Styles */
+  .card-with-shadow {
+    @apply bg-card rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border border-border/50;
+  }
+  
+  .card-elevated {
+    @apply bg-card rounded-2xl shadow-xl border border-border/30;
+  }
+  
+  .card-interactive {
+    @apply bg-card rounded-2xl shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 border border-border/50;
+  }
+  
+  /* Text Gradient */
   .text-gradient {
-    @apply bg-gradient-to-r from-purple-800 to-indigo-700 dark:from-purple-300 dark:to-indigo-400 bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-primary via-primary-glow to-primary bg-clip-text text-transparent;
+  }
+  
+  .text-gradient-vibrant {
+    @apply bg-gradient-to-r from-primary to-info bg-clip-text text-transparent;
   }
   
   /* Team member card hover effect */
@@ -471,14 +501,13 @@
     @apply transition-all duration-300 transform hover:-translate-y-2 hover:shadow-xl;
   }
   
-  /* Glass effect for cards */
-  .glass-effect {
-    @apply backdrop-blur-sm bg-white/80 dark:bg-gray-800/80 border border-white/20 dark:border-gray-700/20;
-  }
-  
   /* Soft shadow for cards and elements */
   .soft-shadow {
-    @apply shadow-[0_8px_30px_rgb(0,0,0,0.05)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)];
+    @apply shadow-[0_4px_20px_hsl(var(--primary)/0.08)] dark:shadow-[0_4px_20px_hsl(var(--primary)/0.15)];
+  }
+  
+  .soft-shadow-lg {
+    @apply shadow-[0_8px_40px_hsl(var(--primary)/0.1)] dark:shadow-[0_8px_40px_hsl(var(--primary)/0.2)];
   }
   
   /* Task-specific utility classes */
