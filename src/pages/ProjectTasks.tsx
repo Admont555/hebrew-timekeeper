@@ -62,7 +62,7 @@ const ProjectTasks = () => {
         duration: task.duration || 0,
         startTime: task.start_time,
         comments: task.comments || [],
-        attachments: (task.attachments || []).map((att: any) => ({
+        attachments: (Array.isArray(task.attachments) ? task.attachments : []).map((att: any) => ({
           id: att.id || '',
           name: att.name || '',
           url: att.url || '',

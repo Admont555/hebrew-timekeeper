@@ -103,7 +103,7 @@ const Index = () => {
           tasksByDate[dateKey] = [];
         }
 
-        const transformedAttachments = task.attachments?.map((attachment: any) => ({
+        const transformedAttachments = (Array.isArray(task.attachments) ? task.attachments : []).map((attachment: any) => ({
           id: attachment.id || crypto.randomUUID(),
           name: attachment.name || '',
           url: attachment.url || '',

@@ -48,7 +48,7 @@ const TimeTracking = () => {
 
   // Real-time timer update
   useEffect(() => {
-    let interval: NodeJS.Timeout;
+    let interval: ReturnType<typeof setInterval>;
     
     if (activeTaskId && startTime && !isBreakTime) {
       interval = setInterval(() => {
