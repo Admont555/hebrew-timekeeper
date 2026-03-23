@@ -147,6 +147,73 @@ export type Database = {
         }
         Relationships: []
       }
+      table_columns: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          order_index: number | null
+          table_id: string
+          type: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          order_index?: number | null
+          table_id: string
+          type?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          order_index?: number | null
+          table_id?: string
+          type?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "table_columns_table_id_fkey"
+            columns: ["table_id"]
+            isOneToOne: false
+            referencedRelation: "tables"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      table_rows: {
+        Row: {
+          created_at: string
+          data: Json | null
+          id: string
+          table_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          data?: Json | null
+          id?: string
+          table_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          data?: Json | null
+          id?: string
+          table_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "table_rows_table_id_fkey"
+            columns: ["table_id"]
+            isOneToOne: false
+            referencedRelation: "tables"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tables: {
         Row: {
           created_at: string
@@ -288,6 +355,39 @@ export type Database = {
           name?: string
           updated_at?: string
           worker_id?: string
+        }
+        Relationships: []
+      }
+      time_logs: {
+        Row: {
+          created_at: string
+          description: string | null
+          duration: number | null
+          end_time: string | null
+          id: string
+          start_time: string
+          task_id: string | null
+          worker: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          duration?: number | null
+          end_time?: string | null
+          id?: string
+          start_time?: string
+          task_id?: string | null
+          worker: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          duration?: number | null
+          end_time?: string | null
+          id?: string
+          start_time?: string
+          task_id?: string | null
+          worker?: string
         }
         Relationships: []
       }
