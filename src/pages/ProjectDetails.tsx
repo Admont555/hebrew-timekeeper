@@ -85,7 +85,7 @@ const ProjectDetails = () => {
         ...task,
         progress: 0, // Default value since this column doesn't exist in database
         dependencies: [], // Default value since this column doesn't exist in database
-        attachments: (task.attachments || []).map((att: any) => ({
+        attachments: (Array.isArray(task.attachments) ? task.attachments : []).map((att: any) => ({
           id: att.id || crypto.randomUUID(),
           name: att.name || '',
           url: att.url || '',
