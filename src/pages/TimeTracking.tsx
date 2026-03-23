@@ -71,22 +71,28 @@ const TimeTracking = () => {
       
       const { data, error } = await supabase
         .from('time_logs')
-        .select(`
-          *,
-          tasks:task_id (
-            id,
-            title,
-            project_id,
-            completed,
-            priority
-          )
-        `)
+        .select('*')
         .gte('start_time', startOfToday.toISOString())
         .lte('start_time', endOfToday.toISOString())
         .order('start_time', { ascending: false });
 
       if (error) throw error;
-      return data as TimeLog[];
+      
+      // Fetch related tasks separately
+      const taskIds = data?.map(log => log.task_id).filter(Boolean) || [];
+      let tasksMap: Record<string, any> = {};
+      if (taskIds.length > 0) {
+        const { data: tasksData } = await supabase
+          .from('tasks')
+          .select('id, title, project_id, completed, priority')
+          .in('id', taskIds);
+        tasksData?.forEach(t => { tasksMap[t.id] = t; });
+      }
+      
+      return (data || []).map(log => ({
+        ...log,
+        tasks: log.task_id ? tasksMap[log.task_id] || null : null,
+      })) as unknown as TimeLog[];
     },
   });
 
