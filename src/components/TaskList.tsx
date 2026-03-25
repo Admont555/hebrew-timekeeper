@@ -14,7 +14,7 @@ interface TaskListProps {
   onToggleTask: (taskId: string) => void;
   onTaskComplete: (taskId: string) => void;
   onDeleteTask: (taskId: string) => void;
-  onEditTask: (taskId: string, newTitle: string, newDuration: number, newPriority: TaskPriority) => void;
+  onEditTask: (taskId: string, newTitle: string, newDuration: number, newPriority: TaskPriority, categoryId?: string) => void;
   onDeleteAllTasksForDate?: (date: string) => void;
   onReorderTasks?: (date: string, tasks: Task[]) => void;
   onUpdateTaskDependencies?: (taskId: string, dependencies: string[]) => void;
