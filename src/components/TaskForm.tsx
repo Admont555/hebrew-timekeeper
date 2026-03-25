@@ -53,6 +53,10 @@ const TaskForm = ({
   const [priority, setPriority] = useState<TaskPriority>(initialPriority);
   const [categoryId, setCategoryId] = useState(initialCategoryId);
   const [expanded, setExpanded] = useState(isOpen);
+  const [showQuickCreate, setShowQuickCreate] = useState(false);
+  const [newCatName, setNewCatName] = useState("");
+  const [newCatColor, setNewCatColor] = useState(QUICK_COLORS[0]);
+  const [newCatIcon, setNewCatIcon] = useState(QUICK_ICONS[0]);
   const titleInputRef = useRef<HTMLInputElement>(null);
   const isMobile = useIsMobile();
   
