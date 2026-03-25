@@ -41,6 +41,7 @@ const TaskForm = ({
   onCancel,
   isOpen = false,
   onOpenChange,
+  onManageCategories,
 }: TaskFormProps) => {
   const [title, setTitle] = useState(initialTitle);
   const [duration, setDuration] = useState(initialDuration);
