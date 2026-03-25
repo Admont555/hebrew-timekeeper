@@ -182,29 +182,55 @@ const TaskForm = ({
 
               {/* Category selector */}
               <div className="space-y-2">
-                <Label className="text-right font-medium text-foreground/80">
-                  קטגוריה
-                </Label>
-                <div className="flex flex-wrap gap-2">
-                  {TASK_CATEGORIES.map((cat) => (
-                    <motion.button
-                      key={cat.id}
+                <div className="flex items-center justify-between">
+                  <Label className="text-right font-medium text-foreground/80">
+                    קטגוריה
+                  </Label>
+                  {onManageCategories && (
+                    <button
                       type="button"
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={() => setCategoryId(categoryId === cat.id ? "" : cat.id)}
-                      className={cn(
-                        "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-200 border",
-                        categoryId === cat.id
-                          ? "bg-primary text-primary-foreground border-primary shadow-md shadow-primary/20"
-                          : "bg-muted/50 text-muted-foreground border-border/50 hover:bg-accent hover:text-accent-foreground"
-                      )}
+                      onClick={onManageCategories}
+                      className="text-xs text-primary hover:underline"
                     >
-                      <span>{cat.icon}</span>
-                      <span>{cat.label}</span>
-                    </motion.button>
-                  ))}
+                      נהל קטגוריות
+                    </button>
+                  )}
                 </div>
+                {categories.length > 0 ? (
+                  <div className="flex flex-wrap gap-2">
+                    {categories.map((cat) => (
+                      <motion.button
+                        key={cat.id}
+                        type="button"
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => setCategoryId(categoryId === cat.id ? "" : cat.id)}
+                        className={cn(
+                          "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-200 border",
+                          categoryId === cat.id
+                            ? "border-2 shadow-md"
+                            : "bg-muted/50 text-muted-foreground border-border/50 hover:bg-accent hover:text-accent-foreground"
+                        )}
+                        style={categoryId === cat.id ? { 
+                          backgroundColor: cat.color + "20", 
+                          borderColor: cat.color, 
+                          color: cat.color 
+                        } : undefined}
+                      >
+                        <span>{cat.icon}</span>
+                        <span>{cat.name}</span>
+                      </motion.button>
+                    ))}
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={onManageCategories}
+                    className="text-sm text-muted-foreground hover:text-primary transition-colors py-2"
+                  >
+                    + צור את הקטגוריה הראשונה שלך
+                  </button>
+                )}
               </div>
               
               <div className="grid grid-cols-2 gap-4">
