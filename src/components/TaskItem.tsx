@@ -38,8 +38,9 @@ const TaskItem = ({
   const [isEditing, setIsEditing] = useState(false);
   const isMobile = useIsMobile();
   const [isDragging, setIsDragging] = useState(false);
+  const { categories } = useCategories(task.worker);
 
-  const category = getCategoryById(task.category_id);
+  const category = categories.find(c => c.id === task.category_id);
 
   const formatTime = (timestamp: string) => {
     return new Date(timestamp).toLocaleTimeString("he-IL", {
