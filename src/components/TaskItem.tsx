@@ -135,6 +135,7 @@ const TaskItem = ({
           >
             <TaskForm
               onAddTask={handleEditSubmit}
+              categories={categories}
               initialTitle={task.title}
               initialDuration={task.duration || 0}
               initialPriority={task.priority || "normal"}
