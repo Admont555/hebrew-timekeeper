@@ -471,15 +471,25 @@
   
   /* Glass Effect - Modern Glassmorphism */
   .glass {
-    @apply backdrop-blur-md bg-card/80 border border-border/50 shadow-lg;
+    @apply backdrop-blur-xl bg-card/75 border border-border/40 shadow-lg;
+  }
+
+  .dark .glass {
+    background: linear-gradient(135deg, 
+      hsl(225 20% 10% / 0.85), 
+      hsl(260 15% 12% / 0.75));
+    border-color: hsl(262 50% 60% / 0.1);
+    box-shadow: 0 8px 32px hsl(262 50% 20% / 0.15), 
+                0 2px 8px hsl(0 0% 0% / 0.2),
+                inset 0 1px 0 hsl(0 0% 100% / 0.03);
   }
   
   .glass-dark {
-    @apply backdrop-blur-md bg-card/90 border border-border/60 shadow-xl;
+    @apply backdrop-blur-xl bg-card/90 border border-border/50 shadow-xl;
   }
   
   .glass-subtle {
-    @apply backdrop-blur-sm bg-card/70 border border-border/30;
+    @apply backdrop-blur-sm bg-card/60 border border-border/20;
   }
   
   /* Enhanced Card Styles */
