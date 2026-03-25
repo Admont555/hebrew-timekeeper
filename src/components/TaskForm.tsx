@@ -45,7 +45,12 @@ const TaskForm = ({
   
   useEffect(() => {
     setExpanded(isOpen);
-  }, [isOpen]);
+    if (isOpen) {
+      setTitle(initialTitle);
+      setDuration(initialDuration);
+      setPriority(initialPriority);
+    }
+  }, [isOpen, initialTitle, initialDuration, initialPriority]);
   
   useEffect(() => {
     if (onOpenChange) {

@@ -200,6 +200,8 @@ const TaskItem = ({
               initialPriority={task.priority || "normal"}
               submitLabel="עדכן"
               onCancel={handleEditCancel}
+              isOpen={true}
+              onOpenChange={(open) => { if (!open) setIsEditing(false); }}
             />
           </motion.div>
         ) : (
