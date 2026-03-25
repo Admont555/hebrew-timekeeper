@@ -168,7 +168,7 @@ const TaskActions = ({
                 </motion.div>
               </DropdownMenuTrigger>
             </TooltipTrigger>
-            <TooltipContent side="bottom">
+            <TooltipContent side="top" align="center" avoidCollisions={true} collisionPadding={8}>
               <p>אפשרויות נוספות</p>
             </TooltipContent>
           </Tooltip>
