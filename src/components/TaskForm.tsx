@@ -18,6 +18,7 @@ import { Category } from "@/hooks/useCategories";
 
 interface TaskFormProps {
   onAddTask: (title: string, duration: number, priority: TaskPriority, categoryId?: string) => void;
+  categories?: Category[];
   initialTitle?: string;
   initialDuration?: number;
   initialPriority?: TaskPriority;
@@ -26,6 +27,7 @@ interface TaskFormProps {
   onCancel?: () => void;
   isOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
+  onManageCategories?: () => void;
 }
 
 const TaskForm = ({ 
