@@ -319,9 +319,7 @@ const TaskListContent = ({
                             onTaskComplete={onTaskComplete}
                             onDeleteTask={onDeleteTask}
                             onEdit={onEditTask}
-                            onUpdateDependencies={onUpdateTaskDependencies}
                             onUpdateProgress={onUpdateTaskProgress}
-                            onUpdateProject={onUpdateTaskProject}
                           />
                         </Reorder.Item>
                       ))}
