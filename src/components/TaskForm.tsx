@@ -32,6 +32,7 @@ interface TaskFormProps {
 
 const TaskForm = ({ 
   onAddTask, 
+  categories = [],
   initialTitle = "", 
   initialDuration = 0, 
   initialPriority = "normal",
