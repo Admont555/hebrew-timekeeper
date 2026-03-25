@@ -89,7 +89,7 @@ const TaskActions = ({
               </Button>
             </motion.div>
           </TooltipTrigger>
-          <TooltipContent side="bottom">
+          <TooltipContent side="top" align="center" avoidCollisions={true} collisionPadding={8}>
             <p>קבצים מצורפים {hasAttachments ? `(${task.attachments!.length})` : ''}</p>
           </TooltipContent>
         </Tooltip>
@@ -126,7 +126,7 @@ const TaskActions = ({
               </Button>
             </motion.div>
           </TooltipTrigger>
-          <TooltipContent side="bottom">
+          <TooltipContent side="top" align="center" avoidCollisions={true} collisionPadding={8}>
             <p>תגובות {hasComments ? `(${task.comments!.length})` : ''}</p>
           </TooltipContent>
         </Tooltip>
@@ -146,7 +146,7 @@ const TaskActions = ({
               </Button>
             </motion.div>
           </TooltipTrigger>
-          <TooltipContent side="bottom">
+          <TooltipContent side="top" align="center" avoidCollisions={true} collisionPadding={8}>
             <p>עריכת משימה</p>
           </TooltipContent>
         </Tooltip>
@@ -168,7 +168,7 @@ const TaskActions = ({
                 </motion.div>
               </DropdownMenuTrigger>
             </TooltipTrigger>
-            <TooltipContent side="bottom">
+            <TooltipContent side="top" align="center" avoidCollisions={true} collisionPadding={8}>
               <p>אפשרויות נוספות</p>
             </TooltipContent>
           </Tooltip>

@@ -211,7 +211,7 @@ const TaskItem = ({
                       </AnimatePresence>
                     </motion.button>
                   </TooltipTrigger>
-                  <TooltipContent side="right" className="bg-popover/95 backdrop-blur-sm">
+                  <TooltipContent side="top" align="center" avoidCollisions={true} collisionPadding={8}>
                     <p>{task.completed ? "סמן כלא מושלם" : "סמן כמושלם"}</p>
                   </TooltipContent>
                 </Tooltip>
