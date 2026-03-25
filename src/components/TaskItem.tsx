@@ -12,7 +12,7 @@ import TaskForm from "./TaskForm";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
-import { getCategoryById } from "@/constants/categories";
+import { useCategories, Category } from "@/hooks/useCategories";
 
 interface TaskItemProps {
   task: Task;
