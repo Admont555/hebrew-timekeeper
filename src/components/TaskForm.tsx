@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { TaskPriority } from "@/types/task";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, Plus, X, Sparkles } from "lucide-react";
+import { Check, Plus, X, Sparkles, FolderPlus } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -16,6 +16,9 @@ import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Category } from "@/hooks/useCategories";
 
+const QUICK_COLORS = ["#6366f1", "#ec4899", "#22c55e", "#f97316", "#3b82f6", "#8b5cf6"];
+const QUICK_ICONS = ["📁", "🏢", "💼", "🎨", "🛒", "💡"];
+
 interface TaskFormProps {
   onAddTask: (title: string, duration: number, priority: TaskPriority, categoryId?: string) => void;
   categories?: Category[];
@@ -28,6 +31,7 @@ interface TaskFormProps {
   isOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
   onManageCategories?: () => void;
+  onQuickAddCategory?: (name: string, color: string, icon: string) => void;
 }
 
 const TaskForm = ({ 
@@ -42,12 +46,17 @@ const TaskForm = ({
   isOpen = false,
   onOpenChange,
   onManageCategories,
+  onQuickAddCategory,
 }: TaskFormProps) => {
   const [title, setTitle] = useState(initialTitle);
   const [duration, setDuration] = useState(initialDuration);
   const [priority, setPriority] = useState<TaskPriority>(initialPriority);
   const [categoryId, setCategoryId] = useState(initialCategoryId);
   const [expanded, setExpanded] = useState(isOpen);
+  const [showQuickCreate, setShowQuickCreate] = useState(false);
+  const [newCatName, setNewCatName] = useState("");
+  const [newCatColor, setNewCatColor] = useState(QUICK_COLORS[0]);
+  const [newCatIcon, setNewCatIcon] = useState(QUICK_ICONS[0]);
   const titleInputRef = useRef<HTMLInputElement>(null);
   const isMobile = useIsMobile();
   
@@ -185,16 +194,117 @@ const TaskForm = ({
                   <Label className="text-right font-medium text-foreground/80">
                     קטגוריה
                   </Label>
-                  {onManageCategories && (
-                    <button
-                      type="button"
-                      onClick={onManageCategories}
-                      className="text-xs text-primary hover:underline"
-                    >
-                      נהל קטגוריות
-                    </button>
-                  )}
+                  <div className="flex items-center gap-2">
+                    {onQuickAddCategory && (
+                      <button
+                        type="button"
+                        onClick={() => setShowQuickCreate(!showQuickCreate)}
+                        className="text-xs text-primary hover:underline flex items-center gap-1"
+                      >
+                        <FolderPlus className="h-3 w-3" />
+                        צור חדשה
+                      </button>
+                    )}
+                    {onManageCategories && (
+                      <button
+                        type="button"
+                        onClick={onManageCategories}
+                        className="text-xs text-muted-foreground hover:text-primary hover:underline"
+                      >
+                        נהל
+                      </button>
+                    )}
+                  </div>
                 </div>
+
+                {/* Quick create inline */}
+                <AnimatePresence>
+                  {showQuickCreate && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="rounded-xl border-2 border-dashed border-primary/30 bg-primary/5 p-3 space-y-2">
+                        <Input
+                          value={newCatName}
+                          onChange={(e) => setNewCatName(e.target.value)}
+                          placeholder="שם הקטגוריה..."
+                          className="h-9 text-sm text-right border-border/50 rounded-lg bg-background/80"
+                          style={{ textAlign: "right", direction: "rtl" }}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                              e.preventDefault();
+                              if (newCatName.trim() && onQuickAddCategory) {
+                                onQuickAddCategory(newCatName.trim(), newCatColor, newCatIcon);
+                                setNewCatName("");
+                                setShowQuickCreate(false);
+                              }
+                            }
+                          }}
+                        />
+                        <div className="flex items-center gap-1.5">
+                          {QUICK_COLORS.map((c) => (
+                            <button
+                              key={c}
+                              type="button"
+                              onClick={() => setNewCatColor(c)}
+                              className={cn(
+                                "w-6 h-6 rounded-full transition-all border-2",
+                                newCatColor === c ? "border-foreground scale-110" : "border-transparent hover:scale-105"
+                              )}
+                              style={{ backgroundColor: c }}
+                            />
+                          ))}
+                        </div>
+                        <div className="flex items-center gap-1">
+                          {QUICK_ICONS.map((i) => (
+                            <button
+                              key={i}
+                              type="button"
+                              onClick={() => setNewCatIcon(i)}
+                              className={cn(
+                                "w-7 h-7 rounded-md flex items-center justify-center text-sm border-2",
+                                newCatIcon === i ? "border-primary bg-primary/10" : "border-transparent hover:bg-muted"
+                              )}
+                            >
+                              {i}
+                            </button>
+                          ))}
+                        </div>
+                        <div className="flex gap-2">
+                          <Button
+                            type="button"
+                            size="sm"
+                            disabled={!newCatName.trim()}
+                            onClick={() => {
+                              if (newCatName.trim() && onQuickAddCategory) {
+                                onQuickAddCategory(newCatName.trim(), newCatColor, newCatIcon);
+                                setNewCatName("");
+                                setShowQuickCreate(false);
+                              }
+                            }}
+                            className="rounded-lg gap-1 h-8 text-xs"
+                          >
+                            <Check className="h-3 w-3" />
+                            צור
+                          </Button>
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => setShowQuickCreate(false)}
+                            className="rounded-lg h-8 text-xs"
+                          >
+                            ביטול
+                          </Button>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
                 {categories.length > 0 ? (
                   <div className="flex flex-wrap gap-2">
                     {categories.map((cat) => (
@@ -221,15 +331,16 @@ const TaskForm = ({
                       </motion.button>
                     ))}
                   </div>
-                ) : (
+                ) : !showQuickCreate ? (
                   <button
                     type="button"
-                    onClick={onManageCategories}
-                    className="text-sm text-muted-foreground hover:text-primary transition-colors py-2"
+                    onClick={() => onQuickAddCategory ? setShowQuickCreate(true) : onManageCategories?.()}
+                    className="text-sm text-muted-foreground hover:text-primary transition-colors py-2 flex items-center gap-1.5"
                   >
-                    + צור את הקטגוריה הראשונה שלך
+                    <FolderPlus className="h-4 w-4" />
+                    צור את הקטגוריה הראשונה שלך
                   </button>
-                )}
+                ) : null}
               </div>
               
               <div className="grid grid-cols-2 gap-4">

@@ -42,7 +42,7 @@ const Index = () => {
     toggleTaskMutation, updateTaskProgressMutation,
     reorderTasksMutation
   } = useTaskMutations();
-  const { categories } = useCategories(workerId);
+  const { categories, addCategory } = useCategories(workerId);
 
   if (!workerId) return <Navigate to="/" replace />;
 
@@ -231,6 +231,7 @@ const Index = () => {
               isOpen={isAddingTask}
               onOpenChange={setIsAddingTask}
               onManageCategories={() => navigate(`/member/${workerId}/categories`)}
+              onQuickAddCategory={(name, color, icon) => addCategory.mutate({ name, color, icon })}
             />
           </motion.div>
 
