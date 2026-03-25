@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { TASK_CATEGORIES } from "@/constants/categories";
+import { Category } from "@/hooks/useCategories";
 
 interface TaskFormProps {
   onAddTask: (title: string, duration: number, priority: TaskPriority, categoryId?: string) => void;
