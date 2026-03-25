@@ -146,7 +146,7 @@ const TaskActions = ({
               </Button>
             </motion.div>
           </TooltipTrigger>
-          <TooltipContent side="bottom">
+          <TooltipContent side="top" align="center" avoidCollisions={true} collisionPadding={8}>
             <p>עריכת משימה</p>
           </TooltipContent>
         </Tooltip>
