@@ -5,7 +5,7 @@ import DuplicateResolver from "@/components/team/DuplicateResolver";
 import { Users, Edit2, BarChart, ListChecks, AlertTriangle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { NavMenu } from "@/components/NavMenu";
 import { Card } from "@/components/ui/card";
@@ -19,7 +19,7 @@ const TeamMembers = () => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [showDuplicateResolver, setShowDuplicateResolver] = useState(false);
   const isMobile = useIsMobile();
-  const { currentWorker, hasEditPermission } = useWorkerState();
+  const { currentWorker, setCurrentWorker, hasEditPermission } = useWorkerState();
   const { toast } = useToast();
   
   const { data: teamMembers = [], refetch } = useQuery({
@@ -56,14 +56,21 @@ const TeamMembers = () => {
     ? Math.round((tasksStats.completed / tasksStats.total) * 100) 
     : 0;
 
-  const handleSetCurrentWorker = (workerId: string) => {
-    // This function could be implemented to allow a user to switch their active worker identity
-    // For now, we'll show a toast explaining this isn't allowed
-    toast({
-      title: "מידע",
-      description: "כדי לערוך או לנהל פרטים של עובד אחר, התחבר עם החשבון שלו.",
-    });
-  };
+  useEffect(() => {
+    if (!teamMembers.length) return;
+
+    const hasValidCurrentWorker = teamMembers.some(
+      (member) => member.worker_id === currentWorker
+    );
+
+    if (!hasValidCurrentWorker) {
+      setCurrentWorker(teamMembers[0].worker_id);
+      toast({
+        title: "חשבון ברירת מחדל שוחזר",
+        description: "בחרנו עבורך משתמש קיים כדי שתוכל להמשיך לערוך ולעבוד רגיל.",
+      });
+    }
+  }, [teamMembers, currentWorker, setCurrentWorker, toast]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50/80 via-white to-purple-50/80 dark:from-gray-900 dark:via-gray-800/90 dark:to-gray-900">
