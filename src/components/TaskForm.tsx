@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { TaskPriority } from "@/types/task";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, Plus, X, Sparkles } from "lucide-react";
+import { Check, Plus, X, Sparkles, FolderPlus } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
