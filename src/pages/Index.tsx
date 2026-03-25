@@ -17,7 +17,7 @@ import { useCategories } from "@/hooks/useCategories";
 import { useTaskShortcuts } from "@/hooks/useTaskShortcuts";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Moon, Sun } from "lucide-react";
+import { ArrowRight, Moon, Sun, FolderOpen } from "lucide-react";
 import TaskForm from "@/components/TaskForm";
 import TaskList from "@/components/TaskList";
 import DateRangeSelector, { ViewMode } from "@/components/task/DateRangeSelector";
