@@ -197,9 +197,8 @@ const Index = () => {
             />
           </motion.div>
           
-          <div className="grid gap-5 mt-5">
+          <div className="mt-5">
             <TaskStats tasksByDate={tasksByDate} />
-            <TaskAnalytics tasksByDate={tasksByDate} />
           </div>
         </div>
         <Toaster />
