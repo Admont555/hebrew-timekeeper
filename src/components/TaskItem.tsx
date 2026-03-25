@@ -104,8 +104,8 @@ const TaskItem = ({
       transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
       whileHover={{ scale: isDragging ? 1.02 : 1.01, y: isDragging ? 0 : -2 }}
       dir="rtl"
-      className={cn(
-        "flex flex-col gap-5 p-4 sm:p-6 relative group overflow-hidden",
+       className={cn(
+        "flex flex-col gap-3 p-4 sm:p-5 relative group overflow-hidden",
         getTaskCardClass(task.priority, task.completed),
         isDragging ? "cursor-grabbing shadow-2xl z-50" : "cursor-grab"
       )}
