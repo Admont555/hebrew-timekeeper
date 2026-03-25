@@ -30,9 +30,7 @@ interface TaskListContentProps {
   onEditTask: (task: Task) => void;
   onDeleteAllTasksForDate?: (date: string) => void;
   onReorderTasks?: (date: string, tasks: Task[]) => void;
-  onUpdateTaskDependencies?: (taskId: string, dependencies: string[]) => void;
   onUpdateTaskProgress?: (taskId: string, progress: number) => void;
-  onUpdateTaskProject?: (taskId: string, projectId: string | null) => void;
 }
 
 const TaskListContent = ({
