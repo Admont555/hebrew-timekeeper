@@ -46,6 +46,7 @@ const TaskForm = ({
   isOpen = false,
   onOpenChange,
   onManageCategories,
+  onQuickAddCategory,
 }: TaskFormProps) => {
   const [title, setTitle] = useState(initialTitle);
   const [duration, setDuration] = useState(initialDuration);
