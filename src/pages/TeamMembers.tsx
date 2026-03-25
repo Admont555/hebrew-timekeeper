@@ -1,8 +1,7 @@
 import { motion } from "framer-motion";
 import TeamMemberCard from "@/components/team/TeamMemberCard";
 import TeamMemberManager from "@/components/team/TeamMemberManager";
-import DuplicateResolver from "@/components/team/DuplicateResolver";
-import { Users, Edit2, BarChart, ListChecks, AlertTriangle } from "lucide-react";
+import { Users, Edit2, BarChart, ListChecks } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
@@ -17,7 +16,6 @@ import { useToast } from "@/hooks/use-toast";
 
 const TeamMembers = () => {
   const [isEditMode, setIsEditMode] = useState(false);
-  const [showDuplicateResolver, setShowDuplicateResolver] = useState(false);
   const isMobile = useIsMobile();
   const { currentWorker, setCurrentWorker, hasEditPermission } = useWorkerState();
   const { toast } = useToast();
@@ -124,28 +122,9 @@ const TeamMembers = () => {
               {isEditMode ? "סיום עריכה" : "ערוך חברי צוות"}
             </Button>
             
-            <Button
-              variant="outline"
-              onClick={() => setShowDuplicateResolver(!showDuplicateResolver)}
-              className="gap-2 h-10 md:h-auto text-sm md:text-base"
-              size={isMobile ? "sm" : "default"}
-            >
-              <AlertTriangle className="h-4 w-4" />
-              {showDuplicateResolver ? "הסתר" : "בדוק כפילויות"}
-            </Button>
           </div>
         </motion.div>
 
-        {showDuplicateResolver && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="mb-8"
-          >
-            <DuplicateResolver />
-          </motion.div>
-        )}
 
         <motion.div 
           initial={{ opacity: 0 }}
