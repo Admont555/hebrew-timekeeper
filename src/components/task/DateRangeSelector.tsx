@@ -11,14 +11,14 @@ interface DateRangeSelectorProps {
 }
 
 const DateRangeSelector = ({ viewMode, onViewModeChange }: DateRangeSelectorProps) => {
-  const options: { mode: ViewMode; label: string; icon: React.ReactNode }[] = [
-    { mode: "week", label: "שבוע", icon: <CalendarDays className="h-4 w-4" /> },
-    { mode: "month", label: "חודש", icon: <CalendarRange className="h-4 w-4" /> },
-    { mode: "all", label: "הכל", icon: <InfinityIcon className="h-4 w-4" /> },
+  const options: { mode: ViewMode; label: string; description: string; icon: React.ReactNode }[] = [
+    { mode: "week", label: "השבוע", description: "משימות לשבוע הנוכחי", icon: <CalendarDays className="h-4 w-4" /> },
+    { mode: "month", label: "החודש", description: "משימות לחודש הנוכחי", icon: <CalendarRange className="h-4 w-4" /> },
+    { mode: "all", label: "הכל", description: "כל המשימות", icon: <InfinityIcon className="h-4 w-4" /> },
   ];
 
   return (
-    <div className="flex items-center justify-center gap-2 mb-6" dir="rtl">
+    <div className="flex flex-col items-center gap-2 mb-6" dir="rtl">
       <div className="flex items-center gap-1 p-1 rounded-xl bg-muted/50 border border-border/50 backdrop-blur-sm">
         {options.map((opt) => (
           <motion.div key={opt.mode} whileTap={{ scale: 0.95 }}>
@@ -39,6 +39,9 @@ const DateRangeSelector = ({ viewMode, onViewModeChange }: DateRangeSelectorProp
           </motion.div>
         ))}
       </div>
+      <p className="text-xs text-muted-foreground">
+        {options.find(o => o.mode === viewMode)?.description}
+      </p>
     </div>
   );
 };
