@@ -122,15 +122,6 @@ const TeamMembers = () => {
               {isEditMode ? "סיום עריכה" : "ערוך חברי צוות"}
             </Button>
             
-            <Button
-              variant="outline"
-              onClick={() => setShowDuplicateResolver(!showDuplicateResolver)}
-              className="gap-2 h-10 md:h-auto text-sm md:text-base"
-              size={isMobile ? "sm" : "default"}
-            >
-              <AlertTriangle className="h-4 w-4" />
-              {showDuplicateResolver ? "הסתר" : "בדוק כפילויות"}
-            </Button>
           </div>
         </motion.div>
 
