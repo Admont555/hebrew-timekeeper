@@ -126,7 +126,7 @@ const TaskActions = ({
               </Button>
             </motion.div>
           </TooltipTrigger>
-          <TooltipContent side="bottom">
+          <TooltipContent side="top" align="center" avoidCollisions={true} collisionPadding={8}>
             <p>תגובות {hasComments ? `(${task.comments!.length})` : ''}</p>
           </TooltipContent>
         </Tooltip>
