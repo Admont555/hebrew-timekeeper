@@ -25,12 +25,9 @@ import {
   MessageSquare,
   Paperclip,
   Copy,
-  Link2,
-  Bell
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import TaskExternalShare from "./TaskExternalShare";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
@@ -40,9 +37,7 @@ interface TaskActionsProps {
   onEdit: () => void;
   onToggleComments: () => void;
   onToggleAttachments: () => void;
-  onToggleDependencies?: () => void;
   showAttachments: boolean;
-  showDependencies?: boolean;
 }
 
 const TaskActions = ({
@@ -51,9 +46,7 @@ const TaskActions = ({
   onEdit,
   onToggleComments,
   onToggleAttachments,
-  onToggleDependencies,
   showAttachments,
-  showDependencies = false,
 }: TaskActionsProps) => {
   const { toast } = useToast();
 
@@ -101,7 +94,7 @@ const TaskActions = ({
           </TooltipContent>
         </Tooltip>
 
-        {/* Comments Button with Notification Badge */}
+        {/* Comments Button */}
         <Tooltip>
           <TooltipTrigger asChild>
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
@@ -157,35 +150,6 @@ const TaskActions = ({
             <p>עריכת משימה</p>
           </TooltipContent>
         </Tooltip>
-
-        {/* Dependencies/Project Button */}
-        {onToggleDependencies && (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                <Button
-                  variant={showDependencies ? "default" : "ghost"}
-                  size="icon"
-                  className={cn(
-                    "h-9 w-9 sm:h-10 sm:w-10 rounded-xl transition-all duration-200",
-                    showDependencies 
-                      ? "bg-purple-500 text-white shadow-md" 
-                      : "hover:bg-purple-500/10 hover:text-purple-600"
-                  )}
-                  onClick={onToggleDependencies}
-                >
-                  <Link2 className="h-4 w-4 sm:h-5 sm:w-5" />
-                  <span className="sr-only">פרויקט</span>
-                </Button>
-              </motion.div>
-            </TooltipTrigger>
-            <TooltipContent side="bottom">
-              <p>קישור לפרויקט</p>
-            </TooltipContent>
-          </Tooltip>
-        )}
-
-        <TaskExternalShare task={task} />
 
         {/* More Options Menu */}
         <DropdownMenu>

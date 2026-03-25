@@ -30,9 +30,7 @@ interface TaskListContentProps {
   onEditTask: (task: Task) => void;
   onDeleteAllTasksForDate?: (date: string) => void;
   onReorderTasks?: (date: string, tasks: Task[]) => void;
-  onUpdateTaskDependencies?: (taskId: string, dependencies: string[]) => void;
   onUpdateTaskProgress?: (taskId: string, progress: number) => void;
-  onUpdateTaskProject?: (taskId: string, projectId: string | null) => void;
 }
 
 const TaskListContent = ({
@@ -44,9 +42,7 @@ const TaskListContent = ({
   onEditTask,
   onDeleteAllTasksForDate,
   onReorderTasks,
-  onUpdateTaskDependencies,
   onUpdateTaskProgress,
-  onUpdateTaskProject,
 }: TaskListContentProps) => {
   const [reorderedTasks, setReorderedTasks] = useState<TasksByDate>(tasksByDate);
   const isMobile = useIsMobile();
@@ -295,9 +291,7 @@ const TaskListContent = ({
                             onTaskComplete={onTaskComplete}
                             onDeleteTask={onDeleteTask}
                             onEdit={onEditTask}
-                            onUpdateDependencies={onUpdateTaskDependencies}
                             onUpdateProgress={onUpdateTaskProgress}
-                            onUpdateProject={onUpdateTaskProject}
                           />
                         </motion.div>
                       ))}
@@ -325,9 +319,7 @@ const TaskListContent = ({
                             onTaskComplete={onTaskComplete}
                             onDeleteTask={onDeleteTask}
                             onEdit={onEditTask}
-                            onUpdateDependencies={onUpdateTaskDependencies}
                             onUpdateProgress={onUpdateTaskProgress}
-                            onUpdateProject={onUpdateTaskProject}
                           />
                         </Reorder.Item>
                       ))}

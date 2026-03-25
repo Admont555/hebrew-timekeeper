@@ -1,43 +1,46 @@
-import { format } from "date-fns";
-import { he } from "date-fns/locale";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
-import { CalendarIcon, ArrowLeft, ArrowRight } from "lucide-react";
+import { CalendarDays, CalendarRange, Infinity as InfinityIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { addDays, subDays } from "date-fns";
-import { useIsMobile } from "@/hooks/use-mobile";
-interface DateRangeSelectorProps {
-  date: Date | undefined;
-  onDateChange: (date: Date | undefined) => void;
-}
-const DateRangeSelector = ({
-  date,
-  onDateChange
-}: DateRangeSelectorProps) => {
-  const isMobile = useIsMobile();
-  const handlePreviousDay = () => {
-    if (date) {
-      const newDate = subDays(date, 1);
-      onDateChange(newDate);
-    } else {
-      onDateChange(new Date()); // If no date is selected, start from today
-    }
-  };
-  const handleNextDay = () => {
-    if (date) {
-      const newDate = addDays(date, 1);
-      onDateChange(newDate);
-    } else {
-      onDateChange(new Date()); // If no date is selected, start from today
-    }
-  };
-  const today = new Date();
+import { motion } from "framer-motion";
 
-  // Format date differently for mobile
-  const dateFormat = isMobile ? "d בMMMM" : "EEEE, d בMMMM yyyy";
-  return <div className="w-full max-w-xl mx-auto mb-8 px-4 sm:px-0" dir="rtl">
-      
-    </div>;
+export type ViewMode = "week" | "month" | "all";
+
+interface DateRangeSelectorProps {
+  viewMode: ViewMode;
+  onViewModeChange: (mode: ViewMode) => void;
+}
+
+const DateRangeSelector = ({ viewMode, onViewModeChange }: DateRangeSelectorProps) => {
+  const options: { mode: ViewMode; label: string; icon: React.ReactNode }[] = [
+    { mode: "week", label: "שבוע", icon: <CalendarDays className="h-4 w-4" /> },
+    { mode: "month", label: "חודש", icon: <CalendarRange className="h-4 w-4" /> },
+    { mode: "all", label: "הכל", icon: <InfinityIcon className="h-4 w-4" /> },
+  ];
+
+  return (
+    <div className="flex items-center justify-center gap-2 mb-6" dir="rtl">
+      <div className="flex items-center gap-1 p-1 rounded-xl bg-muted/50 border border-border/50 backdrop-blur-sm">
+        {options.map((opt) => (
+          <motion.div key={opt.mode} whileTap={{ scale: 0.95 }}>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onViewModeChange(opt.mode)}
+              className={cn(
+                "flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200",
+                viewMode === opt.mode
+                  ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
+                  : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
+              )}
+            >
+              {opt.icon}
+              <span>{opt.label}</span>
+            </Button>
+          </motion.div>
+        ))}
+      </div>
+    </div>
+  );
 };
+
 export default DateRangeSelector;

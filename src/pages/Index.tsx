@@ -1,14 +1,13 @@
 import { Toaster } from "@/components/ui/toaster";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useParams, Navigate, useNavigate } from "react-router-dom";
 import RandomQuote from "@/components/RandomQuote";
-import { TasksByDate, TaskPriority, Task } from "@/types/task";
+import { TasksByDate, TaskPriority } from "@/types/task";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import TaskStats from "@/components/task/TaskStats";
-
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useWorkerState } from "@/hooks/useWorkerState";
 import { useTaskMutations } from "@/hooks/useTaskMutations";
@@ -18,14 +17,15 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, Moon, Sun } from "lucide-react";
 import TaskForm from "@/components/TaskForm";
 import TaskList from "@/components/TaskList";
-import DateRangeSelector from "@/components/task/DateRangeSelector";
+import DateRangeSelector, { ViewMode } from "@/components/task/DateRangeSelector";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useTheme } from "@/components/ThemeProvider";
+import { startOfWeek, endOfWeek, startOfMonth, endOfMonth, format } from "date-fns";
 
 const Index = () => {
   const { workerId } = useParams();
   const navigate = useNavigate();
-  const [selectedDate, setSelectedDate] = useState<Date>();
+  const [viewMode, setViewMode] = useState<ViewMode>("week");
   const [showConfetti, setShowConfetti] = useState(false);
   const { toast } = useToast();
   const isMobile = useIsMobile();
@@ -37,10 +37,27 @@ const Index = () => {
   const {
     addTaskMutation, deleteTaskMutation, editTaskMutation,
     toggleTaskMutation, updateTaskProgressMutation,
-    updateTaskDependenciesMutation, reorderTasksMutation
+    reorderTasksMutation
   } = useTaskMutations();
 
   if (!workerId) return <Navigate to="/" replace />;
+
+  const getDateRange = () => {
+    const now = new Date();
+    if (viewMode === "week") {
+      return {
+        from: format(startOfWeek(now, { weekStartsOn: 0 }), "yyyy-MM-dd"),
+        to: format(endOfWeek(now, { weekStartsOn: 0 }), "yyyy-MM-dd"),
+      };
+    }
+    if (viewMode === "month") {
+      return {
+        from: format(startOfMonth(now), "yyyy-MM-dd"),
+        to: format(endOfMonth(now), "yyyy-MM-dd"),
+      };
+    }
+    return null; // "all"
+  };
 
   const { data: teamMember } = useQuery({
     queryKey: ['team-member', workerId],
@@ -54,11 +71,16 @@ const Index = () => {
   });
 
   const { data: tasksByDate = {}, isLoading } = useQuery({
-    queryKey: ['tasks', workerId, selectedDate],
+    queryKey: ['tasks', workerId, viewMode],
     queryFn: async () => {
       if (!workerId) return {};
       let query = supabase.from("tasks").select("*").eq("worker", workerId).order("timestamp", { ascending: false });
-      if (selectedDate) query = query.eq('date', selectedDate.toISOString().split('T')[0]);
+      
+      const range = getDateRange();
+      if (range) {
+        query = query.gte('date', range.from).lte('date', range.to);
+      }
+
       const { data, error } = await query;
       if (error) { toast({ title: "שגיאה בטעינת משימות", description: error.message, variant: "destructive" }); throw error; }
 
@@ -131,7 +153,6 @@ const Index = () => {
         className="min-h-screen bg-gradient-subtle" dir="rtl"
       >
         <div className="container mx-auto px-4 py-6 max-w-3xl">
-          {/* Top bar */}
           <div className="flex items-center justify-between mb-6">
             <Button 
               variant="ghost" 
@@ -161,7 +182,7 @@ const Index = () => {
             <RandomQuote />
           </div>
 
-          <DateRangeSelector date={selectedDate} onDateChange={setSelectedDate} />
+          <DateRangeSelector viewMode={viewMode} onViewModeChange={setViewMode} />
           
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
@@ -192,7 +213,6 @@ const Index = () => {
                 editTaskMutation.mutate({ taskId, newTitle, newDuration, newPriority, worker: workerId, categoryId })}
               onDeleteAllTasksForDate={handleDeleteAllTasksForDate}
               onReorderTasks={(date, tasks) => reorderTasksMutation.mutate({ tasks })}
-              onUpdateTaskDependencies={(taskId, deps) => updateTaskDependenciesMutation.mutate({ taskId, dependencies: deps })}
               onUpdateTaskProgress={(taskId, progress) => updateTaskProgressMutation.mutate({ taskId, progress })}
             />
           </motion.div>

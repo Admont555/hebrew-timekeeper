@@ -17,7 +17,6 @@ interface TaskListProps {
   onEditTask: (taskId: string, newTitle: string, newDuration: number, newPriority: TaskPriority, categoryId?: string) => void;
   onDeleteAllTasksForDate?: (date: string) => void;
   onReorderTasks?: (date: string, tasks: Task[]) => void;
-  onUpdateTaskDependencies?: (taskId: string, dependencies: string[]) => void;
   onUpdateTaskProgress?: (taskId: string, progress: number) => void;
 }
 
@@ -30,87 +29,47 @@ const TaskList = ({
   onEditTask,
   onDeleteAllTasksForDate,
   onReorderTasks,
-  onUpdateTaskDependencies,
   onUpdateTaskProgress,
 }: TaskListProps) => {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   const isMobile = useIsMobile();
 
-  // Pass the onEditTask function directly to TaskListContent
   const handleEditTask = (task: Task) => {
     onEditTask(task.id, task.title, task.duration || 0, task.priority, task.category_id);
   };
 
-  // Configure keyboard shortcuts
   const { showKeyboardShortcuts } = useTaskShortcuts({
     onToggleFilterCompleted: () => {
-      toast({
-        title: "קיצור מקלדת הופעל",
-        description: "סינון משימות לפי סטטוס",
-      });
+      toast({ title: "קיצור מקלדת הופעל", description: "סינון משימות לפי סטטוס" });
     },
     onSearch: () => {
-      // Focus on search input if available
       const searchInput = document.querySelector('input[type="search"]');
-      if (searchInput) {
-        (searchInput as HTMLInputElement).focus();
-      }
+      if (searchInput) (searchInput as HTMLInputElement).focus();
     }
   });
 
-  // Show keyboard shortcuts on initial render
   useEffect(() => {
-    // Short delay to show the shortcuts toast after the component has mounted
     const timer = setTimeout(() => {
-      toast({
-        title: "קיצורי מקלדת זמינים",
-        description: "לחץ F1 להצגת רשימת הקיצורים",
-        duration: 5000,
-      });
+      toast({ title: "קיצורי מקלדת זמינים", description: "לחץ F1 להצגת רשימת הקיצורים", duration: 5000 });
     }, 2000);
-
     return () => clearTimeout(timer);
   }, [toast]);
 
-  // For mobile browsers, use a regular div with overflow instead of ScrollArea
-  // to avoid compatibility issues with some mobile browsers
-  if (isMobile) {
-    return (
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
-        className="w-full rounded-xl overflow-hidden"
-        dir="rtl"
-      >
-        <div 
-          className="flex-1 w-full rounded-xl p-3 sm:p-4 md:p-6 h-[60vh] md:h-[65vh] overflow-y-auto"
-          style={{ 
-            WebkitOverflowScrolling: 'touch',
-            overscrollBehavior: 'contain',
-            msOverflowStyle: 'none',
-            scrollbarWidth: 'none'
-          }}
-        >
-          <TaskListContent
-            tasksByDate={tasks}
-            isLoading={isLoading}
-            onToggleTask={onToggleTask}
-            onTaskComplete={onTaskComplete}
-            onDeleteTask={onDeleteTask}
-            onEditTask={handleEditTask}
-            onDeleteAllTasksForDate={onDeleteAllTasksForDate}
-            onReorderTasks={onReorderTasks}
-            onUpdateTaskDependencies={onUpdateTaskDependencies}
-            onUpdateTaskProgress={onUpdateTaskProgress}
-          />
-        </div>
-      </motion.div>
-    );
-  }
+  const content = (
+    <TaskListContent
+      tasksByDate={tasks}
+      isLoading={isLoading}
+      onToggleTask={onToggleTask}
+      onTaskComplete={onTaskComplete}
+      onDeleteTask={onDeleteTask}
+      onEditTask={handleEditTask}
+      onDeleteAllTasksForDate={onDeleteAllTasksForDate}
+      onReorderTasks={onReorderTasks}
+      onUpdateTaskProgress={onUpdateTaskProgress}
+    />
+  );
 
-  // Use ScrollArea for desktop browsers
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -119,23 +78,18 @@ const TaskList = ({
       className="w-full rounded-xl overflow-hidden"
       dir="rtl"
     >
-      <ScrollArea 
-        ref={scrollAreaRef} 
-        className="flex-1 w-full rounded-xl p-3 sm:p-4 md:p-6 h-[60vh] md:h-[65vh]"
-      >
-        <TaskListContent
-          tasksByDate={tasks}
-          isLoading={isLoading}
-          onToggleTask={onToggleTask}
-          onTaskComplete={onTaskComplete}
-          onDeleteTask={onDeleteTask}
-          onEditTask={handleEditTask}
-          onDeleteAllTasksForDate={onDeleteAllTasksForDate}
-          onReorderTasks={onReorderTasks}
-          onUpdateTaskDependencies={onUpdateTaskDependencies}
-          onUpdateTaskProgress={onUpdateTaskProgress}
-        />
-      </ScrollArea>
+      {isMobile ? (
+        <div 
+          className="flex-1 w-full rounded-xl p-3 sm:p-4 md:p-6 h-[60vh] md:h-[65vh] overflow-y-auto"
+          style={{ WebkitOverflowScrolling: 'touch', overscrollBehavior: 'contain', msOverflowStyle: 'none', scrollbarWidth: 'none' }}
+        >
+          {content}
+        </div>
+      ) : (
+        <ScrollArea ref={scrollAreaRef} className="flex-1 w-full rounded-xl p-3 sm:p-4 md:p-6 h-[60vh] md:h-[65vh]">
+          {content}
+        </ScrollArea>
+      )}
     </motion.div>
   );
 };
