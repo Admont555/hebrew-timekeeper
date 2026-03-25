@@ -13,7 +13,7 @@ interface WorkerNameEditorProps {
   currentName: string;
   currentAvatarUrl?: string;
   workerId: string;
-  onNameChange: (id: string, newName: string, avatarUrl?: string) => void;
+  onNameChange: (newName: string, avatarUrl?: string) => Promise<boolean>;
 }
 
 const WorkerNameEditor = ({ currentName, currentAvatarUrl, workerId, onNameChange }: WorkerNameEditorProps) => {
@@ -72,59 +72,43 @@ const WorkerNameEditor = ({ currentName, currentAvatarUrl, workerId, onNameChang
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (newName.trim()) {
-      let avatarUrl = currentAvatarUrl;
+    if (!newName.trim()) return;
 
-      if (avatarFile) {
-        const fileExt = avatarFile.name.split('.').pop();
-        const filePath = `${workerId}.${fileExt}`;
+    let avatarUrl = currentAvatarUrl;
 
-        try {
-          const { error: uploadError } = await supabase.storage
-            .from('avatars')
-            .upload(filePath, avatarFile, { upsert: true });
-
-          if (uploadError) throw uploadError;
-
-          const { data } = supabase.storage
-            .from('avatars')
-            .getPublicUrl(filePath);
-
-          avatarUrl = data.publicUrl;
-        } catch (error) {
-          console.error('Error uploading avatar:', error);
-          toast({
-            title: "שגיאה בהעלאת התמונה",
-            description: "אנא נסה שנית",
-          });
-          return;
-        }
-      }
+    if (avatarFile) {
+      const fileExt = avatarFile.name.split('.').pop();
+      const filePath = `${workerId}.${fileExt}`;
 
       try {
-        const { error } = await supabase
-          .from('team_members')
-          .update({ 
-            name: newName.trim(),
-            ...(avatarUrl && { avatar_url: avatarUrl })
-          })
-          .eq('worker_id', workerId);
+        const { error: uploadError } = await supabase.storage
+          .from('avatars')
+          .upload(filePath, avatarFile, { upsert: true });
 
-        if (error) throw error;
+        if (uploadError) throw uploadError;
 
-        onNameChange(workerId, newName.trim(), avatarUrl);
-        setIsOpen(false);
-        toast({
-          title: "פרטי עובד עודכנו",
-          description: "פרטי העובד עודכנו בהצלחה",
-        });
+        const { data } = supabase.storage
+          .from('avatars')
+          .getPublicUrl(filePath);
+
+        avatarUrl = data.publicUrl;
       } catch (error) {
-        console.error('Error updating team member:', error);
+        console.error('Error uploading avatar:', error);
         toast({
-          title: "שגיאה בעדכון פרטי העובד",
+          title: "שגיאה בהעלאת התמונה",
           description: "אנא נסה שנית",
         });
+        return;
       }
+    }
+
+    const wasUpdated = await onNameChange(newName.trim(), avatarUrl);
+    if (wasUpdated) {
+      setIsOpen(false);
+      toast({
+        title: "פרטי עובד עודכנו",
+        description: "פרטי העובד עודכנו בהצלחה",
+      });
     }
   };
 
