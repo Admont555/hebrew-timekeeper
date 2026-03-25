@@ -16,7 +16,6 @@ import { useToast } from "@/hooks/use-toast";
 
 const TeamMembers = () => {
   const [isEditMode, setIsEditMode] = useState(false);
-  const [showDuplicateResolver, setShowDuplicateResolver] = useState(false);
   const isMobile = useIsMobile();
   const { currentWorker, setCurrentWorker, hasEditPermission } = useWorkerState();
   const { toast } = useToast();
