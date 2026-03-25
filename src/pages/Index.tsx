@@ -42,7 +42,7 @@ const Index = () => {
     toggleTaskMutation, updateTaskProgressMutation,
     reorderTasksMutation
   } = useTaskMutations();
-  const { categories } = useCategories(workerId);
+  const { categories, addCategory } = useCategories(workerId);
 
   if (!workerId) return <Navigate to="/" replace />;
 
