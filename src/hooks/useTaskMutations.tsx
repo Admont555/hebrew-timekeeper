@@ -38,6 +38,7 @@ export const useTaskMutations = () => {
             worker,
             project_id: projectId,
             category_id: categoryId,
+            tags: tags || [],
           };
 
           console.log('Inserting task:', newTask);
