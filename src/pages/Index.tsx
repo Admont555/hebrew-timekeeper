@@ -165,9 +165,17 @@ const Index = () => {
               <ArrowRight className="h-4 w-4" />
               חזרה
             </Button>
-            <h2 className="text-lg sm:text-xl font-semibold text-foreground truncate max-w-[200px] sm:max-w-none">
-              {teamMember?.name || '...'}
-            </h2>
+            <div className="flex items-center gap-3">
+              <Avatar className="h-9 w-9 ring-2 ring-primary/30 ring-offset-2 ring-offset-background shadow-md">
+                <AvatarImage src={teamMember?.avatar_url || undefined} className="object-cover" />
+                <AvatarFallback className="bg-primary/10 text-primary">
+                  <UserRound className="h-5 w-5" />
+                </AvatarFallback>
+              </Avatar>
+              <h2 className="text-lg sm:text-xl font-semibold text-foreground truncate max-w-[200px] sm:max-w-none">
+                {teamMember?.name || '...'}
+              </h2>
+            </div>
             <Button
               variant="ghost"
               size="icon"
