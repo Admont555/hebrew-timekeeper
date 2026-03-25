@@ -104,8 +104,8 @@ const TaskItem = ({
       transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
       whileHover={{ scale: isDragging ? 1.02 : 1.01, y: isDragging ? 0 : -2 }}
       dir="rtl"
-      className={cn(
-        "flex flex-col gap-5 p-4 sm:p-6 relative group overflow-hidden",
+       className={cn(
+        "flex flex-col gap-3 p-4 sm:p-5 relative group overflow-hidden",
         getTaskCardClass(task.priority, task.completed),
         isDragging ? "cursor-grabbing shadow-2xl z-50" : "cursor-grab"
       )}
@@ -146,24 +146,26 @@ const TaskItem = ({
           </motion.div>
         ) : (
           <motion.div key="display" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="relative z-10">
-            <div className="flex flex-col gap-4">
-              <div className="flex flex-col gap-2 pr-8">
+            <div className="flex items-start justify-between gap-3">
+              {/* Right side: Title + meta */}
+              <div className="flex-1 min-w-0 flex flex-col gap-1.5 pr-6">
                 <span className={cn(
-                  "task-title text-right text-base sm:text-lg transition-all duration-300 leading-relaxed",
+                  "task-title text-right text-base sm:text-lg leading-snug font-medium",
                   task.completed && "task-title-completed"
                 )}>
                   {task.title}
                 </span>
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-xs sm:text-sm text-muted-foreground font-medium bg-muted/50 px-2 py-0.5 rounded-md">
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <span className="text-xs text-muted-foreground bg-muted/40 px-2 py-0.5 rounded-md">
                     {formatTime(task.timestamp)}
                   </span>
                   {category && (
-                    <span className="text-xs font-medium bg-accent/60 text-accent-foreground px-2 py-0.5 rounded-full flex items-center gap-1">
+                    <span className="text-xs font-medium bg-accent/50 text-accent-foreground px-2 py-0.5 rounded-full flex items-center gap-1">
                       <span>{category.icon}</span>
                       <span>{category.label}</span>
                     </span>
                   )}
+                  <TaskPriorityComponent priority={task.priority} />
                   {task.completed && (
                     <motion.div
                       initial={{ opacity: 0, scale: 0 }}
@@ -176,29 +178,8 @@ const TaskItem = ({
                   )}
                 </div>
               </div>
-              
-              <div className="flex items-center justify-between gap-2 flex-wrap">
-                <div className="flex items-center gap-2">
-                  <TaskPriorityComponent priority={task.priority} />
-                </div>
-                <TaskActions
-                  task={task}
-                  onDelete={onDeleteTask}
-                  onEdit={handleEditClick}
-                  onToggleComments={() => setShowComments(!showComments)}
-                  onToggleAttachments={() => setShowAttachments(!showAttachments)}
-                  showAttachments={showAttachments}
-                />
-              </div>
-            </div>
 
-            {(task.progress || 0) > 0 && (
-              <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="mt-5">
-                <TaskProgressBar progress={task.progress || 0} size="md" className="w-full" />
-              </motion.div>
-            )}
-
-            <div className="flex items-center justify-between gap-4 mt-5">
+              {/* Left side: Checkbox */}
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -208,8 +189,8 @@ const TaskItem = ({
                       whileTap={{ scale: 0.9 }}
                       whileHover={{ scale: 1.05 }}
                       className={cn(
-                        "relative flex items-center justify-center rounded-xl border-2 transition-all duration-300 shadow-sm",
-                        isMobile ? "h-12 w-12 min-h-[48px] min-w-[48px]" : "h-10 w-10",
+                        "relative flex-shrink-0 flex items-center justify-center rounded-xl border-2 transition-all duration-300 shadow-sm",
+                        isMobile ? "h-11 w-11" : "h-9 w-9",
                         task.completed 
                           ? "bg-gradient-to-br from-task-complete to-primary border-task-complete shadow-task-complete/30" 
                           : "bg-background/80 border-task-complete/50 hover:border-task-complete hover:shadow-lg hover:shadow-task-complete/20"
@@ -224,7 +205,7 @@ const TaskItem = ({
                             exit={{ scale: 0, rotate: 180 }}
                             transition={{ type: "spring", stiffness: 400, damping: 15 }}
                           >
-                            <Check className={cn("text-primary-foreground", isMobile ? "h-7 w-7" : "h-5 w-5")} />
+                            <Check className={cn("text-primary-foreground", isMobile ? "h-6 w-6" : "h-4 w-4")} />
                           </motion.div>
                         )}
                       </AnimatePresence>
@@ -235,12 +216,28 @@ const TaskItem = ({
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
-              
+            </div>
+
+            {(task.progress || 0) > 0 && (
+              <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="mt-3">
+                <TaskProgressBar progress={task.progress || 0} size="md" className="w-full" />
+              </motion.div>
+            )}
+
+            <div className="flex items-center justify-between gap-2 mt-3 pt-2 border-t border-border/20">
               <CountdownTimer
                 duration={task.duration}
                 startTime={task.startTime}
                 isCompleted={task.completed}
                 onComplete={() => onTaskComplete(task.id)}
+              />
+              <TaskActions
+                task={task}
+                onDelete={onDeleteTask}
+                onEdit={handleEditClick}
+                onToggleComments={() => setShowComments(!showComments)}
+                onToggleAttachments={() => setShowAttachments(!showAttachments)}
+                showAttachments={showAttachments}
               />
             </div>
           </motion.div>
