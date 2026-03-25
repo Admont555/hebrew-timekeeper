@@ -1,8 +1,7 @@
 import { motion } from "framer-motion";
 import TeamMemberCard from "@/components/team/TeamMemberCard";
 import TeamMemberManager from "@/components/team/TeamMemberManager";
-import DuplicateResolver from "@/components/team/DuplicateResolver";
-import { Users, Edit2, BarChart, ListChecks, AlertTriangle } from "lucide-react";
+import { Users, Edit2, BarChart, ListChecks } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
