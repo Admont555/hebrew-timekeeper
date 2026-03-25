@@ -9,13 +9,14 @@ export const useTaskMutations = () => {
   const queryClient = useQueryClient();
 
   const addTaskMutation = useMutation({
-    mutationFn: async ({ title, duration, priority, worker, _file, projectId }: { 
+    mutationFn: async ({ title, duration, priority, worker, _file, projectId, categoryId }: { 
       title?: string; 
       duration?: number; 
       priority?: TaskPriority;
       worker?: string;
       _file?: File;
       projectId?: string;
+      categoryId?: string;
     }) => {
       console.log('Adding task with params:', { title, duration, priority, worker, projectId });
       
