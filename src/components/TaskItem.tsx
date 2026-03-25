@@ -161,9 +161,12 @@ const TaskItem = ({
                     {formatTime(task.timestamp)}
                   </span>
                   {category && (
-                    <span className="text-xs font-medium bg-accent/50 text-accent-foreground px-2 py-0.5 rounded-full flex items-center gap-1">
+                    <span 
+                      className="text-xs font-medium px-2 py-0.5 rounded-full flex items-center gap-1"
+                      style={{ backgroundColor: category.color + "20", color: category.color }}
+                    >
                       <span>{category.icon}</span>
-                      <span>{category.label}</span>
+                      <span>{category.name}</span>
                     </span>
                   )}
                   <TaskPriorityComponent priority={task.priority} />
