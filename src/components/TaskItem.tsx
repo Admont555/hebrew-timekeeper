@@ -7,7 +7,6 @@ import TaskActions from "./task/TaskActions";
 import TaskPriorityComponent from "./task/TaskPriority";
 import TaskAttachments from "./task/TaskAttachments";
 import TaskProgressBar from "./task/TaskProgressBar";
-import TaskProjectLink from "./task/TaskProjectLink";
 import { Check, GripVertical, Sparkles } from "lucide-react";
 import TaskForm from "./TaskForm";
 import { cn } from "@/lib/utils";
@@ -22,9 +21,7 @@ interface TaskItemProps {
   onTaskComplete: (taskId: string) => void;
   onDeleteTask: (taskId: string) => void;
   onEdit: (task: Task) => void;
-  onUpdateDependencies?: (taskId: string, dependencies: string[]) => void;
   onUpdateProgress?: (taskId: string, progress: number) => void;
-  onUpdateProject?: (taskId: string, projectId: string | null) => void;
 }
 
 const TaskItem = ({ 
@@ -34,13 +31,10 @@ const TaskItem = ({
   onTaskComplete, 
   onDeleteTask, 
   onEdit,
-  onUpdateDependencies,
   onUpdateProgress,
-  onUpdateProject
 }: TaskItemProps) => {
   const [showComments, setShowComments] = useState(false);
   const [showAttachments, setShowAttachments] = useState(false);
-  const [showProject, setShowProject] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const isMobile = useIsMobile();
   const [isDragging, setIsDragging] = useState(false);
@@ -83,14 +77,6 @@ const TaskItem = ({
   const handleCheckboxChange = (e: React.MouseEvent) => {
     e.stopPropagation();
     onToggleTask(task.id);
-  };
-
-  const handleProgressUpdate = (progress: number) => {
-    if (onUpdateProgress) onUpdateProgress(task.id, progress);
-  };
-
-  const handleProjectUpdate = (taskId: string, projectId: string | null) => {
-    if (onUpdateProject) onUpdateProject(taskId, projectId);
   };
 
   const PriorityIndicator = () => {
@@ -201,9 +187,7 @@ const TaskItem = ({
                   onEdit={handleEditClick}
                   onToggleComments={() => setShowComments(!showComments)}
                   onToggleAttachments={() => setShowAttachments(!showAttachments)}
-                  onToggleDependencies={() => setShowProject(!showProject)}
                   showAttachments={showAttachments}
-                  showDependencies={showProject}
                 />
               </div>
             </div>
@@ -259,20 +243,6 @@ const TaskItem = ({
                 onComplete={() => onTaskComplete(task.id)}
               />
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <AnimatePresence>
-        {showProject && (
-          <motion.div
-            initial={{ opacity: 0, height: 0, marginTop: 0 }}
-            animate={{ opacity: 1, height: "auto", marginTop: 16 }}
-            exit={{ opacity: 0, height: 0, marginTop: 0 }}
-            transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
-            className="border-t border-border/50 pt-4"
-          >
-            <TaskProjectLink taskId={task.id} currentProjectId={task.project_id} onUpdateProject={handleProjectUpdate} />
           </motion.div>
         )}
       </AnimatePresence>
