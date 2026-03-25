@@ -216,8 +216,10 @@ const Index = () => {
           >
             <TaskForm 
               onAddTask={handleAddTask} 
+              categories={categories}
               isOpen={isAddingTask}
               onOpenChange={setIsAddingTask}
+              onManageCategories={() => navigate(`/member/${workerId}/categories`)}
             />
           </motion.div>
 
