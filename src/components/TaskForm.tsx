@@ -126,12 +126,11 @@ const TaskForm = ({
               onClick={() => setExpanded(true)}
               className={cn(
                 "w-full group relative overflow-hidden",
-                "bg-gradient-to-r from-primary/10 via-accent/50 to-primary/10",
-                "hover:from-primary/20 hover:via-accent hover:to-primary/20",
-                "text-primary dark:text-primary font-semibold",
+                "bg-primary hover:bg-primary/90",
+                "text-primary-foreground font-semibold",
                 "flex items-center justify-center gap-3 text-lg mb-3",
-                "border-2 border-dashed border-primary/30 hover:border-primary/60",
-                "rounded-2xl shadow-sm hover:shadow-lg hover:shadow-primary/10",
+                "border-0",
+                "rounded-2xl shadow-md hover:shadow-xl hover:shadow-primary/20",
                 "transition-all duration-300"
               )}
               size={isMobile ? "lg" : "default"}
