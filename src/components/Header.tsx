@@ -23,7 +23,7 @@ const Header = () => {
       >
         מעקב משימות
       </h1>
-      <ThemeSwitcher />
+      
     </motion.div>
   );
 };
