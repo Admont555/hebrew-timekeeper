@@ -16,6 +16,9 @@ import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Category } from "@/hooks/useCategories";
 
+const QUICK_COLORS = ["#6366f1", "#ec4899", "#22c55e", "#f97316", "#3b82f6", "#8b5cf6"];
+const QUICK_ICONS = ["📁", "🏢", "💼", "🎨", "🛒", "💡"];
+
 interface TaskFormProps {
   onAddTask: (title: string, duration: number, priority: TaskPriority, categoryId?: string) => void;
   categories?: Category[];
@@ -28,6 +31,7 @@ interface TaskFormProps {
   isOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
   onManageCategories?: () => void;
+  onQuickAddCategory?: (name: string, color: string, icon: string) => void;
 }
 
 const TaskForm = ({ 
