@@ -155,7 +155,8 @@ const Index = () => {
         className="min-h-screen bg-gradient-subtle" dir="rtl"
       >
         <div className="container mx-auto px-4 py-6 max-w-3xl">
-          <div className="flex items-center justify-between mb-6">
+          {/* Top bar */}
+          <div className="flex items-center justify-between mb-4">
             <Button 
               variant="ghost" 
               onClick={() => navigate('/')}
@@ -165,17 +166,6 @@ const Index = () => {
               <ArrowRight className="h-4 w-4" />
               חזרה
             </Button>
-            <div className="flex items-center gap-3">
-              <Avatar className="h-9 w-9 ring-2 ring-primary/30 ring-offset-2 ring-offset-background shadow-md">
-                <AvatarImage src={teamMember?.avatar_url || undefined} className="object-cover" />
-                <AvatarFallback className="bg-primary/10 text-primary">
-                  <UserRound className="h-5 w-5" />
-                </AvatarFallback>
-              </Avatar>
-              <h2 className="text-lg sm:text-xl font-semibold text-foreground truncate max-w-[200px] sm:max-w-none">
-                {teamMember?.name || '...'}
-              </h2>
-            </div>
             <Button
               variant="ghost"
               size="icon"
@@ -185,6 +175,23 @@ const Index = () => {
               {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
             </Button>
           </div>
+
+          {/* Profile hero section */}
+          <motion.div 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex flex-col items-center gap-3 mb-8"
+          >
+            <Avatar className="h-20 w-20 sm:h-24 sm:w-24 ring-4 ring-primary/20 ring-offset-4 ring-offset-background shadow-xl">
+              <AvatarImage src={teamMember?.avatar_url || undefined} className="object-cover" />
+              <AvatarFallback className="bg-gradient-to-br from-primary/20 to-primary/5 text-primary">
+                <UserRound className="h-10 w-10 sm:h-12 sm:w-12" />
+              </AvatarFallback>
+            </Avatar>
+            <h2 className="text-xl sm:text-2xl font-bold text-foreground">
+              {teamMember?.name || '...'}
+            </h2>
+          </motion.div>
 
           <Header />
           
