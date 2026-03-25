@@ -245,6 +245,10 @@ export const useTaskMutations = () => {
           updates.priority = newPriority;
         }
         
+        if (categoryId !== undefined) {
+          updates.category_id = categoryId || null;
+        }
+        
         console.log('Applying updates:', updates);
         
         if (Object.keys(updates).length > 0) {
