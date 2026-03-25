@@ -231,6 +231,7 @@ const Index = () => {
               isOpen={isAddingTask}
               onOpenChange={setIsAddingTask}
               onManageCategories={() => navigate(`/member/${workerId}/categories`)}
+              onQuickAddCategory={(name, color, icon) => addCategory.mutate({ name, color, icon })}
             />
           </motion.div>
 
