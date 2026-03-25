@@ -13,10 +13,11 @@ import TaskStats from "@/components/task/TaskStats";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useWorkerState } from "@/hooks/useWorkerState";
 import { useTaskMutations } from "@/hooks/useTaskMutations";
+import { useCategories } from "@/hooks/useCategories";
 import { useTaskShortcuts } from "@/hooks/useTaskShortcuts";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Moon, Sun } from "lucide-react";
+import { ArrowRight, Moon, Sun, FolderOpen } from "lucide-react";
 import TaskForm from "@/components/TaskForm";
 import TaskList from "@/components/TaskList";
 import DateRangeSelector, { ViewMode } from "@/components/task/DateRangeSelector";
@@ -41,6 +42,7 @@ const Index = () => {
     toggleTaskMutation, updateTaskProgressMutation,
     reorderTasksMutation
   } = useTaskMutations();
+  const { categories } = useCategories(workerId);
 
   if (!workerId) return <Navigate to="/" replace />;
 
@@ -171,14 +173,25 @@ const Index = () => {
               <ArrowRight className="h-4 w-4" />
               חזרה
             </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setTheme(theme === "light" ? "dark" : "light")}
-              className="rounded-full h-9 w-9 hover:bg-accent"
-            >
-              {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-            </Button>
+            <div className="flex items-center gap-1">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => navigate(`/member/${workerId}/categories`)}
+                className="rounded-full h-9 w-9 hover:bg-accent"
+                title="קטגוריות"
+              >
+                <FolderOpen className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+                className="rounded-full h-9 w-9 hover:bg-accent"
+              >
+                {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+              </Button>
+            </div>
           </div>
 
           {/* Profile hero section */}
@@ -214,8 +227,10 @@ const Index = () => {
           >
             <TaskForm 
               onAddTask={handleAddTask} 
+              categories={categories}
               isOpen={isAddingTask}
               onOpenChange={setIsAddingTask}
+              onManageCategories={() => navigate(`/member/${workerId}/categories`)}
             />
           </motion.div>
 

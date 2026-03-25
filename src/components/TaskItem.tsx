@@ -12,7 +12,7 @@ import TaskForm from "./TaskForm";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
-import { getCategoryById } from "@/constants/categories";
+import { useCategories, Category } from "@/hooks/useCategories";
 
 interface TaskItemProps {
   task: Task;
@@ -38,8 +38,9 @@ const TaskItem = ({
   const [isEditing, setIsEditing] = useState(false);
   const isMobile = useIsMobile();
   const [isDragging, setIsDragging] = useState(false);
+  const { categories } = useCategories(task.worker);
 
-  const category = getCategoryById(task.category_id);
+  const category = categories.find(c => c.id === task.category_id);
 
   const formatTime = (timestamp: string) => {
     return new Date(timestamp).toLocaleTimeString("he-IL", {
@@ -134,6 +135,7 @@ const TaskItem = ({
           >
             <TaskForm
               onAddTask={handleEditSubmit}
+              categories={categories}
               initialTitle={task.title}
               initialDuration={task.duration || 0}
               initialPriority={task.priority || "normal"}
@@ -160,9 +162,12 @@ const TaskItem = ({
                     {formatTime(task.timestamp)}
                   </span>
                   {category && (
-                    <span className="text-xs font-medium bg-accent/50 text-accent-foreground px-2 py-0.5 rounded-full flex items-center gap-1">
+                    <span 
+                      className="text-xs font-medium px-2 py-0.5 rounded-full flex items-center gap-1"
+                      style={{ backgroundColor: category.color + "20", color: category.color }}
+                    >
                       <span>{category.icon}</span>
-                      <span>{category.label}</span>
+                      <span>{category.name}</span>
                     </span>
                   )}
                   <TaskPriorityComponent priority={task.priority} />
