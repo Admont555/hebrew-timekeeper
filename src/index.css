@@ -438,7 +438,15 @@
 
   /* Enhanced Gradients */
   .bg-gradient-subtle {
-    @apply bg-gradient-to-br from-background via-secondary/30 to-accent/20;
+    @apply bg-gradient-to-br from-background via-secondary/20 to-accent/10;
+  }
+
+  .dark .bg-gradient-subtle {
+    background: linear-gradient(135deg, 
+      hsl(225 25% 6%) 0%, 
+      hsl(260 20% 10%) 40%, 
+      hsl(225 25% 8%) 70%, 
+      hsl(280 15% 9%) 100%);
   }
   
   .bg-gradient-task {
