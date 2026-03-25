@@ -8,7 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import TaskStats from "@/components/task/TaskStats";
-import TaskAnalytics from "@/components/task/TaskAnalytics";
+
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useWorkerState } from "@/hooks/useWorkerState";
 import { useTaskMutations } from "@/hooks/useTaskMutations";
@@ -197,9 +197,8 @@ const Index = () => {
             />
           </motion.div>
           
-          <div className="grid gap-5 mt-5">
+          <div className="mt-5">
             <TaskStats tasksByDate={tasksByDate} />
-            <TaskAnalytics tasksByDate={tasksByDate} />
           </div>
         </div>
         <Toaster />

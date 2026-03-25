@@ -129,21 +129,12 @@ const TaskItem = ({
       <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-primary/5 pointer-events-none" />
       <PriorityIndicator />
 
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <motion.div 
-              className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center h-full py-4 opacity-0 group-hover:opacity-60 hover:!opacity-100 transition-all duration-300"
-              whileHover={{ scale: 1.1 }}
-            >
-              <GripVertical className="h-5 w-5 text-muted-foreground" />
-            </motion.div>
-          </TooltipTrigger>
-          <TooltipContent side="bottom" className="bg-popover/95 backdrop-blur-sm">
-            <p>גרור לשינוי סדר</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
+      <div 
+        className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center py-4 opacity-0 group-hover:opacity-60 hover:opacity-100 transition-opacity duration-300 cursor-grab active:cursor-grabbing"
+        title="גרור לשינוי סדר"
+      >
+        <GripVertical className="h-5 w-5 text-muted-foreground pointer-events-none" />
+      </div>
 
       <AnimatePresence mode="wait">
         {isEditing ? (
