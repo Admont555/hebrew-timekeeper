@@ -117,9 +117,9 @@ const Index = () => {
     setTimeout(() => setShowConfetti(false), 3000);
   };
 
-  const handleAddTask = (title: string, duration: number, priority: TaskPriority) => {
+  const handleAddTask = (title: string, duration: number, priority: TaskPriority, categoryId?: string) => {
     if (!title.trim()) return;
-    addTaskMutation.mutate({ title, duration: duration || 0, priority: priority || "normal", worker: workerId });
+    addTaskMutation.mutate({ title, duration: duration || 0, priority: priority || "normal", worker: workerId, categoryId });
     setIsAddingTask(false);
   };
 

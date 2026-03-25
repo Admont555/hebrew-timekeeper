@@ -36,6 +36,7 @@ export const useTaskMutations = () => {
             priority,
             worker,
             project_id: projectId,
+            category_id: categoryId,
           };
 
           console.log('Inserting task:', newTask);
