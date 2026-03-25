@@ -173,14 +173,25 @@ const Index = () => {
               <ArrowRight className="h-4 w-4" />
               חזרה
             </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setTheme(theme === "light" ? "dark" : "light")}
-              className="rounded-full h-9 w-9 hover:bg-accent"
-            >
-              {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-            </Button>
+            <div className="flex items-center gap-1">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => navigate(`/member/${workerId}/categories`)}
+                className="rounded-full h-9 w-9 hover:bg-accent"
+                title="קטגוריות"
+              >
+                <FolderOpen className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+                className="rounded-full h-9 w-9 hover:bg-accent"
+              >
+                {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+              </Button>
+            </div>
           </div>
 
           {/* Profile hero section */}
