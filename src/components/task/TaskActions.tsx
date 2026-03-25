@@ -89,7 +89,7 @@ const TaskActions = ({
               </Button>
             </motion.div>
           </TooltipTrigger>
-          <TooltipContent side="bottom">
+          <TooltipContent side="top" align="center" avoidCollisions={true} collisionPadding={8}>
             <p>קבצים מצורפים {hasAttachments ? `(${task.attachments!.length})` : ''}</p>
           </TooltipContent>
         </Tooltip>
