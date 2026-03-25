@@ -125,16 +125,6 @@ const TeamMembers = () => {
           </div>
         </motion.div>
 
-        {showDuplicateResolver && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="mb-8"
-          >
-            <DuplicateResolver />
-          </motion.div>
-        )}
 
         <motion.div 
           initial={{ opacity: 0 }}
