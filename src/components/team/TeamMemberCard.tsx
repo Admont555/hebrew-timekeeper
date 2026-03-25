@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import WorkerNameEditor from "@/components/WorkerNameEditor";
 import { supabase } from "@/integrations/supabase/client";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -53,6 +53,7 @@ const TeamMemberCard = ({
   const { toast } = useToast();
   const navigate = useNavigate();
   const { hasEditPermission } = useWorkerState();
+  const queryClient = useQueryClient();
   
   const canEdit = hasEditPermission(workerId);
 
@@ -76,14 +77,14 @@ const TeamMemberCard = ({
     },
   });
 
-  const handleNameChange = async (workerId: string, newName: string, newAvatarUrl?: string) => {
+  const handleNameChange = async (newName: string, newAvatarUrl?: string): Promise<boolean> => {
     if (!canEdit) {
       toast({
         title: "אין הרשאה",
         description: "אין לך הרשאה לערוך פרטי עובד זה",
         variant: "destructive",
       });
-      return;
+      return false;
     }
     
     try {
@@ -93,9 +94,14 @@ const TeamMemberCard = ({
           name: newName,
           ...(newAvatarUrl && { avatar_url: newAvatarUrl })
         })
-        .eq('worker_id', workerId);
+        .eq('id', id);
 
       if (error) throw error;
+
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['team-members'] }),
+        queryClient.invalidateQueries({ queryKey: ['team-member', workerId] })
+      ]);
       
       setName(newName);
       if (newAvatarUrl) {
@@ -106,6 +112,7 @@ const TeamMemberCard = ({
         title: "פרטי עובד עודכנו",
         description: "הפרטים עודכנו בהצלחה",
       });
+      return true;
     } catch (error) {
       console.error('Error updating team member:', error);
       toast({
@@ -113,6 +120,7 @@ const TeamMemberCard = ({
         description: "אירעה שגיאה בעדכון הפרטים",
         variant: "destructive",
       });
+      return false;
     }
   };
 
