@@ -42,9 +42,7 @@ const TaskListContent = ({
   onEditTask,
   onDeleteAllTasksForDate,
   onReorderTasks,
-  onUpdateTaskDependencies,
   onUpdateTaskProgress,
-  onUpdateTaskProject,
 }: TaskListContentProps) => {
   const [reorderedTasks, setReorderedTasks] = useState<TasksByDate>(tasksByDate);
   const isMobile = useIsMobile();
