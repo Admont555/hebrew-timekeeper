@@ -13,6 +13,7 @@ import TaskStats from "@/components/task/TaskStats";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useWorkerState } from "@/hooks/useWorkerState";
 import { useTaskMutations } from "@/hooks/useTaskMutations";
+import { useCategories } from "@/hooks/useCategories";
 import { useTaskShortcuts } from "@/hooks/useTaskShortcuts";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
