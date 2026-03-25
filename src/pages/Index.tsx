@@ -117,9 +117,9 @@ const Index = () => {
     setTimeout(() => setShowConfetti(false), 3000);
   };
 
-  const handleAddTask = (title: string, duration: number, priority: TaskPriority) => {
+  const handleAddTask = (title: string, duration: number, priority: TaskPriority, categoryId?: string) => {
     if (!title.trim()) return;
-    addTaskMutation.mutate({ title, duration: duration || 0, priority: priority || "normal", worker: workerId });
+    addTaskMutation.mutate({ title, duration: duration || 0, priority: priority || "normal", worker: workerId, categoryId });
     setIsAddingTask(false);
   };
 
@@ -188,8 +188,8 @@ const Index = () => {
               onToggleTask={(taskId) => toggleTaskMutation.mutate({ taskId, worker: workerId })}
               onTaskComplete={handleTaskComplete}
               onDeleteTask={(taskId) => deleteTaskMutation.mutate(taskId)}
-              onEditTask={(taskId, newTitle, newDuration, newPriority) => 
-                editTaskMutation.mutate({ taskId, newTitle, newDuration, newPriority, worker: workerId })}
+              onEditTask={(taskId, newTitle, newDuration, newPriority, categoryId) => 
+                editTaskMutation.mutate({ taskId, newTitle, newDuration, newPriority, worker: workerId, categoryId })}
               onDeleteAllTasksForDate={handleDeleteAllTasksForDate}
               onReorderTasks={(date, tasks) => reorderTasksMutation.mutate({ tasks })}
               onUpdateTaskDependencies={(taskId, deps) => updateTaskDependenciesMutation.mutate({ taskId, dependencies: deps })}

@@ -14,7 +14,7 @@ interface TaskListProps {
   onToggleTask: (taskId: string) => void;
   onTaskComplete: (taskId: string) => void;
   onDeleteTask: (taskId: string) => void;
-  onEditTask: (taskId: string, newTitle: string, newDuration: number, newPriority: TaskPriority) => void;
+  onEditTask: (taskId: string, newTitle: string, newDuration: number, newPriority: TaskPriority, categoryId?: string) => void;
   onDeleteAllTasksForDate?: (date: string) => void;
   onReorderTasks?: (date: string, tasks: Task[]) => void;
   onUpdateTaskDependencies?: (taskId: string, dependencies: string[]) => void;
@@ -39,7 +39,7 @@ const TaskList = ({
 
   // Pass the onEditTask function directly to TaskListContent
   const handleEditTask = (task: Task) => {
-    onEditTask(task.id, task.title, task.duration || 0, task.priority);
+    onEditTask(task.id, task.title, task.duration || 0, task.priority, task.category_id);
   };
 
   // Configure keyboard shortcuts

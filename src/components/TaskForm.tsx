@@ -14,12 +14,14 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { TASK_CATEGORIES } from "@/constants/categories";
 
 interface TaskFormProps {
-  onAddTask: (title: string, duration: number, priority: TaskPriority) => void;
+  onAddTask: (title: string, duration: number, priority: TaskPriority, categoryId?: string) => void;
   initialTitle?: string;
   initialDuration?: number;
   initialPriority?: TaskPriority;
+  initialCategoryId?: string;
   submitLabel?: string;
   onCancel?: () => void;
   isOpen?: boolean;
@@ -31,6 +33,7 @@ const TaskForm = ({
   initialTitle = "", 
   initialDuration = 0, 
   initialPriority = "normal",
+  initialCategoryId = "",
   submitLabel = "הוסף",
   onCancel,
   isOpen = false,
@@ -39,6 +42,7 @@ const TaskForm = ({
   const [title, setTitle] = useState(initialTitle);
   const [duration, setDuration] = useState(initialDuration);
   const [priority, setPriority] = useState<TaskPriority>(initialPriority);
+  const [categoryId, setCategoryId] = useState(initialCategoryId);
   const [expanded, setExpanded] = useState(isOpen);
   const titleInputRef = useRef<HTMLInputElement>(null);
   const isMobile = useIsMobile();
@@ -49,8 +53,9 @@ const TaskForm = ({
       setTitle(initialTitle);
       setDuration(initialDuration);
       setPriority(initialPriority);
+      setCategoryId(initialCategoryId);
     }
-  }, [isOpen, initialTitle, initialDuration, initialPriority]);
+  }, [isOpen, initialTitle, initialDuration, initialPriority, initialCategoryId]);
   
   useEffect(() => {
     if (onOpenChange) {
@@ -61,10 +66,11 @@ const TaskForm = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (title.trim()) {
-      onAddTask(title, duration || 0, priority || "normal");
+      onAddTask(title, duration || 0, priority || "normal", categoryId || undefined);
       setTitle("");
       setDuration(0);
       setPriority("normal");
+      setCategoryId("");
       setExpanded(false);
     }
   };
@@ -77,6 +83,7 @@ const TaskForm = ({
       setTitle(initialTitle);
       setDuration(initialDuration);
       setPriority(initialPriority);
+      setCategoryId(initialCategoryId);
     }
   };
 
@@ -117,7 +124,7 @@ const TaskForm = ({
                 "w-full group relative overflow-hidden",
                 "bg-gradient-to-r from-primary/10 via-accent/50 to-primary/10",
                 "hover:from-primary/20 hover:via-accent hover:to-primary/20",
-                "text-primary dark:text-primary-foreground font-semibold",
+                "text-primary dark:text-primary font-semibold",
                 "flex items-center justify-center gap-3 text-lg mb-3",
                 "border-2 border-dashed border-primary/30 hover:border-primary/60",
                 "rounded-2xl shadow-sm hover:shadow-lg hover:shadow-primary/10",
@@ -167,6 +174,33 @@ const TaskForm = ({
                   autoComplete="off"
                   required
                 />
+              </div>
+
+              {/* Category selector */}
+              <div className="space-y-2">
+                <Label className="text-right font-medium text-foreground/80">
+                  קטגוריה
+                </Label>
+                <div className="flex flex-wrap gap-2">
+                  {TASK_CATEGORIES.map((cat) => (
+                    <motion.button
+                      key={cat.id}
+                      type="button"
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => setCategoryId(categoryId === cat.id ? "" : cat.id)}
+                      className={cn(
+                        "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-200 border",
+                        categoryId === cat.id
+                          ? "bg-primary text-primary-foreground border-primary shadow-md shadow-primary/20"
+                          : "bg-muted/50 text-muted-foreground border-border/50 hover:bg-accent hover:text-accent-foreground"
+                      )}
+                    >
+                      <span>{cat.icon}</span>
+                      <span>{cat.label}</span>
+                    </motion.button>
+                  ))}
+                </div>
               </div>
               
               <div className="grid grid-cols-2 gap-4">

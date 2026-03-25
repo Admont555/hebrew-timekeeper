@@ -87,84 +87,84 @@
   }
 
   .dark {
-    /* Core Colors - Dark Mode */
-    --background: 240 15% 8%;
-    --foreground: 0 0% 95%;
+    /* Core Colors - Dark Mode - Deep ocean inspired */
+    --background: 225 25% 6%;
+    --foreground: 210 20% 95%;
 
-    --card: 240 15% 11%;
-    --card-foreground: 0 0% 95%;
+    --card: 225 20% 10%;
+    --card-foreground: 210 20% 95%;
 
-    --popover: 240 15% 11%;
-    --popover-foreground: 0 0% 95%;
+    --popover: 225 20% 10%;
+    --popover-foreground: 210 20% 95%;
 
-    /* Primary - Bright Violet */
-    --primary: 262 75% 70%;
-    --primary-foreground: 240 15% 8%;
-    --primary-glow: 270 70% 78%;
+    /* Primary - Luminous Violet */
+    --primary: 262 85% 72%;
+    --primary-foreground: 225 25% 6%;
+    --primary-glow: 280 80% 78%;
 
-    /* Secondary - Deep Slate */
-    --secondary: 240 12% 18%;
-    --secondary-foreground: 0 0% 90%;
+    /* Secondary - Rich Slate */
+    --secondary: 225 18% 15%;
+    --secondary-foreground: 210 15% 88%;
 
-    /* Muted - Dark Slate */
-    --muted: 240 12% 16%;
-    --muted-foreground: 240 10% 60%;
+    /* Muted - Charcoal */
+    --muted: 225 15% 13%;
+    --muted-foreground: 220 12% 55%;
 
-    /* Accent - Rich Indigo */
-    --accent: 245 40% 20%;
-    --accent-foreground: 245 60% 85%;
+    /* Accent - Deep Violet */
+    --accent: 260 30% 18%;
+    --accent-foreground: 260 50% 85%;
 
-    /* Destructive - Soft Red */
-    --destructive: 0 65% 50%;
+    /* Destructive - Coral Red */
+    --destructive: 0 72% 58%;
     --destructive-foreground: 0 0% 100%;
 
-    /* Success - Soft Green */
-    --success: 152 60% 48%;
+    /* Success - Emerald */
+    --success: 160 65% 52%;
     --success-foreground: 0 0% 100%;
 
-    /* Warning - Warm Amber */
-    --warning: 38 85% 55%;
-    --warning-foreground: 38 95% 10%;
+    /* Warning - Warm Gold */
+    --warning: 42 90% 58%;
+    --warning-foreground: 42 95% 10%;
 
-    /* Info - Bright Blue */
-    --info: 205 80% 60%;
+    /* Info - Electric Blue */
+    --info: 210 85% 62%;
     --info-foreground: 0 0% 100%;
 
-    --border: 240 12% 20%;
-    --input: 240 12% 20%;
-    --ring: 262 75% 70%;
+    --border: 225 15% 16%;
+    --input: 225 15% 16%;
+    --ring: 262 85% 72%;
 
     /* Sidebar - Dark Mode */
-    --sidebar-background: 240 15% 10%;
-    --sidebar-foreground: 0 0% 90%;
-    --sidebar-primary: 262 75% 70%;
-    --sidebar-primary-foreground: 240 15% 8%;
-    --sidebar-accent: 245 40% 18%;
-    --sidebar-accent-foreground: 245 60% 85%;
-    --sidebar-border: 240 12% 18%;
-    --sidebar-ring: 262 75% 70%;
+    --sidebar-background: 225 25% 8%;
+    --sidebar-foreground: 210 15% 88%;
+    --sidebar-primary: 262 85% 72%;
+    --sidebar-primary-foreground: 225 25% 6%;
+    --sidebar-accent: 260 25% 16%;
+    --sidebar-accent-foreground: 260 50% 85%;
+    --sidebar-border: 225 15% 14%;
+    --sidebar-ring: 262 85% 72%;
     
     /* Task Priority Colors - Dark Mode */
-    --task-priority-high: 0 70% 58%;
-    --task-priority-high-bg: 0 50% 12%;
-    --task-priority-high-border: 0 60% 35%;
+    --task-priority-high: 0 78% 62%;
+    --task-priority-high-bg: 0 40% 14%;
+    --task-priority-high-border: 0 55% 35%;
     
-    --task-priority-normal: 40 85% 55%;
-    --task-priority-normal-bg: 40 50% 12%;
-    --task-priority-normal-border: 40 70% 38%;
+    --task-priority-normal: 42 85% 58%;
+    --task-priority-normal-bg: 42 40% 14%;
+    --task-priority-normal-border: 42 60% 38%;
     
-    --task-priority-low: 152 60% 50%;
-    --task-priority-low-bg: 152 50% 12%;
-    --task-priority-low-border: 152 50% 35%;
+    --task-priority-low: 160 60% 52%;
+    --task-priority-low-bg: 160 40% 14%;
+    --task-priority-low-border: 160 45% 35%;
     
     /* Task Completion Colors - Dark Mode */
-    --task-complete: 262 70% 72%;
-    --task-complete-hover: 262 75% 78%;
-    --task-complete-bg: 262 60% 15%;
+    --task-complete: 262 80% 74%;
+    --task-complete-hover: 262 85% 80%;
+    --task-complete-bg: 262 50% 16%;
     
     /* Glass Effect Colors - Dark Mode */
-    --glass-bg: 240 15% 12% / 0.9;
-    --glass-border: 0 0% 100% / 0.1;
+    --glass-bg: 225 20% 10% / 0.92;
+    --glass-border: 262 50% 60% / 0.08;
   }
 }
 
@@ -438,7 +438,15 @@
 
   /* Enhanced Gradients */
   .bg-gradient-subtle {
-    @apply bg-gradient-to-br from-background via-secondary/30 to-accent/20;
+    @apply bg-gradient-to-br from-background via-secondary/20 to-accent/10;
+  }
+
+  .dark .bg-gradient-subtle {
+    background: linear-gradient(135deg, 
+      hsl(225 25% 6%) 0%, 
+      hsl(260 20% 10%) 40%, 
+      hsl(225 25% 8%) 70%, 
+      hsl(280 15% 9%) 100%);
   }
   
   .bg-gradient-task {
@@ -463,15 +471,25 @@
   
   /* Glass Effect - Modern Glassmorphism */
   .glass {
-    @apply backdrop-blur-md bg-card/80 border border-border/50 shadow-lg;
+    @apply backdrop-blur-xl bg-card/75 border border-border/40 shadow-lg;
+  }
+
+  .dark .glass {
+    background: linear-gradient(135deg, 
+      hsl(225 20% 10% / 0.85), 
+      hsl(260 15% 12% / 0.75));
+    border-color: hsl(262 50% 60% / 0.1);
+    box-shadow: 0 8px 32px hsl(262 50% 20% / 0.15), 
+                0 2px 8px hsl(0 0% 0% / 0.2),
+                inset 0 1px 0 hsl(0 0% 100% / 0.03);
   }
   
   .glass-dark {
-    @apply backdrop-blur-md bg-card/90 border border-border/60 shadow-xl;
+    @apply backdrop-blur-xl bg-card/90 border border-border/50 shadow-xl;
   }
   
   .glass-subtle {
-    @apply backdrop-blur-sm bg-card/70 border border-border/30;
+    @apply backdrop-blur-sm bg-card/60 border border-border/20;
   }
   
   /* Enhanced Card Styles */

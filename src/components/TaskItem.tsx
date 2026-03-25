@@ -13,6 +13,7 @@ import TaskForm from "./TaskForm";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
+import { getCategoryById } from "@/constants/categories";
 
 interface TaskItemProps {
   task: Task;
@@ -44,6 +45,8 @@ const TaskItem = ({
   const isMobile = useIsMobile();
   const [isDragging, setIsDragging] = useState(false);
 
+  const category = getCategoryById(task.category_id);
+
   const formatTime = (timestamp: string) => {
     return new Date(timestamp).toLocaleTimeString("he-IL", {
       hour: "2-digit",
@@ -53,16 +56,11 @@ const TaskItem = ({
 
   const getTaskCardClass = (priority: 'low' | 'normal' | 'high', completed: boolean) => {
     if (completed) return 'task-card task-card-completed';
-    
     switch (priority) {
-      case 'high':
-        return 'task-card task-card-high';
-      case 'normal':
-        return 'task-card task-card-normal';
-      case 'low':
-        return 'task-card task-card-low';
-      default:
-        return 'task-card task-card-normal';
+      case 'high': return 'task-card task-card-high';
+      case 'normal': return 'task-card task-card-normal';
+      case 'low': return 'task-card task-card-low';
+      default: return 'task-card task-card-normal';
     }
   };
 
@@ -74,23 +72,11 @@ const TaskItem = ({
     task.attachments = newAttachments;
   };
 
-  const handleEditClick = () => {
-    setIsEditing(true);
-  };
+  const handleEditClick = () => setIsEditing(true);
 
-  const handleEditSubmit = (title: string, duration: number, priority: 'low' | 'normal' | 'high') => {
-    const editedTask = {
-      ...task,
-      title,
-      duration,
-      priority
-    };
-    
+  const handleEditSubmit = (title: string, duration: number, priority: 'low' | 'normal' | 'high', categoryId?: string) => {
+    const editedTask = { ...task, title, duration, priority, category_id: categoryId };
     onEdit(editedTask);
-    setIsEditing(false);
-  };
-
-  const handleEditCancel = () => {
     setIsEditing(false);
   };
 
@@ -99,23 +85,14 @@ const TaskItem = ({
     onToggleTask(task.id);
   };
 
-  const handleToggleProject = () => {
-    setShowProject(!showProject);
-  };
-
   const handleProgressUpdate = (progress: number) => {
-    if (onUpdateProgress) {
-      onUpdateProgress(task.id, progress);
-    }
+    if (onUpdateProgress) onUpdateProgress(task.id, progress);
   };
 
   const handleProjectUpdate = (taskId: string, projectId: string | null) => {
-    if (onUpdateProject) {
-      onUpdateProject(taskId, projectId);
-    }
+    if (onUpdateProject) onUpdateProject(taskId, projectId);
   };
 
-  // Priority indicator dot with pulse animation for high priority
   const PriorityIndicator = () => {
     const dotClass = cn(
       "w-3 h-3 rounded-full absolute -top-1 -right-1",
@@ -123,7 +100,6 @@ const TaskItem = ({
       task.priority === 'normal' && "bg-task-normal",
       task.priority === 'low' && "bg-task-low"
     );
-    
     return (
       <motion.div 
         className={dotClass}
@@ -137,20 +113,10 @@ const TaskItem = ({
   return (
     <motion.div
       initial={{ opacity: 0, y: 20, scale: 0.95 }}
-      animate={{ 
-        opacity: 1, 
-        y: 0,
-        scale: isDragging ? 1.02 : 1,
-      }}
+      animate={{ opacity: 1, y: 0, scale: isDragging ? 1.02 : 1 }}
       exit={{ opacity: 0, scale: 0.9, y: -30 }}
-      transition={{ 
-        duration: 0.4,
-        ease: [0.25, 0.46, 0.45, 0.94]
-      }}
-      whileHover={{ 
-        scale: isDragging ? 1.02 : 1.01,
-        y: isDragging ? 0 : -2,
-      }}
+      transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
+      whileHover={{ scale: isDragging ? 1.02 : 1.01, y: isDragging ? 0 : -2 }}
       dir="rtl"
       className={cn(
         "flex flex-col gap-5 p-4 sm:p-6 relative group overflow-hidden",
@@ -160,13 +126,9 @@ const TaskItem = ({
       onDragStart={() => setIsDragging(true)}
       onDragEnd={() => setIsDragging(false)}
     >
-      {/* Decorative gradient overlay */}
       <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-primary/5 pointer-events-none" />
-      
-      {/* Priority indicator dot */}
       <PriorityIndicator />
 
-      {/* Drag handle - positioned for RTL */}
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
@@ -198,23 +160,16 @@ const TaskItem = ({
               initialTitle={task.title}
               initialDuration={task.duration || 0}
               initialPriority={task.priority || "normal"}
+              initialCategoryId={task.category_id || ""}
               submitLabel="עדכן"
-              onCancel={handleEditCancel}
+              onCancel={() => setIsEditing(false)}
               isOpen={true}
               onOpenChange={(open) => { if (!open) setIsEditing(false); }}
             />
           </motion.div>
         ) : (
-          <motion.div
-            key="display"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="relative z-10"
-          >
-            {/* Main content - RTL optimized layout */}
+          <motion.div key="display" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="relative z-10">
             <div className="flex flex-col gap-4">
-              {/* Top row: Title and Time */}
               <div className="flex flex-col gap-2 pr-8">
                 <span className={cn(
                   "task-title text-right text-base sm:text-lg transition-all duration-300 leading-relaxed",
@@ -226,6 +181,12 @@ const TaskItem = ({
                   <span className="text-xs sm:text-sm text-muted-foreground font-medium bg-muted/50 px-2 py-0.5 rounded-md">
                     {formatTime(task.timestamp)}
                   </span>
+                  {category && (
+                    <span className="text-xs font-medium bg-accent/60 text-accent-foreground px-2 py-0.5 rounded-full flex items-center gap-1">
+                      <span>{category.icon}</span>
+                      <span>{category.label}</span>
+                    </span>
+                  )}
                   {task.completed && (
                     <motion.div
                       initial={{ opacity: 0, scale: 0 }}
@@ -239,7 +200,6 @@ const TaskItem = ({
                 </div>
               </div>
               
-              {/* Actions row */}
               <div className="flex items-center justify-between gap-2 flex-wrap">
                 <div className="flex items-center gap-2">
                   <TaskPriorityComponent priority={task.priority} />
@@ -250,7 +210,7 @@ const TaskItem = ({
                   onEdit={handleEditClick}
                   onToggleComments={() => setShowComments(!showComments)}
                   onToggleAttachments={() => setShowAttachments(!showAttachments)}
-                  onToggleDependencies={handleToggleProject}
+                  onToggleDependencies={() => setShowProject(!showProject)}
                   showAttachments={showAttachments}
                   showDependencies={showProject}
                 />
@@ -258,16 +218,8 @@ const TaskItem = ({
             </div>
 
             {(task.progress || 0) > 0 && (
-              <motion.div 
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                className="mt-5"
-              >
-                <TaskProgressBar 
-                  progress={task.progress || 0} 
-                  size="md" 
-                  className="w-full" 
-                />
+              <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="mt-5">
+                <TaskProgressBar progress={task.progress || 0} size="md" className="w-full" />
               </motion.div>
             )}
 
@@ -297,10 +249,7 @@ const TaskItem = ({
                             exit={{ scale: 0, rotate: 180 }}
                             transition={{ type: "spring", stiffness: 400, damping: 15 }}
                           >
-                            <Check className={cn(
-                              "text-primary-foreground",
-                              isMobile ? "h-7 w-7" : "h-5 w-5"
-                            )} />
+                            <Check className={cn("text-primary-foreground", isMobile ? "h-7 w-7" : "h-5 w-5")} />
                           </motion.div>
                         )}
                       </AnimatePresence>
@@ -332,11 +281,7 @@ const TaskItem = ({
             transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
             className="border-t border-border/50 pt-4"
           >
-            <TaskProjectLink
-              taskId={task.id}
-              currentProjectId={task.project_id}
-              onUpdateProject={handleProjectUpdate}
-            />
+            <TaskProjectLink taskId={task.id} currentProjectId={task.project_id} onUpdateProject={handleProjectUpdate} />
           </motion.div>
         )}
       </AnimatePresence>
@@ -350,12 +295,7 @@ const TaskItem = ({
             transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
             className="border-t border-border/50 pt-4"
           >
-            <TaskAttachments
-              taskId={task.id}
-              attachments={task.attachments || []}
-              onAttachmentsUpdate={handleAttachmentsUpdate}
-              showUploadField={showAttachments}
-            />
+            <TaskAttachments taskId={task.id} attachments={task.attachments || []} onAttachmentsUpdate={handleAttachmentsUpdate} showUploadField={showAttachments} />
           </motion.div>
         )}
       </AnimatePresence>
@@ -369,13 +309,7 @@ const TaskItem = ({
             transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
             className="border-t border-border/50 pt-4"
           >
-            <TaskComments
-              taskId={task.id}
-              comments={task.comments || []}
-              onCommentsUpdate={handleCommentsUpdate}
-              attachments={task.attachments || []}
-              onAttachmentsUpdate={handleAttachmentsUpdate}
-            />
+            <TaskComments taskId={task.id} comments={task.comments || []} onCommentsUpdate={handleCommentsUpdate} attachments={task.attachments || []} onAttachmentsUpdate={handleAttachmentsUpdate} />
           </motion.div>
         )}
       </AnimatePresence>

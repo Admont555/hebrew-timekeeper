@@ -9,13 +9,14 @@ export const useTaskMutations = () => {
   const queryClient = useQueryClient();
 
   const addTaskMutation = useMutation({
-    mutationFn: async ({ title, duration, priority, worker, _file, projectId }: { 
+    mutationFn: async ({ title, duration, priority, worker, _file, projectId, categoryId }: { 
       title?: string; 
       duration?: number; 
       priority?: TaskPriority;
       worker?: string;
       _file?: File;
       projectId?: string;
+      categoryId?: string;
     }) => {
       console.log('Adding task with params:', { title, duration, priority, worker, projectId });
       
@@ -35,6 +36,7 @@ export const useTaskMutations = () => {
             priority,
             worker,
             project_id: projectId,
+            category_id: categoryId,
           };
 
           console.log('Inserting task:', newTask);
@@ -153,7 +155,7 @@ export const useTaskMutations = () => {
   });
 
   const editTaskMutation = useMutation({
-    mutationFn: async ({ taskId, newTitle, newDuration, newPriority, worker, _file, attachments, progress, dependencies }: { 
+    mutationFn: async ({ taskId, newTitle, newDuration, newPriority, worker, _file, attachments, progress, dependencies, categoryId }: { 
       taskId: string; 
       newTitle?: string; 
       newDuration?: number; 
@@ -168,6 +170,7 @@ export const useTaskMutations = () => {
       }>;
       progress?: number;
       dependencies?: string[];
+      categoryId?: string;
     }) => {
       console.log('Editing task:', { taskId, newTitle, newDuration, newPriority });
       
@@ -240,6 +243,10 @@ export const useTaskMutations = () => {
         
         if (newPriority !== undefined) {
           updates.priority = newPriority;
+        }
+        
+        if (categoryId !== undefined) {
+          updates.category_id = categoryId || null;
         }
         
         console.log('Applying updates:', updates);
