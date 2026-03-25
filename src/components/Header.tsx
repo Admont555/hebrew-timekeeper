@@ -10,20 +10,17 @@ const Header = () => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className={`flex flex-col items-center mb-8 ${isMobile ? 'mt-16 pt-4 pb-2' : 'pt-20 sm:pt-24 md:pt-12 mt-2 sm:mt-4'}`}
+      className={`flex flex-col items-center ${isMobile ? 'mb-4' : 'mb-6'}`}
     >
       <img 
         src="https://beeu.co.il/wp-content/uploads/2024/03/אייקון-ביו-מקורי-1.svg" 
         alt="BeEu Logo" 
-        className="w-16 h-16 sm:w-24 sm:h-24 mb-4 object-contain"
+        className="w-12 h-12 sm:w-16 sm:h-16 mb-3 object-contain"
         loading="eager"
       />
-      <h1 
-        className="text-center text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-purple-600 via-blue-500 to-purple-600 animate-gradient bg-clip-text text-transparent bg-[length:200%_auto] dark:from-purple-400 dark:via-blue-300 dark:to-purple-400"
-      >
+      <h1 className="text-center text-xl sm:text-2xl md:text-3xl font-bold text-gradient mb-0">
         מעקב משימות
       </h1>
-      
     </motion.div>
   );
 };
