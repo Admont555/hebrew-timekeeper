@@ -1,6 +1,5 @@
 
 import { motion } from "framer-motion";
-import { ThemeSwitcher } from "@/components/ThemeSwitcher";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 const Header = () => {
@@ -24,7 +23,7 @@ const Header = () => {
       >
         מעקב משימות
       </h1>
-      <ThemeSwitcher />
+      
     </motion.div>
   );
 };
