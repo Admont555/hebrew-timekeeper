@@ -155,7 +155,7 @@ export const useTaskMutations = () => {
   });
 
   const editTaskMutation = useMutation({
-    mutationFn: async ({ taskId, newTitle, newDuration, newPriority, worker, _file, attachments, progress, dependencies }: { 
+    mutationFn: async ({ taskId, newTitle, newDuration, newPriority, worker, _file, attachments, progress, dependencies, categoryId }: { 
       taskId: string; 
       newTitle?: string; 
       newDuration?: number; 
@@ -170,6 +170,7 @@ export const useTaskMutations = () => {
       }>;
       progress?: number;
       dependencies?: string[];
+      categoryId?: string;
     }) => {
       console.log('Editing task:', { taskId, newTitle, newDuration, newPriority });
       

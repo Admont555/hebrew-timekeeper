@@ -39,7 +39,7 @@ const TaskList = ({
 
   // Pass the onEditTask function directly to TaskListContent
   const handleEditTask = (task: Task) => {
-    onEditTask(task.id, task.title, task.duration || 0, task.priority);
+    onEditTask(task.id, task.title, task.duration || 0, task.priority, task.category_id);
   };
 
   // Configure keyboard shortcuts
