@@ -20,7 +20,8 @@ export default {
 		},
 		extend: {
 			fontFamily: {
-				sans: ['Heebo', 'sans-serif'],
+				sans: ['Figtree', 'Heebo', 'sans-serif'],
+				display: ['Outfit', 'Figtree', 'Heebo', 'sans-serif'],
 			},
 			colors: {
 				border: 'hsl(var(--border))',

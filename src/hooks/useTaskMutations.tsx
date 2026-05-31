@@ -256,7 +256,7 @@ export const useTaskMutations = () => {
         if (Object.keys(updates).length > 0) {
           const { error } = await supabase
             .from("tasks")
-            .update(updates)
+            .update(updates as any)
             .eq("id", taskId);
   
           if (error) {
@@ -313,7 +313,7 @@ export const useTaskMutations = () => {
       
       const { error } = await supabase
         .from("tasks")
-        .update(updates)
+        .update(updates as any)
         .eq("id", taskId);
 
       if (error) {
@@ -355,7 +355,7 @@ export const useTaskMutations = () => {
       if (Object.keys(updates).length > 0) {
         const { error } = await supabase
           .from("tasks")
-          .update(updates)
+          .update(updates as any)
           .eq("id", taskId);
 
         if (error) {

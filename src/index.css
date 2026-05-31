@@ -87,32 +87,32 @@
   }
 
   .dark {
-    /* Core Colors - Dark Mode - Deep ocean inspired */
-    --background: 225 25% 6%;
-    --foreground: 210 20% 95%;
+    /* Core Colors - Dark Mode - Midnight Indigo */
+    --background: 240 60% 7%;   /* #0a0a1a */
+    --foreground: 210 20% 96%;
 
-    --card: 225 20% 10%;
-    --card-foreground: 210 20% 95%;
+    --card: 240 50% 14%;        /* #141432 */
+    --card-foreground: 210 20% 96%;
 
-    --popover: 225 20% 10%;
-    --popover-foreground: 210 20% 95%;
+    --popover: 240 50% 14%;
+    --popover-foreground: 210 20% 96%;
 
-    /* Primary - Luminous Violet */
-    --primary: 262 85% 72%;
-    --primary-foreground: 225 25% 6%;
-    --primary-glow: 280 80% 78%;
+    /* Primary - Indigo #4f46e5 */
+    --primary: 243 75% 59%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 250 78% 68%;
 
-    /* Secondary - Rich Slate */
-    --secondary: 225 18% 15%;
-    --secondary-foreground: 210 15% 88%;
+    /* Secondary - deep indigo #1e1e5a */
+    --secondary: 240 51% 24%;
+    --secondary-foreground: 210 20% 92%;
 
-    /* Muted - Charcoal */
-    --muted: 225 15% 13%;
-    --muted-foreground: 220 12% 55%;
+    /* Muted */
+    --muted: 240 35% 16%;
+    --muted-foreground: 230 15% 62%;
 
-    /* Accent - Deep Violet */
-    --accent: 260 30% 18%;
-    --accent-foreground: 260 50% 85%;
+    /* Accent */
+    --accent: 243 55% 22%;
+    --accent-foreground: 243 90% 88%;
 
     /* Destructive - Coral Red */
     --destructive: 0 72% 58%;
@@ -130,41 +130,41 @@
     --info: 210 85% 62%;
     --info-foreground: 0 0% 100%;
 
-    --border: 225 15% 16%;
-    --input: 225 15% 16%;
-    --ring: 262 85% 72%;
+    --border: 240 40% 18%;
+    --input: 240 40% 18%;
+    --ring: 243 75% 59%;
 
-    /* Sidebar - Dark Mode */
-    --sidebar-background: 225 25% 8%;
+    /* Sidebar */
+    --sidebar-background: 240 60% 7%;
     --sidebar-foreground: 210 15% 88%;
-    --sidebar-primary: 262 85% 72%;
-    --sidebar-primary-foreground: 225 25% 6%;
-    --sidebar-accent: 260 25% 16%;
-    --sidebar-accent-foreground: 260 50% 85%;
-    --sidebar-border: 225 15% 14%;
-    --sidebar-ring: 262 85% 72%;
-    
+    --sidebar-primary: 243 75% 59%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 50% 18%;
+    --sidebar-accent-foreground: 243 90% 88%;
+    --sidebar-border: 240 40% 16%;
+    --sidebar-ring: 243 75% 59%;
+
     /* Task Priority Colors - Dark Mode */
     --task-priority-high: 0 78% 62%;
-    --task-priority-high-bg: 0 40% 14%;
-    --task-priority-high-border: 0 55% 35%;
-    
+    --task-priority-high-bg: 0 40% 18%;
+    --task-priority-high-border: 0 55% 38%;
+
     --task-priority-normal: 42 85% 58%;
-    --task-priority-normal-bg: 42 40% 14%;
-    --task-priority-normal-border: 42 60% 38%;
-    
+    --task-priority-normal-bg: 42 40% 18%;
+    --task-priority-normal-border: 42 60% 40%;
+
     --task-priority-low: 160 60% 52%;
-    --task-priority-low-bg: 160 40% 14%;
-    --task-priority-low-border: 160 45% 35%;
-    
+    --task-priority-low-bg: 160 40% 18%;
+    --task-priority-low-border: 160 45% 38%;
+
     /* Task Completion Colors - Dark Mode */
-    --task-complete: 262 80% 74%;
-    --task-complete-hover: 262 85% 80%;
-    --task-complete-bg: 262 50% 16%;
-    
+    --task-complete: 243 80% 70%;
+    --task-complete-hover: 243 85% 78%;
+    --task-complete-bg: 243 50% 22%;
+
     /* Glass Effect Colors - Dark Mode */
-    --glass-bg: 225 20% 10% / 0.92;
-    --glass-border: 262 50% 60% / 0.08;
+    --glass-bg: 240 50% 14% / 0.6;
+    --glass-border: 243 60% 60% / 0.1;
   }
 }
 
@@ -230,8 +230,14 @@
     unicode-range: U+0590-05FF, U+200C-2010, U+20AA, U+25CC, U+FB1D-FB4F;
   }
   
-  html[dir="rtl"] body {
-    font-family: 'Heebo', sans-serif;
+  html[dir="rtl"] body,
+  body {
+    font-family: 'Figtree', 'Heebo', sans-serif;
+  }
+
+  .font-display {
+    font-family: 'Outfit', 'Figtree', 'Heebo', sans-serif;
+    letter-spacing: -0.01em;
   }
   
   /* RTL layout fixes */
@@ -442,11 +448,10 @@
   }
 
   .dark .bg-gradient-subtle {
-    background: linear-gradient(135deg, 
-      hsl(225 25% 6%) 0%, 
-      hsl(260 20% 10%) 40%, 
-      hsl(225 25% 8%) 70%, 
-      hsl(280 15% 9%) 100%);
+    background:
+      radial-gradient(ellipse 80% 50% at 50% -10%, hsl(243 75% 59% / 0.15), transparent 60%),
+      radial-gradient(ellipse 60% 50% at 80% 110%, hsl(250 78% 68% / 0.08), transparent 60%),
+      hsl(240 60% 7%);
   }
   
   .bg-gradient-task {

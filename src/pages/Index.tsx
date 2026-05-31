@@ -161,55 +161,59 @@ const Index = () => {
         animate={{ opacity: 1 }}
         className="min-h-screen bg-gradient-subtle" dir="rtl"
       >
-        <div className="container mx-auto px-4 py-6 max-w-3xl">
+        <div className="container mx-auto px-4 py-6 max-w-[720px]">
           {/* Top bar */}
-          <div className="flex items-center justify-between mb-4">
-            <Button 
-              variant="ghost" 
+          <div className="flex items-center justify-between mb-8">
+            <Button
+              variant="ghost"
               onClick={() => navigate('/')}
-              className="flex items-center gap-2 hover:bg-accent"
+              className="flex items-center gap-2 hover:bg-white/5 text-foreground/80 rounded-lg px-3"
               size={isMobile ? "sm" : "default"}
             >
               <ArrowRight className="h-4 w-4" />
-              חזרה
+              <span className="text-sm font-medium">חזרה</span>
             </Button>
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1.5">
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => navigate(`/member/${workerId}/categories`)}
-                className="rounded-full h-9 w-9 hover:bg-accent"
+                className="rounded-full h-9 w-9 hover:bg-white/5 text-foreground/70"
                 title="קטגוריות"
               >
-                <FolderOpen className="h-4 w-4" />
+                <FolderOpen className="h-[18px] w-[18px]" />
               </Button>
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => setTheme(theme === "light" ? "dark" : "light")}
-                className="rounded-full h-9 w-9 hover:bg-accent"
+                className="rounded-full h-9 w-9 hover:bg-white/5 text-foreground/70"
               >
-                {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+                {theme === "dark" ? <Sun className="h-[18px] w-[18px]" /> : <Moon className="h-[18px] w-[18px]" />}
               </Button>
             </div>
           </div>
 
           {/* Profile hero section */}
-          <motion.div 
-            initial={{ opacity: 0, y: -10 }}
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
-            className="flex flex-col items-center gap-3 mb-8"
+            className="flex flex-col items-center gap-3 mb-10"
           >
-            <Avatar className="h-20 w-20 sm:h-24 sm:w-24 ring-4 ring-primary/20 ring-offset-4 ring-offset-background shadow-xl">
-              <AvatarImage src={teamMember?.avatar_url || undefined} className="object-cover" />
-              <AvatarFallback className="bg-gradient-to-br from-primary/20 to-primary/5 text-primary">
-                <UserRound className="h-10 w-10 sm:h-12 sm:w-12" />
-              </AvatarFallback>
-            </Avatar>
-            <h2 className="text-xl sm:text-2xl font-bold text-foreground">
+            <div className="relative">
+              <div className="absolute -inset-1 bg-gradient-to-tr from-primary to-secondary rounded-full blur-md opacity-50" />
+              <Avatar className="relative h-24 w-24 sm:h-28 sm:w-28 border-2 border-secondary shadow-2xl">
+                <AvatarImage src={teamMember?.avatar_url || undefined} className="object-cover" />
+                <AvatarFallback className="bg-gradient-to-br from-secondary to-card text-primary">
+                  <UserRound className="h-10 w-10 sm:h-12 sm:w-12" />
+                </AvatarFallback>
+              </Avatar>
+            </div>
+            <h2 className="font-display text-2xl sm:text-3xl font-bold text-foreground tracking-tight">
               {teamMember?.name || '...'}
             </h2>
           </motion.div>
+
 
           <Header />
           
