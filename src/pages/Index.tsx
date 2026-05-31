@@ -46,22 +46,8 @@ const Index = () => {
 
   if (!workerId) return <Navigate to="/" replace />;
 
-  const getDateRange = () => {
-    const now = new Date();
-    if (viewMode === "week") {
-      return {
-        from: format(startOfWeek(now, { weekStartsOn: 0 }), "yyyy-MM-dd"),
-        to: format(endOfWeek(now, { weekStartsOn: 0 }), "yyyy-MM-dd"),
-      };
-    }
-    if (viewMode === "month") {
-      return {
-        from: format(startOfMonth(now), "yyyy-MM-dd"),
-        to: format(endOfMonth(now), "yyyy-MM-dd"),
-      };
-    }
-    return null; // "all"
-  };
+
+
 
   const { data: teamMember } = useQuery({
     queryKey: ['team-member', workerId],
