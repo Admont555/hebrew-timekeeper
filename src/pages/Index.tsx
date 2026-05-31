@@ -21,10 +21,9 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, Moon, Sun, FolderOpen } from "lucide-react";
 import TaskForm from "@/components/TaskForm";
 import TaskList from "@/components/TaskList";
-import DateRangeSelector, { ViewMode } from "@/components/task/DateRangeSelector";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useTheme } from "@/components/ThemeProvider";
-import { startOfWeek, endOfWeek, startOfMonth, endOfMonth, format } from "date-fns";
+
 
 const Index = () => {
   const { workerId } = useParams();
