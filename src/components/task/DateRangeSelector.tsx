@@ -1,5 +1,3 @@
-import { Button } from "@/components/ui/button";
-import { CalendarDays, CalendarRange, Infinity as InfinityIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 
@@ -11,35 +9,43 @@ interface DateRangeSelectorProps {
 }
 
 const DateRangeSelector = ({ viewMode, onViewModeChange }: DateRangeSelectorProps) => {
-  const options: { mode: ViewMode; label: string; description: string; icon: React.ReactNode }[] = [
-    { mode: "week", label: "השבוע", description: "משימות לשבוע הנוכחי", icon: <CalendarDays className="h-4 w-4" /> },
-    { mode: "month", label: "החודש", description: "משימות לחודש הנוכחי", icon: <CalendarRange className="h-4 w-4" /> },
-    { mode: "all", label: "הכל", description: "כל המשימות", icon: <InfinityIcon className="h-4 w-4" /> },
+  const options: { mode: ViewMode; label: string; description: string }[] = [
+    { mode: "week", label: "השבוע", description: "משימות לשבוע הנוכחי" },
+    { mode: "month", label: "החודש", description: "משימות לחודש הנוכחי" },
+    { mode: "all", label: "הכל", description: "כל המשימות" },
   ];
 
   return (
-    <div className="flex flex-col items-center gap-2 mb-6" dir="rtl">
-      <div className="flex items-center gap-1 p-1 rounded-xl bg-muted/50 border border-border/50 backdrop-blur-sm">
-        {options.map((opt) => (
-          <motion.div key={opt.mode} whileTap={{ scale: 0.95 }}>
-            <Button
-              variant="ghost"
-              size="sm"
+    <div className="flex flex-col items-center gap-3 mb-6" dir="rtl">
+      <div className="flex p-1 bg-card/70 backdrop-blur-md rounded-2xl border border-border/40 shadow-xl">
+        {options.map((opt) => {
+          const active = viewMode === opt.mode;
+          return (
+            <motion.button
+              key={opt.mode}
+              type="button"
+              whileTap={{ scale: 0.96 }}
               onClick={() => onViewModeChange(opt.mode)}
               className={cn(
-                "flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200",
-                viewMode === opt.mode
-                  ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
-                  : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
+                "relative px-5 sm:px-7 py-2.5 rounded-xl text-sm font-semibold transition-colors min-w-[80px]",
+                active
+                  ? "text-primary-foreground"
+                  : "text-muted-foreground hover:text-foreground"
               )}
             >
-              {opt.icon}
-              <span>{opt.label}</span>
-            </Button>
-          </motion.div>
-        ))}
+              {active && (
+                <motion.span
+                  layoutId="dateScopePill"
+                  className="absolute inset-0 rounded-xl bg-primary shadow-[0_0_24px_hsl(var(--primary)/0.45)]"
+                  transition={{ type: "spring", stiffness: 500, damping: 35 }}
+                />
+              )}
+              <span className="relative z-10">{opt.label}</span>
+            </motion.button>
+          );
+        })}
       </div>
-      <p className="text-xs text-muted-foreground">
+      <p className="text-xs text-muted-foreground tracking-wide">
         {options.find(o => o.mode === viewMode)?.description}
       </p>
     </div>
