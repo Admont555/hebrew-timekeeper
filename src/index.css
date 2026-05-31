@@ -442,11 +442,10 @@
   }
 
   .dark .bg-gradient-subtle {
-    background: linear-gradient(135deg, 
-      hsl(225 25% 6%) 0%, 
-      hsl(260 20% 10%) 40%, 
-      hsl(225 25% 8%) 70%, 
-      hsl(280 15% 9%) 100%);
+    background:
+      radial-gradient(ellipse 80% 50% at 50% -10%, hsl(243 75% 59% / 0.15), transparent 60%),
+      radial-gradient(ellipse 60% 50% at 80% 110%, hsl(250 78% 68% / 0.08), transparent 60%),
+      hsl(240 60% 7%);
   }
   
   .bg-gradient-task {
