@@ -1,6 +1,7 @@
 import { Toaster } from "@/components/ui/toaster";
 import { useState } from "react";
 import { useParams, Navigate, useNavigate } from "react-router-dom";
+
 import RandomQuote from "@/components/RandomQuote";
 import { TasksByDate, TaskPriority } from "@/types/task";
 import { useToast } from "@/hooks/use-toast";
@@ -20,16 +21,15 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, Moon, Sun, FolderOpen } from "lucide-react";
 import TaskForm from "@/components/TaskForm";
 import TaskList from "@/components/TaskList";
-import DateRangeSelector, { ViewMode } from "@/components/task/DateRangeSelector";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useTheme } from "@/components/ThemeProvider";
-import { startOfWeek, endOfWeek, startOfMonth, endOfMonth, format } from "date-fns";
+
 
 const Index = () => {
   const { workerId } = useParams();
   const navigate = useNavigate();
-  const [viewMode, setViewMode] = useState<ViewMode>("week");
   const [showConfetti, setShowConfetti] = useState(false);
+
   const { toast } = useToast();
   const isMobile = useIsMobile();
   const queryClient = useQueryClient();
@@ -46,22 +46,8 @@ const Index = () => {
 
   if (!workerId) return <Navigate to="/" replace />;
 
-  const getDateRange = () => {
-    const now = new Date();
-    if (viewMode === "week") {
-      return {
-        from: format(startOfWeek(now, { weekStartsOn: 0 }), "yyyy-MM-dd"),
-        to: format(endOfWeek(now, { weekStartsOn: 0 }), "yyyy-MM-dd"),
-      };
-    }
-    if (viewMode === "month") {
-      return {
-        from: format(startOfMonth(now), "yyyy-MM-dd"),
-        to: format(endOfMonth(now), "yyyy-MM-dd"),
-      };
-    }
-    return null; // "all"
-  };
+
+
 
   const { data: teamMember } = useQuery({
     queryKey: ['team-member', workerId],
@@ -75,15 +61,11 @@ const Index = () => {
   });
 
   const { data: tasksByDate = {}, isLoading } = useQuery({
-    queryKey: ['tasks', workerId, viewMode],
+    queryKey: ['tasks', workerId],
     queryFn: async () => {
       if (!workerId) return {};
-      let query = supabase.from("tasks").select("*").eq("worker", workerId).order("timestamp", { ascending: false });
-      
-      const range = getDateRange();
-      if (range) {
-        query = query.gte('date', range.from).lte('date', range.to);
-      }
+      const query = supabase.from("tasks").select("*").eq("worker", workerId).order("timestamp", { ascending: false });
+
 
       const { data, error } = await query;
       if (error) { toast({ title: "שגיאה בטעינת משימות", description: error.message, variant: "destructive" }); throw error; }
@@ -145,14 +127,13 @@ const Index = () => {
 
   const handleAddTask = (title: string, duration: number, priority: TaskPriority, categoryId?: string) => {
     if (!title.trim()) return;
-    const scopeTag = viewMode !== "all" ? `scope:${viewMode}` : undefined;
     addTaskMutation.mutate({ 
       title, duration: duration || 0, priority: priority || "normal", 
       worker: workerId, categoryId,
-      tags: scopeTag ? [scopeTag] : undefined,
     });
     setIsAddingTask(false);
   };
+
 
   return (
     <ErrorBoundary>
@@ -221,7 +202,7 @@ const Index = () => {
             <RandomQuote />
           </div>
 
-          <DateRangeSelector viewMode={viewMode} onViewModeChange={setViewMode} />
+
           
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
