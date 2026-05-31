@@ -230,8 +230,14 @@
     unicode-range: U+0590-05FF, U+200C-2010, U+20AA, U+25CC, U+FB1D-FB4F;
   }
   
-  html[dir="rtl"] body {
-    font-family: 'Heebo', sans-serif;
+  html[dir="rtl"] body,
+  body {
+    font-family: 'Figtree', 'Heebo', sans-serif;
+  }
+
+  .font-display {
+    font-family: 'Outfit', 'Figtree', 'Heebo', sans-serif;
+    letter-spacing: -0.01em;
   }
   
   /* RTL layout fixes */
