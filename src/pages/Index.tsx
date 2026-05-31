@@ -28,8 +28,8 @@ import { useTheme } from "@/components/ThemeProvider";
 const Index = () => {
   const { workerId } = useParams();
   const navigate = useNavigate();
-  const [viewMode, setViewMode] = useState<ViewMode>("week");
   const [showConfetti, setShowConfetti] = useState(false);
+
   const { toast } = useToast();
   const isMobile = useIsMobile();
   const queryClient = useQueryClient();
