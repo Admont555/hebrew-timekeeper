@@ -61,15 +61,11 @@ const Index = () => {
   });
 
   const { data: tasksByDate = {}, isLoading } = useQuery({
-    queryKey: ['tasks', workerId, viewMode],
+    queryKey: ['tasks', workerId],
     queryFn: async () => {
       if (!workerId) return {};
-      let query = supabase.from("tasks").select("*").eq("worker", workerId).order("timestamp", { ascending: false });
-      
-      const range = getDateRange();
-      if (range) {
-        query = query.gte('date', range.from).lte('date', range.to);
-      }
+      const query = supabase.from("tasks").select("*").eq("worker", workerId).order("timestamp", { ascending: false });
+
 
       const { data, error } = await query;
       if (error) { toast({ title: "שגיאה בטעינת משימות", description: error.message, variant: "destructive" }); throw error; }
